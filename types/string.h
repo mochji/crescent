@@ -6,13 +6,6 @@
 #define STRING_MIN_FREE_CHARS 8
 #define STRING_MAX_FREE_CHARS 64
 
-typedef size_t        crescent_Integer;
-typedef double        crescent_Float
-typedef unsigned char crescent_Boolean
-
-#define true 1
-#define false 0
-
 typedef struct {
 	size_t length;
 	size_t size;

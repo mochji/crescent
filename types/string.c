@@ -3,27 +3,12 @@
 #include <stddef.h>
 #include <ctype.h>
 
-#include "apierr.h"
-#include "stack.h"
+#include "../utils/apierr.h"
 
 #define STRING_ALLOC_SIZE     64
 
 #define STRING_MIN_FREE_CHARS 8
 #define STRING_MAX_FREE_CHARS 64
-
-typedef size_t        crescent_Integer;
-typedef double        crescent_Float
-typedef unsigned char crescent_Boolean
-
-void crescent_pushInteger(crescent_Stack* stack, crescent_Integer value) {
-	if (sizeof(void*) == 4)
-		crescent_pushStack(stack, 
-	else
-		crescent_pushStack(stack, 
-}
-
-#define true 1
-#define false 0
 
 typedef struct {
 	size_t length;
@@ -62,8 +47,8 @@ void crescent_reallocString(crescent_String* str) {
 		}
 	}
 
-	if (str->size - str->length > STRING_MAX_FREE_CHARS * 2) {
-		str->size -= STRING_MAX_FREE_CHARS;
+	if (str->size - str->length > STRING_MAX_FREE_CHARS) {
+		str->size -= STRING_MAX_FREE_CHARS + STRING_MIN_FREE_CHARS;
 		str->data  = realloc(str->data, str->size);
 
 		if (!str->data) {
@@ -175,7 +160,7 @@ size_t crescent_compareString(crescent_String* strA, crescent_String* strB) {
 	return distance;
 }
 
-size_t crescent_subString(crescent_String* str, size_t start, size_t end) {
+crescent_String* crescent_subString(crescent_String* str, size_t start, size_t end) {
 	crescent_String* subString;
 	crescent_initString(subString);
 
@@ -191,7 +176,10 @@ size_t crescent_subString(crescent_String* str, size_t start, size_t end) {
 		exit(EXIT_FAILURE);
 	}
 
-	// TODO: finish this
+	for (size_t a = start; a < end; a++)
+		crescent_pushChar(subString, str->data[a]);
+
+	return subString;
 }
 
 void crescent_lowerString(crescent_String* str) {
@@ -204,7 +192,7 @@ void crescent_upperString(crescent_String* str) {
 		str->data[a] = toupper(str->data[a]);
 }
 
-void crescent_reverse(crescent_String* str) {
+void crescent_reverseString(crescent_String* str) {
 	char* reversedString;
 	reversedString = malloc(str->length + 1);
 
@@ -216,4 +204,3 @@ void crescent_reverse(crescent_String* str) {
 	crescent_setString(str, reversedString);
 }
 
-// TODO: global sub
