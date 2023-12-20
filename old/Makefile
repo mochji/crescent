@@ -1,6 +1,5 @@
 SOURCE = crescent.c state/*.c types/*.c utils/*.c
-OBJS   = crescent.o state/*.o types/*.o utils/*.h
-HEADER = state/*.h  types/*.h utils/*.h
+OBJS   = *.o
 OUT    = crescent
 
 FLAGS  = -Wall -Wextra -Wpedantic -c

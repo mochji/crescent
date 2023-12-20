@@ -2,23 +2,21 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/apierr.h"
+#include "../prefix.h"
 
-#define STACK_ALLOC_SIZE     64
-
-#define STACK_MIN_FREE_CHARS 8
-#define STACK_MAX_FREE_CHARS 64
+#define STACK_MIN_FREE_BYTES 8
+#define STACK_MAX_FREE_BYTES 64
 
 typedef struct {
-	size_t top;
-	size_t size;
-	char*  data;
+	size_t          top;
+	size_t          size;
+	unsigned char*  data;
 } crescent_Stack;
 
 void crescent_initStack(crescent_Stack* stack) {
 	stack->top  = 0;
-	stack->size = STACK_ALLOC_SIZE;
-	stack->data = malloc(STACK_ALLOC_SIZE);
+	stack->size = STACK_MAX_FREE_BYTES;
+	stack->data = malloc(STACK_MAX_FREE_BYTES);
 
 	if (!stack->data) {
 		crescent_apiError("malloc failure");
@@ -32,9 +30,9 @@ void crescent_freeStack(crescent_Stack* stack) {
 	stack->data = NULL;
 }
 
-void crescent_reallocStack(crescent_Stack* stack) {
-	if (stack->size - stack->top < STACK_MIN_FREE_CHARS) {
-		stack->size += STACK_MAX_FREE_CHARS - STACK_MIN_FREE_CHARS;
+void crescent_reallocStack(crescent_Stack* stack, size_t newTop) {
+	if (stack->size - newTop < STACK_MIN_FREE_BYTES) {
+		stack->size += STACK_MAX_FREE_BYTES - STACK_MIN_FREE_BYTES;
 		stack->data  = realloc(stack->data, stack->size);
 
 		if (!stack->data) {
@@ -44,8 +42,8 @@ void crescent_reallocStack(crescent_Stack* stack) {
 		}
 	}
 
-	if (stack->size - stack->top > STACK_MAX_FREE_CHARS) {
-		stack->size -= STACK_MAX_FREE_CHARS + STACK_MIN_FREE_CHARS;
+	if (stack->size - newTop > STACK_MAX_FREE_BYTES) {
+		stack->size -= STACK_MAX_FREE_BYTES + STACK_MIN_FREE_BYTES;
 		stack->data  = realloc(stack->data, stack->size);
 
 		if (!stack->data) {
@@ -54,12 +52,12 @@ void crescent_reallocStack(crescent_Stack* stack) {
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	stack->top = newTop;
 }
 
 void crescent_stackPush(crescent_Stack* stack, unsigned char* data, size_t size) {
-	stack->top += size;
-
-	crescent_reallocStack(stack);
+	crescent_reallocStack(stack, stack->top + size);
 
 	for (size_t a = stack->top - size; a < stack->top; a++)
 		stack->data[a] = data[a];
@@ -74,7 +72,7 @@ unsigned char* crescent_stackPop(crescent_Stack* stack, size_t size) {
 		stack->data[stack->top - 1 + a] = 0;
 	}
 
-	crescent_reallocStack(stack);
+	crescent_reallocStack(stack, stack->top - size);
 
 	return poppedData;
 }
