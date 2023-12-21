@@ -2,15 +2,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../prefix.h"
-
-#define STACK_MIN_FREE_BYTES 8
-#define STACK_MAX_FREE_BYTES 64
+#include "prefix.h"
+#include "conf.h"
 
 typedef struct {
 	size_t          top;
 	size_t          size;
-	unsigned char*  data;
+	int64_t*        data;
 } crescent_Stack;
 
 void crescent_initStack(crescent_Stack* stack) {
@@ -18,11 +16,8 @@ void crescent_initStack(crescent_Stack* stack) {
 	stack->size = STACK_MAX_FREE_BYTES;
 	stack->data = malloc(STACK_MAX_FREE_BYTES);
 
-	if (!stack->data) {
+	if (!stack->data)
 		crescent_apiError("malloc failure");
-
-		exit(EXIT_FAILURE);
-	}
 }
 
 void crescent_freeStack(crescent_Stack* stack) {
@@ -35,22 +30,16 @@ void crescent_reallocStack(crescent_Stack* stack, size_t newTop) {
 		stack->size += STACK_MAX_FREE_BYTES - STACK_MIN_FREE_BYTES;
 		stack->data  = realloc(stack->data, stack->size);
 
-		if (!stack->data) {
+		if (!stack->data)
 			crescent_apiError("realloc failure");
-
-			exit(EXIT_FAILURE);
-		}
 	}
 
 	if (stack->size - newTop > STACK_MAX_FREE_BYTES) {
 		stack->size -= STACK_MAX_FREE_BYTES + STACK_MIN_FREE_BYTES;
 		stack->data  = realloc(stack->data, stack->size);
 
-		if (!stack->data) {
+		if (!stack->data)
 			crescent_apiError("realloc failure");
-
-			exit(EXIT_FAILURE);
-		}
 	}
 
 	stack->top = newTop;
