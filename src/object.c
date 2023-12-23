@@ -1,10 +1,20 @@
+/*
+ * TODO:
+ *
+ * why am i not doing it now? because ive been up for 14 hours programming.
+ * anyways the thing im gonna do later is split array into its own file and
+ * have the data be a void pointer and then the pointer can be safely cast
+ * to crescent_Object* just like malloc or calloc does.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 
+#include "prefix.h"
 #include "conf.h"
 
-#define crescent_internalError(msg) printf("%s\n", msg)
+#include "table.h"
 
 /*
  * ==================================
@@ -14,19 +24,22 @@
 
 struct crescent_String;
 struct crescent_Array;
+struct crescent_Table;
 
 typedef        int              crescent_Boolean;
 typedef        CRESCENT_INTEGER crescent_Integer;
 typedef        CRESCENT_FLOAT   crescent_Float;
 typedef struct crescent_String  crescent_String;
 typedef struct crescent_Array   crescent_Array;
+typedef struct crescent_Table   crescent_Table;
 
 typedef enum {
 	TYPE_BOOLEAN = 0,
 	TYPE_INTEGER = 1,
 	TYPE_FLOAT   = 2,
 	TYPE_STRING  = 3,
-	TYPE_ARRAY   = 4
+	TYPE_ARRAY   = 4,
+	TYPE_TABLE   = 5
 } crescent_Type;
 
 typedef struct {
@@ -38,6 +51,7 @@ typedef struct {
 		crescent_Float   f;
 		crescent_String* s;
 		crescent_Array*  a;
+		crescent_Table*  t;
 	} value;
 } crescent_Object;
 
@@ -57,6 +71,15 @@ struct crescent_Array {
 	size_t           size;
 	size_t           length;
 	crescent_Object* data;
+};
+
+struct crescent_Table {
+	size_t           size;
+	size_t           length;
+	struct crescent_KVP {
+		char*           key;
+		crescent_Object value;
+	} entries;
 };
 
 /*
@@ -191,9 +214,3 @@ crescent_cloneObject(crescent_Object* object) {
 
 	return newObject;
 }
-
-/*
- * ==================================
- * Object <-> Stack interaction
- * ==================================
-*/
