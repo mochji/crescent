@@ -61,22 +61,13 @@
 #define CRESCENT_TYPE_FLOAT64 double
 
 /*
- * @R CRESCENT_STACK_GROWTHFACTOR
- *
- * Controls the value that the Crescent stack will multiply the current size
- * by when reallocating memory.
- */
-
-#define CRESCENT_STACK_GROWTHFACTOR 2
-
-/*
  * @R CRESCENT_STACK_MAXFREE
  *
  * Controls the maximum amount of free items in the Crescent stack before being
  * reallocated to free memory.
  */
 
-#define CRESCENT_STACK_MAXFREE 128
+#define CRESCENT_STACK_MAXFREE 256
 
 /*
  * @R CRESCENT_STACK_MINFREE
@@ -85,7 +76,7 @@
  * reallocated for more memory.
  */
 
-#define CRESCENT_STACK_MINFREE 16
+#define CRESCENT_STACK_MINFREE 32
 
 /*
  * ==================================
@@ -93,16 +84,20 @@
  * ==================================
  */
 
-#if   SIZE_MAX == 0xFFFFFFFF         && !defined(CRESCENT_BITNESS)
+#if SIZE_MAX == 0xFFFFFFFF && !defined(CRESCENT_BITNESS)
 	#define CRESCENT_BITNESS 32
-	#define CRESCENT_INTEGER CRESCENT_TYPE_INT32
-	#define CRESCENT_FLOAT   CRESCENT_TYPE_FLOAT32
 #elif SIZE_MAX == 0xFFFFFFFFFFFFFFFF && !defined(CRESCENT_BITNESS)
 	#define CRESCENT_BITNESS 64
-	#define CRESCENT_INTEGER CRESCENT_TYPE_FLOAT32
-	#define CRESCENT_FLOAT   CRESCENT_TYPE_FLOAT64
 #elif !defined(CRESCENT_BITNESS)
 	#error "Platform is not 32 or 64 bit, manually define CRESCENT_BITNESS if this is a mistake."
+#endif
+
+#if CRESCENT_BITNESS == 32
+	#define CRESCENT_INTEGER CRESCENT_TYPE_INT32
+	#define CRESCENT_FLOAT CRESCENT_TYPE_FLOAT32
+#else
+	#define CRESCENT_INTEGER CRESCENT_TYPE_INT64
+	#define CRESCENT_FLOAT CRESCENT_TYPE_FLOAT64
 #endif
 
 #endif
