@@ -1,12 +1,10 @@
 #ifndef CORE_OBJECT_H
 #define CORE_OBJECT_H
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdint.h>
+#include "../conf.h"
 
-typedef int64_t crescent_Integer;
-typedef double  crescent_Float;
+typedef CRESCENT_INTEGER crescent_Integer;
+typedef CRESCENT_FLOAT   crescent_Float;
 
 enum crescent_Type {
 	CRESCENT_TINTEGER,
