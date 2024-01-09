@@ -1,3 +1,24 @@
+/*
+ * https://github.com/mochji/crescent
+ * core/state.c
+ *
+ * idrk what this is
+ * Copyright (C) 2024 mochji
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdlib.h>
 #include <stddef.h>
 
@@ -13,56 +34,3 @@ struct crescent_State {
 		crescent_Object* data;
 	} stack;
 };
-
-typedef struct crescent_State crescent_State;
-
-static void
-crescent_resizeStack(crescent_State* state, int addAmount) {
-	if (-addAmount > state->stack.pointer) {
-		abort();
-	}
-
-	size_t newPointer = state->stack.pointer + addAmount;
-
-	if (newPointer > state->stack.pointer || state->stack.size - newPointer <= CRESCENT_STACK_MINFREE) {
-		state->stack.size = newPointer + CRESCENT_STACK_MAXFREE;
-		state->stack.data = realloc(state->stack.data, state->stack.size);
-
-		if (state->stack.data == NULL) {
-			abort();
-		}
-	} else if (state->stack.size - newPointer >= CRESCENT_STACK_MAXFREE) {
-		state->stack.size = newPointer + CRESCENT_STACK_MINFREE;
-		state->stack.data = realloc(state->stack.data, state->stack.size);
-
-		if (state->stack.data == NULL) {
-			abort();
-		}
-	}
-}
-
-crescent_State
-crescent_openState() {
-	crescent_State* state = malloc(sizeof(crescent_State));
-
-	if (state == NULL) {
-		abort();
-	}
-
-	state->stack.size    = CRESCENT_STACK_INITSIZE;
-	state->stack.base    = 0;
-	state->stack.pointer = 0;
-	state->stack.data    = calloc(state->stack.size, sizeof(crescent_Object));
-
-	if (state->stack.data == NULL) {
-		free(state);
-
-		abort();
-	}
-
-	return state;
-}
-
-void
-crescent_closeState() {
-}
