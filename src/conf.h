@@ -40,12 +40,12 @@
  */
 
 /*
- * @ CRESCENT_BITNESS
+ * @ CRESCENT_PLATFORM_BITNESS
  *
  * Un-comment and change this only if the automatic bitness detection fails
  */
 
-/* #define CRESCENT_BITNESS 32 */
+/* #define CRESCENT_PLATFORM_BITNESS 32 */
 
 /*
  * ============================================================================
@@ -79,6 +79,25 @@
 
 /*
  * ============================================================================
+ * Crescent string configuration
+ *
+ * Definitions that control the behavior Crescent strings.
+ * ============================================================================
+ */
+
+/*
+ * @ CRESCENT_STRING_MAXFREE
+ * @ CRESCENT_STRING_MINFREE
+ *
+ * Controls the maximum and minimum free items in a Crescent string before
+ * being reallocated.
+ */
+
+#define CRESCENT_STRING_MAXFREE 64
+#define CRESCENT_STRING_MINFREE 16
+
+/*
+ * ============================================================================
  * Crescent stack configuration
  *
  * Definitions that control the behavior of the Crescent stack, especially
@@ -96,6 +115,15 @@
 
 #define CRESCENT_STACK_MAXFREE 64
 #define CRESCENT_STACK_MINFREE 16
+
+/*
+ * @ CRESCENT_STACK_ALLOCSPACE
+ *
+ * Controls the amount of space between the maximum / minimum amount of free
+ * items on the Crescent stack when reallocated.
+ */
+
+#define CRESCENT_STACK_ALLOCSPACE 16
 
 /*
  * ============================================================================
@@ -171,24 +199,27 @@
 
 
 
-#ifndef CRESCENT_BITNESS
+#ifndef CRESCENT_PLATFORM_BITNESS
 #	if   SIZE_MAX == 0xFFFFFFFF
-#		define CRESCENT_BITNESS 32
+#		define CRESCENT_PLATFORM_BITNESS 32
 #	elif SIZE_MAX == 0xFFFFFFFFFFFFFFFF
-#		define CRESCENT_BITNESS 64
+#		define CRESCENT_PLATFORM_BITNESS 64
 #	else
-#		error "Crescent is only supported for 32-bit and 64-bit platforms. Manually un-comment and define 'CRESCENT_BITNESS' in conf.h if this is an error."
+#		error "Crescent is only supported for 32-bit and 64-bit platforms. " \
+		"Manually un-comment and define 'CRESCENT_PLATFORM_BITNESS' in conf.h if this is an error."
 #	endif
 #endif
 
-#if   CRESCENT_BITNESS == 32
+#if   CRESCENT_PLATFORM_BITNESS == 32
 #	define CRESCENT_TYPE_INTEGER CRESCENT_TYPE_INTEGER32
 #	define CRESCENT_TYPE_FLOAT   CRESCENT_TYPE_FLOAT32
-#elif CRESCENT_BITNESS == 64
+#elif CRESCENT_PLATFORM_BITNESS == 64
 #	define CRESCENT_TYPE_INTEGER CRESCENT_TYPE_INTEGER64
 #	define CRESCENT_TYPE_FLOAT   CRESCENT_TYPE_FLOAT64
 #else
 #	error "Crescent is only supported for 32-bit and 64-bit platforms."
 #endif
+
+#define CRESCENT_STACK_INITSIZE (CRESCENT_STACK_MAXFREE - CRESCENT_STACK_ALLOCSPACE)
 
 #endif
