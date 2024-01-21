@@ -79,25 +79,6 @@
 
 /*
  * ============================================================================
- * Crescent string configuration
- *
- * Definitions that control the behavior Crescent strings.
- * ============================================================================
- */
-
-/*
- * @ CRESCENT_STRING_MAXFREE
- * @ CRESCENT_STRING_MINFREE
- *
- * Controls the maximum and minimum free items in a Crescent string before
- * being reallocated.
- */
-
-#define CRESCENT_STRING_MAXFREE 64
-#define CRESCENT_STRING_MINFREE 16
-
-/*
- * ============================================================================
  * Crescent stack configuration
  *
  * Definitions that control the behavior of the Crescent stack, especially
