@@ -8,8 +8,8 @@ typedef CRESCENT_TYPE_FLOAT   crescent_Float;
 
 enum
 crescent_Type {
-	CRESCENT_TINTEGER,
-	CRESCENT_TFLOAT
+	TYPE_INTEGER,
+	TYPE_FLOAT
 };
 
 union
