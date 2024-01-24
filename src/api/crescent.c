@@ -176,6 +176,8 @@ crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
 			return (crescent_Integer)object->value.f;
 
 			break;
+		default:
+			return 0;
 	}
 
 	return 0;
@@ -206,9 +208,9 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
 			return (crescent_Float)object->value.i;
 
 			break;
+		default:
+			return 0;
 	}
-
-	return 0;
 }
 
 crescent_Integer
