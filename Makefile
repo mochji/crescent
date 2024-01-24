@@ -7,7 +7,7 @@ MAIN   = $(SRC)/crescent.c
 
 STD    = c99
 CC     = gcc
-CFLAGS = -Wall -Wextra -Wpedantic -std=$(STD) -I$(SRC)
+CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=$(STD) -I$(SRC)
 
 TARGET = $(BUILD)/crescent
 
