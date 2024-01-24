@@ -150,3 +150,73 @@ crescent_isNil(crescent_State* state, size_t index) {
 
 	return state->stack.data[index - 1].type == CRESCENT_TYPE_NIL;
 }
+
+crescent_Integer
+crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
+	if (isInteger) {
+		*isInteger = 0;
+	}
+
+	if (index == 0 || index > state->stack.top) {
+		return 0;
+	}
+
+	crescent_Object* object = &state->stack.data[index];
+
+	switch (object->type) {
+		case CRESCENT_TYPE_INTEGER:
+			if (isInteger) {
+				*isInteger = 1;
+			}
+
+			return object->value.i;
+
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			return (crescent_Integer)object->value.f;
+
+			break;
+	}
+
+	return 0;
+}
+
+crescent_Float
+crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
+	if (isFloat) {
+		*isFloat = 0;
+	}
+
+	if (index == 0 || index > state->stack.top) {
+		return 0;
+	}
+
+	crescent_Object* object = &state->stack.data[index];
+
+	switch (object->type) {
+		case CRESCENT_TYPE_FLOAT:
+			if (isFloat) {
+				*isFloat = 1;
+			}
+
+			return object->value.f;
+
+			break;
+		case CRESCENT_TYPE_INTEGER:
+			return (crescent_Float)object->value.i;
+
+			break;
+	}
+
+	return 0;
+}
+
+crescent_Integer
+crescent_toInteger(crescent_State* state, size_t index) {
+	return crescent_toIntegerX(state, index, NULL);
+}
+
+crescent_Float
+crescent_toFloat(crescent_State* state, size_t index) {
+	return crescent_toFloatX(state, index, NULL);
+}

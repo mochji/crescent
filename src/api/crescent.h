@@ -57,4 +57,16 @@ crescent_isFloat(crescent_State* state, size_t index);
 extern int
 crescent_isNil(crescent_State* state, size_t index);
 
+extern crescent_Integer
+crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
+
+extern crescent_Float
+crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
+
+extern crescent_Integer
+crescent_toInteger(crescent_State* state, size_t index);
+
+extern crescent_Float
+crescent_toFloat(crescent_State* state, size_t index);
+
 #endif
