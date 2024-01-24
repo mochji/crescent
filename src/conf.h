@@ -32,6 +32,30 @@
 
 /*
  * ============================================================================
+ * Crescent configuration
+ *
+ * These definitions contain stuff such as Crescent version, copyright
+ * information, etc. These do not need to be changed.
+ * ============================================================================
+ */
+
+#define CRESCENT_VERSION_MAJOR 0
+#define CRESCENT_VERSION_MINOR 0
+#define CRESCENT_VERSION_PATCH 0
+
+#define CRESCENT_VERSION (CRESCENT_VERSION_MAJOR * 10 + CRESCENT_VERSION_MINOR * 1)
+#define CRESCENT_RELEASE (CRESCENT_VERSION * 10 + CRESCENT_VERSION_PATCH)
+
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+#define CRESCENT_VERSION_STR STR(CRESCENT_VERSION_MAJOR) "." STR(CRESCENT_VERSION_MINOR)
+#define CRESCENT_RELEASE_STR CRESCENT_VERSION_STR "." STR(CRESCENT_VERSION_PATCH)
+
+#define CRESCENT_INTERACTIVE_STR "Crescent " CRESCENT_RELEASE_STR "  Copyright (C) 2024 mochji\n"
+
+/*
+ * ============================================================================
  * Platform configuration
  *
  * Change these definitions, if needed, to compile Crescent for a particular
@@ -40,12 +64,12 @@
  */
 
 /*
- * @ CRESCENT_PLATFORM_BITNESS
+ * @ CRESCENT_CONF_BITNESS
  *
  * Un-comment and change this only if the automatic bitness detection fails
  */
 
-/* #define CRESCENT_PLATFORM_BITNESS 32 */
+/* #define CRESCENT_CONF_BITNESS 64 */
 
 /*
  * ============================================================================
@@ -56,55 +80,46 @@
  */
 
 /*
- * @ CRESCENT_TYPE_INTEGER32
- * @ CRESCENT_TYPE_FLOAT32
+ * @ CRESCENT_CONF_INTEGER32
+ * @ CRESCENT_CONF_FLOAT32
  *
  * Types of crescent_Integer and crescent_Float respectively on a 32-bit
  * platform.
  */
 
-#define CRESCENT_TYPE_INTEGER32 int32_t
-#define CRESCENT_TYPE_FLOAT32   float
+#define CRESCENT_CONF_INTEGER32 int32_t
+#define CRESCENT_CONF_FLOAT32   float
 
 /*
- * @ CRESCENT_TYPE_INTEGER64
- * @ CRESCENT_TYPE_FLOAT64
+ * @ CRESCENT_CONF_INTEGER64
+ * @ CRESCENT_CONF_FLOAT64
  *
  * Types of crescent_Integer and crescent_Float respectively on a 64-bit
  * platform.
  */
 
-#define CRESCENT_TYPE_INTEGER64 int64_t
-#define CRESCENT_TYPE_FLOAT64   double
+#define CRESCENT_CONF_INTEGER64 int64_t
+#define CRESCENT_CONF_FLOAT64   double
 
 /*
  * ============================================================================
  * Crescent stack configuration
  *
- * Definitions that control the behavior of the Crescent stack, especially
- * memory allocation.
+ * Definitions that control the behavior of the Crescent stack, mainly memory
+ * allocation.
  * ============================================================================
  */
 
 /*
- * @ CRESCENT_STACK_MAXFREE
- * @ CRESCENT_STACK_MINFREE
+ * @ CRESCENT_CONF_STACK_MAXFREE
+ * @ CRESCENT_CONF_STACK_MINFREE
  *
  * Controls the maximum and minimum free items on the Crescent stack before
  * being reallocated.
  */
 
-#define CRESCENT_STACK_MAXFREE 64
-#define CRESCENT_STACK_MINFREE 16
-
-/*
- * @ CRESCENT_STACK_ALLOCSPACE
- *
- * Controls the amount of space between the maximum / minimum amount of free
- * items on the Crescent stack when reallocated.
- */
-
-#define CRESCENT_STACK_ALLOCSPACE 16
+#define CRESCENT_CONF_STACK_MAXFREE 64
+#define CRESCENT_CONF_STACK_MINFREE 16
 
 /*
  * ============================================================================
@@ -180,27 +195,24 @@
 
 
 
-#ifndef CRESCENT_PLATFORM_BITNESS
+#ifndef CRESCENT_CONF_BITNESS
 #	if   SIZE_MAX == 0xFFFFFFFF
-#		define CRESCENT_PLATFORM_BITNESS 32
+#		define CRESCENT_CONF_BITNESS 32
 #	elif SIZE_MAX == 0xFFFFFFFFFFFFFFFF
-#		define CRESCENT_PLATFORM_BITNESS 64
+#		define CRESCENT_CONF_BITNESS 64
 #	else
-#		error "Crescent is only supported for 32-bit and 64-bit platforms. " \
-		"Manually un-comment and define 'CRESCENT_PLATFORM_BITNESS' in conf.h if this is an error."
+#		error Crescent is only supported for 32-bit and 64-bit platforms. Manually un-comment and define 'CRESCENT_PLATFORM_BITNESS' in conf.h if this is an error.
 #	endif
 #endif
 
-#if   CRESCENT_PLATFORM_BITNESS == 32
-#	define CRESCENT_TYPE_INTEGER CRESCENT_TYPE_INTEGER32
-#	define CRESCENT_TYPE_FLOAT   CRESCENT_TYPE_FLOAT32
-#elif CRESCENT_PLATFORM_BITNESS == 64
-#	define CRESCENT_TYPE_INTEGER CRESCENT_TYPE_INTEGER64
-#	define CRESCENT_TYPE_FLOAT   CRESCENT_TYPE_FLOAT64
+#if   CRESCENT_CONF_BITNESS == 32
+#	define CRESCENT_CONF_INTEGER CRESCENT_CONF_INTEGER32
+#	define CRESCENT_CONF_FLOAT   CRESCENT_CONF_FLOAT32
+#elif CRESCENT_CONF_BITNESS == 64
+#	define CRESCENT_CONF_INTEGER CRESCENT_CONF_INTEGER64
+#	define CRESCENT_CONF_FLOAT   CRESCENT_CONF_FLOAT64
 #else
-#	error "Crescent is only supported for 32-bit and 64-bit platforms."
+#	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif
-
-#define CRESCENT_STACK_INITSIZE (CRESCENT_STACK_MAXFREE - CRESCENT_STACK_ALLOCSPACE)
 
 #endif
