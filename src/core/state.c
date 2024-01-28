@@ -21,18 +21,46 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <setjmp.h>
 
 #include "conf.h"
 
 #include "core/object.h"
 
-struct
-crescent_State {
-	struct Stack {
-		size_t                  size;
-		size_t                  top;
-		struct crescent_Object* data;
-	} stack;
+enum
+crescent_Status {
+	CRESCENT_STATUS_OK,
+	CRESCENT_STATUS_ERR,
+	CRESCENT_STATUS_ERRRUN,
+	CRESCENT_STATUS_ERRMEM
 };
 
-typedef struct crescent_State crescent_State;
+struct
+crescent_ErrorJump {
+	jmp_buf              buffer;
+	enum crescent_Status status;
+};
+
+struct
+crescent_Frame {
+	size_t                 base;
+	size_t                 top;
+	struct crescent_Frame* next;
+	struct crescent_Frame* previous;
+};
+
+struct
+crescent_State {
+	struct {
+		size_t                  size;
+		size_t                  frameCount;
+		struct crescent_Object* data;
+		struct crescent_Frame*  frames;
+		struct crescent_Frame*  topFrame;
+	} stack;
+	struct crescent_ErrorJump* errJump;
+};
+
+typedef enum   crescent_Status crescent_Status;
+typedef struct crescent_Frame  crescent_Frame;
+typedef struct crescent_State  crescent_State;
