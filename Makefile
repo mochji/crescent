@@ -1,3 +1,4 @@
+ifdef YOWZA
 SRC    = src
 BUILD  = build
 CORE   = $(SRC)/core
@@ -10,6 +11,10 @@ CC     = gcc
 CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=$(STD) -I$(SRC)
 
 TARGET = $(BUILD)/crescent
+
+ifndef BUILD
+	$(error BUILD not set)
+endif
 
 $(shell mkdir -p $(BUILD))
 
@@ -31,4 +36,5 @@ $(BUILDDIR):
 .PHONY: clean
 
 clean:
-	rm -rf $(BUILD)/*
+	rm -f $(BUILD)/*
+endif
