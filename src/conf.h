@@ -52,8 +52,6 @@
 #define CRESCENT_VERSION_STR STR(CRESCENT_VERSION_MAJOR) "." STR(CRESCENT_VERSION_MINOR)
 #define CRESCENT_RELEASE_STR CRESCENT_VERSION_STR "." STR(CRESCENT_VERSION_PATCH)
 
-#define CRESCENT_INTERACTIVE_STR "Crescent " CRESCENT_RELEASE_STR "  Copyright (C) 2024 mochji\n"
-
 /*
  * ============================================================================
  * Platform configuration
@@ -111,15 +109,12 @@
  */
 
 /*
- * @ CRESCENT_CONF_STACK_MAXFREE
- * @ CRESCENT_CONF_STACK_MINFREE
+ * @ CRESCENT_CONF_STACK_INITSIZE
  *
- * Controls the maximum and minimum free items on the Crescent stack before
- * being reallocated.
+ * Controls the initial size of the Crescent stack when first allocated.
  */
 
-#define CRESCENT_CONF_STACK_MAXFREE 64
-#define CRESCENT_CONF_STACK_MINFREE 16
+#define CRESCENT_CONF_STACK_INITSIZE 64
 
 /*
  * ============================================================================
