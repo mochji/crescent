@@ -117,6 +117,17 @@
 #define CRESCENT_CONF_STACK_INITSIZE 64
 
 /*
+ * @ CRESCENT_CONF_STACK_GROWTHRESHOLD
+ * @ CRESCENT_CONF_STACK_SHRINKTHRESHOLD
+ *
+ * Controls the percentage of the top to size ratio of the Crescent stack must
+ * be when growing or shrinking respectively.
+ */
+
+#define CRESCENT_CONF_STACK_GROWTHRESHOLD 80
+#define CRESCENT_CONF_STACK_SHRINKTHRESHOLD 40
+
+/*
  * ============================================================================
  * End of configurable definitions
  * ============================================================================
@@ -201,11 +212,13 @@
 #endif
 
 #if   CRESCENT_CONF_BITNESS == 32
-#	define CRESCENT_CONF_INTEGER CRESCENT_CONF_INTEGER32
-#	define CRESCENT_CONF_FLOAT   CRESCENT_CONF_FLOAT32
+#	define CRESCENT_CONF_INTEGER   CRESCENT_CONF_INTEGER32
+#	define CRESCENT_CONF_FLOAT     CRESCENT_CONF_FLOAT32
+#	define CRESCENT_CONF_STACK_MAX CRESCENT_CONF_STACK_MAX32
 #elif CRESCENT_CONF_BITNESS == 64
 #	define CRESCENT_CONF_INTEGER CRESCENT_CONF_INTEGER64
 #	define CRESCENT_CONF_FLOAT   CRESCENT_CONF_FLOAT64
+#	define CRESCENT_CONF_STACK_MAX CRESCENT_CONF_STACK_MAX64
 #else
 #	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif

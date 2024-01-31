@@ -24,19 +24,22 @@
 
 #include "conf.h"
 
+typedef int                   crescent_Boolean;
 typedef CRESCENT_CONF_INTEGER crescent_Integer;
 typedef CRESCENT_CONF_FLOAT   crescent_Float;
 
 enum
 crescent_Type {
-	CRESCENT_TYPE_NOVALUE,
+	CRESCENT_TYPE_NONE,
 	CRESCENT_TYPE_NIL,
+	CRESCENT_TYPE_BOOLEAN,
 	CRESCENT_TYPE_INTEGER,
 	CRESCENT_TYPE_FLOAT
 };
 
 union
 crescent_Value {
+	crescent_Boolean b;
 	crescent_Integer i;
 	crescent_Float   f;
 };

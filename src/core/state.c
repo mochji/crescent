@@ -31,8 +31,7 @@ enum
 crescent_Status {
 	CRESCENT_STATUS_OK,
 	CRESCENT_STATUS_ERR,
-	CRESCENT_STATUS_ERRRUN,
-	CRESCENT_STATUS_ERRMEM
+	CRESCENT_STATUS_NOMEM
 };
 
 struct
@@ -58,9 +57,19 @@ crescent_State {
 		struct crescent_Frame*  frames;
 		struct crescent_Frame*  topFrame;
 	} stack;
-	struct crescent_ErrorJump* errJump;
+	struct crescent_ErrorJump*   errorJump;
+	struct crescent_GlobalState* globalState;
 };
 
-typedef enum   crescent_Status crescent_Status;
-typedef struct crescent_Frame  crescent_Frame;
-typedef struct crescent_State  crescent_State;
+struct
+crescent_GlobalState {
+	size_t                 threadCount;
+	struct crescent_State* threads;
+	int                  (*panic)(crescent_GlobalState*);
+};
+
+typedef enum   crescent_Status      crescent_Status;
+typedef struct crescent_ErrorJump   crescent_ErrorJump;
+typedef struct crescent_Frame       crescent_Frame;
+typedef struct crescent_State       crescent_State;
+typedef struct crescent_GlobalState crescent_GlobalState;
