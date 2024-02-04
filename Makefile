@@ -1,20 +1,19 @@
-ifdef YOWZA
-SRC    = src
-BUILD  = build
-CORE   = $(SRC)/core
-API    = $(SRC)/api
+SRC       = src
+BUILD     = build
+CORE      = $(SRC)/core
+API       = $(SRC)/api
 
-MAIN   = $(SRC)/crescent.c
+MAIN      = $(SRC)/crescent.c
 
-STD    = c99
-CC     = gcc
-CFLAGS = -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -std=$(STD) -I$(SRC)
+STD       = c99
+CC        = gcc
+CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
 
-TARGET = $(BUILD)/crescent
+TARGET    = $(BUILD)/crescent
 
-ifndef BUILD
-	$(error BUILD not set)
-endif
+CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
+
+$(foreach var,$(CHECK_VARS),$(if $($(var)),,$(error $(var) not set)))
 
 $(shell mkdir -p $(BUILD))
 
@@ -37,4 +36,3 @@ $(BUILDDIR):
 
 clean:
 	rm -f $(BUILD)/*
-endif
