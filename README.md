@@ -1,3 +1,3 @@
-### this is a test!!
+### this is in development!
 
-this is a testing thing im working on, dont really know what im gonna do with it
+idk what this is going to turn into, this is mainly a test!
