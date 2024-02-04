@@ -26,50 +26,96 @@
 #include "conf.h"
 
 #include "core/object.h"
+#include "core/state.h"
 
-enum
-crescent_Status {
-	CRESCENT_STATUS_OK,
-	CRESCENT_STATUS_ERR,
-	CRESCENT_STATUS_NOMEM
-};
+crescent_GState*
+crescentG_blankGState() {
+	crescent_GState* gState = malloc(sizeof(crescent_GState));
 
-struct
-crescent_ErrorJump {
-	jmp_buf              buffer;
-	enum crescent_Status status;
-};
+	if (gState == NULL) {
+		return NULL;
+	}
 
-struct
-crescent_Frame {
-	size_t                 base;
-	size_t                 top;
-	struct crescent_Frame* next;
-	struct crescent_Frame* previous;
-};
+	gState->threadCount = 0;
+	gState->threads     = malloc(4 * sizeof(crescent_Frame*));
+	gState->baseThread  = NULL;
+	gState->panic       = NULL;
 
-struct
-crescent_State {
-	struct {
-		size_t                  size;
-		size_t                  frameCount;
-		struct crescent_Object* data;
-		struct crescent_Frame*  frames;
-		struct crescent_Frame*  topFrame;
-	} stack;
-	struct crescent_ErrorJump*   errorJump;
-	struct crescent_GlobalState* globalState;
-};
+	if (gState->threads == NULL) {
+		free(gState);
 
-struct
-crescent_GlobalState {
-	size_t                 threadCount;
-	struct crescent_State* threads;
-	int                  (*panic)(crescent_GlobalState*);
-};
+		return NULL;
+	}
 
-typedef enum   crescent_Status      crescent_Status;
-typedef struct crescent_ErrorJump   crescent_ErrorJump;
-typedef struct crescent_Frame       crescent_Frame;
-typedef struct crescent_State       crescent_State;
-typedef struct crescent_GlobalState crescent_GlobalState;
+	return gState;
+}
+
+void
+crescentG_closeGState(crescent_GState* gState) {
+	crescent_State* currentState;
+
+	for (size_t a = 0; a < gState->threadCount; a++) {
+		currentState = gState->threads[a];
+
+		if (currentState == NULL) {
+			continue;
+		}
+
+		for (size_t b = 0; b < currentState->stack.frameCount; b++) {
+			free(currentState->stack.frames[b]);
+		}
+
+		free(currentState->stack.frames);
+		free(currentState->stack.data);
+		free(currentState);
+	}
+
+	free(gState->threads);
+	free(gState);
+}
+
+crescent_State*
+crescentG_blankLState() {
+	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_ErrorJump));
+
+	if (state == NULL) {
+		return NULL;
+	}
+
+	state->stack.size = CRESCENT_CONF_STACK_INITSIZE;
+	state->stack.data = calloc(state->stack.size, sizeof(crescent_Object));
+
+	if (state->stack.data == NULL) {
+		free(state);
+
+		return NULL;
+	}
+
+	state->stack.frameCount = 0;
+	state->stack.frames     = calloc(4, sizeof(crescent_Frame*));
+	state->stack.topFrame   = NULL;
+
+	if (state->stack.frames == NULL) {
+		free(state->stack.data);
+		free(state);
+
+		return NULL;
+	}
+
+	state->threadIndex = 0;
+	state->errorJump   = NULL;
+	state->gState      = NULL;
+
+	return state;
+}
+
+void
+crescentG_closeLState(crescent_State* state) {
+	for (size_t a = 0; a < state->stack.frameCount; a++) {
+		free(state->stack.frames[a]);
+	}
+
+	free(state->stack.frames);
+	free(state->stack.data);
+	free(state);
+}

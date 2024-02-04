@@ -33,8 +33,8 @@
 enum
 crescent_Status {
 	CRESCENT_STATUS_OK,
-	CRESCENT_STATUS_ERR,
-	CRESCENT_STATUS_NOMEM
+	CRESCENT_STATUS_ERRRUN,
+	CRESCENT_STATUS_ERRMEM
 };
 
 struct
@@ -57,24 +57,38 @@ crescent_State {
 		size_t                  size;
 		size_t                  frameCount;
 		struct crescent_Object* data;
-		struct crescent_Frame*  frames;
+		struct crescent_Frame** frames;
 		struct crescent_Frame*  topFrame;
 	} stack;
-	struct crescent_ErrorJump*   errorJump;
-	struct crescent_GlobalState* globalState;
+	size_t                     threadIndex;
+	struct crescent_ErrorJump* errorJump;
+	struct crescent_GState*    gState;
 };
 
 struct
-crescent_GlobalState {
-	size_t                 threadCount;
-	struct crescent_State* threads;
-	int                  (*panic)(crescent_GlobalState*);
+crescent_GState {
+	size_t                  threadCount;
+	struct crescent_State** threads;
+	struct crescent_State*  baseThread;
+	void                  (*panic)(struct crescent_State*);
 };
 
-typedef enum   crescent_Status      crescent_Status;
-typedef struct crescent_ErrorJump   crescent_ErrorJump;
-typedef struct crescent_Frame       crescent_Frame;
-typedef struct crescent_State       crescent_State;
-typedef struct crescent_GlobalState crescent_GlobalState;
+typedef enum   crescent_Status    crescent_Status;
+typedef struct crescent_ErrorJump crescent_ErrorJump;
+typedef struct crescent_Frame     crescent_Frame;
+typedef struct crescent_State     crescent_State;
+typedef struct crescent_GState    crescent_GState;
+
+extern crescent_GState*
+crescentG_blankGState();
+
+extern void
+crescentG_closeGState(crescent_GState* gState);
+
+extern crescent_State*
+crescentG_blankLState();
+
+extern void
+crescentG_closeLState(crescent_State* state);
 
 #endif
