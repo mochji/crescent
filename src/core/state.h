@@ -56,6 +56,7 @@ crescent_State {
 	struct {
 		size_t                  size;
 		size_t                  frameCount;
+		size_t                  maxFrames;
 		struct crescent_Object* data;
 		struct crescent_Frame** frames;
 		struct crescent_Frame*  topFrame;
@@ -68,6 +69,7 @@ crescent_State {
 struct
 crescent_GState {
 	size_t                  threadCount;
+	size_t                  maxThreads;
 	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
 	void                  (*panic)(struct crescent_State*);
