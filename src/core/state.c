@@ -119,10 +119,25 @@ crescentG_blankLState() {
 void
 crescentG_closeLState(crescent_State* state) {
 	for (size_t a = 0; a < state->stack.frameCount; a++) {
+		if (state->stack.frames[a] == NULL) {
+			continue;
+		}
+
 		free(state->stack.frames[a]);
 	}
 
 	free(state->stack.frames);
 	free(state->stack.data);
 	free(state);
+}
+
+inline size_t
+crescentG_nextThreadIndex(crescent_GState* gState) {
+	for (size_t a = 0; a < gState->maxThreads; a++) {
+		if (gState->threads[a] == NULL) {
+			return a;
+		}
+	}
+
+	return gState->maxThreads;
 }
