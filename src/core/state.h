@@ -93,4 +93,7 @@ crescentG_blankLState();
 extern void
 crescentG_closeLState(crescent_State* state);
 
+extern inline size_t
+crescentG_nextThreadIndex(crescent_GState* gState);
+
 #endif
