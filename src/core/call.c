@@ -36,11 +36,11 @@ crescentC_throw(crescent_State* state, crescent_Status status) {
 
 	if (state->errorJump != NULL) {
 		state->errorJump->status = status;
-		longjmp(state->errorJump->buffer);
+		longjmp(state->errorJump->buffer, 1);
 	}
 
 	if (gState->panic != NULL) {
-		(*gState->panic)(gState);
+		(*gState->panic)(state);
 	}
 
 	abort();
@@ -48,7 +48,7 @@ crescentC_throw(crescent_State* state, crescent_Status status) {
 
 inline int
 crescentC_stackUsage(crescent_State* state) {
-	size_t absoluteTop = state->stack.topFrame->base state->stack.topFrame->top;
+	size_t absoluteTop = state->stack.topFrame->base - state->stack.topFrame->top;
 
 	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
 }
@@ -60,7 +60,7 @@ crescentC_absoluteIndex(crescent_State* state, size_t index) {
 
 void
 crescentC_resizeStack(crescent_State* state, size_t newTop) {
-	size_t absoluteTop = state->stack.topFrame->base state->stack.topFrame->top;
+	size_t absoluteTop = state->stack.topFrame->base - state->stack.topFrame->top;
 
 	if (state->stack.size >= absoluteTop) {
 		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
@@ -105,7 +105,7 @@ crescentC_pushFrame(crescent_State* state) {
 		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames);
 
 		if (newFrames == NULL) {
-			crescentC_throw(state, CRESCENT_STATUS_MEMERR);
+			crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 		}
 
 		state->stack.maxFrames = newMaxFrames;
@@ -116,7 +116,7 @@ crescentC_pushFrame(crescent_State* state) {
 	crescent_Frame* lastFrame = state->stack.topFrame;
 
 	if (topFrame == NULL) {
-		crescentC_throw(state, CRESCENT_STATUS_MEMERR);
+		crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 	}
 
 	if (lastFrame != NULL) {
@@ -131,5 +131,5 @@ crescentC_pushFrame(crescent_State* state) {
 
 void
 crescentC_popFrame(crescent_State* state) {
-	/* TODO: implement */
+	/* FIXME: implement */
 }
