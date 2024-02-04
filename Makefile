@@ -33,6 +33,10 @@ $(BUILDDIR):
 	mkdir $(BUILD)
 
 .PHONY: clean
+.PHONY: todo
 
 clean:
 	rm -f $(BUILD)/*
+
+todo:
+	grep -rnH --color=auto --include "*.c" --include "*.h" "TODO:"
