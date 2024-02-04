@@ -37,6 +37,7 @@ crescentG_blankGState() {
 	}
 
 	gState->threadCount = 0;
+	gState->maxThreads  = 4;
 	gState->threads     = malloc(4 * sizeof(crescent_Frame*));
 	gState->baseThread  = NULL;
 	gState->panic       = NULL;
@@ -92,6 +93,7 @@ crescentG_blankLState() {
 	}
 
 	state->stack.frameCount = 0;
+	state->stack.maxFrames  = 4;
 	state->stack.frames     = calloc(4, sizeof(crescent_Frame*));
 	state->stack.topFrame   = NULL;
 
@@ -101,6 +103,11 @@ crescentG_blankLState() {
 
 		return NULL;
 	}
+
+	state->stack.topFrame->base     = 0;
+	state->stack.topFrame->top      = 0;
+	state->stack.topFrame->next     = NULL;
+	state->stack.topFrame->previous = NULL;
 
 	state->threadIndex = 0;
 	state->errorJump   = NULL;
