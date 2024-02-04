@@ -121,7 +121,7 @@
  * @ CRESCENT_CONF_STACK_SHRINKTHRESHOLD
  *
  * Controls the percentage of the top to size ratio of the Crescent stack must
- * be when growing or shrinking respectively.
+ * exceed when growing or shrinking respectively.
  */
 
 #define CRESCENT_CONF_STACK_GROWTHRESHOLD 80
