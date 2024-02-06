@@ -33,7 +33,9 @@
 enum
 crescent_Status {
 	CRESCENT_STATUS_OK,
-	CRESCENT_STATUS_ERRRUN,
+	CRESCENT_STATUS_YIELD,
+	CRESCENT_STATUS_ERROR,
+	CRESCENT_STATUS_ERRINT,
 	CRESCENT_STATUS_ERRMEM
 };
 
@@ -92,8 +94,5 @@ crescentG_blankLState();
 
 extern void
 crescentG_closeLState(crescent_State* state);
-
-extern inline size_t
-crescentG_nextThreadIndex(crescent_GState* gState);
 
 #endif
