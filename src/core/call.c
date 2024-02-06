@@ -32,23 +32,14 @@
 
 int
 crescentC_setError(crescent_State* state, crescent_Status status) {
-	size_t index = state->stack.topFrame->base + state->stack.topFrame->top;
+	size_t index = state->stack.topFrame->base + state->stack.topFrame->top - 1;
 
 	switch (status) {
 		case CRESCENT_STATUS_ERRMEM:
-			state->stack.topFrame->top      += 1;
 			state->stack.data[index].type    = CRESCENT_TYPE_STRING;
 			state->stack.data[index].value.s = state->gState->memoryErrorMsg;
 
 			break;
-		case CRESCENT_STATUS_ERRC:
-			state->stack.topFrame->top      += 1;
-			state->stack.data[index].type    = CRESCENT_TYPE_STRING;
-			state->stack.data[index].value.s = malloc(sizeof(crescent_String));
-
-			if (state->stack.data[index].value.s == NULL) {
-				crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-			}
 		case CRESCENT_STATUS_ERROR:
 			break;
 		default:
