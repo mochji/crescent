@@ -5,6 +5,8 @@ API       = $(SRC)/api
 
 MAIN      = $(SRC)/crescent.c
 
+#DEBUG    = 1
+
 STD       = c99
 CC        = gcc
 CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
@@ -13,11 +15,15 @@ TARGET    = $(BUILD)/crescent
 
 CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
 
+ifdef DEBUG
+	CFLAGS := $(CFLAGS) -g
+endif
+
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
 $(shell mkdir -p $(BUILD))
 
 $(TARGET): $(BUILD)/state.o $(BUILD)/call.o
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $(SRC)/crescent.c $^
 
 $(BUILD)/state.o: $(CORE)/state.c
 	$(CC) $(CFLAGS) -c -o $@ $^
