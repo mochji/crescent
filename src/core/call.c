@@ -67,13 +67,13 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 			return;
 		}
 
-		size_t threshold = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+		size_t usage = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
 
-		if (threshold >= CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
+		if (usage >= CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
 			return;
 		}
 
-		if (threshold <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+		if (usage <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
 			return;
 		}
 	}
@@ -102,7 +102,7 @@ void
 crescentC_pushFrame(crescent_State* state) {
 	if (state->stack.frameCount == state->stack.maxFrames) {
 		size_t           newMaxFrames = state->stack.maxFrames + 4;
-		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames);
+		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame));
 
 		if (newFrames == NULL) {
 			crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
@@ -123,13 +123,56 @@ crescentC_pushFrame(crescent_State* state) {
 		lastFrame->next = topFrame;
 	}
 
-	topFrame->base     = lastFrame->top + 1;
+	if (lastFrame != NULL) {
+		topFrame->base     = lastFrame->top + 1;
+	}
+
 	topFrame->top      = 0;
 	topFrame->next     = NULL;
 	topFrame->previous = lastFrame;
+
+	state->stack.frameCount += 1;
 }
 
 void
 crescentC_popFrame(crescent_State* state) {
-	/* FIXME: implement */
+	if (state->stack.frameCount == 0) {
+		crescentC_throw(state, CRESCENT_STATUS_ERRINT);
+	}
+
+	if (state->stack.frameCount == 1) {
+		free(state->stack.topFrame);
+		state->stack.frames[state->stack.frameCount - 1] = NULL;
+
+		state->stack.frameCount = 0;
+		state->stack.topFrame   = NULL;
+
+		return;
+	}
+
+	free(state->stack.topFrame);
+	state->stack.frames[state->stack.frameCount - 1] = NULL;
+
+	crescent_Frame* newTopFrame = state->stack.frames[state->stack.frameCount - 2];
+
+	newTopFrame->next = NULL;
+
+	state->stack.frameCount -= 1;
+	state->stack.topFrame    = newTopFrame;
+
+	if (state->stack.maxFrames - state->stack.frameCount >= 4) {
+		if (state->stack.maxFrames == 4) {
+			return;
+		}
+
+		size_t           newMaxFrames = state->stack.maxFrames - 4;
+		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame));
+
+		if (newFrames == NULL) {
+			crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
+		}
+
+		state->stack.maxFrames = newMaxFrames;
+		state->stack.frames    = newFrames;
+	}
 }
