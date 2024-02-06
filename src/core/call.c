@@ -30,9 +30,32 @@
 
 #include "core/call.h"
 
+int
+crescentC_setError(crescent_State* state, crescent_Status status) {
+	size_t index = state->stack.topFrame->base + state->stack.topFrame->top - 1;
+
+	switch (status) {
+		case CRESCENT_STATUS_ERRMEM:
+			state->stack.data[index].type    = CRESCENT_TYPE_STRING;
+			state->stack.data[index].value.s = state->gState->memoryErrorMsg;
+
+			break;
+		case CRESCENT_STATUS_ERROR:
+			break;
+		default:
+			return 1;
+	}
+
+	return 0;
+}
+
 void
 crescentC_throw(crescent_State* state, crescent_Status status) {
 	crescent_GState* gState = state->gState;
+
+	if (crescentC_setError(state, status)) {
+		return;
+	}
 
 	if (state->errorJump != NULL) {
 		state->errorJump->status = status;
@@ -136,18 +159,8 @@ crescentC_pushFrame(crescent_State* state) {
 
 void
 crescentC_popFrame(crescent_State* state) {
-	if (state->stack.frameCount == 0) {
-		crescentC_throw(state, CRESCENT_STATUS_ERRINT);
-	}
-
-	if (state->stack.frameCount == 1) {
-		free(state->stack.topFrame);
-		state->stack.frames[state->stack.frameCount - 1] = NULL;
-
-		state->stack.frameCount = 0;
-		state->stack.topFrame   = NULL;
-
-		return;
+	if (state->stack.frameCount <= 1) {
+		crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 	}
 
 	free(state->stack.topFrame);

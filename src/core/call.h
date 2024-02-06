@@ -31,6 +31,9 @@
 #include "core/object.h"
 #include "core/state.h"
 
+extern int
+crescentC_setError(crescent_State* state, crescent_Status status);
+
 extern void
 crescentC_throw(crescent_State* state, crescent_Status status);
 
