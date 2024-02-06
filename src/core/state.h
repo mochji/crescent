@@ -35,7 +35,6 @@ crescent_Status {
 	CRESCENT_STATUS_OK,
 	CRESCENT_STATUS_YIELD,
 	CRESCENT_STATUS_ERROR,
-	CRESCENT_STATUS_ERRINT,
 	CRESCENT_STATUS_ERRMEM
 };
 
@@ -75,6 +74,7 @@ crescent_GState {
 	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
 	void                  (*panic)(struct crescent_State*);
+	struct crescent_String* memoryErrorMsg;
 };
 
 typedef enum   crescent_Status    crescent_Status;

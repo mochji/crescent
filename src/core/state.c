@@ -26,6 +26,7 @@
 #include "conf.h"
 
 #include "core/object.h"
+
 #include "core/state.h"
 
 crescent_GState*
@@ -36,17 +37,24 @@ crescentG_blankGState() {
 		return NULL;
 	}
 
-	gState->threadCount = 0;
-	gState->maxThreads  = 4;
-	gState->threads     = malloc(4 * sizeof(crescent_Frame*));
-	gState->baseThread  = NULL;
-	gState->panic       = NULL;
+	gState->threadCount    = 0;
+	gState->maxThreads     = 4;
+	gState->threads        = malloc(4 * sizeof(crescent_Frame*));
+	gState->baseThread     = NULL;
+	gState->panic          = NULL;
+	gState->memoryErrorMsg = malloc(sizeof(crescent_String));
 
-	if (gState->threads == NULL) {
+	if (gState->memoryErrorMsg == NULL || gState->threads == NULL) {
+		free(gState->memoryErrorMsg);
+		free(gState->threads);
 		free(gState);
 
 		return NULL;
 	}
+
+	gState->memoryErrorMsg->size   = 13;
+	gState->memoryErrorMsg->length = 13;
+	gState->memoryErrorMsg->data   = "out of memory";
 
 	return gState;
 }
@@ -71,6 +79,7 @@ crescentG_closeGState(crescent_GState* gState) {
 		free(currentState);
 	}
 
+	free(gState->memoryErrorMsg);
 	free(gState->threads);
 	free(gState);
 }
