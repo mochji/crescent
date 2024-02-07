@@ -121,6 +121,13 @@ crescentG_blankLState() {
 	state->errorJump   = NULL;
 	state->gState      = NULL;
 
+	const char* memoryErrorMsg = "out of memory";
+	char*       memoryError    = (char*)((size_t)state + sizeof(crescent_State) + sizeof(crescent_ErrorJump));
+
+	for (size_t a = 0; a < 14; a++) {
+		memoryError[a] = memoryErrorMsg[a];
+	}
+
 	return state;
 }
 
