@@ -143,7 +143,7 @@ crescentG_closeLState(crescent_State* state) {
 
 	size_t endOfState = sizeof(crescent_State) + sizeof(crescent_ErrorJump) + 14;
 
-	if (state->error >= (char*)endOfState) {
+	if (state->error < (char*)state || state->error >= (char*)endOfState) {
 		free(state->error);
 	}
 
