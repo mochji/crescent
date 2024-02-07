@@ -5,8 +5,6 @@ API       = $(SRC)/api
 
 MAIN      = $(SRC)/crescent.c
 
-#DEBUG    = 1
-
 STD       = c99
 CC        = gcc
 CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
