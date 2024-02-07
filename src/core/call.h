@@ -31,9 +31,6 @@
 #include "core/object.h"
 #include "core/state.h"
 
-extern int
-crescentC_setError(crescent_State* state, crescent_Status status);
-
 extern void
 crescentC_throw(crescent_State* state, crescent_Status status);
 
@@ -45,11 +42,5 @@ crescentC_absoluteIndex(crescent_State* state, size_t index);
 
 extern void
 crescentC_resizeStack(crescent_State* state, size_t newTop);
-
-extern void
-crescentC_pushFrame(crescent_State* state);
-
-extern void
-crescentC_popFrame(crescent_State* state);
 
 #endif

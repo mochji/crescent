@@ -28,51 +28,30 @@
 #include "core/object.h"
 #include "core/state.h"
 
-#include "core/call.h"
-
-int
-crescentC_setError(crescent_State* state, crescent_Status status) {
-	size_t index = state->stack.topFrame->base + state->stack.topFrame->top;
-
-	switch (status) {
-		case CRESCENT_STATUS_ERRMEM:
-			state->stack.topFrame->top      += 1;
-			state->stack.data[index].type    = CRESCENT_TYPE_STRING;
-			state->stack.data[index].value.s = state->gState->memoryErrorMsg;
-
-			break;
-		case CRESCENT_STATUS_ERRC:
-			state->stack.topFrame->top      += 1;
-			state->stack.data[index].type    = CRESCENT_TYPE_STRING;
-			state->stack.data[index].value.s = malloc(sizeof(crescent_String));
-
-			if (state->stack.data[index].value.s == NULL) {
-				crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-			}
-		case CRESCENT_STATUS_ERROR:
-			break;
-		default:
-			return 1;
-	}
-
-	return 0;
-}
-
 void
 crescentC_throw(crescent_State* state, crescent_Status status) {
 	crescent_GState* gState = state->gState;
 
-	if (crescentC_setError(state, status)) {
+	if (status = CRESCENT_STATUS_OK) {
+		return;
+	}
+
+	if (status = CRESCENT_STATUS_YIELD) {
+		/* FIXME: return do something like return to base thread or something */
 		return;
 	}
 
 	if (state->errorJump != NULL) {
 		state->errorJump->status = status;
-		longjmp(state->errorJump->buffer, 1);
+		longjmp(state->errorJump->buffer);
+	}
+
+	if (gState->baseThread->errorJump != NULL) {
+		crescentC_throw(gState->baseThread, status);
 	}
 
 	if (gState->panic != NULL) {
-		(*gState->panic)(state);
+		*(gState->panic)(state);
 	}
 
 	abort();
@@ -128,73 +107,4 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 	state->stack.size          = newSize;
 	state->stack.data          = newData;
 	state->stack.topFrame->top = newTop;
-}
-
-void
-crescentC_pushFrame(crescent_State* state) {
-	if (state->stack.frameCount == state->stack.maxFrames) {
-		size_t           newMaxFrames = state->stack.maxFrames + 4;
-		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame));
-
-		if (newFrames == NULL) {
-			crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-		}
-
-		state->stack.maxFrames = newMaxFrames;
-		state->stack.frames    = newFrames;
-	}
-
-	crescent_Frame* topFrame  = malloc(sizeof(crescent_Frame));
-	crescent_Frame* lastFrame = state->stack.topFrame;
-
-	if (topFrame == NULL) {
-		crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-	}
-
-	if (lastFrame != NULL) {
-		lastFrame->next = topFrame;
-	}
-
-	if (lastFrame != NULL) {
-		topFrame->base     = lastFrame->top + 1;
-	}
-
-	topFrame->top      = 0;
-	topFrame->next     = NULL;
-	topFrame->previous = lastFrame;
-
-	state->stack.frameCount += 1;
-}
-
-void
-crescentC_popFrame(crescent_State* state) {
-	if (state->stack.frameCount <= 1) {
-		crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-	}
-
-	free(state->stack.topFrame);
-	state->stack.frames[state->stack.frameCount - 1] = NULL;
-
-	crescent_Frame* newTopFrame = state->stack.frames[state->stack.frameCount - 2];
-
-	newTopFrame->next = NULL;
-
-	state->stack.frameCount -= 1;
-	state->stack.topFrame    = newTopFrame;
-
-	if (state->stack.maxFrames - state->stack.frameCount >= 4) {
-		if (state->stack.maxFrames == 4) {
-			return;
-		}
-
-		size_t           newMaxFrames = state->stack.maxFrames - 4;
-		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame));
-
-		if (newFrames == NULL) {
-			crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-		}
-
-		state->stack.maxFrames = newMaxFrames;
-		state->stack.frames    = newFrames;
-	}
 }
