@@ -26,17 +26,9 @@
 
 #include "conf.h"
 
-struct
-crescent_String {
-	size_t size;
-	size_t length;
-	char*  data;
-};
-
 typedef int                    crescent_Boolean;
 typedef CRESCENT_CONF_INTEGER  crescent_Integer;
 typedef CRESCENT_CONF_FLOAT    crescent_Float;
-typedef struct crescent_String crescent_String;
 
 enum
 crescent_Type {
@@ -44,8 +36,7 @@ crescent_Type {
 	CRESCENT_TYPE_NIL,
 	CRESCENT_TYPE_BOOLEAN,
 	CRESCENT_TYPE_INTEGER,
-	CRESCENT_TYPE_FLOAT,
-	CRESCENT_TYPE_STRING
+	CRESCENT_TYPE_FLOAT
 };
 
 union
@@ -53,7 +44,6 @@ crescent_Value {
 	crescent_Boolean b;
 	crescent_Integer i;
 	crescent_Float   f;
-	crescent_String* s;
 };
 
 struct
