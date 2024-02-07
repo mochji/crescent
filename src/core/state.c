@@ -42,7 +42,6 @@ crescentG_blankGState() {
 	gState->threads     = malloc(4 * sizeof(crescent_Frame*));
 	gState->baseThread  = NULL;
 	gState->panic       = NULL;
-	gState->memoryError = "out of memory";
 
 	if (gState->threads == NULL) {
 		free(gState->threads);
@@ -74,7 +73,7 @@ crescentG_closeGState(crescent_GState* gState) {
 
 crescent_State*
 crescentG_blankLState() {
-	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_ErrorJump));
+	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_ErrorJump) + 14);
 
 	if (state == NULL) {
 		return NULL;
@@ -135,8 +134,13 @@ crescentG_closeLState(crescent_State* state) {
 		free(state->stack.frames[a]);
 	}
 
+	size_t endOfState = sizeof(crescent_State) + sizeof(crescent_ErrorJump) + 14;
+
+	if (state->stack.error >= endOfState) {
+		free(state->stack.error);
+	}
+
 	free(state->stack.frames);
 	free(state->stack.data);
-	free(state->error);
 	free(state);
 }

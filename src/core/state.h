@@ -75,7 +75,6 @@ crescent_GState {
 	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
 	void                  (*panic)(struct crescent_State*);
-	const char*             memoryError;
 };
 
 typedef enum   crescent_Status    crescent_Status;
