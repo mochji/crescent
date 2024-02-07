@@ -32,12 +32,7 @@ void
 crescentC_throw(crescent_State* state, crescent_Status status) {
 	crescent_GState* gState = state->gState;
 
-	if (status = CRESCENT_STATUS_OK) {
-		return;
-	}
-
-	if (status = CRESCENT_STATUS_YIELD) {
-		/* FIXME: return do something like return to base thread or something */
+	if (status == CRESCENT_STATUS_OK) {
 		return;
 	}
 
@@ -55,6 +50,13 @@ crescentC_throw(crescent_State* state, crescent_Status status) {
 	}
 
 	abort();
+}
+
+inline void
+crescentC_memoryError(crescent_State* state) {
+	state->error = state->gState->memoryError;
+
+	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 }
 
 inline int

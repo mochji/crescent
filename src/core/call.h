@@ -34,6 +34,9 @@
 extern void
 crescentC_throw(crescent_State* state, crescent_Status status);
 
+extern inline void
+crescentC_memoryError(crescent_State* state);
+
 extern inline int
 crescentC_stackUsage(crescent_State* state);
 
