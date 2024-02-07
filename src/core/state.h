@@ -35,7 +35,6 @@ crescent_Status {
 	CRESCENT_STATUS_OK,
 	CRESCENT_STATUS_YIELD,
 	CRESCENT_STATUS_ERROR,
-	CRESCENT_STATUS_ERRC,
 	CRESCENT_STATUS_ERRMEM
 };
 
@@ -57,8 +56,8 @@ struct
 crescent_State {
 	struct {
 		size_t                  size;
-		size_t                  frameCount;
 		size_t                  maxFrames;
+		size_t                  frameCount;
 		struct crescent_Object* data;
 		struct crescent_Frame** frames;
 		struct crescent_Frame*  topFrame;
@@ -70,12 +69,11 @@ crescent_State {
 
 struct
 crescent_GState {
-	size_t                  threadCount;
 	size_t                  maxThreads;
+	size_t                  threadCount;
 	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
 	void                  (*panic)(struct crescent_State*);
-	struct crescent_String* memoryErrorMsg;
 };
 
 typedef enum   crescent_Status    crescent_Status;

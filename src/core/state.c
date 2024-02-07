@@ -42,19 +42,13 @@ crescentG_blankGState() {
 	gState->threads        = malloc(4 * sizeof(crescent_Frame*));
 	gState->baseThread     = NULL;
 	gState->panic          = NULL;
-	gState->memoryErrorMsg = malloc(sizeof(crescent_String));
 
-	if (gState->memoryErrorMsg == NULL || gState->threads == NULL) {
-		free(gState->memoryErrorMsg);
+	if (gState->threads == NULL) {
 		free(gState->threads);
 		free(gState);
 
 		return NULL;
 	}
-
-	gState->memoryErrorMsg->size   = 13;
-	gState->memoryErrorMsg->length = 13;
-	gState->memoryErrorMsg->data   = "out of memory";
 
 	return gState;
 }
@@ -70,16 +64,9 @@ crescentG_closeGState(crescent_GState* gState) {
 			continue;
 		}
 
-		for (size_t b = 0; b < currentState->stack.frameCount; b++) {
-			free(currentState->stack.frames[b]);
-		}
-
-		free(currentState->stack.frames);
-		free(currentState->stack.data);
-		free(currentState);
+		crescentG_closeLState(currentState);
 	}
 
-	free(gState->memoryErrorMsg);
 	free(gState->threads);
 	free(gState);
 }
@@ -101,12 +88,23 @@ crescentG_blankLState() {
 		return NULL;
 	}
 
-	state->stack.frameCount = 0;
+	state->stack.frameCount = 1;
 	state->stack.maxFrames  = 4;
 	state->stack.frames     = calloc(4, sizeof(crescent_Frame*));
 	state->stack.topFrame   = NULL;
 
 	if (state->stack.frames == NULL) {
+		free(state->stack.data);
+		free(state);
+
+		return NULL;
+	}
+
+	state->stack.frames[0] = malloc(sizeof(crescent_Frame));
+	state->stack.topFrame  = state->stack.frames[0];
+
+	if (state->stack.topFrame == NULL) {
+		free(state->stack.frames);
 		free(state->stack.data);
 		free(state);
 
