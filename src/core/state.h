@@ -63,6 +63,7 @@ crescent_State {
 		struct crescent_Frame*  topFrame;
 	} stack;
 	size_t                     threadIndex;
+	char*                      error;
 	struct crescent_ErrorJump* errorJump;
 	struct crescent_GState*    gState;
 };
@@ -74,6 +75,7 @@ crescent_GState {
 	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
 	void                  (*panic)(struct crescent_State*);
+	const char*             memoryError;
 };
 
 typedef enum   crescent_Status    crescent_Status;
