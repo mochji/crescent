@@ -46,4 +46,10 @@ crescentC_absoluteIndex(crescent_State* state, size_t index);
 extern void
 crescentC_resizeStack(crescent_State* state, size_t newTop);
 
+extern void
+crescentC_pushFrame(crescent_State* state);
+
+extern void
+crescentC_popFrame(crescent_State* state);
+
 #endif
