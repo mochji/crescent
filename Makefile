@@ -20,8 +20,8 @@ endif
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
 $(shell mkdir -p $(BUILD))
 
-$(TARGET): $(BUILD)/state.o $(BUILD)/call.o
-	$(CC) $(CFLAGS) -o $@ $(SRC)/crescent.c $^
+$(TARGET): $(SRC)/crescent.c $(BUILD)/state.o $(BUILD)/call.o
+	$(CC) $(CFLAGS) -o $@ $^
 
 $(BUILD)/state.o: $(CORE)/state.c
 	$(CC) $(CFLAGS) -c -o $@ $^
