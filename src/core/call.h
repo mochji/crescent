@@ -34,14 +34,24 @@
 extern void
 crescentC_throw(crescent_State* state, crescent_Status status);
 
-extern inline void
-crescentC_memoryError(crescent_State* state);
+inline void
+crescentC_memoryError(crescent_State* state) {
+	state->error = ((char*)state + sizeof(crescent_State) + sizeof(crescent_ErrorJump));
 
-extern inline int
-crescentC_stackUsage(crescent_State* state);
+	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
+}
 
-extern inline size_t
-crescentC_absoluteIndex(crescent_State* state, size_t index);
+inline int
+crescentC_stackUsage(crescent_State* state) {
+	size_t absoluteTop = state->stack.topFrame->base - state->stack.topFrame->top;
+
+	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+}
+
+inline size_t
+crescentC_absoluteIndex(crescent_State* state, size_t index) {
+	return state->stack.topFrame->base + index - 1;
+}
 
 extern void
 crescentC_resizeStack(crescent_State* state, size_t newTop);

@@ -28,6 +28,8 @@
 #include "core/object.h"
 #include "core/state.h"
 
+#include "core/call.h"
+
 void
 crescentC_throw(crescent_State* state, crescent_Status status) {
 	crescent_GState* gState = state->gState;
@@ -52,24 +54,14 @@ crescentC_throw(crescent_State* state, crescent_Status status) {
 	abort();
 }
 
-inline void
-crescentC_memoryError(crescent_State* state) {
-	state->error = ((char*)state + sizeof(crescent_State) + sizeof(crescent_ErrorJump));
+extern inline void
+crescentC_memoryError(crescent_State* state);
 
-	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
-}
+extern inline int
+crescentC_stackUsage(crescent_State* state);
 
-inline int
-crescentC_stackUsage(crescent_State* state) {
-	size_t absoluteTop = state->stack.topFrame->base - state->stack.topFrame->top;
-
-	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-}
-
-inline size_t
-crescentC_absoluteIndex(crescent_State* state, size_t index) {
-	return state->stack.topFrame->base + index - 1;
-}
+extern inline size_t
+crescentC_absoluteIndex(crescent_State* state, size_t index);
 
 void
 crescentC_resizeStack(crescent_State* state, size_t newTop) {
@@ -113,7 +105,7 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 
 void
 crescentC_pushFrame(crescent_State* state) {
-	if (state->stack.maxFrames >= state->stack.frameCount) {
+	if (state->stack.maxFrames <= state->stack.frameCount) {
 		size_t           newMaxFrames = state->stack.frameCount + 4;
 		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame*));
 
