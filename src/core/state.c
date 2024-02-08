@@ -55,6 +55,10 @@ crescentG_blankGState() {
 
 void
 crescentG_closeGState(crescent_GState* gState) {
+	if (gState == NULL) {
+		return;
+	}
+
 	crescent_State* currentState;
 
 	for (size_t a = 0; a < gState->threadCount; a++) {
@@ -133,6 +137,10 @@ crescentG_blankLState() {
 
 void
 crescentG_closeLState(crescent_State* state) {
+	if (state == NULL) {
+		return;
+	}
+
 	for (size_t a = 0; a < state->stack.frameCount; a++) {
 		if (state->stack.frames[a] == NULL) {
 			continue;
