@@ -115,7 +115,7 @@ crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
 	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_Object* object;
 
-	if (isInteger) {
+	if (isInteger != NULL) {
 		*isInteger = 0;
 	}
 
@@ -126,7 +126,7 @@ crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
 	object = &state->stack.data[absoluteIndex];
 
 	if (object->type == CRESCENT_TYPE_INTEGER) {
-		if (isInteger) {
+		if (isInteger != NULL) {
 			*isInteger = 1;
 		}
 
@@ -145,7 +145,7 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
 	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_Object* object;
 
-	if (isFloat) {
+	if (isFloat != NULL) {
 		*isFloat = 0;
 	}
 
@@ -156,7 +156,7 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
 	object = &state->stack.data[absoluteIndex];
 
 	if (object->type == CRESCENT_TYPE_FLOAT) {
-		if (isFloat) {
+		if (isFloat != NULL) {
 			*isFloat = 1;
 		}
 
