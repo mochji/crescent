@@ -38,4 +38,55 @@ crescent_version();
 extern int
 crescent_release();
 
+extern crescent_State*
+crescent_openState();
+
+extern void
+crescent_closeState(crescent_State* state);
+
+extern size_t
+crescent_absoluteIndex(crescent_State* state, size_t index);
+
+extern int
+crescent_validIndex(crescent_State* state, size_t index);
+
+extern size_t
+crescent_getTop(crescent_State* state);
+
+extern void
+crescent_setTop(crescent_State* state);
+
+extern crescent_Type
+crescent_type(crescent_State* state, size_t index);
+
+extern int
+crescent_isNil(crescent_State* state, size_t index);
+
+extern int
+crescent_isInteger(crescent_State* state, size_t index);
+
+extern int
+crescent_isFloat(crescent_State* state, size_t index);
+
+crescent_Integer
+crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
+
+crescent_Float
+crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
+
+crescent_Integer
+crescent_toInteger(crescent_State* state, size_t index);
+
+crescent_Float
+crescent_toFloat(crescent_State* state, size_t index);
+
+void
+crescent_pushNil(crescent_State* state);
+
+void
+crescent_pushInteger(crescent_State* state, crescent_Integer value);
+
+void
+crescent_pushFloat(crescent_State* state, crescent_Float value);
+
 #endif
