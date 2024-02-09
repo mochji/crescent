@@ -29,6 +29,8 @@ $(BUILD)/state.o: $(CORE)/state.c
 $(BUILD)/call.o: $(CORE)/call.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
+$(SRC)/crescent.c:
+
 .PHONY: clean
 .PHONY: todo
 .PHONY: fixme
