@@ -40,4 +40,10 @@ crescentC_throw(crescent_State* state, crescent_Status status);
 extern void
 crescentC_memoryError(crescent_State* state);
 
+extern int
+crescentC_stackUsage(crescent_State* state);
+
+extern void
+crescentC_resizeStack(crescent_State* state, size_t newTop);
+
 #endif

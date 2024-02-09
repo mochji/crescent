@@ -72,3 +72,56 @@ crescentC_memoryError(crescent_State* state) {
 
 	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
+
+int
+crescentC_stackUsage(crescent_State* state) {
+	size_t absoluteTop = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+}
+
+void
+crescentC_resizeStack(crescent_State* state, size_t newTop) {
+	size_t absoluteTop = state->stack.topFrame->base + newTop;
+
+	if (state->stack.size >= newTop) {
+		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
+			state->stack.topFrame->top = newTop;
+
+			return;
+		}
+
+		size_t usage = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+
+		if (usage >= CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
+			state->stack.topFrame->top = newTop;
+
+			return;
+		}
+
+		if (usage <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+			state->stack.topFrame->top = newTop;
+
+			return;
+		}
+	}
+
+	size_t           newSize;
+	crescent_Object* newData;
+
+	if (newTop >= state->stack.size) {
+		newSize = state->stack.size * 2;
+	} else {
+		newSize = state->stack.size / 2;
+	}
+
+	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
+
+	if (newData == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	state->stack.size          = newSize;
+	state->stack.data          = newData;
+	state->stack.topFrame->top = newTop;
+}
