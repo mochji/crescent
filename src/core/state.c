@@ -58,16 +58,8 @@ crescentG_closeGState(crescent_GState* gState) {
 		return;
 	}
 
-	crescent_State* currentState;
-
 	for (size_t a = 0; a < gState->threadCount; a++) {
-		currentState = gState->threads[a];
-
-		if (currentState == NULL) {
-			continue;
-		}
-
-		crescentG_closeLState(currentState);
+		crescentG_closeLState(gState->threads[a]);
 	}
 
 	free(gState->threads);
