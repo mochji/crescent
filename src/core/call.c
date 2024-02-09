@@ -54,13 +54,19 @@ void
 crescentC_throw(crescent_State* state, crescent_Status status) {
 	crescent_GState* gState = state->gState;
 
+/* TODO: find a better solution than goto, trying to call again causes -Winfinite-recursion */
+
+throwAgain:
+
 	if (state->errorJump != NULL) {
 		state->errorJump->status = status;
 		longjmp(state->errorJump->buffer, 1);
 	}
 
 	if (gState->baseThread->errorJump != NULL) {
-		crescentC_throw(gState->baseThread, status);
+		state = gState->baseThread;
+
+		goto throwAgain;
 	}
 
 	if (gState->panic != NULL) {
@@ -88,7 +94,7 @@ void
 crescentC_resizeStack(crescent_State* state, size_t newTop) {
 	size_t absoluteTop = state->stack.topFrame->base + newTop;
 
-	if (state->stack.size >= newTop) {
+	if (state->stack.size >= absoluteTop) {
 		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
 			return;
 		}
@@ -108,7 +114,7 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 	crescent_Object* newData;
 
 	if (newTop >= state->stack.size) {
-		while ((absoluteTop * 100 + state->stack.size / 2) / state->stack.size > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+		while ((absoluteTop * 100 + newSize / 2) / newSize > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
 			newSize *= 2;
 		}
 	} else {
