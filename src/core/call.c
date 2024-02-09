@@ -86,22 +86,16 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 
 	if (state->stack.size >= newTop) {
 		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
-			state->stack.topFrame->top = newTop;
-
 			return;
 		}
 
 		size_t usage = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
 
 		if (usage >= CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
-			state->stack.topFrame->top = newTop;
-
 			return;
 		}
 
 		if (usage <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
-			state->stack.topFrame->top = newTop;
-
 			return;
 		}
 	}
@@ -121,7 +115,6 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 		crescentC_memoryError(state);
 	}
 
-	state->stack.size          = newSize;
-	state->stack.data          = newData;
-	state->stack.topFrame->top = newTop;
+	state->stack.size = newSize;
+	state->stack.data = newData;
 }
