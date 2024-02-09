@@ -44,7 +44,6 @@ crescentG_blankGState() {
 	gState->panic       = NULL;
 
 	if (gState->threads == NULL) {
-		free(gState->threads);
 		free(gState);
 
 		return NULL;
