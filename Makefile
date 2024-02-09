@@ -19,6 +19,9 @@ $(shell mkdir -p $(BUILD))
 $(TARGET): $(SRC)/crescent.c $(BUILD)/state.o $(BUILD)/call.o
 	$(CC) $(CFLAGS) -o $@ $^
 
+#$(BUILD)/crescent.so: $(API)/crescent.c $(BUILD)/state.o $(BUILD)/call.o
+#	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^
+
 $(BUILD)/state.o: $(CORE)/state.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
