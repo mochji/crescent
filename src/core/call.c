@@ -39,6 +39,10 @@ crescentC_setError(crescent_State* state, char* error) {
 
 	char* stateError = malloc(length);
 
+	if (stateError == NULL) {
+		crescentC_memoryError(state);
+	}
+
 	for (size_t a = 0; a < length; a++) {
 		stateError[a] = error[a];
 	}
