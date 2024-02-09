@@ -100,13 +100,17 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 		}
 	}
 
-	size_t           newSize;
+	size_t           newSize = state->stack.size;
 	crescent_Object* newData;
 
 	if (newTop >= state->stack.size) {
-		newSize = state->stack.size * 2;
+		while ((absoluteTop * 100 + state->stack.size / 2) / state->stack.size > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+			newSize *= 2;
+		}
 	} else {
-		newSize = state->stack.size / 2;
+		while ((absoluteTop * 100 + state->stack.size / 2) / state->stack.size < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
+			newSize /= 2;
+		}
 	}
 
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
