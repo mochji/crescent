@@ -13,10 +13,6 @@ TARGET    = $(BUILD)/crescent
 
 CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
 
-ifdef DEBUG
-	CFLAGS := $(CFLAGS) -g
-endif
-
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
 $(shell mkdir -p $(BUILD))
 
