@@ -26,9 +26,9 @@
 
 #include "conf.h"
 
-typedef int                    crescent_Boolean;
-typedef CRESCENT_CONF_INTEGER  crescent_Integer;
-typedef CRESCENT_CONF_FLOAT    crescent_Float;
+typedef int                   crescent_Boolean;
+typedef CRESCENT_CONF_INTEGER crescent_Integer;
+typedef CRESCENT_CONF_FLOAT   crescent_Float;
 
 enum
 crescent_Type {
