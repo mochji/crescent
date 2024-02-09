@@ -118,3 +118,99 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 	state->stack.size = newSize;
 	state->stack.data = newData;
 }
+
+size_t
+crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
+	crescent_Frame* newTopFrame = malloc(sizeof(crescent_Frame));
+	crescent_Frame* oldTopFrame = state->stack.topFrame;
+	size_t          results;
+
+	if (newTopFrame == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	newTopFrame->base     = oldTopFrame->top;
+	newTopFrame->top      = 0;
+	newTopFrame->next     = NULL;
+	newTopFrame->previous = oldTopFrame;
+
+	oldTopFrame->next = newTopFrame;
+
+	if (state->stack.maxFrames <= state->stack.frameCount) {
+		size_t           newMaxFrames = state->stack.frameCount + 4;
+		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame*));
+
+		if (newFrames == NULL) {
+			crescentC_memoryError(state);
+		}
+
+		state->stack.maxFrames = newMaxFrames;
+		state->stack.frames    = newFrames;
+	}
+
+	state->stack.frameCount                         += 1;
+	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
+	state->stack.topFrame                            = newTopFrame;
+
+	results = function(state);
+
+	free(newTopFrame);
+
+	state->stack.frameCount                     -= 1;
+	state->stack.frames[state->stack.frameCount] = NULL;
+	state->stack.topFrame                        = oldTopFrame;
+
+	oldTopFrame->next = NULL;
+
+	if (state->stack.maxFrames - state->stack.frameCount >= 4) {
+		size_t           newMaxFrames = state->stack.frameCount + 4;
+		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame*));
+
+		if (newFrames == NULL) {
+			crescentC_memoryError(state);
+		}
+
+		state->stack.maxFrames = newMaxFrames;
+		state->stack.frames    = newFrames;
+	}
+
+	return results;
+}
+
+size_t
+crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status) {
+	crescent_ErrorJump* oldErrorJump = NULL;
+	size_t              results;
+
+	if (state->errorJump != NULL) {
+		oldErrorJump = state->errorJump;
+	}
+
+	state->errorJump = malloc(sizeof(crescent_ErrorJump));
+
+	if (state->errorJump == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	state->errorJump->status = CRESCENT_STATUS_OK;
+
+	if (setjmp(state->errorJump->buffer) == 0) {
+		crescentC_callC(state, function);
+	} else {
+		*status = state->errorJump->status;
+
+		return 0;
+	}
+
+	*status = state->errorJump->status;
+
+	free(state->errorJump);
+
+	if (oldErrorJump != NULL) {
+		state->errorJump = oldErrorJump;
+	} else {
+		state->errorJump = NULL;
+	}
+
+	return results;
+}
