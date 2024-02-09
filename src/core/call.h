@@ -35,7 +35,7 @@ extern void
 crescentC_setError(crescent_State* state, char* error);
 
 extern void
-crescentC_throw(crescent_State* state);
+crescentC_throw(crescent_State* state, crescent_Status status);
 
 extern void
 crescentC_memoryError(crescent_State* state);
