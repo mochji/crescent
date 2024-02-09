@@ -37,7 +37,7 @@ crescentC_setError(crescent_State* state, char* error) {
 
 	while (error[length++]) {}
 
-	char* stateError = malloc(length);
+	stateError = malloc(length);
 
 	if (stateError == NULL) {
 		crescentC_memoryError(state);
