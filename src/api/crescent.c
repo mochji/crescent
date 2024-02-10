@@ -232,3 +232,8 @@ crescent_error(crescent_State* state, char* error) {
 	crescentC_setError(state, error);
 	crescentC_throw(state, CRESCENT_STATUS_ERROR);
 }
+
+char*
+crescent_getError(crescent_State* state) {
+	return state->error;
+}
