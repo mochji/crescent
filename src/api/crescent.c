@@ -215,13 +215,7 @@ crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t a
 		argCount = state->stack.topFrame->top;
 	}
 
-	state->stack.topFrame->top -= argCount;
-
-	int results = crescentC_callC(state, function);
-
-	state->stack.topFrame->top += argCount;
-
-	return results;
+	return crescentC_callC(state, function, argCount);
 }
 
 int
@@ -230,13 +224,7 @@ crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t 
 		argCount = state->stack.topFrame->top;
 	}
 
-	state->stack.topFrame->top -= argCount;
-
-	int results = crescentC_pCallC(state, function, status);
-
-	state->stack.topFrame->top += argCount;
-
-	return results;
+	return crescentC_pCallC(state, function, argCount, status);
 }
 
 void

@@ -134,7 +134,7 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 }
 
 size_t
-crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
+crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount) {
 	crescent_Frame* newTopFrame = malloc(sizeof(crescent_Frame));
 	crescent_Frame* oldTopFrame = state->stack.topFrame;
 	int             results;
@@ -144,7 +144,7 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	}
 
 	newTopFrame->base     = oldTopFrame->top;
-	newTopFrame->top      = 0;
+	newTopFrame->top      = argCount;
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
 
@@ -166,6 +166,15 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
 	state->stack.topFrame                            = newTopFrame;
 
+	crescentC_resizeStack(state, argCount);
+
+	size_t fromBaseIndex = oldTopFrame->base + oldTopFrame->top - argCount;
+	size_t toBaseIndex   = newTopFrame->base;
+
+	for (size_t a = 0; a < argCount; a++) {
+		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
+	}
+
 	results = function(state);
 
 	if (results < 0) {
@@ -174,8 +183,8 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 		results = newTopFrame->top;
 	}
 
-	size_t fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
-	size_t toBaseIndex   = oldTopFrame->base + newTopFrame->top;
+	fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
+	toBaseIndex   = oldTopFrame->base + newTopFrame->top;
 
 	for (int a = 0; a < results; a++) {
 		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
@@ -212,7 +221,7 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 }
 
 size_t
-crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status) {
+crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status) {
 	crescent_ErrorJump* oldErrorJump = NULL;
 	size_t              results;
 
@@ -229,7 +238,7 @@ crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), cresce
 	state->errorJump->status = CRESCENT_STATUS_OK;
 
 	if (setjmp(state->errorJump->buffer) == 0) {
-		crescentC_callC(state, function);
+		crescentC_callC(state, function, argCount);
 	} else {
 		*status = state->errorJump->status;
 

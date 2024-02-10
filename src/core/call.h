@@ -47,9 +47,9 @@ extern void
 crescentC_resizeStack(crescent_State* state, size_t newTop);
 
 extern size_t
-crescentC_callC(crescent_State* state, int (*function)(crescent_State*));
+crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
 
 extern size_t
-crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status);
+crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status);
 
 #endif
