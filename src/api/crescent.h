@@ -63,16 +63,25 @@ extern int
 crescent_isNil(crescent_State* state, size_t index);
 
 extern int
+crescent_isBoolean(crescent_State* state, size_t index);
+
+extern int
 crescent_isInteger(crescent_State* state, size_t index);
 
 extern int
 crescent_isFloat(crescent_State* state, size_t index);
+
+extern crescent_Boolean
+crescent_toBooleanX(crescent_State* state, size_t index, int* isBoolean);
 
 extern crescent_Integer
 crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
 
 extern crescent_Float
 crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
+
+extern crescent_Boolean
+crescent_toBoolean(crescent_State* state, size_t index);
 
 extern crescent_Integer
 crescent_toInteger(crescent_State* state, size_t index);
@@ -82,6 +91,9 @@ crescent_toFloat(crescent_State* state, size_t index);
 
 extern void
 crescent_pushNil(crescent_State* state);
+
+extern void
+crescent_pushBoolean(crescent_State* state, crescent_Boolean value);
 
 extern void
 crescent_pushInteger(crescent_State* state, crescent_Integer value);

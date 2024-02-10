@@ -10,8 +10,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -97,6 +96,13 @@ crescent_isNil(crescent_State* state, size_t index) {
 }
 
 int
+crescent_isBoolean(crescent_State* state, size_t index) {
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
+
+	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_BOOLEAN;
+}
+
+int
 crescent_isInteger(crescent_State* state, size_t index) {
 	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
@@ -108,6 +114,48 @@ crescent_isFloat(crescent_State* state, size_t index) {
 	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
 	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_FLOAT;
+}
+
+crescent_Boolean
+crescent_toBooleanX(crescent_State* state, size_t index, int* isBoolean) {
+	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
+	crescent_Object* object;
+
+	if (isBoolean != NULL) {
+		*isBoolean = 0;
+	}
+
+	if (index == 0 || index > state->stack.topFrame->top) {
+		return 0;
+	}
+
+	object = &state->stack.data[absoluteIndex];
+
+	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+		if (isBoolean != NULL) {
+			*isBoolean = 1;
+		}
+
+		return object->value.b;
+	}
+
+	if (object->type == CRESCENT_TYPE_INTEGER) {
+		if (object->value.i) {
+			return 1;
+		}
+
+		return 0;
+	}
+
+	if (object->type == CRESCENT_TYPE_FLOAT) {
+		if (object->value.f) {
+			return 1;
+		}
+
+		return 0;
+	}
+
+	return 0;
 }
 
 crescent_Integer
@@ -131,6 +179,10 @@ crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
 		}
 
 		return object->value.i;
+	}
+
+	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+		return (crescent_Integer)object->value.b;
 	}
 
 	if (object->type == CRESCENT_TYPE_FLOAT) {
@@ -163,11 +215,20 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
 		return object->value.f;
 	}
 
+	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+		return (crescent_Float)object->value.b;
+	}
+
 	if (object->type == CRESCENT_TYPE_INTEGER) {
 		return (crescent_Float)object->value.i;
 	}
 
 	return 0;
+}
+
+crescent_Boolean
+crescent_toBoolean(crescent_State* state, size_t index) {
+	return crescent_toBooleanX(state, index, NULL);
 }
 
 crescent_Integer
@@ -183,6 +244,18 @@ crescent_toFloat(crescent_State* state, size_t index) {
 void
 crescent_pushNil(crescent_State* state) {
 	crescent_setTop(state, state->stack.topFrame->top + 1);
+}
+
+void
+crescent_pushBoolean(crescent_State* state, crescent_Boolean value) {
+	size_t index = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1);
+
+	state->stack.topFrame->top += 1;
+
+	state->stack.data[index].type    = CRESCENT_TYPE_BOOLEAN;
+	state->stack.data[index].value.b = value;
 }
 
 void
