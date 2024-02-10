@@ -90,10 +90,10 @@ extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
 
 extern int
-crescent_callC(crescent_State* state, int (*function)(crescent_State*));
+crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
 
 extern int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status);
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status);
 
 extern void
 crescent_error(crescent_State* state, char* error);

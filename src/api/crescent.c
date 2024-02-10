@@ -210,13 +210,33 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 }
 
 int
-crescent_callC(crescent_State* state, int (*function)(crescent_State*)) {
-	return crescentC_callC(state, function);
+crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount) {
+	if (argCount > state->stack.topFrame->top) {
+		argCount = state->stack.topFrame->top;
+	}
+
+	state->stack.topFrame->top -= argCount;
+
+	int results = crescentC_callC(state, function);
+
+	state->stack.topFrame->top += argCount;
+
+	return results;
 }
 
 int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status) {
-	return crescentC_pCallC(state, function, status);
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status) {
+	if (argCount > state->stack.topFrame->top) {
+		argCount = state->stack.topFrame->top;
+	}
+
+	state->stack.topFrame->top -= argCount;
+
+	int results = crescentC_pCallC(state, function, status);
+
+	state->stack.topFrame->top += argCount;
+
+	return results;
 }
 
 void
