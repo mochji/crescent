@@ -68,25 +68,31 @@ crescent_isInteger(crescent_State* state, size_t index);
 extern int
 crescent_isFloat(crescent_State* state, size_t index);
 
-crescent_Integer
+extern crescent_Integer
 crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
 
-crescent_Float
+extern crescent_Float
 crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
 
-crescent_Integer
+extern crescent_Integer
 crescent_toInteger(crescent_State* state, size_t index);
 
-crescent_Float
+extern crescent_Float
 crescent_toFloat(crescent_State* state, size_t index);
 
-void
+extern void
 crescent_pushNil(crescent_State* state);
 
-void
+extern void
 crescent_pushInteger(crescent_State* state, crescent_Integer value);
 
-void
+extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
+
+extern int
+crescent_callC(crescent_State* state, int (*function)(crescent_State*));
+
+extern int
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status);
 
 #endif

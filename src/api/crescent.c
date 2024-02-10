@@ -208,3 +208,13 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 	state->stack.data[index].type    = CRESCENT_TYPE_FLOAT;
 	state->stack.data[index].value.f = value;
 }
+
+int
+crescent_callC(crescent_State* state, int (*function)(crescent_State*)) {
+	return crescentC_callC(state, function);
+}
+
+int
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status) {
+	return crescentC_pCallC(state, function, status);
+}
