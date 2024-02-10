@@ -181,6 +181,10 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
 	}
 
+	for (size_t a = newTopFrame->base; a < newTopFrame->top - results; a++) {
+		state->stack.data[newTopFrame->base + a].type = CRESCENT_TYPE_NONE;
+	}
+
 	free(newTopFrame);
 
 	state->stack.frameCount                     -= 1;
