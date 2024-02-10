@@ -238,7 +238,7 @@ crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t
 	state->errorJump->status = CRESCENT_STATUS_OK;
 
 	if (setjmp(state->errorJump->buffer) == 0) {
-		crescentC_callC(state, function, argCount);
+		results = crescentC_callC(state, function, argCount);
 	} else {
 		*status = state->errorJump->status;
 
