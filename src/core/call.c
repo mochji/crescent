@@ -184,14 +184,14 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t 
 	}
 
 	fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
-	toBaseIndex   = oldTopFrame->base + newTopFrame->top;
+	toBaseIndex   = oldTopFrame->base + oldTopFrame->top;
 
 	for (int a = 0; a < results; a++) {
 		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
 	}
 
-	for (size_t a = newTopFrame->base + results; a < newTopFrame->top; a++) {
-		state->stack.data[newTopFrame->base + a].type = CRESCENT_TYPE_NONE;
+	for (size_t a = newTopFrame->base + results; a < newTopFrame->base + newTopFrame->top; a++) {
+		state->stack.data[newTopFrame->base + results + a].type = CRESCENT_TYPE_NONE;
 	}
 
 	free(newTopFrame);
