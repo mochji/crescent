@@ -137,7 +137,7 @@ size_t
 crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	crescent_Frame* newTopFrame = malloc(sizeof(crescent_Frame));
 	crescent_Frame* oldTopFrame = state->stack.topFrame;
-	size_t          results;
+	int             results;
 
 	if (newTopFrame == NULL) {
 		crescentC_memoryError(state);
@@ -168,6 +168,19 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 
 	results = function(state);
 
+	if (results < 0) {
+		results = 0;
+	} else if ((size_t)results > newTopFrame->top) {
+		results = newTopFrame->top;
+	}
+
+	size_t fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
+	size_t toBaseIndex   = oldTopFrame->base + newTopFrame->top - 1;
+
+	for (int a = 0; a < results; a++) {
+		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
+	}
+
 	free(newTopFrame);
 
 	state->stack.frameCount                     -= 1;
@@ -175,6 +188,9 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	state->stack.topFrame                        = oldTopFrame;
 
 	oldTopFrame->next = NULL;
+	oldTopFrame->top += results;
+
+	crescentC_resizeStack(state, oldTopFrame->top);
 
 	if (state->stack.maxFrames - state->stack.frameCount >= 4) {
 		size_t           newMaxFrames = state->stack.frameCount + 4;
