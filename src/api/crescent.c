@@ -218,3 +218,9 @@ int
 crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status) {
 	return crescentC_pCallC(state, function, status);
 }
+
+void
+crescent_error(crescent_State* state, char* error) {
+	crescentC_setError(state, error);
+	crescentC_throw(state, CRESCENT_STATUS_ERROR);
+}

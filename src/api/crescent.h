@@ -95,4 +95,7 @@ crescent_callC(crescent_State* state, int (*function)(crescent_State*));
 extern int
 crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), crescent_Status* status);
 
+extern void
+crescent_error(crescent_State* state, char* error);
+
 #endif
