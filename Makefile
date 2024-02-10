@@ -24,8 +24,11 @@ CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
 $(shell mkdir -p $(BUILD))
 
-$(TARGET): $(MAIN) $(BUILD)/state.o $(BUILD)/call.o
+$(TARGET): $(MAIN) $(BUILD)/crescent.so
 	$(CC) $(CFLAGS) -o $@ $^
+
+$(BUILD)/crescent.so: $(API)/crescent.c $(BUILD)/state.o $(BUILD)/call.o
+	$(CC) $(CFLAGS) -fPIC -shared -Wl,--version-script=shared.lds -o $@ $^
 
 $(BUILD)/state.o: $(CORE)/state.c
 	$(CC) $(CFLAGS) -c -o $@ $^
