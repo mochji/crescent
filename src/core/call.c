@@ -175,7 +175,7 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	}
 
 	size_t fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
-	size_t toBaseIndex   = oldTopFrame->base + newTopFrame->top - 1;
+	size_t toBaseIndex   = oldTopFrame->base + newTopFrame->top;
 
 	for (int a = 0; a < results; a++) {
 		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
