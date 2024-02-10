@@ -33,6 +33,8 @@ $(BUILD)/state.o: $(CORE)/state.c
 $(BUILD)/call.o: $(CORE)/call.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
+$(MAIN):
+
 .PHONY: clean
 .PHONY: rmobj
 .PHONY: todo
