@@ -135,9 +135,10 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 
 size_t
 crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
-	crescent_Frame* newTopFrame = malloc(sizeof(crescent_Frame));
-	crescent_Frame* oldTopFrame = state->stack.topFrame;
-	size_t          results;
+	crescent_Frame*  newTopFrame = malloc(sizeof(crescent_Frame));
+	crescent_Frame*  oldTopFrame = state->stack.topFrame;
+	size_t           results;
+	crescent_Object* returned;
 
 	if (newTopFrame == NULL) {
 		crescentC_memoryError(state);
@@ -166,7 +167,25 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
 	state->stack.topFrame                            = newTopFrame;
 
-	results = function(state);
+	results  = function(state);
+	returned = malloc(results * sizeof(crescent_Object));
+
+	if (returned == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	size_t           absoluteTop = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* currentObject;
+	crescent_Object* currentReturned;
+
+	for (ptrdiff_t a = results - 1; a >= 0; a--) {
+		currentObject   = &state->stack.data[absoluteTop - a];
+		currentReturned = &returned[results - a - 1];
+
+		for (size_t b = 0; b < sizeof(crescent_Object); b++) {
+			(&currentReturned->value)[b] = (&currentObject->value)[b];
+		}
+	}
 
 	free(newTopFrame);
 
@@ -175,6 +194,17 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*)) {
 	state->stack.topFrame                        = oldTopFrame;
 
 	oldTopFrame->next = NULL;
+
+	crescentC_resizeStack(state, state->stack.topFrame->top + results);
+
+	for (size_t a = 0; a < results; a++) {
+		currentObject   = &state->stack.data[absoluteTop - a];
+		currentReturned = &returned[results - a - 1];
+
+		for (size_t b = 0; b < sizeof(crescent_Object); b++) {
+			(&currentObject->value)[b] = (&currentReturned->value)[b];
+		}
+	}
 
 	if (state->stack.maxFrames - state->stack.frameCount >= 4) {
 		size_t           newMaxFrames = state->stack.frameCount + 4;
