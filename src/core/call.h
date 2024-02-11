@@ -44,6 +44,12 @@ extern int
 crescentC_stackUsage(crescent_State* state);
 
 extern void
+crescentC_growStack(crescent_State* state, size_t usage);
+
+extern void
+crescentC_shrinkStack(crescent_State* state, size_t usage);
+
+extern void
 crescentC_resizeStack(crescent_State* state, size_t newTop);
 
 extern size_t

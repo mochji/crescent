@@ -91,34 +91,12 @@ crescentC_stackUsage(crescent_State* state) {
 }
 
 void
-crescentC_resizeStack(crescent_State* state, size_t newTop) {
-	size_t absoluteTop = state->stack.topFrame->base + newTop;
-	size_t usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-
-
-	if (state->stack.size >= absoluteTop) {
-		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
-			return;
-		}
-
-		if (usage >= CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
-			if (usage <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
-				return;
-			}
-		}
-	}
-
+crescentC_growStack(crescent_State* state, size_t usage) {
 	size_t           newSize = state->stack.size;
 	crescent_Object* newData;
 
-	if (usage > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
-		while ((absoluteTop * 100 + newSize / 2) / newSize > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
-			newSize *= 2;
-		}
-	} else {
-		while ((absoluteTop * 100 + newSize / 2) / newSize < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
-			newSize /= 2;
-		}
+	while (usage > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+		newSize *= 2;
 	}
 
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
@@ -129,6 +107,47 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 
 	state->stack.size = newSize;
 	state->stack.data = newData;
+}
+
+void
+crescentC_shrinkStack(crescent_State* state, size_t usage) {
+	size_t           newSize = state->stack.size;
+	crescent_Object* newData;
+
+	while (usage < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
+		newSize /= 2;
+	}
+
+	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
+
+	if (newData == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	state->stack.size = newSize;
+	state->stack.data = newData;
+}
+
+void
+crescentC_resizeStack(crescent_State* state, size_t newTop) {
+	size_t absoluteTop = state->stack.topFrame->base + newTop;
+	int    usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+
+	if (usage < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
+		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
+			return;
+		}
+
+		crescentC_shrinkStack(state, usage);
+
+		return;
+	}
+
+	if (usage > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+		crescentC_growStack(state, usage);
+
+		return;
+	}
 }
 
 size_t
