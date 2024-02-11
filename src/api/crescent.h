@@ -28,9 +28,32 @@
 
 #include "conf.h"
 
-#include "core/object.h"
-#include "core/state.h"
-#include "core/call.h"
+enum
+crescent_Type {
+	CRESCENT_TYPE_NONE,
+	CRESCENT_TYPE_NIL,
+	CRESCENT_TYPE_BOOLEAN,
+	CRESCENT_TYPE_INTEGER,
+	CRESCENT_TYPE_FLOAT,
+	CRESCENT_TYPE_CFUNCTION
+};
+
+enum
+crescent_Status {
+	CRESCENT_STATUS_OK,
+	CRESCENT_STATUS_YIELD,
+	CRESCENT_STATUS_ERROR,
+	CRESCENT_STATUS_NOMEM
+};
+
+typedef enum   crescent_Type   crescent_Type;
+typedef enum   crescent_Status crescent_Status;
+typedef struct crescent_State  crescent_State;
+
+typedef int                   crescent_Boolean;
+typedef CRESCENT_CONF_INTEGER crescent_Integer;
+typedef CRESCENT_CONF_FLOAT   crescent_Float;
+typedef int                  (crescent_CFunction)(crescent_State*);
 
 extern int
 crescent_version();
