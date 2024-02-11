@@ -46,6 +46,13 @@ crescent_openState() {
 	crescent_GState* gState = crescentG_blankGState();
 	crescent_State*  state  = crescentG_blankLState();
 
+	if (gState == NULL || state == NULL) {
+		free(state);
+		free(gState);
+
+		return NULL;
+	}
+
 	gState->threadCount = 1;
 	gState->threads[0]  = state;
 	gState->baseThread  = state;
