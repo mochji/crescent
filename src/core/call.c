@@ -189,7 +189,7 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t 
 	}
 
 	for (size_t a = newTopFrame->base + results; a < newTopFrame->base + newTopFrame->top; a++) {
-		state->stack.data[newTopFrame->base + results + a].type = CRESCENT_TYPE_NONE;
+		state->stack.data[a].type = CRESCENT_TYPE_NONE;
 	}
 
 	free(newTopFrame);
