@@ -93,32 +93,30 @@ crescentC_stackUsage(crescent_State* state) {
 void
 crescentC_resizeStack(crescent_State* state, size_t newTop) {
 	size_t absoluteTop = state->stack.topFrame->base + newTop;
+	size_t usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+
 
 	if (state->stack.size >= absoluteTop) {
 		if (state->stack.size == CRESCENT_CONF_STACK_INITSIZE) {
 			return;
 		}
 
-		size_t usage = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-
 		if (usage >= CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
-			return;
-		}
-
-		if (usage <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
-			return;
+			if (usage <= CRESCENT_CONF_STACK_GROWTHRESHOLD) {
+				return;
+			}
 		}
 	}
 
 	size_t           newSize = state->stack.size;
 	crescent_Object* newData;
 
-	if (newTop >= state->stack.size) {
+	if (usage > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
 		while ((absoluteTop * 100 + newSize / 2) / newSize > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
 			newSize *= 2;
 		}
 	} else {
-		while ((absoluteTop * 100 + state->stack.size / 2) / state->stack.size < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
+		while ((absoluteTop * 100 + newSize / 2) / newSize < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
 			newSize /= 2;
 		}
 	}
