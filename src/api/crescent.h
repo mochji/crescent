@@ -107,6 +107,9 @@ crescent_pushFloat(crescent_State* state, crescent_Float value);
 extern void
 crescent_pop(crescent_State* state, size_t amount);
 
+extern void
+crescent_remove(crescent_State* state, size_t index);
+
 extern int
 crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
 

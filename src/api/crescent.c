@@ -326,6 +326,24 @@ crescent_pop(crescent_State* state, size_t amount) {
 	}
 }
 
+void
+crescent_remove(crescent_State* state, size_t index) {
+	if (index == 0 || index > state->stack.topFrame->top) {
+		return;
+	}
+
+	size_t           baseIndex = state->stack.topFrame->base + index - 1;
+	crescent_Object* currentObject;
+
+	for (size_t a = 0; a < state->stack.topFrame->top - index; a++) {
+		currentObject = &state->stack.data[baseIndex + a];
+
+		*currentObject = state->stack.data[baseIndex + a + 1];
+	}
+
+	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NONE;
+}
+
 int
 crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount) {
 	if (argCount > state->stack.topFrame->top) {
