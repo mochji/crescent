@@ -28,9 +28,22 @@
 
 #include "conf.h"
 
-#include "core/object.h"
-#include "core/state.h"
-#include "core/call.h"
+#define CRESCENT_TYPE_NONE    0
+#define CRESCENT_TYPE_NIL     1
+#define CRESCENT_TYPE_BOOLEAN 2
+#define CRESCENT_TYPE_INTEGER 3
+#define CRESCENT_TYPE_FLOAT   4
+
+#define CRESCENT_STATUS_OK    0
+#define CRESCENT_STATUS_YIELD 1
+#define CRESCENT_STATUS_ERROR 2
+#define CRESCENT_STATUS_NOMEM 3
+
+typedef int                   crescent_Boolean;
+typedef CRESCENT_CONF_INTEGER crescent_Integer;
+typedef CRESCENT_CONF_FLOAT   crescent_Float;
+
+typedef struct crescent_State crescent_State;
 
 extern int
 crescent_version();
@@ -56,7 +69,7 @@ crescent_getTop(crescent_State* state);
 extern void
 crescent_setTop(crescent_State* state);
 
-extern crescent_Type
+extern int
 crescent_type(crescent_State* state, size_t index);
 
 extern int
@@ -105,7 +118,7 @@ extern int
 crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
 
 extern int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status);
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status);
 
 extern void
 crescent_error(crescent_State* state, char* error);

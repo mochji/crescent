@@ -293,7 +293,7 @@ crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t a
 }
 
 int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status) {
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status) {
 	if (argCount > state->stack.topFrame->top) {
 		argCount = state->stack.topFrame->top;
 	}

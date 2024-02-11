@@ -50,6 +50,6 @@ extern size_t
 crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
 
 extern size_t
-crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status);
+crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status);
 
 #endif
