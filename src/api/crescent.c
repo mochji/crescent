@@ -134,7 +134,9 @@ crescent_typeName(crescent_Type type) {
 
 int
 crescent_isNil(crescent_State* state, size_t index) {
-	return state->stack.data[state->stack.topFrame->base + index].type == CRESCENT_TYPE_NIL;
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
+
+	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_NIL;
 }
 
 int
