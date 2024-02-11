@@ -54,7 +54,7 @@ extern size_t
 crescent_getTop(crescent_State* state);
 
 extern void
-crescent_setTop(crescent_State* state);
+crescent_setTop(crescent_State* state, size_t newTop);
 
 extern crescent_Type
 crescent_type(crescent_State* state, size_t index);
@@ -103,6 +103,9 @@ crescent_pushInteger(crescent_State* state, crescent_Integer value);
 
 extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
+
+extern void
+crescent_pop(crescent_State* state, size_t amount);
 
 extern int
 crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);

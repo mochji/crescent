@@ -88,13 +88,13 @@ crescent_setTop(crescent_State* state, size_t newTop) {
 	}
 }
 
-crescent_Status
+crescent_Type
 crescent_type(crescent_State* state, size_t index) {
 	return state->stack.data[state->stack.topFrame->base + index].type;
 }
 
 char*
-crescent_typeName(crescent_Status type) {
+crescent_typeName(crescent_Type type) {
 	switch (type) {
 		case CRESCENT_TYPE_NONE:
 			return "no value";
@@ -311,6 +311,19 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 
 	state->stack.data[index].type    = CRESCENT_TYPE_FLOAT;
 	state->stack.data[index].value.f = value;
+}
+
+void
+crescent_pop(crescent_State* state, size_t amount) {
+	if (state->stack.topFrame->top < amount) {
+		amount = state->stack.topFrame->top;
+	}
+
+	size_t topIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	for (size_t a = 0; a < amount; a++) {
+		state->stack.data[topIndex - a].type = CRESCENT_TYPE_NONE;
+	}
 }
 
 int
