@@ -48,7 +48,7 @@ crescent_Value {
 
 struct
 crescent_Object {
-	int                  type;
+	enum  crescent_Type  type;
 	union crescent_Value value;
 };
 

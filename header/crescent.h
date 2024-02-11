@@ -1,6 +1,6 @@
 /*
  * https://github.com/mochji/crescent
- * core/call.h
+ * crescent.h
  *
  * idrk what this is
  * Copyright (C) 2024 mochji
@@ -19,37 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_CALL_H
-#define CORE_CALL_H
+#ifndef CRESCENT_API_CRESCENT_H
+#define CRESCENT_API_CRESCENT_H
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <setjmp.h>
-
-#include "conf.h"
-
-#include "core/object.h"
-#include "core/state.h"
-
-extern void
-crescentC_setError(crescent_State* state, char* error);
-
-extern void
-crescentC_throw(crescent_State* state, crescent_Status status);
-
-extern void
-crescentC_memoryError(crescent_State* state);
-
-extern int
-crescentC_stackUsage(crescent_State* state);
-
-extern void
-crescentC_resizeStack(crescent_State* state, size_t newTop);
-
-extern size_t
-crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
-
-extern size_t
-crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status);
+/* TODO: public crescent api header */
 
 #endif

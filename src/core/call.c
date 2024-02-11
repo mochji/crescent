@@ -221,7 +221,7 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t 
 }
 
 size_t
-crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status) {
+crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status) {
 	crescent_ErrorJump* oldErrorJump = NULL;
 	size_t              results;
 
