@@ -91,12 +91,17 @@ crescentC_stackUsage(crescent_State* state) {
 }
 
 void
-crescentC_growStack(crescent_State* state, size_t usage) {
-	size_t           newSize = state->stack.size;
+crescentC_growStack(crescent_State* state, size_t newTop) {
+	size_t           absoluteTop = state->stack.topFrame->base + newTop;
+	size_t           newSize     = state->stack.size;
 	crescent_Object* newData;
+
+	int usage = (absoluteTop * 100 + newSize / 2) / newSize;
 
 	while (usage > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
 		newSize *= 2;
+
+		usage = (absoluteTop * 100 + newSize / 2) / newSize;
 	}
 
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
@@ -110,12 +115,17 @@ crescentC_growStack(crescent_State* state, size_t usage) {
 }
 
 void
-crescentC_shrinkStack(crescent_State* state, size_t usage) {
-	size_t           newSize = state->stack.size;
+crescentC_shrinkStack(crescent_State* state, size_t newTop) {
+	size_t           absoluteTop = state->stack.topFrame->base + newTop;
+	size_t           newSize     = state->stack.size;
 	crescent_Object* newData;
+
+	int usage = (absoluteTop * 100 + newSize / 2) / newSize;
 
 	while (usage < CRESCENT_CONF_STACK_SHRINKTHRESHOLD) {
 		newSize /= 2;
+
+		usage = (absoluteTop * 100 + newSize / 2) / newSize;
 	}
 
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
@@ -138,13 +148,13 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 			return;
 		}
 
-		crescentC_shrinkStack(state, usage);
+		crescentC_shrinkStack(state, newTop);
 
 		return;
 	}
 
 	if (usage > CRESCENT_CONF_STACK_GROWTHRESHOLD) {
-		crescentC_growStack(state, usage);
+		crescentC_growStack(state, newTop);
 
 		return;
 	}
