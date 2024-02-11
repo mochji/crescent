@@ -362,11 +362,13 @@ crescent_pop(crescent_State* state, size_t amount) {
 		amount = state->stack.topFrame->top;
 	}
 
-	size_t topIndex = state->stack.topFrame->base + state->stack.topFrame->top--;
+	size_t topIndex = state->stack.topFrame->base + state->stack.topFrame->top - 1;
 
 	for (size_t a = 0; a < amount; a++) {
 		state->stack.data[topIndex - a].type = CRESCENT_TYPE_NONE;
 	}
+
+	state->stack.topFrame->top -= amount;
 }
 
 void
