@@ -131,4 +131,7 @@ crescentVM_OpCode {
 typedef enum crescentVM_OpMode crescentVM_OpMode;
 typedef enum crescentVM_OpCode crescentVM_OpCode;
 
+crescentVM_OpMode
+crescentVM_mode[];
+
 #endif
