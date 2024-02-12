@@ -74,7 +74,7 @@ crescentG_blankLState() {
 		return NULL;
 	}
 
-	state->stack.size = CRESCENT_CONF_STACK_INITSIZE;
+	state->stack.size = CRESCENT_STACK_INITSIZE;
 	state->stack.data = calloc(state->stack.size, sizeof(crescent_Object));
 
 	if (state->stack.data == NULL) {
