@@ -29,6 +29,8 @@
 #include "core/state.h"
 #include "core/call.h"
 
+#include "api/crescent.h"
+
 int
 crescent_version() {
 	return CRESCENT_VERSION;
