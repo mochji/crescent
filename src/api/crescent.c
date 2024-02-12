@@ -97,7 +97,7 @@ crescent_setTop(crescent_State* state, size_t newTop) {
 
 crescent_Type
 crescent_type(crescent_State* state, size_t index) {
-	return state->stack.data[state->stack.topFrame->base + index].type;
+	return state->stack.data[state->stack.topFrame->base + index - 1].type;
 }
 
 char*
