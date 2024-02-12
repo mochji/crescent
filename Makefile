@@ -5,6 +5,8 @@
 SRC       = src
 BUILD     = build
 CORE      = $(SRC)/core
+TYPES     = $(SRC)/types
+VM        = $(SRC)/vm
 API       = $(SRC)/api
 
 MAIN      = $(SRC)/crescent.c
@@ -28,6 +30,12 @@ $(TARGET): $(MAIN) $(BUILD)/state.o $(BUILD)/call.o $(BUILD)/crescent.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 $(BUILD)/crescent.o: $(API)/crescent.c
+	$(CC) $(CFLAGS) -c -o $@ $^
+
+$(BUILD)/opcodes.o: $(VM)/opcodes.c
+	$(CC) $(CFLAGS) -c -o $@ $^
+
+$(BUILD)/string.o: $(TYPES)/string.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 $(BUILD)/state.o: $(CORE)/state.c
