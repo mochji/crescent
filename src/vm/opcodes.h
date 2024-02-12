@@ -104,8 +104,7 @@ crescentVM_OpCode {
 	OP_BSL,   /* S[A] = S[A] << S[C]      iABC          */
 	OP_BSR,   /* S[A] = S[A] >> S[C]      iABC          */
 
-	OP_ZR,    /* S[A] = S[B] == 0         iAB           */
-	OP_NZ,    /* S[A] = S[B] != 0         iAB           */
+	OP_IS,    /* S[A] = (boolean)S[B]     iABC          */
 	OP_EQ,    /* S[A] = S[B] == S[C]      iABC          */
 	OP_NE,    /* S[A] = S[B] != S[C]      iABC          */
 	OP_GT,    /* S[A] = S[B] > S[C]       iABC          */
@@ -120,10 +119,9 @@ crescentVM_OpCode {
 	OP_JMPF,  /* PC += A                  iAxx          */
 	OP_JMPB,  /* PC -= A                  iAxx          */
 
+	OP_JIS,   /* if (boolean)S[A] PC++    iA            */
 	OP_JE,    /* if S[A] == S[A] PC++     iAB           */
 	OP_JNE,   /* if S[A] != S[A] PC++     iAB           */
-	OP_JZ,    /* if S[A] == 0 PC++        iA            */
-	OP_JNZ,   /* if S[A] != 0 PC++        iA            */
 	OP_JG,    /* if S[A] > S[B] PC++      iAB           */
 	OP_JGE,   /* if S[A] >= S[B] PC++     iAB           */
 	OP_JL,    /* if S[A] < S[B] PC++      iAB           */
