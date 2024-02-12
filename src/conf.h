@@ -65,12 +65,12 @@
  */
 
 /*
- * @ CRESCENT_CONF_BITNESS
+ * @ CRESCENT_BITNESS
  *
  * Un-comment and change this only if the automatic bitness detection fails
  */
 
-/* #define CRESCENT_CONF_BITNESS 64 */
+/* #define CRESCENT_BITNESS 64 */
 
 /*
  * ============================================================================
@@ -81,26 +81,26 @@
  */
 
 /*
- * @ CRESCENT_CONF_INTEGER32
- * @ CRESCENT_CONF_FLOAT32
+ * @ CRESCENT_INTEGER32
+ * @ CRESCENT_FLOAT32
  *
  * Types of crescent_Integer and crescent_Float respectively on a 32-bit
  * platform.
  */
 
-#define CRESCENT_CONF_INTEGER32 int32_t
-#define CRESCENT_CONF_FLOAT32   float
+#define CRESCENT_INTEGER32 int32_t
+#define CRESCENT_FLOAT32   float
 
 /*
- * @ CRESCENT_CONF_INTEGER64
- * @ CRESCENT_CONF_FLOAT64
+ * @ CRESCENT_INTEGER64
+ * @ CRESCENT_FLOAT64
  *
  * Types of crescent_Integer and crescent_Float respectively on a 64-bit
  * platform.
  */
 
-#define CRESCENT_CONF_INTEGER64 int64_t
-#define CRESCENT_CONF_FLOAT64   double
+#define CRESCENT_INTEGER64 int64_t
+#define CRESCENT_FLOAT64   double
 
 /*
  * ============================================================================
@@ -112,23 +112,51 @@
  */
 
 /*
- * @ CRESCENT_CONF_STACK_INITSIZE
+ * @ CRESCENT_STACK_INITSIZE
  *
  * Controls the initial size of the Crescent stack when first allocated.
  */
 
-#define CRESCENT_CONF_STACK_INITSIZE 64
+#define CRESCENT_STACK_INITSIZE 64
 
 /*
- * @ CRESCENT_CONF_STACK_GROWTHRESHOLD
- * @ CRESCENT_CONF_STACK_SHRINKTHRESHOLD
+ * @ CRESCENT_STACK_GROWTHRESHOLD
+ * @ CRESCENT_STACK_SHRINKTHRESHOLD
  *
  * Controls the percentage of the top to size ratio of the Crescent stack must
  * exceed when growing or shrinking respectively.
  */
 
-#define CRESCENT_CONF_STACK_GROWTHRESHOLD 80
-#define CRESCENT_CONF_STACK_SHRINKTHRESHOLD 40
+#define CRESCENT_STACK_GROWTHRESHOLD 80
+#define CRESCENT_STACK_SHRINKTHRESHOLD 40
+
+/*
+ * ============================================================================
+ * Crescent string configuration
+ *
+ * Definitions that control the behavior of Crescent strings, mainly memory
+ * allocation.
+ * ============================================================================
+ */
+
+/*
+ * @ CRESCENT_STRING_INITSIZE
+ *
+ * Controls the initial size of Crescent strings when first allocated.
+ */
+
+#define CRESCENT_STRING_INITSIZE 64
+
+/*
+ * @ CRESCENT_STRING_MINFREE
+ * @ CRESCENT_STRING_MAXFREE
+ *
+ * Controls the maximum and minimum amount of free characters in a Crescent
+ * string must exceed before growing or shrinking respectively.
+ */
+
+#define CRESCENT_STRING_MINFREE 8
+#define CRESCENT_STRING_MAXFREE 32
 
 /*
  * ============================================================================
@@ -204,24 +232,24 @@
 
 
 
-#ifndef CRESCENT_CONF_BITNESS
+#ifndef CRESCENT_BITNESS
 #	if   SIZE_MAX == 0xFFFFFFFF
-#		define CRESCENT_CONF_BITNESS 32
+#		define CRESCENT_BITNESS 32
 #	elif SIZE_MAX == 0xFFFFFFFFFFFFFFFF
-#		define CRESCENT_CONF_BITNESS 64
+#		define CRESCENT_BITNESS 64
 #	else
 #		error Crescent is only supported for 32-bit and 64-bit platforms. Manually un-comment and define 'CRESCENT_PLATFORM_BITNESS' in conf.h if this is an error.
 #	endif
 #endif
 
-#if   CRESCENT_CONF_BITNESS == 32
-#	define CRESCENT_CONF_INTEGER   CRESCENT_CONF_INTEGER32
-#	define CRESCENT_CONF_FLOAT     CRESCENT_CONF_FLOAT32
-#	define CRESCENT_CONF_STACK_MAX CRESCENT_CONF_STACK_MAX32
-#elif CRESCENT_CONF_BITNESS == 64
-#	define CRESCENT_CONF_INTEGER CRESCENT_CONF_INTEGER64
-#	define CRESCENT_CONF_FLOAT   CRESCENT_CONF_FLOAT64
-#	define CRESCENT_CONF_STACK_MAX CRESCENT_CONF_STACK_MAX64
+#if   CRESCENT_BITNESS == 32
+#	define CRESCENT_INTEGER   CRESCENT_INTEGER32
+#	define CRESCENT_FLOAT     CRESCENT_FLOAT32
+#	define CRESCENT_STACK_MAX CRESCENT_STACK_MAX32
+#elif CRESCENT_BITNESS == 64
+#	define CRESCENT_INTEGER   CRESCENT_INTEGER64
+#	define CRESCENT_FLOAT     CRESCENT_FLOAT64
+#	define CRESCENT_STACK_MAX CRESCENT_STACK_MAX64
 #else
 #	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif
