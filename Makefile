@@ -5,7 +5,6 @@
 SRC       = src
 BUILD     = build
 CORE      = $(SRC)/core
-TYPES     = $(SRC)/types
 VM        = $(SRC)/vm
 API       = $(SRC)/api
 
@@ -24,34 +23,27 @@ TARGET    = $(BUILD)/crescent
 CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
 
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
-$(shell mkdir -p $(BUILD))
 
-$(TARGET): $(MAIN) $(BUILD)/state.o $(BUILD)/call.o $(BUILD)/crescent.o
-	$(CC) $(CFLAGS) -o $@ $^
+COREFILES  = $(wildcard $(CORE)/*.c)
+VMFILES    = $(wildcard $(VM)/*.c)
+APIFILES   = $(wildcard $(API)/*.c)
 
-$(BUILD)/crescent.o: $(API)/crescent.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+.DEFAULT_GOAL = build
 
-$(BUILD)/opcodes.o: $(VM)/opcodes.c
-	$(CC) $(CFLAGS) -c -o $@ $^
-
-$(BUILD)/string.o: $(TYPES)/string.c
-	$(CC) $(CFLAGS) -c -o $@ $^
-
-$(BUILD)/state.o: $(CORE)/state.c
-	$(CC) $(CFLAGS) -c -o $@ $^
-
-$(BUILD)/call.o: $(CORE)/call.c
-	$(CC) $(CFLAGS) -c -o $@ $^
-
-$(MAIN):
-
+.PHONY: build
 .PHONY: clean
 .PHONY: rmobj
 .PHONY: todo
 .PHONY: fixme
 .PHONY: notes
 .PHONY: echo
+
+build:
+	mkdir -p $(BUILD)
+	$(foreach file,$(COREFILES),$(CC) $(CFLAGS) -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
+	$(foreach file,$(VMFILES),$(CC) $(CFLAGS) -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
+	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(API)/crescent.c $(BUILD)/*.o
+	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/crescent.so
 
 clean:
 	rm -rf $(BUILD)
@@ -72,9 +64,9 @@ echo:
 	@echo "SRC    = $(SRC)"
 	@echo "BUILD  = $(BUILD)"
 	@echo "CORE   = $(CORE)"
+	@echo "VM     = $(VM)"
 	@echo "API    = $(API)"
 	@echo "MAIN   = $(MAIN)"
 	@echo "STD    = $(STD)"
 	@echo "CC     = $(CC)"
 	@echo "CFLAGS = $(CFLAGS)"
-	@echo "TARGET = $(TARGET)"
