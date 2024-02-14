@@ -28,18 +28,10 @@
 
 #include "core/state.h"
 
-struct
-crescent_String {
-	size_t size;
-	size_t length;
-	char*  data;
-};
-
-typedef int                    crescent_Boolean;
-typedef CRESCENT_INTEGER       crescent_Integer;
-typedef CRESCENT_FLOAT         crescent_Float;
-typedef struct crescent_String crescent_String;
-typedef int                   (crescent_CFunction)(crescent_State*);
+typedef int              crescent_Boolean;
+typedef CRESCENT_INTEGER crescent_Integer;
+typedef CRESCENT_FLOAT   crescent_Float;
+typedef int             (crescent_CFunction)(crescent_State*);
 
 enum
 crescent_Type {
@@ -48,7 +40,6 @@ crescent_Type {
 	CRESCENT_TYPE_BOOLEAN,
 	CRESCENT_TYPE_INTEGER,
 	CRESCENT_TYPE_FLOAT,
-	CRESCENT_TYPE_STRING,
 	CRESCENT_TYPE_CFUNCTION
 };
 
@@ -57,7 +48,6 @@ crescent_Value {
 	crescent_Boolean    b;
 	crescent_Integer    i;
 	crescent_Float      f;
-	crescent_String*    s;
 	crescent_CFunction* cFunc;
 };
 
