@@ -160,49 +160,40 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 	}
 }
 
-size_t
-crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount) {
-	crescent_Frame* newTopFrame = malloc(sizeof(crescent_Frame));
-	crescent_Frame* oldTopFrame = state->stack.topFrame;
-	int             results;
+int
+crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount) {
+	crescent_Frame*  newTopFrame;
+	crescent_Frame*  oldTopFrame;
+
+	if (state->stack.frameCount >= state->stack.maxFrames) {
+		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	}
+
+	newTopFrame = malloc(sizeof(crescent_Frame));
+	oldTopFrame = state->stack.topFrame;
 
 	if (newTopFrame == NULL) {
 		crescentC_memoryError(state);
 	}
 
 	newTopFrame->base     = oldTopFrame->top;
-	newTopFrame->top      = argCount;
+	newTopFrame->top      = 0;
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
-
-	oldTopFrame->next = newTopFrame;
-
-	if (state->stack.maxFrames <= state->stack.frameCount) {
-		size_t           newMaxFrames = state->stack.frameCount + 4;
-		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame*));
-
-		if (newFrames == NULL) {
-			crescentC_memoryError(state);
-		}
-
-		state->stack.maxFrames = newMaxFrames;
-		state->stack.frames    = newFrames;
-	}
-
-	state->stack.frameCount                         += 1;
-	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
-	state->stack.topFrame                            = newTopFrame;
 
 	crescentC_resizeStack(state, argCount);
 
 	size_t fromBaseIndex = oldTopFrame->base + oldTopFrame->top - argCount;
 	size_t toBaseIndex   = newTopFrame->base;
 
+	crescent_Object* stack = state->stack.data;
+
 	for (size_t a = 0; a < argCount; a++) {
-		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
+		stack[toBaseIndex + a] = stack[fromBaseIndex + a];
 	}
 
-	results = function(state);
+	int results = function(state);
 
 	if (results < 0) {
 		results = 0;
@@ -214,11 +205,13 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t 
 	toBaseIndex   = oldTopFrame->base + oldTopFrame->top;
 
 	for (int a = 0; a < results; a++) {
-		state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
+		stack[toBaseIndex + a] = stack[fromBaseIndex + a];
 	}
 
-	for (size_t a = newTopFrame->base + results; a < newTopFrame->base + newTopFrame->top; a++) {
-		state->stack.data[a].type = CRESCENT_TYPE_NONE;
+	toBaseIndex = newTopFrame->base + results;
+
+	for (size_t a = 0; a < newTopFrame->top; a++) {
+		stack[toBaseIndex + a].type = CRESCENT_TYPE_NONE;
 	}
 
 	free(newTopFrame);
@@ -232,23 +225,11 @@ crescentC_callC(crescent_State* state, int (*function)(crescent_State*), size_t 
 
 	crescentC_resizeStack(state, oldTopFrame->top);
 
-	if (state->stack.maxFrames - state->stack.frameCount >= 4) {
-		size_t           newMaxFrames = state->stack.frameCount + 4;
-		crescent_Frame** newFrames    = realloc(state->stack.frames, newMaxFrames * sizeof(crescent_Frame*));
-
-		if (newFrames == NULL) {
-			crescentC_memoryError(state);
-		}
-
-		state->stack.maxFrames = newMaxFrames;
-		state->stack.frames    = newFrames;
-	}
-
 	return results;
 }
 
-size_t
-crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status) {
+int
+crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
 	crescent_ErrorJump* oldErrorJump = NULL;
 	size_t              results;
 
@@ -267,12 +248,16 @@ crescentC_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t
 	if (setjmp(state->errorJump->buffer) == 0) {
 		results = crescentC_callC(state, function, argCount);
 	} else {
-		*status = state->errorJump->status;
+		if (status != NULL) {
+			*status = state->errorJump->status;
+		}
 
 		return 0;
 	}
 
-	*status = state->errorJump->status;
+	if (status != NULL) {
+		*status = state->errorJump->status;
+	}
 
 	free(state->errorJump);
 
