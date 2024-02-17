@@ -177,10 +177,14 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 		crescentC_memoryError(state);
 	}
 
-	newTopFrame->base     = oldTopFrame->top;
-	newTopFrame->top      = 0;
+	newTopFrame->base     = oldTopFrame->base + oldTopFrame->top;
+	newTopFrame->top      = argCount;
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
+
+	state->stack.frameCount                         += 1;
+	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
+	state->stack.topFrame                            = newTopFrame;
 
 	crescentC_resizeStack(state, argCount);
 
