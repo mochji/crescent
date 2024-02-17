@@ -51,10 +51,10 @@ crescentC_setError(crescent_State* state, char* error) {
 }
 
 void
-crescentC_throw(crescent_State* state, crescent_Status status) {
+crescentC_throw(crescent_State* state, int status) {
 	crescent_GState* gState = state->gState;
 
-/* TODO: find a better solution than goto, trying to call again causes -Winfinite-recursion */
+	/* TODO: find a better solution than goto, trying to call again causes -Winfinite-recursion */
 
 throwAgain:
 
