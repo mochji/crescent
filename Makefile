@@ -40,8 +40,8 @@ APIFILES   = $(wildcard $(API)/*.c)
 
 build:
 	mkdir -p $(BUILD)
-	$(foreach file,$(COREFILES),$(CC) $(CFLAGS) -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
-	$(foreach file,$(VMFILES),$(CC) $(CFLAGS) -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
+	$(foreach file,$(COREFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
+	$(foreach file,$(VMFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(API)/crescent.c $(BUILD)/*.o
 	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/crescent.so
 
