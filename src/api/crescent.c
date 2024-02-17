@@ -29,8 +29,6 @@
 #include "core/state.h"
 #include "core/call.h"
 
-#include "api/crescent.h"
-
 int
 crescent_version() {
 	return CRESCENT_VERSION;
@@ -95,13 +93,13 @@ crescent_setTop(crescent_State* state, size_t newTop) {
 	}
 }
 
-crescent_Type
+int
 crescent_type(crescent_State* state, size_t index) {
 	return state->stack.data[state->stack.topFrame->base + index - 1].type;
 }
 
 char*
-crescent_typeName(crescent_Type type) {
+crescent_typeName(int type) {
 	switch (type) {
 		case CRESCENT_TYPE_NONE:
 			return "no value";
@@ -401,7 +399,7 @@ crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t a
 }
 
 int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, crescent_Status* status) {
+crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status) {
 	if (argCount > state->stack.topFrame->top) {
 		argCount = state->stack.topFrame->top;
 	}
@@ -422,7 +420,7 @@ crescent_call(crescent_State* state, size_t index, size_t argCount) {
 }
 
 int
-crescent_pCall(crescent_State* state, size_t index, size_t argCount, crescent_Status* status) {
+crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status) {
 	if (argCount > state->stack.topFrame->top) {
 		argCount = state->stack.topFrame->top;
 	}
