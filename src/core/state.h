@@ -30,18 +30,10 @@
 
 #include "core/object.h"
 
-enum
-crescent_Status {
-	CRESCENT_STATUS_OK,
-	CRESCENT_STATUS_YIELD,
-	CRESCENT_STATUS_ERROR,
-	CRESCENT_STATUS_NOMEM
-};
-
 struct
 crescent_ErrorJump {
-	jmp_buf              buffer;
-	enum crescent_Status status;
+	jmp_buf buffer;
+	int     status;
 };
 
 struct
@@ -77,7 +69,6 @@ crescent_GState {
 	void                  (*panic)(struct crescent_State*);
 };
 
-typedef enum   crescent_Status    crescent_Status;
 typedef struct crescent_ErrorJump crescent_ErrorJump;
 typedef struct crescent_Frame     crescent_Frame;
 typedef struct crescent_State     crescent_State;

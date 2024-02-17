@@ -33,16 +33,6 @@ typedef CRESCENT_INTEGER crescent_Integer;
 typedef CRESCENT_FLOAT   crescent_Float;
 typedef int             (crescent_CFunction)(crescent_State*);
 
-enum
-crescent_Type {
-	CRESCENT_TYPE_NONE,
-	CRESCENT_TYPE_NIL,
-	CRESCENT_TYPE_BOOLEAN,
-	CRESCENT_TYPE_INTEGER,
-	CRESCENT_TYPE_FLOAT,
-	CRESCENT_TYPE_CFUNCTION
-};
-
 union
 crescent_Value {
 	crescent_Boolean    b;
@@ -53,11 +43,10 @@ crescent_Value {
 
 struct
 crescent_Object {
-	enum  crescent_Type  type;
+	unsigned char        type;
 	union crescent_Value value;
 };
 
-typedef enum   crescent_Type   crescent_Type;
 typedef union  crescent_Value  crescent_Value;
 typedef struct crescent_Object crescent_Object;
 
