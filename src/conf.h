@@ -242,6 +242,10 @@
 #define CRESCENT_TYPE_FLOAT     4
 #define CRESCENT_TYPE_CFUNCTION 5
 
+#ifdef __cplusplus
+#	error Crescent is not supported for C++. (this is a c project, why did you compile this with a c++ compiler?)
+#endif
+
 #ifndef CRESCENT_BITNESS
 #	if   SIZE_MAX == 0xFFFFFFFF
 #		define CRESCENT_BITNESS 32
