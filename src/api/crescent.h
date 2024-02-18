@@ -22,6 +22,7 @@
 #ifndef API_CRESCENT_H
 #define API_CRESCENT_H
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <setjmp.h>
@@ -46,6 +47,9 @@ crescent_openState();
 
 extern void
 crescent_closeState(crescent_State* state);
+
+extern void
+crescent_setPanic(crescent_State* state, crescent_CFunction* function);
 
 extern size_t
 crescent_absoluteIndex(crescent_State* state, size_t index);

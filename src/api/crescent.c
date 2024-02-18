@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <setjmp.h>
@@ -28,6 +29,21 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
+
+static int
+crescent_panic(crescent_State* state) {
+	char* error;
+
+	if (state->error != NULL) {
+		error = state->error;
+	} else {
+		error = "no error";
+	}
+
+	fprintf(stderr, "PANIC: no protected call found (%s)\n", error);
+
+	return 0;
+}
 
 int
 crescent_version() {
@@ -57,12 +73,19 @@ crescent_openState() {
 
 	state->gState = gState;
 
+	gState->panic = &crescent_panic;
+
 	return state;
 }
 
 void
 crescent_closeState(crescent_State* state) {
 	crescentG_closeGState(state->gState);
+}
+
+void
+crescent_setPanic(crescent_State* state, crescent_CFunction* function) {
+	state->gState->panic = function;
 }
 
 size_t
