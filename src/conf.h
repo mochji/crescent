@@ -246,18 +246,6 @@
 
 
 
-#define CRESCENT_STATUS_OK    0
-#define CRESCENT_STATUS_YIELD 1
-#define CRESCENT_STATUS_ERROR 2
-#define CRESCENT_STATUS_NOMEM 3
-
-#define CRESCENT_TYPE_NONE      0
-#define CRESCENT_TYPE_NIL       1
-#define CRESCENT_TYPE_BOOLEAN   2
-#define CRESCENT_TYPE_INTEGER   3
-#define CRESCENT_TYPE_FLOAT     4
-#define CRESCENT_TYPE_CFUNCTION 5
-
 #ifdef __cplusplus
 #	error Crescent is not supported for C++. (this is a c project, why did you compile this with a c++ compiler?)
 #endif
@@ -288,5 +276,17 @@
 #	warning CRESCENT_VM_MAXLOCALS set to value greater than 250, resetting to 250.
 #	define CRESCENT_VM_MAXLOCALS 250
 #endif
+
+#define CRESCENT_STATUS_OK    0
+#define CRESCENT_STATUS_YIELD 1
+#define CRESCENT_STATUS_ERROR 2
+#define CRESCENT_STATUS_NOMEM 3
+
+#define CRESCENT_TYPE_NONE      0
+#define CRESCENT_TYPE_NIL       1
+#define CRESCENT_TYPE_BOOLEAN   2
+#define CRESCENT_TYPE_INTEGER   3
+#define CRESCENT_TYPE_FLOAT     4
+#define CRESCENT_TYPE_CFUNCTION 5
 
 #endif
