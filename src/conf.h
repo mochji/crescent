@@ -256,7 +256,7 @@
 #	elif SIZE_MAX == 0xFFFFFFFFFFFFFFFF
 #		define CRESCENT_BITNESS 64
 #	else
-#		error Crescent is only supported for 32-bit and 64-bit platforms. Manually un-comment and define 'CRESCENT_PLATFORM_BITNESS' in conf.h if this is an error.
+#		error Crescent is only supported for 32-bit and 64-bit platforms. Manually un-comment and define 'CRESCENT_BITNESS' in conf.h if this is an error.
 #	endif
 #endif
 
