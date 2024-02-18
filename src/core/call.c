@@ -122,7 +122,7 @@ crescentC_shrinkStack(crescent_State* state, size_t newTop) {
 
 	int usage = (absoluteTop * 100 + newSize / 2) / newSize;
 
-	while (usage < CRESCENT_STACK_SHRINKTHRESHOLD) {
+	while (usage < CRESCENT_STACK_SHRINKTHRESHOLD && newSize > CRESCENT_STACK_INITSIZE) {
 		newSize /= 2;
 
 		usage = (absoluteTop * 100 + newSize / 2) / newSize;
