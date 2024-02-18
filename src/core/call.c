@@ -235,7 +235,7 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 int
 crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
 	crescent_ErrorJump* oldErrorJump = NULL;
-	size_t              results;
+	int                 results;
 
 	if (state->errorJump != NULL) {
 		oldErrorJump = state->errorJump;
@@ -252,11 +252,7 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 	if (setjmp(state->errorJump->buffer) == 0) {
 		results = crescentC_callC(state, function, argCount);
 	} else {
-		if (status != NULL) {
-			*status = state->errorJump->status;
-		}
-
-		return 0;
+		results = 0;
 	}
 
 	if (status != NULL) {
