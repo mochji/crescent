@@ -390,6 +390,8 @@ crescent_pop(crescent_State* state, size_t amount) {
 	}
 
 	state->stack.topFrame->top -= amount;
+
+	crescentC_resizeStack(state, state->stack.topFrame->top);
 }
 
 void
