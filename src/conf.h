@@ -53,7 +53,7 @@
 #define CRESCENT_RELEASE_STR CRESCENT_VERSION_STR "." STR(CRESCENT_VERSION_PATCH)
 
 #define CRESCENT_AUTHORS   "mochji"
-#define CRESCENT_COPYRIGHT CRESCENT_RELEASE_STR "  Copyright (C) 2024  " CRESCENT_AUTHORS
+#define CRESCENT_COPYRIGHT "Crescent " CRESCENT_RELEASE_STR "  Copyright (C) 2024  " CRESCENT_AUTHORS
 
 /*
  * ============================================================================
