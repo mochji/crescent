@@ -40,7 +40,7 @@ crescent_panic(crescent_State* state) {
 		error = "no error";
 	}
 
-	fprintf(stderr, "PANIC: error within unprotected call in Crescent API (%s)\n", error);
+	fprintf(stderr, "PANIC: error within unprotected call to Crescent API (%s)\n", error);
 
 	return 0;
 }
