@@ -133,6 +133,12 @@ crescent_call(crescent_State* state, size_t index, size_t argCount);
 extern int
 crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status);
 
+extern int
+crescent_callK(crescent_State* state, size_t index, size_t argCount, int results);
+
+extern int
+crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int results, int* status);
+
 extern void
 crescent_error(crescent_State* state, char* error);
 
