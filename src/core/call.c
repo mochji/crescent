@@ -161,7 +161,7 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 }
 
 int
-crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount) {
+crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults) {
 	crescent_Frame*  newTopFrame;
 	crescent_Frame*  oldTopFrame;
 
@@ -205,6 +205,10 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 		results = newTopFrame->top;
 	}
 
+	if (results > maxResults) {
+		results = maxResults;
+	}
+
 	fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
 	toBaseIndex   = oldTopFrame->base + oldTopFrame->top;
 
@@ -233,7 +237,7 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 }
 
 int
-crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
+crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults, int* status) {
 	crescent_ErrorJump* oldErrorJump = NULL;
 	int                 results;
 
@@ -250,7 +254,7 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 	state->errorJump->status = CRESCENT_STATUS_OK;
 
 	if (setjmp(state->errorJump->buffer) == 0) {
-		results = crescentC_callC(state, function, argCount);
+		results = crescentC_callC(state, function, argCount, maxResults);
 	} else {
 		results = 0;
 	}
