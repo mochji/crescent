@@ -31,11 +31,6 @@
 
 typedef struct crescent_State crescent_State;
 
-typedef int              crescent_Boolean;
-typedef CRESCENT_INTEGER crescent_Integer;
-typedef CRESCENT_FLOAT   crescent_Float;
-typedef int             (crescent_CFunction)(crescent_State*);
-
 extern int
 crescent_version();
 

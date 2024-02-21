@@ -22,16 +22,9 @@
 #ifndef CORE_OBJECT_H
 #define CORE_OBJECT_H
 
-#include <stddef.h>
-
 #include "conf.h"
 
 #include "core/state.h"
-
-typedef int              crescent_Boolean;
-typedef CRESCENT_INTEGER crescent_Integer;
-typedef CRESCENT_FLOAT   crescent_Float;
-typedef int             (crescent_CFunction)(crescent_State*);
 
 union
 crescent_Value {

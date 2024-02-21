@@ -287,4 +287,11 @@
 #define CRESCENT_TYPE_FLOAT     4
 #define CRESCENT_TYPE_CFUNCTION 5
 
+struct crescent_State;
+
+typedef int              crescent_Boolean;
+typedef CRESCENT_INTEGER crescent_Integer;
+typedef CRESCENT_FLOAT   crescent_Float;
+typedef int             (crescent_CFunction)(struct crescent_State*);
+
 #endif
