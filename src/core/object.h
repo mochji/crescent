@@ -24,8 +24,6 @@
 
 #include "conf.h"
 
-#include "core/state.h"
-
 union
 crescent_Value {
 	crescent_Boolean    b;

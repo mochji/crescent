@@ -4,6 +4,7 @@
 
 SRC       = src
 BUILD     = build
+TYPES     = $(SRC)/types
 CORE      = $(SRC)/core
 VM        = $(SRC)/vm
 API       = $(SRC)/api
@@ -12,7 +13,7 @@ MAIN      = $(SRC)/crescent.c
 
 STD       = c99
 CC        = gcc
-CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
+CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
 
 TARGET    = $(BUILD)/crescent
 
@@ -25,6 +26,7 @@ CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
 
 COREFILES  = $(wildcard $(CORE)/*.c)
+TYPESFILES = $(wildcard $(TYPES)/*.c)
 VMFILES    = $(wildcard $(VM)/*.c)
 APIFILES   = $(wildcard $(API)/*.c)
 
@@ -40,8 +42,9 @@ APIFILES   = $(wildcard $(API)/*.c)
 
 build:
 	mkdir -p $(BUILD)
-	$(foreach file,$(COREFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
-	$(foreach file,$(VMFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(file))) $(file);)
+	$(foreach source,$(COREFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
+	$(foreach source,$(TYPESFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
+	$(foreach source,$(VMFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(API)/crescent.c $(BUILD)/*.o
 	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/crescent.so
 
