@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <setjmp.h>
+#include <limits.h>
 
 #include "conf.h"
 
