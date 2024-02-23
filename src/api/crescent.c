@@ -104,6 +104,13 @@ crescent_getTop(crescent_State* state) {
 	return state->stack.topFrame->top;
 }
 
+int
+crescent_stackUsage(crescent_State* state) {
+	size_t absoluteTop = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+}
+
 void
 crescent_setTop(crescent_State* state, size_t newTop) {
 	size_t oldTop = state->stack.topFrame->top;
