@@ -419,7 +419,7 @@ crescent_remove(crescent_State* state, size_t index) {
 
 	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NONE;
 
-	crescentC_resizeStack(state, state->stack.topFrame->top--);
+	crescentC_resizeStack(state, --state->stack.topFrame->top);
 }
 
 int
