@@ -67,10 +67,10 @@
 /*
  * @ CRESCENT_BITNESS
  *
- * Un-comment and change this only if the automatic bitness detection fails
+ * Un-comment and change this only if the automatic bitness detection fails.
  */
 
-/* #define CRESCENT_BITNESS 64 */
+/* #define CRESCENT_BITNESS 32 */
 
 /*
  * ============================================================================
