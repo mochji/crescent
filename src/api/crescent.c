@@ -475,6 +475,10 @@ crescent_callK(crescent_State* state, size_t index, size_t argCount, int results
 		argCount = state->stack.topFrame->top;
 	}
 
+	if (results < 0) {
+		results = 0;
+	}
+
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
 
@@ -485,6 +489,10 @@ int
 crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int results, int* status) {
 	if (argCount > state->stack.topFrame->top) {
 		argCount = state->stack.topFrame->top;
+	}
+
+	if (results < 0) {
+		results = 0;
 	}
 
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
