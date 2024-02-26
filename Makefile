@@ -48,6 +48,9 @@ build:
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(API)/crescent.c $(BUILD)/*.o
 	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/crescent.so
 
+run: build
+	./$(TARGET)
+
 clean:
 	rm -rf $(BUILD)
 
