@@ -357,7 +357,12 @@ crescent_pushBoolean(crescent_State* state, crescent_Boolean value) {
 	crescentC_resizeStack(state, state->stack.topFrame->top++);
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_BOOLEAN;
-	state->stack.data[absoluteIndex].value.b = value;
+
+	if (value) {
+		state->stack.data[absoluteIndex].value.b = 1;
+	} else {
+		state->stack.data[absoluteIndex].value.b = 0;
+	}
 }
 
 void
