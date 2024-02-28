@@ -450,6 +450,8 @@ crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t 
 	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
 }
 
+/* TODO: error messages on attempt to call non function, needs format string func */
+
 int
 crescent_call(crescent_State* state, size_t index, size_t argCount) {
 	if (argCount > state->stack.topFrame->top) {
