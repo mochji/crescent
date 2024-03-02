@@ -271,7 +271,7 @@
 #endif
 
 #if CRESCENT_VM_MAXLOCALS > 250
-#	warning CRESCENT_VM_MAXLOCALS set to value greater than 250, resetting to 250.
+#	undef  CRESCENT_VM_MAXLOCALS
 #	define CRESCENT_VM_MAXLOCALS 250
 #endif
 
