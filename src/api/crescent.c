@@ -404,7 +404,7 @@ crescent_pop(crescent_State* state, size_t amount) {
 	size_t topIndex = state->stack.topFrame->base + state->stack.topFrame->top - 1;
 
 	for (size_t a = 0; a < amount; a++) {
-		state->stack.data[topIndex - a].type = CRESCENT_TYPE_NONE;
+		crescentO_free(&state->stack.data[topIndex - a]);
 	}
 
 	state->stack.topFrame->top -= amount;
@@ -418,11 +418,10 @@ crescent_remove(crescent_State* state, size_t index) {
 		return;
 	}
 
-	size_t           baseIndex = state->stack.topFrame->base + index - 1;
-	crescent_Object* currentObject;
+	size_t baseIndex = state->stack.topFrame->base + index - 1;
 
 	for (size_t a = 0; a < state->stack.topFrame->top - index; a++) {
-		state->stack.data[baseIndex + a] = state->stack.data[baseIndex + a + 1];
+		crescentO_clone(&state->stack.data[baseIndex + a], &state->stack.data[baseIndex + a + 1]);
 	}
 
 	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NONE;

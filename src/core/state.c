@@ -142,6 +142,10 @@ crescentG_closeLState(crescent_State* state) {
 		return;
 	}
 
+	for (size_t a = 0; a < state->stack.size; a++) {
+		crescentO_free(&state->stack.data[a]);
+	}
+
 	for (size_t a = 0; a < state->stack.frameCount; a++) {
 		free(state->stack.frames[a]);
 	}

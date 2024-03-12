@@ -128,6 +128,10 @@ crescentC_shrinkStack(crescent_State* state, size_t newTop) {
 		usage = (absoluteTop * 100 + newSize / 2) / newSize;
 	}
 
+	for (size_t a = state->stack.topFrame->base + state->stack.topFrame->top - 1; a < absoluteTop; a++) {
+		crescentO_free(&state->stack.data[a]);
+	}
+
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
 
 	if (newData == NULL) {
@@ -198,7 +202,9 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	crescent_Object* stack = state->stack.data;
 
 	for (size_t a = 0; a < argCount; a++) {
-		stack[toBaseIndex + a] = stack[fromBaseIndex + a];
+		if (crescentO_clone(&stack[toBaseIndex + a], &stack[fromBaseIndex + a])) {
+			crescentC_memoryError(state);
+		}
 	}
 
 	int results = function(state);
@@ -221,13 +227,15 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	toBaseIndex   = oldTopFrame->base + oldTopFrame->top;
 
 	for (int a = 0; a < results; a++) {
-		stack[toBaseIndex + a] = stack[fromBaseIndex + a];
+		if (crescentO_clone(&stack[toBaseIndex + a], &stack[fromBaseIndex + a])) {
+			crescentC_memoryError(state);
+		}
 	}
 
 	toBaseIndex = newTopFrame->base + results;
 
 	for (size_t a = 0; a < newTopFrame->top; a++) {
-		stack[toBaseIndex + a].type = CRESCENT_TYPE_NONE;
+		crescentO_free(&stack[toBaseIndex + a]);
 	}
 
 	free(newTopFrame);

@@ -1,6 +1,6 @@
 /*
  * https://github.com/mochji/crescent
- * core/object.h
+ * core/object.c
  *
  * idrk what this is
  * Copyright (C) 2024 mochji
@@ -19,34 +19,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_OBJECT_H
-#define CORE_OBJECT_H
-
 #include <stddef.h>
 
 #include "conf.h"
 
-union
-crescent_Value {
-	crescent_Boolean    b;
-	crescent_Integer    i;
-	crescent_Float      f;
-	crescent_CFunction* cFunc;
-};
+#include "core/object.h"
 
-struct
-crescent_Object {
-	unsigned char        type;
-	union crescent_Value value;
-};
+int
+crescentO_clone(crescent_Object* to, crescent_Object* from) {
+	*to = *from;
 
-typedef union  crescent_Value  crescent_Value;
-typedef struct crescent_Object crescent_Object;
+	return 0;
+}
 
-extern int
-crescentO_clone(crescent_Object* to, crescent_Object* from);
+void
+crescentO_free(crescent_Object* object) {
+	if (object == NULL) {
+		return;
+	}
 
-extern void
-crescentO_free(crescent_Object* object);
-
-#endif
+	object->type = CRESCENT_TYPE_NONE;
+}
