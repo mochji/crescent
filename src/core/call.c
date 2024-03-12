@@ -165,6 +165,10 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	crescent_Frame* newTopFrame;
 	crescent_Frame* oldTopFrame;
 
+	if (maxResults < 0) {
+		maxResults = 0;
+	}
+
 	if (state->stack.frameCount >= state->stack.maxFrames) {
 		crescentC_setError(state, "stack overflow");
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
@@ -201,12 +205,16 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 
 	if (results < 0) {
 		results = 0;
-	} else if ((size_t)results > newTopFrame->top) {
-		results = newTopFrame->top;
+	} else if (results > maxResults) {
+		results = maxResults;
 	}
 
-	if (results > maxResults) {
-		results = maxResults;
+	if ((size_t)results > newTopFrame->top) {
+		if (newTopFrame->top > sizeof(int)) {
+			results = sizeof(int);
+		} else {
+			results = newTopFrame->top;
+		}
 	}
 
 	fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
