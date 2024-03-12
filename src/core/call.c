@@ -162,8 +162,8 @@ crescentC_resizeStack(crescent_State* state, size_t newTop) {
 
 int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults) {
-	crescent_Frame*  newTopFrame;
-	crescent_Frame*  oldTopFrame;
+	crescent_Frame* newTopFrame;
+	crescent_Frame* oldTopFrame;
 
 	if (state->stack.frameCount >= state->stack.maxFrames) {
 		crescentC_setError(state, "stack overflow");
