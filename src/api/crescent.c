@@ -422,9 +422,7 @@ crescent_remove(crescent_State* state, size_t index) {
 	crescent_Object* currentObject;
 
 	for (size_t a = 0; a < state->stack.topFrame->top - index; a++) {
-		currentObject = &state->stack.data[baseIndex + a];
-
-		*currentObject = state->stack.data[baseIndex + a + 1];
+		state->stack.data[baseIndex + a] = state->stack.data[baseIndex + a + 1];
 	}
 
 	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NONE;
