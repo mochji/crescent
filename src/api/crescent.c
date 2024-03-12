@@ -436,7 +436,7 @@ crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t a
 		argCount = state->stack.topFrame->top;
 	}
 
-	return crescentC_callC(state, function, argCount, INT_MAX);
+	return crescentC_callC(state, function, argCount, sizeof(int));
 }
 
 int
@@ -445,7 +445,7 @@ crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t 
 		argCount = state->stack.topFrame->top;
 	}
 
-	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
+	return crescentC_pCallC(state, function, argCount, sizeof(int), status);
 }
 
 /* TODO: error messages on attempt to call non function, needs format string func */
@@ -459,7 +459,7 @@ crescent_call(crescent_State* state, size_t index, size_t argCount) {
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
 
-	return crescentC_callC(state, function, argCount, INT_MAX);
+	return crescentC_callC(state, function, argCount, sizeof(int));
 }
 
 int
@@ -471,7 +471,7 @@ crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
 
-	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
+	return crescentC_pCallC(state, function, argCount, sizeof(int), status);
 }
 
 int
