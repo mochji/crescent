@@ -15,6 +15,8 @@ STD       = c99
 CC        = gcc
 CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
 
+VALGRIND  = valgrind
+
 TARGET    = $(BUILD)/crescent
 
 # =============================================================================
@@ -33,6 +35,8 @@ APIFILES   = $(wildcard $(API)/*.c)
 .DEFAULT_GOAL = build
 
 .PHONY: build
+.PHONY: run
+.PHONY: valgrind
 .PHONY: clean
 .PHONY: rmobj
 .PHONY: todo
@@ -51,6 +55,10 @@ build:
 run: build
 	./$(TARGET)
 
+valgrind: build
+	valgrind --tool=massif ./$(TARGET)
+	valgrind --tool=memcheck ./$(TARGET)
+
 clean:
 	rm -rf $(BUILD)
 
@@ -67,12 +75,13 @@ notes:
 	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME:\|TODO:"
 
 echo:
-	@echo "SRC    = $(SRC)"
-	@echo "BUILD  = $(BUILD)"
-	@echo "CORE   = $(CORE)"
-	@echo "VM     = $(VM)"
-	@echo "API    = $(API)"
-	@echo "MAIN   = $(MAIN)"
-	@echo "STD    = $(STD)"
-	@echo "CC     = $(CC)"
-	@echo "CFLAGS = $(CFLAGS)"
+	@echo "SRC      = $(SRC)"
+	@echo "BUILD    = $(BUILD)"
+	@echo "CORE     = $(CORE)"
+	@echo "VM       = $(VM)"
+	@echo "API      = $(API)"
+	@echo "MAIN     = $(MAIN)"
+	@echo "STD      = $(STD)"
+	@echo "CC       = $(CC)"
+	@echo "CFLAGS   = $(CFLAGS)"
+	@echo "VALGRIND = $(VALGRIND)"
