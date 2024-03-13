@@ -27,6 +27,7 @@
 
 #include "conf.h"
 
+#include "types/string.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
@@ -157,6 +158,10 @@ crescent_typeName(int type) {
 			return "float";
 
 			break;
+		case CRESCENT_TYPE_STRING:
+			return "string";
+
+			break;
 		case CRESCENT_TYPE_CFUNCTION:
 			return "cfunction";
 
@@ -192,6 +197,13 @@ crescent_isFloat(crescent_State* state, size_t index) {
 	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
 	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_FLOAT;
+}
+
+int
+crescent_isString(crescent_State* state, size_t index) {
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
+
+	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_STRING;
 }
 
 int
@@ -326,6 +338,24 @@ crescent_toFloat(crescent_State* state, size_t index) {
 	return crescent_toFloatX(state, index, NULL);
 }
 
+char*
+crescent_toString(crescent_State* state, size_t index) {
+	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
+	crescent_Object* object;
+
+	if (index == 0 || index > state->stack.topFrame->top) {
+		return NULL;
+	}
+
+	object = &state->stack.data[absoluteIndex];
+
+	if (object->type == CRESCENT_TYPE_STRING) {
+		return object->value.s->data;
+	}
+
+	return NULL;
+}
+
 crescent_CFunction*
 crescent_toCFunction(crescent_State* state, size_t index) {
 	size_t absoluteIndex = state->stack.topFrame->base + index;
@@ -383,6 +413,34 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_FLOAT;
 	state->stack.data[absoluteIndex].value.f = value;
+}
+
+void
+crescent_pushString(crescent_State* state, char* str) {
+	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	size_t           length        = 0;
+	crescent_String* string        = crescentS_new();
+
+	while (str[length++]) {}
+
+	if (string == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	if (crescentS_resize(string, length)) {
+		crescentC_memoryError(state);
+	}
+
+	for (size_t a = 0; a < length; a++) {
+		string->data[a] = str[a];
+	}
+
+	string->length = length;
+
+	crescentC_resizeStack(state, state->stack.topFrame->top++);
+
+	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
+	state->stack.data[absoluteIndex].value.s = string;
 }
 
 void

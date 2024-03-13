@@ -23,11 +23,24 @@
 
 #include "conf.h"
 
+#include "types/string.h"
+
 #include "core/object.h"
 
 int
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
-	*to = *from;
+	if (from->type == CRESCENT_TYPE_STRING) {
+		crescent_String* cloned = crescentS_clone(from->value.s);
+
+		if (cloned == NULL) {
+			return 1;
+		}
+
+		to->value.s = cloned;
+		to->type    = CRESCENT_TYPE_STRING;
+	} else {
+		*to = *from;
+	}
 
 	return 0;
 }
@@ -36,6 +49,10 @@ void
 crescentO_free(crescent_Object* object) {
 	if (object == NULL) {
 		return;
+	}
+
+	if (object->type == CRESCENT_TYPE_STRING) {
+		crescentS_free(object->value.s);
 	}
 
 	object->type = CRESCENT_TYPE_NONE;

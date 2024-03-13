@@ -104,6 +104,9 @@ crescent_toInteger(crescent_State* state, size_t index);
 extern crescent_Float
 crescent_toFloat(crescent_State* state, size_t index);
 
+extern char*
+crescent_toString(crescent_State* state, size_t index);
+
 extern crescent_CFunction*
 crescent_toCFunction(crescent_State* state, size_t index);
 
@@ -118,6 +121,9 @@ crescent_pushInteger(crescent_State* state, crescent_Integer value);
 
 extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
+
+extern void
+crescent_pushString(crescent_State* state, char* str);
 
 extern void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction* function);

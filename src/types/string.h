@@ -1,6 +1,6 @@
 /*
  * https://github.com/mochji/crescent
- * core/object.h
+ * types/string.h
  *
  * idrk what this is
  * Copyright (C) 2024 mochji
@@ -19,37 +19,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_OBJECT_H
-#define CORE_OBJECT_H
+#ifndef TYPES_STRING_H
+#define TYPES_STRING_H
 
+#include <stdlib.h>
 #include <stddef.h>
 
 #include "conf.h"
 
-#include "types/string.h"
-
-union
-crescent_Value {
-	crescent_Boolean    b;
-	crescent_Integer    i;
-	crescent_Float      f;
-	crescent_String*    s;
-	crescent_CFunction* cFunc;
-};
-
 struct
-crescent_Object {
-	unsigned char        type;
-	union crescent_Value value;
+crescent_String {
+	size_t size;
+	size_t length;
+	char*  data;
 };
 
-typedef union  crescent_Value  crescent_Value;
-typedef struct crescent_Object crescent_Object;
+typedef struct crescent_String crescent_String;
 
-extern int
-crescentO_clone(crescent_Object* to, crescent_Object* from);
+extern crescent_String*
+crescentS_new();
 
 extern void
-crescentO_free(crescent_Object* object);
+crescentS_free(crescent_String* string);
+
+extern crescent_String*
+crescentS_clone(crescent_String* string);
+
+extern int
+crescentS_shrink(crescent_String* string, size_t newLength);
+
+extern int
+crescentS_grow(crescent_String* string, size_t newLength);
+
+extern int
+crescentS_resize(crescent_String* string, size_t newLength);
 
 #endif
