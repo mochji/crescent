@@ -132,22 +132,6 @@
 
 /*
  * ============================================================================
- * Crescent VM configuration
- *
- * Definitions that control the behavior of the Crescent virtual machine.
- * ============================================================================
- */
-
-/*
- * @ CRESCENT_VM_MAXLOCALS
- *
- * Controls the max amount of locals in the Crescent VM, must be less than 250.
- */
-
-#define CRESCENT_VM_MAXLOCALS 250
-
-/*
- * ============================================================================
  * Crescent string configuration
  *
  * Definitions that control the behavior of Crescent strings, mainly memory
@@ -173,6 +157,22 @@
 
 #define CRESCENT_STRING_MINFREE 8
 #define CRESCENT_STRING_MAXFREE 32
+
+/*
+ * ============================================================================
+ * Crescent VM configuration
+ *
+ * Definitions that control the behavior of the Crescent virtual machine.
+ * ============================================================================
+ */
+
+/*
+ * @ CRESCENT_VM_MAXLOCALS
+ *
+ * Controls the max amount of locals in the Crescent VM, must be less than 250.
+ */
+
+#define CRESCENT_VM_MAXLOCALS 250
 
 /*
  * ============================================================================
