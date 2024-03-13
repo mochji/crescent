@@ -49,8 +49,9 @@ build:
 	$(foreach source,$(TYPESFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
 	$(foreach source,$(COREFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
 	$(foreach source,$(VMFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
-	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(API)/crescent.c $(BUILD)/*.o
-	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/crescent.so
+	$(foreach source,$(APIFILES),$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
+	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(BUILD)/*.o
+	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/*.o
 
 run: build
 	./$(TARGET)
