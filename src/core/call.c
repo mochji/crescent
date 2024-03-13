@@ -226,10 +226,16 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
 	toBaseIndex   = oldTopFrame->base + oldTopFrame->top;
 
+	crescent_Object clonedObject;
+
 	for (int a = 0; a < results; a++) {
-		if (crescentO_clone(&stack[toBaseIndex + a], &stack[fromBaseIndex + a])) {
+		if (crescentO_clone(&clonedObject, &stack[fromBaseIndex + a])) {
 			crescentC_memoryError(state);
 		}
+
+		crescentO_free(&stack[toBaseIndex + a]);
+
+		stack[toBaseIndex + a] = clonedObject;
 	}
 
 	toBaseIndex = newTopFrame->base + results;
