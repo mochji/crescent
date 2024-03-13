@@ -8,10 +8,10 @@ this is going to be an interpreted programming language but i constantly procras
  - stack and call structure
  - basic c api
  - opcodes
+ - complex types
 
 #### donen't
 
- - complex types
  - globals
  - lexer, parser, anything related to the compiler
  - vm
