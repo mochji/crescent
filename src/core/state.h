@@ -66,7 +66,7 @@ crescent_GState {
 	size_t                  threadCount;
 	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
-	int                   (*panic)(struct crescent_State*);
+	crescent_CFunction*     panic;
 };
 
 typedef struct crescent_ErrorJump crescent_ErrorJump;
