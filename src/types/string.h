@@ -54,4 +54,7 @@ crescentS_grow(crescent_String* string, size_t newLength);
 extern int
 crescentS_resize(crescent_String* string, size_t newLength);
 
+extern int
+crescentS_compare(crescent_String* stringA, crescent_String* stringB);
+
 #endif

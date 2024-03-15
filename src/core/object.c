@@ -28,6 +28,38 @@
 #include "core/object.h"
 
 int
+crescentO_compare(crescent_Object* a, crescent_Object* b) {
+	if (a->type != b->type) {
+		return 1;
+	}
+
+	switch (a->type) {
+		case CRESCENT_TYPE_BOOLEAN:
+			return a->value.b == b->value.b;
+
+			break;
+		case CRESCENT_TYPE_INTEGER:
+			return a->value.i == b->value.i;
+
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			return a->value.f == b->value.f;
+
+			break;
+		case CRESCENT_TYPE_STRING:
+			return crescentS_compare(a->value.s, b->value.s);
+
+			break;
+		case CRESCENT_TYPE_CFUNCTION:
+			return a->value.cFunc != b->value.cFunc;
+
+			break;
+	}
+
+	return 1;
+}
+
+int
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
 	if (from->type == CRESCENT_TYPE_STRING) {
 		crescent_String* cloned = crescentS_clone(from->value.s);

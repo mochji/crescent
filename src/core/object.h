@@ -47,6 +47,9 @@ typedef union  crescent_Value  crescent_Value;
 typedef struct crescent_Object crescent_Object;
 
 extern int
+crescentO_compare(crescent_Object* a, crescent_Object* b);
+
+extern int
 crescentO_clone(crescent_Object* to, crescent_Object* from);
 
 extern void
