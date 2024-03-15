@@ -84,6 +84,9 @@ extern int
 crescent_isFloat(crescent_State* state, size_t index);
 
 extern int
+crescent_isNumber(crescent_State* state, size_t index);
+
+extern int
 crescent_isCFunction(crescent_State* state, size_t index);
 
 extern crescent_Boolean
