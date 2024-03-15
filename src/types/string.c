@@ -164,3 +164,13 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 
 /* djb2 */
 
+size_t
+crescentS_hash(crescent_String* string) {
+	size_t hash = 5381;
+
+	for (size_t a = 0; a < string->length; a++) {
+		hash = ((hash << 5) + hash) + string->data[a];
+	}
+
+	return hash;
+}
