@@ -226,6 +226,8 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
 	toBaseIndex   = oldTopFrame->base + oldTopFrame->top;
 
+	/* FIXME: this is so absolutely fucked */
+
 	for (int a = 0; a < results; a++) {
 		crescentO_free(&stack[toBaseIndex + a]);
 
