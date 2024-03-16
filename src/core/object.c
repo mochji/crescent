@@ -84,7 +84,7 @@ crescentO_hash(crescent_Object* object) {
 			break;
 	}
 
-	return 1;
+	return 0;
 }
 
 int
