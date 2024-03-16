@@ -373,7 +373,7 @@ crescent_toCFunction(crescent_State* state, size_t index) {
 	}
 
 	if (state->stack.data[absoluteIndex].type == CRESCENT_TYPE_CFUNCTION) {
-		return state->stack.data[absoluteIndex].value.cFunc;
+		return state->stack.data[absoluteIndex].value.c;
 	}
 
 	return NULL;
@@ -457,8 +457,8 @@ crescent_pushCFunction(crescent_State* state, crescent_CFunction* function) {
 
 	crescentC_resizeStack(state, state->stack.topFrame->top++);
 
-	state->stack.data[absoluteIndex].type        = CRESCENT_TYPE_CFUNCTION;
-	state->stack.data[absoluteIndex].value.cFunc = function;
+	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_CFUNCTION;
+	state->stack.data[absoluteIndex].value.c = function;
 }
 
 void
@@ -522,7 +522,7 @@ crescent_call(crescent_State* state, size_t index, size_t argCount) {
 	}
 
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
+	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.c;
 
 	return crescentC_callC(state, function, argCount, sizeof(int));
 }
@@ -534,7 +534,7 @@ crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status
 	}
 
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
+	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.c;
 
 	return crescentC_pCallC(state, function, argCount, sizeof(int), status);
 }
@@ -550,7 +550,7 @@ crescent_callK(crescent_State* state, size_t index, size_t argCount, int results
 	}
 
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
+	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.c;
 
 	return crescentC_callC(state, function, argCount, results);
 }
@@ -566,7 +566,7 @@ crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int result
 	}
 
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.cFunc;
+	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.c;
 
 	return crescentC_pCallC(state, function, argCount, results, status);
 }

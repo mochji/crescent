@@ -34,7 +34,7 @@ crescent_Value {
 	crescent_Integer    i;
 	crescent_Float      f;
 	crescent_String*    s;
-	crescent_CFunction* cFunc;
+	crescent_CFunction* c;
 };
 
 struct

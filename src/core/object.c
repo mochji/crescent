@@ -51,7 +51,7 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 			break;
 		case CRESCENT_TYPE_CFUNCTION:
-			return a->value.cFunc != b->value.cFunc;
+			return a->value.c != b->value.c;
 
 			break;
 	}
@@ -79,7 +79,7 @@ crescentO_hash(crescent_Object* object) {
 
 			break;
 		case CRESCENT_TYPE_CFUNCTION:
-			return (size_t)object->value.cFunc;
+			return (size_t)object->value.c;
 
 			break;
 	}
