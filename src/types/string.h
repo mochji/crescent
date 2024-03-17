@@ -37,7 +37,7 @@ crescent_String {
 typedef struct crescent_String crescent_String;
 
 extern crescent_String*
-crescentS_new();
+crescentS_new(size_t length);
 
 extern void
 crescentS_free(crescent_String* string);

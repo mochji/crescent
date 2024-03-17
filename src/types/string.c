@@ -27,15 +27,24 @@
 #include "types/string.h"
 
 crescent_String*
-crescentS_new() {
+crescentS_new(size_t length) {
 	crescent_String* string = malloc(sizeof(crescent_String));
+	size_t           size   = CRESCENT_STRING_INITSIZE;
 
 	if (string == NULL) {
 		return NULL;
 	}
 
-	string->size   = CRESCENT_STRING_INITSIZE;
-	string->length = 0;
+	while (length > size) {
+		size *= 2;
+	}
+
+	while (size - length < CRESCENT_STRING_MINFREE) {
+		size *= 2;
+	}
+
+	string->size   = size;
+	string->length = length;
 	string->data   = malloc(string->size);
 
 	if (string->data == NULL) {

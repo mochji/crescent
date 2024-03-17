@@ -427,23 +427,19 @@ void
 crescent_pushString(crescent_State* state, char* str) {
 	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 	size_t           length        = 0;
-	crescent_String* string        = crescentS_new();
+	crescent_String* string;
 
 	while (str[length++]) {}
 
-	if (string == NULL) {
-		crescentC_memoryError(state);
-	}
+	string = crescentS_new(length);
 
-	if (crescentS_resize(string, length)) {
+	if (string == NULL) {
 		crescentC_memoryError(state);
 	}
 
 	for (size_t a = 0; a < length; a++) {
 		string->data[a] = str[a];
 	}
-
-	string->length = length;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top++);
 
