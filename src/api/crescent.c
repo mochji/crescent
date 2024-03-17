@@ -201,8 +201,8 @@ crescent_isFloat(crescent_State* state, size_t index) {
 
 int
 crescent_isNumber(crescent_State* state, size_t index) {
-	size_t absoluteIndex += state->stack.topFrame->base + index - 1;
-	int    type           = state->stack.data[absoluteIndex].type;
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
+	int    type          = state->stack.data[absoluteIndex].type;
 
 	return type == CRESCENT_TYPE_INTEGER || type == CRESCENT_TYPE_FLOAT;
 }
