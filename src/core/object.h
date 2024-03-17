@@ -49,9 +49,6 @@ typedef struct crescent_Object crescent_Object;
 extern int
 crescentO_compare(crescent_Object* a, crescent_Object* b);
 
-extern size_t
-crescentO_hash(crescent_Object* object);
-
 extern int
 crescentO_clone(crescent_Object* to, crescent_Object* from);
 

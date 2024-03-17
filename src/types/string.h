@@ -58,6 +58,6 @@ extern int
 crescentS_compare(crescent_String* stringA, crescent_String* stringB);
 
 extern size_t
-crescentS_hash(crescent_String* string);
+crescentS_hash(char* string);
 
 #endif

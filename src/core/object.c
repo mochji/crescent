@@ -59,34 +59,6 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 	return 1;
 }
 
-size_t
-crescentO_hash(crescent_Object* object) {
-	switch (object->type) {
-		case CRESCENT_TYPE_BOOLEAN:
-			return object->value.b;
-
-			break;
-		case CRESCENT_TYPE_INTEGER:
-			return object->value.i;
-
-			break;
-		case CRESCENT_TYPE_FLOAT:
-			return object->value.f;
-
-			break;
-		case CRESCENT_TYPE_STRING:
-			return crescentS_hash(object->value.s);
-
-			break;
-		case CRESCENT_TYPE_CFUNCTION:
-			return (size_t)object->value.c;
-
-			break;
-	}
-
-	return 0;
-}
-
 int
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
 	if (from->type == CRESCENT_TYPE_STRING) {
