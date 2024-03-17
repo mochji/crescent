@@ -122,7 +122,7 @@ crescentS_shrink(crescent_String* string, size_t newLength) {
 	size_t newSize = string->size;
 	char*  newData;
 
-	while (newSize - newLength < CRESCENT_STRING_MAXFREE) {
+	while (newSize - newLength < CRESCENT_STRING_MINFREE) {
 		newSize /= 2;
 	}
 
