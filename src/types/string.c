@@ -58,14 +58,28 @@ crescentS_new(size_t length) {
 	return string;
 }
 
-void
-crescentS_free(crescent_String* string) {
-	if (string == NULL) {
-		return;
+crescent_String*
+crescentS_as(char* str) {
+	size_t           length = 0;
+	crescent_String* string;
+
+	while (str[length]) {
+		length++;
 	}
 
-	free(string->data);
-	free(string);
+	string = crescentS_new(length);
+
+	if (string == NULL) {
+		return NULL;
+	}
+
+	string->length = length;
+
+	for (size_t a = 0; a < length; a++) {
+		string->data[a] = str[a];
+	}
+
+	return string;
 }
 
 crescent_String*
@@ -91,6 +105,16 @@ crescentS_clone(crescent_String* string) {
 	}
 
 	return cloned;
+}
+
+void
+crescentS_free(crescent_String* string) {
+	if (string == NULL) {
+		return;
+	}
+
+	free(string->data);
+	free(string);
 }
 
 int
@@ -174,12 +198,12 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 /* djb2 */
 
 size_t
-crescentS_hash(char* string) {
+crescentS_hash(char* str) {
 	size_t hash = 5381;
 	size_t a    = 0;
 
-	while (string[a]) {
-		hash = ((hash << 5) + hash) + string[a++];
+	while (str[a]) {
+		hash = ((hash << 5) + hash) + str[a++];
 	}
 
 	return hash;

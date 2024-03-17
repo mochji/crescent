@@ -39,11 +39,14 @@ typedef struct crescent_String crescent_String;
 extern crescent_String*
 crescentS_new(size_t length);
 
-extern void
-crescentS_free(crescent_String* string);
+extern crescent_String*
+crescentS_as(char* str);
 
 extern crescent_String*
 crescentS_clone(crescent_String* string);
+
+extern void
+crescentS_free(crescent_String* string);
 
 extern int
 crescentS_shrink(crescent_String* string, size_t newLength);
@@ -58,6 +61,6 @@ extern int
 crescentS_compare(crescent_String* stringA, crescent_String* stringB);
 
 extern size_t
-crescentS_hash(char* string);
+crescentS_hash(char* str);
 
 #endif
