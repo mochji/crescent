@@ -138,10 +138,10 @@ extern void
 crescent_remove(crescent_State* state, size_t index);
 
 extern int
-crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount);
+crescent_callC(crescent_State* state, crescent_CFunction* function, size_t argCount);
 
 extern int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status);
+crescent_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status);
 
 extern int
 crescent_call(crescent_State* state, size_t index, size_t argCount);
