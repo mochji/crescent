@@ -52,6 +52,9 @@ crescentO_compare(crescent_Object* a, crescent_Object* b);
 extern int
 crescentO_clone(crescent_Object* to, crescent_Object* from);
 
+extern int
+crescentO_deepClone(crescent_Object* to, crescent_Object* from);
+
 extern void
 crescentO_free(crescent_Object* object);
 
