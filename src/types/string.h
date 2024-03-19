@@ -32,6 +32,7 @@ crescent_String {
 	size_t size;
 	size_t length;
 	char*  data;
+	void*  original;
 };
 
 typedef struct crescent_String crescent_String;

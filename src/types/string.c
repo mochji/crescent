@@ -43,9 +43,10 @@ crescentS_new(size_t length) {
 		size *= 2;
 	}
 
-	string->size   = size;
-	string->length = 0;
-	string->data   = malloc(string->size);
+	string->size     = size;
+	string->length   = 0;
+	string->data     = malloc(string->size);
+	string->original = NULL;
 
 	if (string->data == NULL) {
 		free(string);
@@ -90,9 +91,10 @@ crescentS_clone(crescent_String* string) {
 		return NULL;
 	}
 
-	cloned->size   = string->size;
-	cloned->length = string->length;
-	cloned->data   = malloc(string->size);
+	cloned->size     = string->size;
+	cloned->length   = string->length;
+	cloned->data     = malloc(string->size);
+	string->original = string->original;
 
 	if (cloned->data == NULL) {
 		free(cloned);
