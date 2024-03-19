@@ -56,11 +56,11 @@ crescent_validIndex(crescent_State* state, size_t index);
 extern size_t
 crescent_getTop(crescent_State* state);
 
-extern int
-crescent_getUsage(crescent_State* state);
-
 extern size_t
 crescent_getSize(crescent_State* state);
+
+extern int
+crescent_getUsage(crescent_State* state);
 
 extern void
 crescent_setTop(crescent_State* state, size_t newTop);
