@@ -27,6 +27,10 @@ CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
 
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
 
+ifdef DEBUG
+	CFLAGS := $(CFLAGS) -g
+endif
+
 COREFILES  = $(wildcard $(CORE)/*.c)
 TYPESFILES = $(wildcard $(TYPES)/*.c)
 VMFILES    = $(wildcard $(VM)/*.c)
