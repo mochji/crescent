@@ -487,7 +487,7 @@ crescent_remove(crescent_State* state, size_t index) {
 	size_t baseIndex = state->stack.topFrame->base + index - 1;
 
 	for (size_t a = 0; a < state->stack.topFrame->top - index; a++) {
-		crescentO_clone(&state->stack.data[baseIndex + a], &state->stack.data[baseIndex + a + 1]);
+		state->stack.data[baseIndex + a] = state->stack.data[baseIndex + a + 1];
 	}
 
 	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NONE;
