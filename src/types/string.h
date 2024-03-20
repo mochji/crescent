@@ -27,6 +27,11 @@
 
 #include "conf.h"
 
+/*
+ * FIXME: if the stack gets resized or an object is moved, the original pointer
+ * is invalid and wont free the string. fuck.
+ */
+
 struct
 crescent_String {
 	size_t size;
