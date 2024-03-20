@@ -201,9 +201,7 @@ crescentC_startCall(crescent_State* state, size_t argCount) {
 	crescent_Object* stack = state->stack.data;
 
 	for (size_t a = 0; a < argCount; a++) {
-		if (crescentO_clone(&stack[toBaseIndex + a], &stack[fromBaseIndex + a])) {
-			crescentC_memoryError(state);
-		}
+		stack[toBaseIndex + a] = stack[fromBaseIndex + a];
 	}
 }
 
