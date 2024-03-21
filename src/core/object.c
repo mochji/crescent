@@ -81,8 +81,6 @@ crescentO_deepClone(crescent_Object* to, crescent_Object* from) {
 
 		to->type    = CRESCENT_TYPE_STRING;
 		to->value.s = cloned;
-
-		to->value.s->references = 1;
 	} else {
 		*to = *from;
 	}

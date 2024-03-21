@@ -447,8 +447,6 @@ crescent_pushString(crescent_State* state, char* str) {
 		string->data[a] = str[a];
 	}
 
-	string->references = 1;
-
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
 	state->stack.data[absoluteIndex].value.s = string;
 }

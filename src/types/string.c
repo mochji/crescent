@@ -46,7 +46,7 @@ crescentS_new(size_t length) {
 	string->size       = size;
 	string->length     = 0;
 	string->data       = malloc(string->size);
-	string->references = 0;
+	string->references = 1;
 
 	if (string->data == NULL) {
 		free(string);
