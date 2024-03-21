@@ -61,6 +61,10 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 int
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
+	if (from->type == CRESCENT_TYPE_STRING) {
+		from->value.s->references += 1;
+	}
+
 	*to = *from;
 
 	return 0;
@@ -78,7 +82,7 @@ crescentO_deepClone(crescent_Object* to, crescent_Object* from) {
 		to->type    = CRESCENT_TYPE_STRING;
 		to->value.s = cloned;
 
-		to->value.s->original = (void*)to;
+		to->value.s->references = 1;
 	} else {
 		*to = *from;
 	}
@@ -93,7 +97,9 @@ crescentO_free(crescent_Object* object) {
 	}
 
 	if (object->type == CRESCENT_TYPE_STRING) {
-		if (object->value.s->original == (void*)object) {
+		object->value.s->references -= 1;
+
+		if (object->value.s->references == 0) {
 			crescentS_free(object->value.s);
 		}
 	}
