@@ -47,7 +47,7 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 			break;
 		case CRESCENT_TYPE_STRING:
-			return crescentS_compare(a->value.s, b->value.s);
+			return crescentS_compare(a->value.s->data, b->value.s->data);
 
 			break;
 		case CRESCENT_TYPE_CFUNCTION:
