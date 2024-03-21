@@ -577,6 +577,13 @@ crescent_error(crescent_State* state, char* error) {
 	crescentC_throw(state, CRESCENT_STATUS_ERROR);
 }
 
+void
+crescent_clearError(crescent_State* state) {
+	free(state->error);
+
+	state->error = NULL;
+}
+
 char*
 crescent_getError(crescent_State* state) {
 	return state->error;

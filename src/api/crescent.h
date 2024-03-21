@@ -158,6 +158,9 @@ crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int result
 extern void
 crescent_error(crescent_State* state, char* error);
 
+extern void
+crescent_clearError(crescent_State* state);
+
 extern char*
 crescent_getError(crescent_State* state);
 
