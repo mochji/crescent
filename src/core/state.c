@@ -116,16 +116,6 @@ crescentG_blankLState() {
 	state->errorJump   = NULL;
 	state->gState      = NULL;
 
-	/*
-	 * Why does each LState have its own pre-allocated out of memory message?
-	 *
-	 * I wanted to put it into the GState, and then have the LState take it
-	 * from there. Checking if its the preallocated GState message was easy,
-	 * (checking if part of gstate structure with pointer arithmetic) but the
-	 * way this code is written, closeLState can only access the LState since
-	 * this is a core function.
-	 */
-
 	const char* memoryErrorMsg = "out of memory";
 	char*       memoryError    = (char*)state + sizeof(crescent_State);
 

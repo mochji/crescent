@@ -129,7 +129,9 @@ crescentC_shrinkStack(crescent_State* state, size_t newTop) {
 		usage = (absoluteTop * 100 + newSize / 2) / newSize;
 	}
 
-	for (size_t a = state->stack.topFrame->base + state->stack.topFrame->top - 1; a < absoluteTop; a++) {
+	size_t oldTop = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	for (size_t a = oldTop - 1; a < absoluteTop; a++) {
 		crescentO_free(&state->stack.data[a]);
 	}
 

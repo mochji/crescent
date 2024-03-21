@@ -498,7 +498,7 @@ crescent_remove(crescent_State* state, size_t index) {
 }
 
 int
-crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t argCount) {
+crescent_callC(crescent_State* state, crescent_CFunction* function, size_t argCount) {
 	if (argCount > state->stack.topFrame->top) {
 		argCount = state->stack.topFrame->top;
 	}
@@ -507,7 +507,7 @@ crescent_callC(crescent_State* state, int (*function)(crescent_State*), size_t a
 }
 
 int
-crescent_pCallC(crescent_State* state, int (*function)(crescent_State*), size_t argCount, int* status) {
+crescent_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
 	if (argCount > state->stack.topFrame->top) {
 		argCount = state->stack.topFrame->top;
 	}

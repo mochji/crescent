@@ -61,8 +61,8 @@ crescentS_new(size_t length) {
 
 crescent_String*
 crescentS_as(char* str) {
-	size_t           length = 0;
 	crescent_String* string;
+	size_t           length = 0;
 
 	while (str[length]) {
 		length++;
