@@ -429,6 +429,8 @@ crescent_pushString(crescent_State* state, char* str) {
 	size_t           length        = 0;
 	crescent_String* string;
 
+	crescentC_resizeStack(state, state->stack.topFrame->top++);
+
 	while (str[length++]) {}
 
 	string = crescentS_new(length);
@@ -445,7 +447,7 @@ crescent_pushString(crescent_State* state, char* str) {
 		string->data[a] = str[a];
 	}
 
-	crescentC_resizeStack(state, state->stack.topFrame->top++);
+	string->references = 1;
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
 	state->stack.data[absoluteIndex].value.s = string;
