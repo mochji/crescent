@@ -431,7 +431,9 @@ crescent_pushString(crescent_State* state, char* str) {
 
 	crescentC_resizeStack(state, state->stack.topFrame->top++);
 
-	while (str[length++]) {}
+	while (str[length]) {
+		length++;
+	}
 
 	string = crescentS_new(length);
 
