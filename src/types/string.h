@@ -22,7 +22,6 @@
 #ifndef TYPES_STRING_H
 #define TYPES_STRING_H
 
-#include <stdlib.h>
 #include <stddef.h>
 
 #include "conf.h"

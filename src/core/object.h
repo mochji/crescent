@@ -22,8 +22,6 @@
 #ifndef CORE_OBJECT_H
 #define CORE_OBJECT_H
 
-#include <stddef.h>
-
 #include "conf.h"
 
 #include "types/string.h"

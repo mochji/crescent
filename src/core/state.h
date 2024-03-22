@@ -22,7 +22,6 @@
 #ifndef CORE_STATE_H
 #define CORE_STATE_H
 
-#include <stdlib.h>
 #include <stddef.h>
 #include <setjmp.h>
 

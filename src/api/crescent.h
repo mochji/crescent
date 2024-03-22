@@ -22,11 +22,7 @@
 #ifndef API_CRESCENT_H
 #define API_CRESCENT_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stddef.h>
-#include <setjmp.h>
-#include <limits.h>
 
 #include "conf.h"
 

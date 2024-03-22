@@ -22,10 +22,6 @@
 #ifndef CORE_CALL_H
 #define CORE_CALL_H
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <setjmp.h>
-
 #include "conf.h"
 
 #include "core/object.h"
