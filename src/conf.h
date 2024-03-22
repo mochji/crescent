@@ -140,23 +140,13 @@
  */
 
 /*
- * @ CRESCENT_STRING_INITSIZE
+ * @ CRESCENT_STRING_ALLOCSPACE
  *
- * Controls the initial size of Crescent strings when first allocated.
+ * Controls how much is added to the length when allocating or reallocating to
+ * get the total allocated size for the string.
  */
 
-#define CRESCENT_STRING_INITSIZE 64
-
-/*
- * @ CRESCENT_STRING_MINFREE
- * @ CRESCENT_STRING_MAXFREE
- *
- * Controls the maximum and minimum amount of free characters in a Crescent
- * string must exceed before growing or shrinking respectively.
- */
-
-#define CRESCENT_STRING_MINFREE 8
-#define CRESCENT_STRING_MAXFREE 32
+#define CRESCENT_STRING_ALLOCSPACE 32
 
 /*
  * ============================================================================

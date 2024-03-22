@@ -29,18 +29,10 @@
 crescent_String*
 crescentS_new(size_t length) {
 	crescent_String* string = malloc(sizeof(crescent_String));
-	size_t           size   = CRESCENT_STRING_INITSIZE;
+	size_t           size   = length + CRESCENT_STRING_ALLOCSPACE;
 
 	if (string == NULL) {
 		return NULL;
-	}
-
-	while (length > size) {
-		size *= 2;
-	}
-
-	while (size - length < CRESCENT_STRING_MINFREE) {
-		size *= 2;
 	}
 
 	string->size       = size;
@@ -119,14 +111,8 @@ crescentS_free(crescent_String* string) {
 
 int
 crescentS_shrink(crescent_String* string, size_t newLength) {
-	size_t newSize = string->size;
-	char*  newData;
-
-	while (newSize - newLength < CRESCENT_STRING_MINFREE) {
-		newSize /= 2;
-	}
-
-	newData = realloc(string->data, newSize);
+	size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
+	char*  newData = realloc(string->data, newSize);
 
 	if (newData == NULL) {
 		return 1;
@@ -140,18 +126,8 @@ crescentS_shrink(crescent_String* string, size_t newLength) {
 
 int
 crescentS_grow(crescent_String* string, size_t newLength) {
-	size_t newSize = string->size;
-	char*  newData;
-
-	while (newSize < newLength) {
-		newSize *= 2;
-	}
-
-	while (newSize - newLength < CRESCENT_STRING_MINFREE) {
-		newSize *= 2;
-	}
-
-	newData = realloc(string->data, newSize);
+	size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
+	char*  newData = realloc(string->data, newSize);
 
 	if (newData == NULL) {
 		return 1;
@@ -169,11 +145,11 @@ crescentS_resize(crescent_String* string, size_t newLength) {
 		return crescentS_grow(string, newLength);
 	}
 
-	if (string->size - newLength > CRESCENT_STRING_MAXFREE) {
+	if (string->size - newLength >= string->size / 2) {
 		return crescentS_shrink(string, newLength);
 	}
 
-	if (string->size - newLength < CRESCENT_STRING_MINFREE) {
+	if (newLength == string->size) {
 		return crescentS_grow(string, newLength);
 	}
 
