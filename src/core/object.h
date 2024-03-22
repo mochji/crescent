@@ -24,15 +24,15 @@
 
 #include "conf.h"
 
-#include "types/string.h"
+struct crescent_String;
 
 union
 crescent_Value {
-	crescent_Boolean    b;
-	crescent_Integer    i;
-	crescent_Float      f;
-	crescent_String*    s;
-	crescent_CFunction* c;
+	crescent_Boolean        b;
+	crescent_Integer        i;
+	crescent_Float          f;
+	struct crescent_String* s;
+	crescent_CFunction*     c;
 };
 
 struct
