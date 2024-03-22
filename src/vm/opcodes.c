@@ -26,6 +26,7 @@
 crescentVM_OpMode
 crescentVM_mode[] = {
 	iAB,  /* OP_MOV   */
+	iAB,  /* OP_DMOV  */
 
 	iABx, /* OP_LODPI */
 	iABx, /* OP_LODNI */

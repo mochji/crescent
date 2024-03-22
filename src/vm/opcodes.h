@@ -75,6 +75,7 @@ enum
 crescentVM_OpCode {
 /*  enum         operation                mode          */
 	OP_MOV,   /* S[A] = S[B]              iAB           */
+	OP_DMOV,  /* S[A] = S[B] (deep clone) iAB           */
 
 	OP_LODPI, /* S[A] = B                 iABx          */
 	OP_LODNI, /* S[A] = -B                iABx          */
