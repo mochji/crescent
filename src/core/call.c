@@ -184,29 +184,17 @@ crescentC_startCall(crescent_State* state, size_t argCount) {
 		crescentC_memoryError(state);
 	}
 
-	newTopFrame->base     = oldTopFrame->base + oldTopFrame->top;
+	newTopFrame->base     = oldTopFrame->base + oldTopFrame->top - argCount;
 	newTopFrame->top      = argCount;
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
 
+	oldTopFrame->top -= argCount;
 	oldTopFrame->next = newTopFrame;
 
 	state->stack.frameCount                         += 1;
 	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
 	state->stack.topFrame                            = newTopFrame;
-
-	crescentC_resizeStack(state, argCount);
-
-	size_t fromBaseIndex = oldTopFrame->base + oldTopFrame->top - argCount;
-	size_t toBaseIndex   = newTopFrame->base;
-
-	crescent_Object* stack = state->stack.data;
-
-	for (size_t a = 0; a < argCount; a++) {
-		if (crescentO_clone(&stack[toBaseIndex + a], &stack[fromBaseIndex + a])) {
-			crescentC_memoryError(state);
-		}
-	}
 }
 
 void
