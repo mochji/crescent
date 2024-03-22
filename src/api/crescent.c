@@ -443,8 +443,6 @@ crescent_pushString(crescent_State* state, char* str) {
 		return;
 	}
 
-	string->length = length;
-
 	for (size_t a = 0; a < length; a++) {
 		string->data[a] = str[a];
 	}

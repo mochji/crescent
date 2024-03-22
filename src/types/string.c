@@ -44,7 +44,7 @@ crescentS_new(size_t length) {
 	}
 
 	string->size       = size;
-	string->length     = 0;
+	string->length     = length;
 	string->data       = malloc(string->size);
 	string->references = 1;
 
@@ -73,8 +73,6 @@ crescentS_as(char* str) {
 	if (string == NULL) {
 		return NULL;
 	}
-
-	string->length = length;
 
 	for (size_t a = 0; a < length; a++) {
 		string->data[a] = str[a];
