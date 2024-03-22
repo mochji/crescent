@@ -281,6 +281,11 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	return results;
 }
 
+/*
+ * FIXME: pcalls leave the stack as was, which means if you attempt to interact with the stack it
+ * will think you're still in the function that threw the error
+ */
+
 int
 crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults, int* status) {
 	crescent_ErrorJump* oldErrorJump = crescentC_startTry(state);
