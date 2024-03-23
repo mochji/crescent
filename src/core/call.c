@@ -184,6 +184,10 @@ crescentC_startCall(crescent_State* state, size_t argCount) {
 		crescentC_memoryError(state);
 	}
 
+	if (argCount > oldTopFrame->top) {
+		argCount = oldTopFrame->top;
+	}
+
 	newTopFrame->base     = oldTopFrame->base + oldTopFrame->top - argCount;
 	newTopFrame->top      = argCount;
 	newTopFrame->next     = NULL;
@@ -201,6 +205,14 @@ void
 crescentC_endCall(crescent_State* state, size_t results) {
 	crescent_Frame* newTopFrame = state->stack.topFrame;
 	crescent_Frame* oldTopFrame = newTopFrame->previous;
+
+	if ((size_t)results > newTopFrame->top) {
+		if (newTopFrame->top > INT_MAX) {
+			results = INT_MAX;
+		} else {
+			results = newTopFrame->top;
+		}
+	}
 
 	crescent_Object* stack = state->stack.data;
 	size_t           fromBaseIndex;
@@ -259,21 +271,12 @@ int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults) {
 	crescentC_startCall(state, argCount);
 
-	crescent_Frame* topFrame = state->stack.topFrame;
-	int             results  = function(state);
+	int results = function(state);
 
 	if (results < 0) {
 		results = 0;
 	} else if (results > maxResults) {
 		results = maxResults;
-	}
-
-	if ((size_t)results > topFrame->top) {
-		if (topFrame->top > INT_MAX) {
-			results = INT_MAX;
-		} else {
-			results = topFrame->top;
-		}
 	}
 
 	crescentC_endCall(state, (size_t)results);

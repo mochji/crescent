@@ -497,19 +497,11 @@ crescent_remove(crescent_State* state, size_t index) {
 
 int
 crescent_callC(crescent_State* state, crescent_CFunction* function, size_t argCount) {
-	if (argCount > state->stack.topFrame->top) {
-		argCount = state->stack.topFrame->top;
-	}
-
 	return crescentC_callC(state, function, argCount, INT_MAX);
 }
 
 int
 crescent_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
-	if (argCount > state->stack.topFrame->top) {
-		argCount = state->stack.topFrame->top;
-	}
-
 	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
 }
 
@@ -517,10 +509,6 @@ crescent_pCallC(crescent_State* state, crescent_CFunction* function, size_t argC
 
 int
 crescent_call(crescent_State* state, size_t index, size_t argCount) {
-	if (argCount > state->stack.topFrame->top) {
-		argCount = state->stack.topFrame->top;
-	}
-
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.c;
 
@@ -529,10 +517,6 @@ crescent_call(crescent_State* state, size_t index, size_t argCount) {
 
 int
 crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status) {
-	if (argCount > state->stack.topFrame->top) {
-		argCount = state->stack.topFrame->top;
-	}
-
 	size_t              absoluteIndex = state->stack.topFrame->base + index - 1;
 	crescent_CFunction* function      = state->stack.data[absoluteIndex].value.c;
 
@@ -541,10 +525,6 @@ crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status
 
 int
 crescent_callK(crescent_State* state, size_t index, size_t argCount, int results) {
-	if (argCount > state->stack.topFrame->top) {
-		argCount = state->stack.topFrame->top;
-	}
-
 	if (results < 0) {
 		results = 0;
 	}
@@ -557,10 +537,6 @@ crescent_callK(crescent_State* state, size_t index, size_t argCount, int results
 
 int
 crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int results, int* status) {
-	if (argCount > state->stack.topFrame->top) {
-		argCount = state->stack.topFrame->top;
-	}
-
 	if (results < 0) {
 		results = 0;
 	}
