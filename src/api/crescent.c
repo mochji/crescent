@@ -555,7 +555,12 @@ crescent_error(crescent_State* state, char* error) {
 
 void
 crescent_clearError(crescent_State* state) {
-	free(state->error);
+	size_t stateSize  = sizeof(crescent_State) + 14;
+	char*  endOfState = (char*)state + stateSize;
+
+	if (state->error < (char*)state || state->error >= endOfState) {
+		free(state->error);
+	}
 
 	state->error = NULL;
 }
