@@ -29,13 +29,12 @@
 crescent_String*
 crescentS_new(size_t length) {
 	crescent_String* string = malloc(sizeof(crescent_String));
-	size_t           size   = length + CRESCENT_STRING_ALLOCSPACE;
 
 	if (string == NULL) {
 		return NULL;
 	}
 
-	string->size       = size;
+	string->size       = length + CRESCENT_STRING_ALLOCSPACE;
 	string->length     = length;
 	string->data       = malloc(string->size);
 	string->references = 1;
