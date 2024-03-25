@@ -54,7 +54,7 @@
  */
 
 enum
-crescentVM_OpMode {
+crescentV_OpMode {
 	iABC,
 	iABx,
 	iAxx,
@@ -72,7 +72,7 @@ crescentVM_OpMode {
  */
 
 enum
-crescentVM_OpCode {
+crescentV_OpCode {
 /*  enum         operation                mode          */
 	OP_MOV,    /* S[A] = S[B]              iAB           */
 	OP_DMOV,   /* S[A] = S[B] (deep clone) iAB           */

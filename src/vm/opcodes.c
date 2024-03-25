@@ -23,8 +23,8 @@
 
 #include "vm/opcodes.h"
 
-crescentVM_OpMode
-crescentVM_mode[] = {
+crescentV_OpMode
+crescentV_mode[] = {
 	iAB,  /* OP_MOV    */
 	iAB,  /* OP_DMOV   */
 
