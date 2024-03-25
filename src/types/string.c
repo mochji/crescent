@@ -265,12 +265,6 @@ crescentS_dToInteger(char* str, int* success) {
 	int              successful = 1;
 	char             c;
 
-	if (str[0] == '-') {
-		negative = 1;
-
-		str += 1;
-	}
-
 	while ((c = *(str++))) {
 		if (!isdigit(c)) {
 			value      = 0;
@@ -297,15 +291,28 @@ crescentS_dToInteger(char* str, int* success) {
 
 crescent_Integer
 crescentS_toInteger(char* str, int* success) {
-	if (str[0] == '0' && str[1] == 'b') {
-		return crescentS_bToInteger(str, success);
+	crescent_Integer value;
+	int              negative = 0;
+
+	if (str[0] == '-') {
+		negative = 1;
+
+		str += 1;
 	}
 
-	if (str[0] == '0' && str[1] == 'x') {
-		return crescentS_xToInteger(str, success);
+	if (str[0] == '0' && str[1] = 'b') {
+		value = crescentS_bToInteger(str, success);
+	} else if (str[0] == '0' && str[1] = 'x') {
+		value = crescentS_xToInteger(str, success);
+	} else {
+		value = crescentS_dToInteger(str, success);
 	}
 
-	return crescentS_dToInteger(str, success);
+	if (negative) {
+		value = -value;
+	}
+
+	return value;
 }
 
 /*
