@@ -133,10 +133,10 @@ crescentV_OpCode {
 	OP_JLE     /* if S[A] <= S[B] PC++     iAB           */
 };
 
-typedef enum crescentVM_OpMode crescentVM_OpMode;
-typedef enum crescentVM_OpCode crescentVM_OpCode;
+typedef enum crescentV_OpMode crescentV_OpMode;
+typedef enum crescentV_OpCode crescentV_OpCode;
 
-extern crescentVM_OpMode
-crescentVM_mode[];
+extern crescentV_OpMode
+crescentV_mode[];
 
 #endif
