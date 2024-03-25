@@ -191,7 +191,7 @@ crescentS_hash(char* str) {
 	return hash;
 }
 
-static int
+int
 crescentS_hexValue(char c) {
 	if (isdigit(c)) {
 		return c - '0';
