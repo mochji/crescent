@@ -291,8 +291,7 @@ crescentS_toInteger(char* str, int* success) {
 
 	if (str[0] == '-') {
 		negative = 1;
-
-		str += 1;
+		str     += 1;
 	}
 
 	if (str[0] == '0' && tolower(str[1]) == 'b') {
