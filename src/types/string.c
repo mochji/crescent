@@ -300,9 +300,9 @@ crescentS_toInteger(char* str, int* success) {
 		str += 1;
 	}
 
-	if (str[0] == '0' && str[1] = 'b') {
+	if (str[0] == '0' && str[1] == 'b') {
 		value = crescentS_bToInteger(str, success);
-	} else if (str[0] == '0' && str[1] = 'x') {
+	} else if (str[0] == '0' && str[1] == 'x') {
 		value = crescentS_xToInteger(str, success);
 	} else {
 		value = crescentS_dToInteger(str, success);
