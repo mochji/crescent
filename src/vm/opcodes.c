@@ -25,59 +25,61 @@
 
 crescentVM_OpMode
 crescentVM_mode[] = {
-	iAB,  /* OP_MOV   */
-	iAB,  /* OP_DMOV  */
+	iAB,  /* OP_MOV    */
+	iAB,  /* OP_DMOV   */
 
-	iABx, /* OP_LODPI */
-	iABx, /* OP_LODNI */
-	iA,   /* OP_LODN  */
-	iA,   /* OP_LODT  */
-	iA,   /* OP_LODF  */
-	iABx, /* OP_LODC  */
-	iABx, /* OP_LODCX */
+	iABx, /* OP_LODPI  */
+	iABx, /* OP_LODNI  */
+	iA,   /* OP_LODN   */
+	iA,   /* OP_LODT   */
+	iA,   /* OP_LODF   */
+	iABx, /* OP_LODC   */
+	iABx, /* OP_LODCX  */
 
-	iABC, /* OP_ADD   */
-	iABC, /* OP_SUB   */
-	iABC, /* OP_MUL   */
-	iABC, /* OP_POW   */
-	iABC, /* OP_DIV   */
-	iABC, /* OP_MOD   */
+	iABC, /* OP_ADD    */
+	iABC, /* OP_SUB    */
+	iABC, /* OP_MUL    */
+	iABC, /* OP_POW    */
+	iABC, /* OP_DIV    */
+	iABC, /* OP_MOD    */
 
-	iA,   /* OP_INC   */
-	iA,   /* OP_DEC   */
+	iA,   /* OP_INC    */
+	iA,   /* OP_DEC    */
 
-	iAB,  /* OP_BNOT  */
-	iABC, /* OP_BAND  */
-	iABC, /* OP_BNAND */
-	iABC, /* OP_BOR   */
-	iABC, /* OP_BNOR  */
-	iABC, /* OP_BXOR  */
-	iABC, /* OP_BXNOR */
-	iABC, /* OP_BSL   */
-	iABC, /* OP_BSR   */
+	iAB,  /* OP_BNOT   */
+	iABC, /* OP_BAND   */
+	iABC, /* OP_BNAND  */
+	iABC, /* OP_BOR    */
+	iABC, /* OP_BNOR   */
+	iABC, /* OP_BXOR   */
+	iABC, /* OP_BXNOR  */
+	iABC, /* OP_BSL    */
+	iABC, /* OP_BSR    */
 
-	iABC, /* OP_IS    */
+	iABC, /* OP_IS     */
 
-	iAB,  /* OP_EVAL  */
-	iABC, /* OP_EQ    */
-	iABC, /* OP_NE    */
-	iABC, /* OP_GT    */
-	iABC, /* OP_GE    */
-	iABC, /* OP_LT    */
-	iABC, /* OP_LE    */
+	iAB,  /* OP_EVAL   */
+	iABC, /* OP_EQ     */
+	iABC, /* OP_NE     */
+	iABC, /* OP_GT     */
+	iABC, /* OP_GE     */
+	iABC, /* OP_LT     */
+	iABC, /* OP_LE     */
 
-	iABC, /* OP_CALL  */
+	iABC, /* OP_CONCAT */
 
-	iAxx, /* OP_JMP   */
-	iAxx, /* OP_JMPX  */
-	iAxx, /* OP_JMPF  */
-	iAxx, /* OP_JMPB  */
+	iABC, /* OP_CALL   */
 
-	iA,   /* OP_JIS   */
-	iAB,  /* OP_JE    */
-	iAB,  /* OP_JNE   */
-	iAB,  /* OP_JG    */
-	iAB,  /* OP_JGE   */
-	iAB,  /* OP_JL    */
-	iAB   /* OP_JLE   */
+	iAxx, /* OP_JMP    */
+	iAxx, /* OP_JMPX   */
+	iAxx, /* OP_JMPF   */
+	iAxx, /* OP_JMPB   */
+
+	iA,   /* OP_JIS    */
+	iAB,  /* OP_JE     */
+	iAB,  /* OP_JNE    */
+	iAB,  /* OP_JG     */
+	iAB,  /* OP_JGE    */
+	iAB,  /* OP_JL     */
+	iAB   /* OP_JLE    */
 };
