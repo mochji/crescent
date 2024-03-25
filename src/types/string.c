@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <ctype.h>
 
 #include "conf.h"
 
@@ -189,3 +190,119 @@ crescentS_hash(char* str) {
 
 	return hash;
 }
+
+static int
+crescentS_hexValue(char c) {
+	if (isdigit(c)) {
+		return c - '0';
+	}
+
+	return (tolower(c) - 'a') + 10;
+}
+
+static crescent_Integer
+crescentS_bToInteger(char* str, int* success) {
+	crescent_Integer value      = 0;
+	int              successful = 1;
+	char             c;
+
+	while ((c = *(str++))) {
+		if (c != '0' && c != '1') {
+			value      = 0;
+			successful = 0;
+
+			break;
+		}
+
+		value *= 2;
+		value += c - '0';
+	}
+
+	if (success != NULL) {
+		*success = successful;
+	}
+
+	return value;
+}
+
+static crescent_Integer
+crescentS_xToInteger(char* str, int* success) {
+	crescent_Integer value      = 0;
+	int              successful = 1;
+	char             c;
+
+	while ((c = *(str++))) {
+		if (!isxdigit(c)) {
+			value      = 0;
+			successful = 0;
+
+			break;
+		}
+
+		value *= 16;
+		value += crescentS_hexValue(c);
+	}
+
+	if (success != NULL) {
+		*success = successful;
+	}
+
+	return value;
+}
+
+static crescent_Integer
+crescentS_dToInteger(char* str, int* success) {
+	crescent_Integer value      = 0;
+	int              negative   = 0;
+	int              successful = 1;
+	char             c;
+
+	if (str[0] == '-') {
+		negative = 1;
+
+		str += 1;
+	}
+
+	while ((c = *(str++))) {
+		if (!isdigit(c)) {
+			value      = 0;
+			negative   = 0;
+			successful = 0;
+
+			break;
+		}
+
+		value *= 10;
+		value += c - '0';
+	}
+
+	if (negative) {
+		value = -value;
+	}
+
+	if (success != NULL) {
+		*success = successful;
+	}
+
+	return value;
+}
+
+crescent_Integer
+crescentS_toInteger(char* str, int* success) {
+	if (str[0] == '0') {
+		if (str[1] == 'b') {
+			return crescentS_bToInteger(str, success);
+		}
+
+		if (str[1] == 'x') {
+			return crescentS_xToInteger(str, success);
+		}
+	}
+
+	return crescentS_dToInteger(str, success);
+}
+
+/*
+ * TODO: toFloat, im way too fucking tired to be programming right now ive been up for 18 hours
+ * now goodnight
+ */
