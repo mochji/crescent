@@ -204,11 +204,8 @@ static crescent_Integer
 crescentS_bToInteger(char* str, int* success) {
 	crescent_Integer value      = 0;
 	int              successful = 1;
-	char             c;
 
-	if (str[0] == '0' && str[1] == 'b') {
-		str += 2;
-	}
+	char c;
 
 	while ((c = *(str++))) {
 		if (c != '0' && c != '1') {
@@ -234,7 +231,8 @@ crescentS_dToInteger(char* str, int* success) {
 	crescent_Integer value      = 0;
 	int              negative   = 0;
 	int              successful = 1;
-	char             c;
+
+	char c;
 
 	while ((c = *(str++))) {
 		if (!isdigit(c)) {
@@ -264,11 +262,8 @@ static crescent_Integer
 crescentS_xToInteger(char* str, int* success) {
 	crescent_Integer value      = 0;
 	int              successful = 1;
-	char             c;
 
-	if (str[0] == '0' && str[1] == 'x') {
-		str += 2;
-	}
+	char c;
 
 	while ((c = *(str++))) {
 		if (!isxdigit(c)) {
@@ -300,10 +295,10 @@ crescentS_toInteger(char* str, int* success) {
 		str += 1;
 	}
 
-	if (str[0] == '0' && str[1] == 'b') {
-		value = crescentS_bToInteger(str, success);
-	} else if (str[0] == '0' && str[1] == 'x') {
-		value = crescentS_xToInteger(str, success);
+	if (str[0] == '0' && tolower(str[1]) == 'b') {
+		value = crescentS_bToInteger(str + 2, success);
+	} else if (str[0] == '0' && tolower(str[1]) == 'x') {
+		value = crescentS_xToInteger(str + 2, success);
 	} else {
 		value = crescentS_dToInteger(str, success);
 	}
