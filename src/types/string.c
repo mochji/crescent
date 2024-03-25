@@ -230,35 +230,6 @@ crescentS_bToInteger(char* str, int* success) {
 }
 
 static crescent_Integer
-crescentS_xToInteger(char* str, int* success) {
-	crescent_Integer value      = 0;
-	int              successful = 1;
-	char             c;
-
-	if (str[0] == '0' && str[1] == 'x') {
-		str += 2;
-	}
-
-	while ((c = *(str++))) {
-		if (!isxdigit(c)) {
-			value      = 0;
-			successful = 0;
-
-			break;
-		}
-
-		value *= 16;
-		value += crescentS_hexValue(c);
-	}
-
-	if (success != NULL) {
-		*success = successful;
-	}
-
-	return value;
-}
-
-static crescent_Integer
 crescentS_dToInteger(char* str, int* success) {
 	crescent_Integer value      = 0;
 	int              negative   = 0;
@@ -280,6 +251,35 @@ crescentS_dToInteger(char* str, int* success) {
 
 	if (negative) {
 		value = -value;
+	}
+
+	if (success != NULL) {
+		*success = successful;
+	}
+
+	return value;
+}
+
+static crescent_Integer
+crescentS_xToInteger(char* str, int* success) {
+	crescent_Integer value      = 0;
+	int              successful = 1;
+	char             c;
+
+	if (str[0] == '0' && str[1] == 'x') {
+		str += 2;
+	}
+
+	while ((c = *(str++))) {
+		if (!isxdigit(c)) {
+			value      = 0;
+			successful = 0;
+
+			break;
+		}
+
+		value *= 16;
+		value += crescentS_hexValue(c);
 	}
 
 	if (success != NULL) {
