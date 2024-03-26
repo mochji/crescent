@@ -49,7 +49,7 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 			break;
 		case CRESCENT_TYPE_CFUNCTION:
-			return a->value.c != b->value.c;
+			return a->value.c == b->value.c;
 
 			break;
 	}
