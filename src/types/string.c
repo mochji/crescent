@@ -110,47 +110,17 @@ crescentS_free(crescent_String* string) {
 }
 
 int
-crescentS_shrink(crescent_String* string, size_t newLength) {
-	size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
-	char*  newData = realloc(string->data, newSize);
-
-	if (newData == NULL) {
-		return 1;
-	}
-
-	string->size = newSize;
-	string->data = newData;
-
-	return 0;
-}
-
-int
-crescentS_grow(crescent_String* string, size_t newLength) {
-	size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
-	char*  newData = realloc(string->data, newSize);
-
-	if (newData == NULL) {
-		return 1;
-	}
-
-	string->size = newSize;
-	string->data = newData;
-
-	return 0;
-}
-
-int
 crescentS_resize(crescent_String* string, size_t newLength) {
-	if (newLength > string->size) {
-		return crescentS_grow(string, newLength);
-	}
+	if (newLength >= string->size || string->size - newLength > string->size / 2) {
+		size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
+		char*  newData = realloc(string->data, newSize);
 
-	if (string->size - newLength >= string->size / 2) {
-		return crescentS_shrink(string, newLength);
-	}
+		if (newData == NULL) {
+			return 1;
+		}
 
-	if (newLength == string->size) {
-		return crescentS_grow(string, newLength);
+		string->size = newSize;
+		string->data = newData;
 	}
 
 	return 0;
@@ -158,6 +128,10 @@ crescentS_resize(crescent_String* string, size_t newLength) {
 
 int
 crescentS_compare(char* stringA, char* stringB) {
+	if (stringA == stringB) {
+		return 0;
+	}
+
 	size_t aLength = 0;
 	size_t bLength = 0;
 

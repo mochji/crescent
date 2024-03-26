@@ -49,12 +49,6 @@ extern void
 crescentS_free(crescent_String* string);
 
 extern int
-crescentS_shrink(crescent_String* string, size_t newLength);
-
-extern int
-crescentS_grow(crescent_String* string, size_t newLength);
-
-extern int
 crescentS_resize(crescent_String* string, size_t newLength);
 
 extern int
