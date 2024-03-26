@@ -208,7 +208,7 @@ crescentS_bToInteger(char* str, crescent_Integer* result) {
 	char c;
 
 	while ((c = *(str++))) {
-		if (!isxdigit(c)) {
+		if (c != '0' && c != '1') {
 			value   = 0;
 			success = 0;
 
@@ -234,7 +234,7 @@ crescentS_dToInteger(char* str, crescent_Integer* result) {
 	char c;
 
 	while ((c = *(str++))) {
-		if (!isxdigit(c)) {
+		if (!isdigit(c)) {
 			value   = 0;
 			success = 0;
 
