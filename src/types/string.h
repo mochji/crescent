@@ -69,4 +69,7 @@ crescentS_hexValue(char c);
 extern crescent_Integer
 crescentS_toInteger(char* str, int* success);
 
+extern crescent_Float
+crescentS_toFloat(char* str, int* success);
+
 #endif

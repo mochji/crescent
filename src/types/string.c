@@ -309,4 +309,54 @@ crescentS_toInteger(char* str, int* success) {
 	return value;
 }
 
-/* TODO: crescentS_toFloat */
+/* TODO: support for exponents (e12, e-6, you get it) */
+
+crescent_Float
+crescentS_toFloat(char* str, int* success) {
+	crescent_Float value    = 0;
+	int            negative = 0;
+	int            afterDot = 0;
+	crescent_Float scale    = 0.1;
+
+	if (str[0] == '-') {
+		negative = 1;
+		str     += 1;
+	}
+
+	int  successful = 1;
+	char c;
+
+	while ((c = *(str++))) {
+		if (c == '.' && !afterDot) {
+			afterDot = 1;
+
+			continue;
+		}
+
+		if (!isdigit(c)) {
+			value      = 0;
+			negative   = 0;
+			successful = 0;
+
+			break;
+		}
+
+		if (afterDot) {
+			value += (c - '0') * scale;
+			scale /= 10;
+		} else {
+			value *= 10;
+			value += c - '0';
+		}
+	}
+
+	if (negative) {
+		value = -value;
+	}
+
+	if (success != NULL) {
+		*success = successful;
+	}
+
+	return value;
+}
