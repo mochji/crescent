@@ -200,17 +200,17 @@ crescentS_hexValue(char c) {
 	return (tolower(c) - 'a') + 10;
 }
 
-static crescent_Integer
-crescentS_bToInteger(char* str, int* success) {
-	crescent_Integer value      = 0;
-	int              successful = 1;
+static int
+crescentS_bToInteger(char* str, crescent_Integer* result) {
+	crescent_Integer value = 0;
 
+	int  success = 1;
 	char c;
 
 	while ((c = *(str++))) {
-		if (c != '0' && c != '1') {
-			value      = 0;
-			successful = 0;
+		if (!isxdigit(c)) {
+			value   = 0;
+			success = 0;
 
 			break;
 		}
@@ -219,26 +219,24 @@ crescentS_bToInteger(char* str, int* success) {
 		value += c - '0';
 	}
 
-	if (success != NULL) {
-		*success = successful;
+	if (result != NULL) {
+		*result = value;
 	}
 
-	return value;
+	return success;
 }
 
-static crescent_Integer
-crescentS_dToInteger(char* str, int* success) {
-	crescent_Integer value      = 0;
-	int              negative   = 0;
-	int              successful = 1;
+static int
+crescentS_dToInteger(char* str, crescent_Integer* result) {
+	crescent_Integer value = 0;
 
+	int  success = 1;
 	char c;
 
 	while ((c = *(str++))) {
-		if (!isdigit(c)) {
-			value      = 0;
-			negative   = 0;
-			successful = 0;
+		if (!isxdigit(c)) {
+			value   = 0;
+			success = 0;
 
 			break;
 		}
@@ -247,28 +245,24 @@ crescentS_dToInteger(char* str, int* success) {
 		value += c - '0';
 	}
 
-	if (negative) {
-		value = -value;
+	if (result != NULL) {
+		*result = value;
 	}
 
-	if (success != NULL) {
-		*success = successful;
-	}
-
-	return value;
+	return success;
 }
 
-static crescent_Integer
-crescentS_xToInteger(char* str, int* success) {
-	crescent_Integer value      = 0;
-	int              successful = 1;
+static int
+crescentS_xToInteger(char* str, crescent_Integer* result) {
+	crescent_Integer value = 0;
 
+	int  success = 1;
 	char c;
 
 	while ((c = *(str++))) {
 		if (!isxdigit(c)) {
-			value      = 0;
-			successful = 0;
+			value   = 0;
+			success = 0;
 
 			break;
 		}
@@ -277,11 +271,11 @@ crescentS_xToInteger(char* str, int* success) {
 		value += crescentS_hexValue(c);
 	}
 
-	if (success != NULL) {
-		*success = successful;
+	if (result != NULL) {
+		*result = value;
 	}
 
-	return value;
+	return success;
 }
 
 crescent_Integer
@@ -294,22 +288,25 @@ crescentS_toInteger(char* str, int* success) {
 		str     += 1;
 	}
 
+	int successful;
+
 	if (str[0] == '0' && tolower(str[1]) == 'b') {
-		value = crescentS_bToInteger(str + 2, success);
+		successful = crescentS_bToInteger(str + 2, &value);
 	} else if (str[0] == '0' && tolower(str[1]) == 'x') {
-		value = crescentS_xToInteger(str + 2, success);
+		successful = crescentS_xToInteger(str + 2, &value);
 	} else {
-		value = crescentS_dToInteger(str, success);
+		successful = crescentS_dToInteger(str, &value);
 	}
 
-	if (negative) {
+	if (negative && successful) {
 		value = -value;
+	}
+
+	if (success != NULL) {
+		*success = successful;
 	}
 
 	return value;
 }
 
-/*
- * TODO: toFloat, im way too fucking tired to be programming right now ive been up for 18 hours
- * now goodnight
- */
+/* TODO: crescentS_toFloat */
