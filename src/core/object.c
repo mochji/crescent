@@ -33,15 +33,15 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 	switch (a->type) {
 		case CRESCENT_TYPE_BOOLEAN:
-			return a->value.b == b->value.b;
+			return a->value.b != b->value.b;
 
 			break;
 		case CRESCENT_TYPE_INTEGER:
-			return a->value.i == b->value.i;
+			return a->value.i != b->value.i;
 
 			break;
 		case CRESCENT_TYPE_FLOAT:
-			return a->value.f == b->value.f;
+			return a->value.f != b->value.f;
 
 			break;
 		case CRESCENT_TYPE_STRING:
@@ -49,7 +49,7 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 			break;
 		case CRESCENT_TYPE_CFUNCTION:
-			return a->value.c == b->value.c;
+			return a->value.c != b->value.c;
 
 			break;
 	}
