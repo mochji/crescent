@@ -127,23 +127,17 @@ crescentS_resize(crescent_String* string, size_t newLength) {
 }
 
 int
-crescentS_compare(char* stringA, char* stringB) {
+crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 	if (stringA == stringB) {
 		return 0;
 	}
 
-	size_t aLength = 0;
-	size_t bLength = 0;
-
-	while (stringA[aLength++]) {}
-	while (stringB[bLength++]) {}
-
-	if (aLength != bLength) {
+	if (stringA->length != stringB->length) {
 		return 1;
 	}
 
-	for (size_t a = 0; a < aLength; a++) {
-		if (stringA[a] != stringB[a]) {
+	for (size_t a = 0; a < stringA->length; a++) {
+		if (stringA->data[a] != stringB->data[a]) {
 			return 1;
 		}
 	}
