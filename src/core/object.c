@@ -22,6 +22,7 @@
 #include "conf.h"
 
 #include "types/string.h"
+#include "types/array.h"
 
 #include "core/object.h"
 
@@ -48,6 +49,10 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 			return crescentS_compare(a->value.s, b->value.s);
 
 			break;
+		case CRESCENT_TYPE_ARRAY:
+			return crescentA_compare(a->value.a, b->value.a);
+
+			break;
 		case CRESCENT_TYPE_CFUNCTION:
 			return a->value.c != b->value.c;
 
@@ -61,6 +66,8 @@ int
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
 	if (from->type == CRESCENT_TYPE_STRING) {
 		from->value.s->references += 1;
+	} else if (from->type == CRESCENT_TYPE_ARRAY) {
+		from->value.a->references += 1;
 	}
 
 	*to = *from;
@@ -79,6 +86,15 @@ crescentO_deepClone(crescent_Object* to, crescent_Object* from) {
 
 		to->type    = CRESCENT_TYPE_STRING;
 		to->value.s = cloned;
+	} else if (from->type == CRESCENT_TYPE_ARRAY) {
+		crescent_Array* cloned = crescentA_clone(from->value.a);
+
+		if (cloned == NULL) {
+			return 1;
+		}
+
+		to->type    = CRESCENT_TYPE_ARRAY;
+		to->value.a = cloned;
 	} else {
 		*to = *from;
 	}
@@ -97,6 +113,12 @@ crescentO_free(crescent_Object* object) {
 
 		if (object->value.s->references == 0) {
 			crescentS_free(object->value.s);
+		}
+	} else if (object->type == CRESCENT_TYPE_ARRAY) {
+		object->value.a->references -= 1;
+
+		if (object->value.a->references == 0) {
+			crescentA_free(object->value.a);
 		}
 	}
 

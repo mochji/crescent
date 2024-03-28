@@ -25,6 +25,7 @@
 #include "conf.h"
 
 struct crescent_String;
+struct crescent_Array;
 
 union
 crescent_Value {
@@ -32,6 +33,7 @@ crescent_Value {
 	crescent_Integer        i;
 	crescent_Float          f;
 	struct crescent_String* s;
+	struct crescent_Array*  a;
 	crescent_CFunction*     c;
 };
 
