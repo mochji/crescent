@@ -150,6 +150,24 @@
 
 /*
  * ============================================================================
+ * Crescent array configuration
+ *
+ * Definitions that control the behavior of Crescent arrays, mainly memory
+ * allocation.
+ * ============================================================================
+ */
+
+/*
+ * @ CRESCENT_ARRAY_ALLOCSPACE
+ *
+ * Controls how much is added to the length when allocating or reallocating to
+ * get the total allocated size for the array.
+ */
+
+#define CRESCENT_ARRAY_ALLOCSPACE 32
+
+/*
+ * ============================================================================
  * Crescent VM configuration
  *
  * Definitions that control the behavior of the Crescent virtual machine.
@@ -210,7 +228,8 @@
 #define CRESCENT_TYPE_INTEGER   3
 #define CRESCENT_TYPE_FLOAT     4
 #define CRESCENT_TYPE_STRING    5
-#define CRESCENT_TYPE_CFUNCTION 6
+#define CRESCENT_TYPE_ARRAY     6
+#define CRESCENT_TYPE_CFUNCTION 7
 
 struct crescent_State;
 
