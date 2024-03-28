@@ -162,6 +162,10 @@ crescent_typeName(int type) {
 			return "string";
 
 			break;
+		case CRESCENT_TYPE_ARRAY:
+			return "array";
+
+			break;
 		case CRESCENT_TYPE_CFUNCTION:
 			return "cfunction";
 
@@ -212,6 +216,13 @@ crescent_isString(crescent_State* state, size_t index) {
 	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
 	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_STRING;
+}
+
+int
+crescent_isArray(crescent_State* state, size_t index) {
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
+
+	return state->stack.data[absoluteIndex].type == CRESCENT_TYPE_ARRAY;
 }
 
 int
