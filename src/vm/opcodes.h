@@ -73,64 +73,66 @@ crescentV_OpMode {
 
 enum
 crescentV_OpCode {
-/*  enum         operation                mode          */
-	OP_MOV,    /* S[A] = S[B]              iAB           */
-	OP_DMOV,   /* S[A] = S[B] (deep clone) iAB           */
+/*  enum            operation                mode          */
+	OP_MOV,      /* S[A] = S[B]              iAB           */
+	OP_DMOV,     /* S[A] = S[B] (deep clone) iAB           */
 
-	OP_LODPI,  /* S[A] = B                 iABx          */
-	OP_LODNI,  /* S[A] = -B                iABx          */
-	OP_LODN,   /* S[A] = nil               iA            */
-	OP_LODT,   /* S[A] = true              iA            */
-	OP_LODF,   /* S[A] = false             iA            */
-	OP_LODC,   /* S[A] = C[B]              iABx          */
-	OP_LODCX,  /* S[A] = CE[B]             iABx          */
+	OP_LODN,     /* S[A] = nil               iA            */
+	OP_LODT,     /* S[A] = true              iA            */
+	OP_LODF,     /* S[A] = false             iA            */
+	OP_LODPI,    /* S[A] = B                 iABx          */
+	OP_LODNI,    /* S[A] = -B                iABx          */
+	OP_LODA,     /* S[A] = [] (array)        iA            */
+	OP_LODC,     /* S[A] = C[B]              iABx          */
+	OP_LODCX,    /* S[A] = CE[B]             iABx          */
 
-	OP_ADD,    /* S[A] = S[B] + S[C]       iABC          */
-	OP_SUB,    /* S[A] = S[B] - S[C]       iABC          */
-	OP_MUL,    /* S[A] = S[B] * S[C]       iABC          */
-	OP_POW,    /* S[A] = S[B] ^ S[C]       iABC          */
-	OP_DIV,    /* S[A] = S[B] / S[C]       iABC          */
-	OP_MOD,    /* S[A] = S[B] % S[C]       iABC          */
+	OP_ADD,      /* S[A] = S[B] + S[C]       iABC          */
+	OP_SUB,      /* S[A] = S[B] - S[C]       iABC          */
+	OP_MUL,      /* S[A] = S[B] * S[C]       iABC          */
+	OP_POW,      /* S[A] = S[B] ^ S[C]       iABC          */
+	OP_DIV,      /* S[A] = S[B] / S[C]       iABC          */
+	OP_MOD,      /* S[A] = S[B] % S[C]       iABC          */
 
-	OP_INC,    /* S[A] += 1                iA            */
-	OP_DEC,    /* S[A] -= 1                iA            */
+	OP_INC,      /* S[A] += 1                iA            */
+	OP_DEC,      /* S[A] -= 1                iA            */
 
-	OP_BNOT,   /* S[A] = !S[B]             iAB           */
-	OP_BAND,   /* S[A] = S[B] & S[C]       iABC          */
-	OP_BNAND,  /* S[A] = !(S[B] & S[C])    iABC          */
-	OP_BOR,    /* S[A] = S[B] | S[C]       iABC          */
-	OP_BNOR,   /* S[A] = !(S[B] | S[C])    iABC          */
-	OP_BXOR,   /* S[A] = S[B] ^ S[C]       iABC          */
-	OP_BXNOR,  /* S[A] = !(S[B] ^ S[C])    iABC          */
-	OP_BSL,    /* S[A] = S[A] << S[C]      iABC          */
-	OP_BSR,    /* S[A] = S[A] >> S[C]      iABC          */
+	OP_BNOT,     /* S[A] = !S[B]             iAB           */
+	OP_BAND,     /* S[A] = S[B] & S[C]       iABC          */
+	OP_BNAND,    /* S[A] = !(S[B] & S[C])    iABC          */
+	OP_BOR,      /* S[A] = S[B] | S[C]       iABC          */
+	OP_BNOR,     /* S[A] = !(S[B] | S[C])    iABC          */
+	OP_BXOR,     /* S[A] = S[B] ^ S[C]       iABC          */
+	OP_BXNOR,    /* S[A] = !(S[B] ^ S[C])    iABC          */
+	OP_BSL,      /* S[A] = S[A] << S[C]      iABC          */
+	OP_BSR,      /* S[A] = S[A] >> S[C]      iABC          */
 
-	OP_IS,     /* &S[A] = &S[B] == &S[A]   iABC          */
+	OP_IS,       /* &S[A] = &S[B] == &S[A]   iABC          */
 
-	OP_EVAL,   /* S[A] = (boolean)S[B]     iAB           */
-	OP_EQ,     /* S[A] = S[B] == S[C]      iABC          */
-	OP_NE,     /* S[A] = S[B] != S[C]      iABC          */
-	OP_GT,     /* S[A] = S[B] > S[C]       iABC          */
-	OP_GE,     /* S[A] = S[B] >= S[C]      iABC          */
-	OP_LT,     /* S[A] = S[B] < S[C]       iABC          */
-	OP_LE,     /* S[A] = S[B] <= S[C]      iABC          */
+	OP_EVAL,     /* S[A] = (boolean)S[B]     iAB           */
+	OP_EQ,       /* S[A] = S[B] == S[C]      iABC          */
+	OP_NE,       /* S[A] = S[B] != S[C]      iABC          */
+	OP_GT,       /* S[A] = S[B] > S[C]       iABC          */
+	OP_GE,       /* S[A] = S[B] >= S[C]      iABC          */
+	OP_LT,       /* S[A] = S[B] < S[C]       iABC          */
+	OP_LE,       /* S[A] = S[B] <= S[C]      iABC          */
 
-	OP_CONCAT, /* S[A] = S[B] .. S[C]      iABC          */
+	OP_CONCAT,   /* S[A] = S[B] .. S[C]      iABC          */
+	OP_INDEX,    /* S[A] = S[B][S[C]]        iABC          */
 
-	OP_CALL,   /* S[A] S[B]() (C args)     iABC          */
+	OP_CALL,     /* S[A] S[B]() (C args)     iABC          */
 
-	OP_JMP,    /* PC = L[A]                iAxx          */
-	OP_JMPX,   /* PC = LE[A]               iAxx          */
-	OP_JMPF,   /* PC += A                  iAxx          */
-	OP_JMPB,   /* PC -= A                  iAxx          */
+	OP_JMP,      /* PC = L[A]                iAxx          */
+	OP_JMPX,     /* PC = LE[A]               iAxx          */
+	OP_JMPF,     /* PC += A                  iAxx          */
+	OP_JMPB,     /* PC -= A                  iAxx          */
 
-	OP_JEVAL,  /* if (boolean)S[A] PC++    iA            */
-	OP_JE,     /* if S[A] == S[A] PC++     iAB           */
-	OP_JNE,    /* if S[A] != S[A] PC++     iAB           */
-	OP_JG,     /* if S[A] > S[B] PC++      iAB           */
-	OP_JGE,    /* if S[A] >= S[B] PC++     iAB           */
-	OP_JL,     /* if S[A] < S[B] PC++      iAB           */
-	OP_JLE     /* if S[A] <= S[B] PC++     iAB           */
+	OP_JEVAL,    /* if (boolean)S[A] PC++    iA            */
+	OP_JE,       /* if S[A] == S[A] PC++     iAB           */
+	OP_JNE,      /* if S[A] != S[A] PC++     iAB           */
+	OP_JG,       /* if S[A] > S[B] PC++      iAB           */
+	OP_JGE,      /* if S[A] >= S[B] PC++     iAB           */
+	OP_JL,       /* if S[A] < S[B] PC++      iAB           */
+	OP_JLE       /* if S[A] <= S[B] PC++     iAB           */
 };
 
 typedef enum crescentV_OpMode crescentV_OpMode;
