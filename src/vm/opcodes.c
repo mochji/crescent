@@ -67,6 +67,7 @@ crescentV_mode[] = {
 	iABC, /* OP_LT     */
 	iABC, /* OP_LE     */
 
+	iABC, /* OP_LENGTH */
 	iABC, /* OP_CONCAT */
 	iABC, /* OP_GET    */
 	iABC, /* OP_SET    */

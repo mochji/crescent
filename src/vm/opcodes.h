@@ -116,6 +116,7 @@ crescentV_OpCode {
 	OP_LT,       /* S[A] = S[B] < S[C]       iABC          */
 	OP_LE,       /* S[A] = S[B] <= S[C]      iABC          */
 
+	OP_LENGTH,   /* S[A] = #S[B]             iABC          */
 	OP_CONCAT,   /* S[A] = S[B] .. S[C]      iABC          */
 	OP_GET,      /* S[A] = S[B][S[C]]        iABC          */
 	OP_SET,      /* S[A][S[B]] = S[C]        iABC          */
