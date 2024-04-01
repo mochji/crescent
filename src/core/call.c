@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <setjmp.h>
+#include <string.h>
 #include <limits.h>
 
 #include "conf.h"
@@ -40,12 +41,8 @@ crescentC_setError(crescent_State* state, char* error) {
 		free(state->error);
 	}
 
-	char*  stateError;
-	size_t length = 0;
-
-	while (error[length++]) {}
-
-	stateError = malloc(length);
+	size_t length     = strlen(error);
+	char*  stateError = malloc(length + 1);
 
 	if (stateError == NULL) {
 		crescentC_memoryError(state);
@@ -54,6 +51,8 @@ crescentC_setError(crescent_State* state, char* error) {
 	for (size_t a = 0; a < length; a++) {
 		stateError[a] = error[a];
 	}
+
+	stateError[length] = '\0';
 
 	state->error = stateError;
 }

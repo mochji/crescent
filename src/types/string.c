@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
 #include <ctype.h>
 
 #include "conf.h"
@@ -53,14 +54,8 @@ crescentS_new(size_t length) {
 
 crescent_String*
 crescentS_as(char* str) {
-	crescent_String* string;
-	size_t           length = 0;
-
-	while (str[length]) {
-		length++;
-	}
-
-	string = crescentS_new(length);
+	size_t           length = strlen(str);
+	crescent_String* string = crescentS_new(length);
 
 	if (string == NULL) {
 		return NULL;
