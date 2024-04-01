@@ -181,7 +181,7 @@ crescent_clone(crescent_State* state, size_t index) {
 	size_t toIndex   = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top);
-	crescentO_clone(state, &state->stack.data[toIndex], &state->stack.data[fromIndex]);
+	crescentO_clone(&state->stack.data[toIndex], &state->stack.data[fromIndex]);
 
 	state->stack.topFrame->top += 1;
 }
