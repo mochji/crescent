@@ -175,6 +175,31 @@ crescent_typeName(int type) {
 	return NULL;
 }
 
+void
+crescent_clone(crescent_State* state, size_t index) {
+	size_t fromIndex = state->stack.topFrame->base + index - 1;
+	size_t toIndex   = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	crescentC_resizeStack(state, state->stack.topFrame->top);
+	crescentO_clone(state, &state->stack.data[toIndex], &state->stack.data[fromIndex]);
+
+	state->stack.topFrame->top += 1;
+}
+
+void
+crescent_deepClone(crescent_State* state, size_t index) {
+	size_t fromIndex = state->stack.topFrame->base + index - 1;
+	size_t toIndex   = state->stack.topFrame->base + state->stack.topFrame->top;
+
+	crescentC_resizeStack(state, state->stack.topFrame->top);
+
+	if (crescentO_deepClone(state, &state->stack.data[toIndex], &state->stack.data[fromIndex])) {
+		crescentC_memoryError(state);
+	}
+
+	state->stack.topFrame->top += 1;
+}
+
 int
 crescent_isNil(crescent_State* state, size_t index) {
 	size_t absoluteIndex = state->stack.topFrame->base + index - 1;

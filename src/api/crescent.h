@@ -67,6 +67,12 @@ crescent_type(crescent_State* state, size_t index);
 extern char*
 crescent_typeName(int type);
 
+extern void
+crescent_clone(crescent_State* state, size_t index);
+
+extern void
+crescent_deepClone(crescent_State* state, size_t index);
+
 extern int
 crescent_isNil(crescent_State* state, size_t index);
 
