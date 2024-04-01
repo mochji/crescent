@@ -26,7 +26,6 @@
 crescentV_OpMode
 crescentV_mode[] = {
 	iAB,  /* OP_MOV    */
-	iAB,  /* OP_DMOV   */
 
 	iA,   /* OP_LODN   */
 	iA,   /* OP_LODT   */

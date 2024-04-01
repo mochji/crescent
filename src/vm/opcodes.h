@@ -75,7 +75,6 @@ enum
 crescentV_OpCode {
 /*  enum            operation                mode          */
 	OP_MOV,      /* S[A] = S[B]              iAB           */
-	OP_DMOV,     /* S[A] = S[B] (deep clone) iAB           */
 
 	OP_LODN,     /* S[A] = nil               iA            */
 	OP_LODT,     /* S[A] = true              iA            */
