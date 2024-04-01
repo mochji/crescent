@@ -193,7 +193,7 @@ crescent_deepClone(crescent_State* state, size_t index) {
 
 	crescentC_resizeStack(state, state->stack.topFrame->top);
 
-	if (crescentO_deepClone(state, &state->stack.data[toIndex], &state->stack.data[fromIndex])) {
+	if (crescentO_deepClone(&state->stack.data[toIndex], &state->stack.data[fromIndex])) {
 		crescentC_memoryError(state);
 	}
 
