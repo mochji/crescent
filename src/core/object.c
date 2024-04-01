@@ -62,7 +62,7 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 	return 1;
 }
 
-int
+void
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
 	if (from->type == CRESCENT_TYPE_STRING) {
 		from->value.s->references += 1;
@@ -71,8 +71,6 @@ crescentO_clone(crescent_Object* to, crescent_Object* from) {
 	}
 
 	*to = *from;
-
-	return 0;
 }
 
 int
