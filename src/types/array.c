@@ -70,7 +70,7 @@ crescentA_clone(crescent_Array* array) {
 	}
 
 	for (size_t a = 0; a < array->length; a++) {
-		if (crescentO_clone(&cloned->data[a], &array->data[a])) {
+		if (crescentO_deepClone(&cloned->data[a], &array->data[a])) {
 			cloned->length = a;
 
 			crescentA_free(cloned);
