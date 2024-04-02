@@ -65,6 +65,8 @@ crescentS_as(char* str) {
 		string->data[a] = str[a];
 	}
 
+	string->data[length] = '\0';
+
 	return string;
 }
 
