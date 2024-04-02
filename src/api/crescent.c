@@ -463,24 +463,17 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 void
 crescent_pushString(crescent_State* state, char* str) {
 	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
-	size_t           length        = strlen(str);
 	crescent_String* string;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top);
 
-	string = crescentS_new(length);
+	string = crescentS_as(str);
 
 	if (string == NULL) {
 		crescentC_memoryError(state);
 
 		return;
 	}
-
-	for (size_t a = 0; a < length; a++) {
-		string->data[a] = str[a];
-	}
-
-	string->data[length] = '\0';
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
 	state->stack.data[absoluteIndex].value.s = string;
