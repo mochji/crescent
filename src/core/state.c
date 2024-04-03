@@ -139,10 +139,7 @@ crescentG_closeLState(crescent_State* state) {
 		free(state->stack.frames[a]);
 	}
 
-	size_t stateSize  = sizeof(crescent_State) + 14;
-	char*  endOfState = (char*)state + stateSize;
-
-	if (state->error < (char*)state || state->error >= endOfState) {
+	if (state->error != state->memoryError) {
 		free(state->error);
 	}
 

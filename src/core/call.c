@@ -34,10 +34,7 @@
 
 void
 crescentC_setError(crescent_State* state, char* error) {
-	size_t stateSize  = sizeof(crescent_State) + 14;
-	char*  endOfState = (char*)state + stateSize;
-
-	if (state->error < (char*)state || state->error >= endOfState) {
+	if (state->error != state->memoryError) {
 		free(state->error);
 	}
 
