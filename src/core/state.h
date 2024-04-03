@@ -55,6 +55,7 @@ crescent_State {
 	} stack;
 	size_t                     threadIndex;
 	char*                      error;
+	char*                      memoryError;
 	struct crescent_ErrorJump* errorJump;
 	struct crescent_GState*    gState;
 };
