@@ -83,8 +83,8 @@ crescentG_blankLState() {
 		return NULL;
 	}
 
-	state->stack.frameCount = 1;
 	state->stack.maxFrames  = 256;
+	state->stack.frameCount = 1;
 	state->stack.frames     = calloc(state->stack.maxFrames, sizeof(crescent_Frame*));
 
 	if (state->stack.frames == NULL) {
