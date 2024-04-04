@@ -39,7 +39,7 @@ crescentG_blankGState() {
 
 	gState->maxThreads  = 1;
 	gState->threadCount = 0;
-	gState->threads     = malloc(sizeof(crescent_Frame*));
+	gState->threads     = calloc(1, sizeof(crescent_Frame*));
 	gState->baseThread  = NULL;
 	gState->panic       = NULL;
 
