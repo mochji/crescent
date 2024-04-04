@@ -135,3 +135,135 @@ crescentO_free(crescent_Object* object) {
 
 	object->type = CRESCENT_TYPE_NONE;
 }
+
+crescent_Boolean
+crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
+	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+		if (isBoolean != NULL) {
+			*isBoolean = 1;
+		}
+
+		return object->value.b;
+	}
+
+	if (isBoolean != NULL) {
+		*isBoolean = 0;
+	}
+
+	switch (object->type) {
+		case CRESCENT_TYPE_INTEGER:
+			return object->value.i != 0;
+
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			return object->value.f != 0;
+
+			break;
+		case CRESCENT_TYPE_STRING:
+			return 1;
+
+			break;
+		case CRESCENT_TYPE_ARRAY:
+			return 1;
+
+			break;
+		case CRESCENT_TYPE_CFUNCTION:
+			return 1;
+
+			break;
+	}
+
+	return 0;
+}
+
+crescent_Integer
+crescentO_toInteger(crescent_Object* object, int* isInteger) {
+	if (object->type == CRESCENT_TYPE_INTEGER) {
+		if (isInteger != NULL) {
+			*isInteger = 1;
+		}
+
+		return object->value.i;
+	}
+
+	if (isInteger != NULL) {
+		*isInteger = 0;
+	}
+
+	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+		return (crescent_Integer)object->value.b;
+	}
+
+	if (object->type == CRESCENT_TYPE_FLOAT) {
+		return (crescent_Float)object->value.f;
+	}
+
+	if (object->type == CRESCENT_TYPE_STRING) {
+		return crescentS_toInteger(object->value.s->data, NULL);
+	}
+
+	return 0;
+}
+
+crescent_Float
+crescentO_toFloat(crescent_Object* object, int* isFloat) {
+	if (object->type == CRESCENT_TYPE_FLOAT) {
+		if (isFloat != NULL) {
+			*isFloat = 1;
+		}
+
+		return object->value.f;
+	}
+
+	if (isFloat != NULL) {
+		*isFloat = 0;
+	}
+
+	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+		return (crescent_Float)object->value.b;
+	}
+
+	if (object->type == CRESCENT_TYPE_INTEGER) {
+		return (crescent_Float)object->value.i;
+	}
+
+	if (object->type == CRESCENT_TYPE_STRING) {
+		return crescentS_toFloat(object->value.s->data, NULL);
+	}
+
+	return 0;
+}
+
+char*
+crescentO_toString(crescent_Object* object, int* isString) {
+	if (object->type == CRESCENT_TYPE_STRING) {
+		if (isString != NULL) {
+			*isString = 1;
+		}
+
+		return object->value.s->data;
+	}
+
+	if (isString != NULL) {
+		*isString = 0;
+	}
+
+	return NULL;
+}
+
+crescent_CFunction*
+crescentO_toCFunction(crescent_Object* object, int* isCFunction) {
+	if (object->type == CRESCENT_TYPE_CFUNCTION) {
+		if (isCFunction != NULL) {
+			*isCFunction = 1;
+		}
+
+		return object->value.c;
+	}
+
+	if (isCFunction != NULL) {
+		*isCFunction = 0;
+	}
+
+	return NULL;
+}

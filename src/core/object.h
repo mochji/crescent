@@ -58,4 +58,19 @@ crescentO_deepClone(crescent_Object* to, crescent_Object* from);
 extern void
 crescentO_free(crescent_Object* object);
 
+extern crescent_Boolean
+crescentO_toBoolean(crescent_Object* object, int* isBoolean);
+
+extern crescent_Integer
+crescentO_toInteger(crescent_Object* object, int* isInteger);
+
+extern crescent_Float
+crescentO_toFloat(crescent_Object* object, int* isFloat);
+
+extern char*
+crescentO_toString(crescent_Object* object, int* isString);
+
+extern crescent_CFunction*
+crescentO_toCFunction(crescent_Object* object, int* isCFunction);
+
 #endif

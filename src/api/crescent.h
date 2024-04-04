@@ -106,6 +106,9 @@ crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
 extern crescent_Float
 crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
 
+extern char*
+crescent_toStringX(crescent_State* state, size_t index, int* isString);
+
 extern crescent_Boolean
 crescent_toBoolean(crescent_State* state, size_t index);
 

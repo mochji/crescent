@@ -263,112 +263,46 @@ crescent_isCFunction(crescent_State* state, size_t index) {
 
 crescent_Boolean
 crescent_toBooleanX(crescent_State* state, size_t index, int* isBoolean) {
-	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_Object* object;
-
 	if (index == 0 || index > state->stack.topFrame->top) {
 		return 0;
 	}
 
-	object = &state->stack.data[absoluteIndex];
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
-		if (isBoolean != NULL) {
-			*isBoolean = 1;
-		}
-
-		return object->value.b;
-	}
-
-	if (isBoolean != NULL) {
-		*isBoolean = 0;
-	}
-
-	if (object->type == CRESCENT_TYPE_INTEGER) {
-		if (object->value.i) {
-			return 1;
-		}
-
-		return 0;
-	}
-
-	if (object->type == CRESCENT_TYPE_FLOAT) {
-		if (object->value.f) {
-			return 1;
-		}
-
-		return 0;
-	}
-
-	return 0;
+	return crescentO_toBoolean(&state->stack.data[absoluteIndex], isBoolean);
 }
 
 crescent_Integer
 crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
-	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_Object* object;
-
 	if (index == 0 || index > state->stack.topFrame->top) {
 		return 0;
 	}
 
-	object = &state->stack.data[absoluteIndex];
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
-	if (object->type == CRESCENT_TYPE_INTEGER) {
-		if (isInteger != NULL) {
-			*isInteger = 1;
-		}
-
-		return object->value.i;
-	}
-
-	if (isInteger != NULL) {
-		*isInteger = 0;
-	}
-
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
-		return (crescent_Integer)object->value.b;
-	}
-
-	if (object->type == CRESCENT_TYPE_FLOAT) {
-		return (crescent_Integer)object->value.f;
-	}
-
-	return 0;
+	return crescentO_toInteger(&state->stack.data[absoluteIndex], isInteger);
 }
 
 crescent_Float
 crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
-	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_Object* object;
-
 	if (index == 0 || index > state->stack.topFrame->top) {
 		return 0;
 	}
 
-	object = &state->stack.data[absoluteIndex];
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
-	if (object->type == CRESCENT_TYPE_FLOAT) {
-		if (isFloat != NULL) {
-			*isFloat = 1;
-		}
+	return crescentO_toFloat(&state->stack.data[absoluteIndex], isFloat);
+}
 
-		return object->value.f;
+char*
+crescent_toStringX(crescent_State* state, size_t index, int* isString) {
+	if (index == 0 || index > state->stack.topFrame->top) {
+		return 0;
 	}
 
-	if (isFloat != NULL) {
-		*isFloat = 0;
-	}
+	size_t absoluteIndex = state->stack.topFrame->base + index - 1;
 
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
-		return (crescent_Float)object->value.b;
-	}
-
-	if (object->type == CRESCENT_TYPE_INTEGER) {
-		return (crescent_Float)object->value.i;
-	}
-
-	return 0;
+	return crescentO_toString(&state->stack.data[absoluteIndex], isString);
 }
 
 crescent_Boolean
@@ -388,35 +322,18 @@ crescent_toFloat(crescent_State* state, size_t index) {
 
 char*
 crescent_toString(crescent_State* state, size_t index) {
-	size_t           absoluteIndex = state->stack.topFrame->base + index - 1;
-	crescent_Object* object;
-
-	if (index == 0 || index > state->stack.topFrame->top) {
-		return NULL;
-	}
-
-	object = &state->stack.data[absoluteIndex];
-
-	if (object->type == CRESCENT_TYPE_STRING) {
-		return object->value.s->data;
-	}
-
-	return NULL;
+	return crescent_toStringX(state, index, NULL);
 }
 
 crescent_CFunction*
 crescent_toCFunction(crescent_State* state, size_t index) {
-	size_t absoluteIndex = state->stack.topFrame->base + index;
-
 	if (index == 0 || index > state->stack.topFrame->top) {
 		return NULL;
 	}
 
-	if (state->stack.data[absoluteIndex].type == CRESCENT_TYPE_CFUNCTION) {
-		return state->stack.data[absoluteIndex].value.c;
-	}
+	size_t absoluteIndex = state->stack.topFrame->base + index;
 
-	return NULL;
+	return crescentO_toCFunction(&state->stack.data[absoluteIndex], NULL);
 }
 
 void
