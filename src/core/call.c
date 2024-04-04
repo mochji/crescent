@@ -58,19 +58,13 @@ void
 crescentC_throw(crescent_State* state, int status) {
 	crescent_GState* gState = state->gState;
 
-	/* TODO: find a better solution than goto, trying to call again causes -Winfinite-recursion */
-
-throwAgain:
-
 	if (state->errorJump != NULL) {
 		state->errorJump->status = status;
 		longjmp(state->errorJump->buffer, 1);
 	}
 
 	if (gState->baseThread->errorJump != NULL) {
-		state = gState->baseThread;
-
-		goto throwAgain;
+		crescentC_throw(gState->baseThread, status);
 	}
 
 	if (gState->panic != NULL) {

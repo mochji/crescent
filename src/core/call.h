@@ -30,10 +30,10 @@
 extern void
 crescentC_setError(crescent_State* state, char* error);
 
-extern void
+extern void __attribute__((noreturn))
 crescentC_throw(crescent_State* state, int status);
 
-extern void
+extern void __attribute__((noreturn))
 crescentC_memoryError(crescent_State* state);
 
 extern int
