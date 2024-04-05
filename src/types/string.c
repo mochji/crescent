@@ -81,7 +81,7 @@ crescentS_clone(crescent_String* string) {
 	cloned->size       = string->size;
 	cloned->length     = string->length;
 	cloned->data       = malloc(string->size);
-	string->references = 1;
+	cloned->references = 1;
 
 	if (cloned->data == NULL) {
 		free(cloned);
