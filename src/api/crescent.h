@@ -29,13 +29,13 @@
 typedef struct crescent_State crescent_State;
 
 extern int
-crescent_version();
+crescent_version(void);
 
 extern int
-crescent_release();
+crescent_release(void);
 
 extern crescent_State*
-crescent_openState();
+crescent_openState(void);
 
 extern void
 crescent_closeState(crescent_State* state);

@@ -75,13 +75,13 @@ typedef struct crescent_State     crescent_State;
 typedef struct crescent_GState    crescent_GState;
 
 extern crescent_GState*
-crescentG_blankGState();
+crescentG_blankGState(void);
 
 extern void
 crescentG_closeGState(crescent_GState* gState);
 
 extern crescent_State*
-crescentG_blankLState();
+crescentG_blankLState(void);
 
 extern void
 crescentG_closeLState(crescent_State* state);

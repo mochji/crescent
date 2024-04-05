@@ -30,7 +30,7 @@
 #include "core/state.h"
 
 crescent_GState*
-crescentG_blankGState() {
+crescentG_blankGState(void) {
 	crescent_GState* gState = malloc(sizeof(crescent_GState));
 
 	if (gState == NULL) {
@@ -67,7 +67,7 @@ crescentG_closeGState(crescent_GState* gState) {
 }
 
 crescent_State*
-crescentG_blankLState() {
+crescentG_blankLState(void) {
 	crescent_State* state = malloc(sizeof(crescent_State) + 14);
 
 	if (state == NULL) {

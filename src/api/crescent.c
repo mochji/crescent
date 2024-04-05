@@ -49,17 +49,17 @@ crescent_panic(crescent_State* state) {
 }
 
 int
-crescent_version() {
+crescent_version(void) {
 	return CRESCENT_VERSION;
 }
 
 int
-crescent_release() {
+crescent_release(void) {
 	return CRESCENT_RELEASE;
 }
 
 crescent_State*
-crescent_openState() {
+crescent_openState(void) {
 	crescent_GState* gState = crescentG_blankGState();
 	crescent_State*  state  = crescentG_blankLState();
 
