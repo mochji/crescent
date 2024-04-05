@@ -241,24 +241,6 @@ crescentC_endCall(crescent_State* state, size_t results) {
 	crescentC_resizeStack(state, oldTopFrame->top);
 }
 
-void
-crescentC_startTry(crescent_State* state) {
-	state->errorJump = malloc(sizeof(crescent_ErrorJump));
-
-	if (state->errorJump == NULL) {
-		crescentC_memoryError(state);
-	}
-
-	state->errorJump->status = CRESCENT_STATUS_OK;
-}
-
-void
-crescentC_endTry(crescent_State* state) {
-	free(state->errorJump);
-
-	state->errorJump = NULL;
-}
-
 int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults) {
 	crescentC_startCall(state, argCount);
@@ -279,10 +261,11 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 int
 crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults, int* status) {
 	crescent_ErrorJump* oldErrorJump  = state->errorJump;
+	crescent_ErrorJump  newErrorJump  = {.status = CRESCENT_STATUS_OK};
 	size_t              oldFrameIndex = state->stack.frameCount - 1;
 	int                 results;
 
-	crescentC_startTry(state);
+	state->errorJump = &newErrorJump;
 
 	if (setjmp(state->errorJump->buffer) == 0) {
 		results = crescentC_callC(state, function, argCount, maxResults);
@@ -297,8 +280,6 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 	if (status != NULL) {
 		*status = state->errorJump->status;
 	}
-
-	crescentC_endTry(state);
 
 	state->errorJump = oldErrorJump;
 
