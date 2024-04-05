@@ -62,6 +62,7 @@ run: build
 
 valgrind: build
 	valgrind --tool=massif ./$(TARGET)
+	valgrind --tool=callgrind ./$(TARGET)
 	valgrind --tool=memcheck ./$(TARGET)
 
 clean:
