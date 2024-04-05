@@ -34,6 +34,10 @@
 
 void
 crescentC_setError(crescent_State* state, char* error) {
+	if (state->error == error) {
+		return;
+	}
+
 	if (state->error != state->memoryError) {
 		free(state->error);
 	}
