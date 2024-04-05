@@ -32,7 +32,7 @@
 
 /*
  * ============================================================================
- * Crescent configuration
+ * Version and license configuration
  *
  * These definitions contain stuff such as Crescent version, copyright
  * information, etc. These do not need to be changed.
