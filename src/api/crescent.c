@@ -120,14 +120,15 @@ crescent_getUsage(crescent_State* state) {
 
 void
 crescent_setTop(crescent_State* state, size_t newTop) {
-	size_t oldTop = state->stack.topFrame->top;
+	size_t absoluteTop = state->stack.topFrame->base + newTop;
+	size_t oldTop      = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, newTop);
 
 	state->stack.topFrame->top = newTop;
 
-	for (size_t a = oldTop; a < newTop; a++) {
-		state->stack.data[state->stack.topFrame->base + a].type = CRESCENT_TYPE_NIL;
+	for (size_t a = oldTop; a < absoluteTop; a++) {
+		state->stack.data[a].type = CRESCENT_TYPE_NIL;
 	}
 }
 
