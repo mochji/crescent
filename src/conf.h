@@ -177,7 +177,14 @@
 /*
  * @ CRESCENT_VM_MAXLOCALS
  *
- * Controls the max amount of locals in the Crescent VM, must be less than 200.
+ * Controls the max amount of locals in the Crescent VM, this does not affect
+ * how many arguments you can pass to functions.
+ *
+ * You can comment this definition out or set it to an absurd number to allow
+ * for unlimited locals, though that may cause issues if code written with
+ * that in mind is run on a build of Crescent with the default max local
+ * count. Even then, you shouldn't be writing code that uses over 200 locals
+ * anyways.
  */
 
 #define CRESCENT_VM_MAXLOCALS 200
@@ -212,10 +219,10 @@
 #	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif
 
-#if CRESCENT_VM_MAXLOCALS > 200
-#	undef  CRESCENT_VM_MAXLOCALS
-#	define CRESCENT_VM_MAXLOCALS 200
+#ifndef CRESCENT_VM_MAXLOCALS
+#	define CRESCENT_VM_MAXLOCALS SIZE_MAX
 #endif
+
 
 #define CRESCENT_STATUS_OK    0
 #define CRESCENT_STATUS_YIELD 1
