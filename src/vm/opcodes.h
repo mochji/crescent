@@ -69,6 +69,7 @@ crescentV_OpMode {
  * CE = constants + 0xFFFF
  * L  = labels
  * LE = labels + 0xFFFFFF
+ * G  = globals
  */
 
 enum
@@ -84,6 +85,7 @@ crescentV_OpCode {
 	OP_LODA,     /* S[A] = [] (array)        iA            */
 	OP_LODC,     /* S[A] = C[B]              iABx          */
 	OP_LODCX,    /* S[A] = CE[B]             iABx          */
+	OP_LODG,     /* S[A] = G[S[B]]           iAB           */
 
 	OP_ADD,      /* S[A] = S[B] + S[C]       iABC          */
 	OP_SUB,      /* S[A] = S[B] - S[C]       iABC          */
@@ -121,6 +123,9 @@ crescentV_OpCode {
 	OP_SET,      /* S[A][S[B]] = S[C]        iABC          */
 
 	OP_CALL,     /* S[A] S[B]() (C args)     iABC          */
+	OP_RETURN,   /* return S[A] .. S[B]      iAB           */
+	OP_RETURN0,  /* return                   i             */
+	OP_RETURN1,  /* return S[A]              iA            */
 
 	OP_JMP,      /* PC = L[A]                iAxx          */
 	OP_JMPX,     /* PC = LE[A]               iAxx          */
