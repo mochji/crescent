@@ -177,10 +177,10 @@
 /*
  * @ CRESCENT_VM_MAXLOCALS
  *
- * Controls the max amount of locals in the Crescent VM, must be less than 250.
+ * Controls the max amount of locals in the Crescent VM, must be less than 200.
  */
 
-#define CRESCENT_VM_MAXLOCALS 250
+#define CRESCENT_VM_MAXLOCALS 200
 
 /*
  * ============================================================================
@@ -212,9 +212,9 @@
 #	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif
 
-#if CRESCENT_VM_MAXLOCALS > 250
+#if CRESCENT_VM_MAXLOCALS > 200
 #	undef  CRESCENT_VM_MAXLOCALS
-#	define CRESCENT_VM_MAXLOCALS 250
+#	define CRESCENT_VM_MAXLOCALS 200
 #endif
 
 #define CRESCENT_STATUS_OK    0
