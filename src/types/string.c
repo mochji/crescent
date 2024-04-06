@@ -274,7 +274,7 @@ crescentS_toInteger(char* str, int* success) {
 	return value;
 }
 
-/* TODO: support for exponents (e12, e-6, you get it) */
+/* TODO: support for exponents (e12, e-6, E+50, you get it) */
 
 crescent_Float
 crescentS_toFloat(char* str, int* success) {
@@ -325,3 +325,5 @@ crescentS_toFloat(char* str, int* success) {
 
 	return value;
 }
+
+/* TODO: dynamic allocation string format function */

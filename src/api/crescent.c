@@ -33,6 +33,8 @@
 #include "core/state.h"
 #include "core/call.h"
 
+/* TODO: error messages on... api calls that cause errors? needs string format function */
+
 static int
 crescent_panic(crescent_State* state) {
 	char* error;
@@ -455,8 +457,6 @@ int
 crescent_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
 	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
 }
-
-/* TODO: error messages on attempt to call non function, needs format string func */
 
 int
 crescent_call(crescent_State* state, size_t index, size_t argCount) {
