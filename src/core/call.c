@@ -271,7 +271,7 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 
 	state->errorJump = &newErrorJump;
 
-	if (setjmp(state->errorJump->buffer) == 0) {
+	if (setjmp(newErrorJump.buffer) == 0) {
 		results = crescentC_callC(state, function, argCount, maxResults);
 	} else {
 		for (size_t a = oldFrameIndex; a < state->stack.frameCount; a++) {
@@ -282,7 +282,7 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 	}
 
 	if (status != NULL) {
-		*status = state->errorJump->status;
+		*status = newErrorJump.status;
 	}
 
 	state->errorJump = oldErrorJump;
