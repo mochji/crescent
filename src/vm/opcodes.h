@@ -85,7 +85,9 @@ crescentV_OpCode {
 	OP_LODA,     /* S[A] = [] (array)        iA            */
 	OP_LODC,     /* S[A] = C[B]              iABx          */
 	OP_LODCX,    /* S[A] = CE[B]             iABx          */
-	OP_LODG,     /* S[A] = G[S[B]]           iAB           */
+
+	OP_GETG,     /* S[A] = G[S{A]]           iAB           */
+	OP_SETG,     /* G[S[A]] = S[B]           iAB           */
 
 	OP_ADD,      /* S[A] = S[B] + S[C]       iABC          */
 	OP_SUB,      /* S[A] = S[B] - S[C]       iABC          */
