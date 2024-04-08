@@ -506,11 +506,7 @@ crescent_error(crescent_State* state, char* error) {
 
 void
 crescent_clearError(crescent_State* state) {
-	if (state->error != state->memoryError) {
-		free(state->error);
-	}
-
-	state->error = NULL;
+	crescentC_setError(state, NULL);
 }
 
 char*
