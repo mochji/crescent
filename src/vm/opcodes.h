@@ -109,8 +109,6 @@ crescentV_OpCode {
 	OP_BSL,      /* S[A] = S[A] << S[C]      iABC          */
 	OP_BSR,      /* S[A] = S[A] >> S[C]      iABC          */
 
-	OP_IS,       /* &S[A] = &S[B] == &S[A]   iABC          */
-
 	OP_EVAL,     /* S[A] = (boolean)S[B]     iAB           */
 	OP_EQ,       /* S[A] = S[B] == S[C]      iABC          */
 	OP_NE,       /* S[A] = S[B] != S[C]      iABC          */
