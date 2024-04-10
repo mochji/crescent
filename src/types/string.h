@@ -23,6 +23,7 @@
 #define TYPES_STRING_H
 
 #include <stddef.h>
+#include <stdarg.h>
 
 #include "conf.h"
 
@@ -65,5 +66,11 @@ crescentS_toInteger(char* str, int* success);
 
 extern crescent_Float
 crescentS_toFloat(char* str, int* success);
+
+extern size_t
+crescentS_vFormat(char** result, char* format, va_list args);
+
+extern size_t
+crescentS_format(char** result, char* format, ...);
 
 #endif

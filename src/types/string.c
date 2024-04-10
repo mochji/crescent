@@ -19,8 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -326,4 +328,45 @@ crescentS_toFloat(char* str, int* success) {
 	return value;
 }
 
-/* TODO: dynamic allocation string format function */
+/*
+ * TODO: make dynamic string format function from scratch, this is temporary. when making new one,
+ * add crescent format codes like %I and %F for crescent_Integer and crescent_Float
+ */
+
+size_t
+crescentS_vFormat(char** result, char* format, va_list args) {
+	va_list argsCopy;
+
+	va_copy(argsCopy, args);
+
+	size_t  size     = vsnprintf(NULL, 0, format, args);
+	char*   string   = malloc(size);
+
+	if (string == NULL) {
+		*result = NULL;
+
+		return 0;
+	}
+
+	vsprintf(string, format, argsCopy);
+
+	*result = string;
+
+	va_end(argsCopy);
+
+	return size;
+}
+
+size_t
+crescentS_format(char** result, char* format, ...) {
+	va_list args;
+	size_t  size;
+
+	va_start(args, format);
+
+	size = crescentS_vFormat(result, format, args);
+
+	va_end(args);
+
+	return size;
+}
