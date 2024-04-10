@@ -339,7 +339,7 @@ crescentS_vFormat(char** result, char* format, va_list args) {
 
 	va_copy(argsCopy, args);
 
-	size_t  size     = vsnprintf(NULL, 0, format, args);
+	size_t  size     = vsnprintf(NULL, 0, format, args) + 1;
 	char*   string   = malloc(size);
 
 	if (string == NULL) {
