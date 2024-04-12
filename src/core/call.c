@@ -243,8 +243,6 @@ crescentC_endCall(crescent_State* state, size_t results) {
 	state->stack.frameCount                     -= 1;
 	state->stack.frames[state->stack.frameCount] = NULL;
 	state->stack.topFrame                        = oldTopFrame;
-
-	crescentC_resizeStack(state, oldTopFrame->top);
 }
 
 int
@@ -260,6 +258,7 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	}
 
 	crescentC_endCall(state, (size_t)results);
+	crescentC_resizeStack(state, state->stack.topFrame->top);
 
 	return results;
 }
