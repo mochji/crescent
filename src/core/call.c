@@ -82,7 +82,7 @@ crescentC_throw(crescent_State* state, int status) {
 
 void
 crescentC_memoryError(crescent_State* state) {
-	state->error = (char*)state + sizeof(crescent_State);
+	state->error = state->memoryError;
 
 	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
