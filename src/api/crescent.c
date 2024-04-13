@@ -142,10 +142,6 @@ crescent_type(crescent_State* state, size_t index) {
 char*
 crescent_typeName(int type) {
 	switch (type) {
-		case CRESCENT_TYPE_NONE:
-			return "no value";
-
-			break;
 		case CRESCENT_TYPE_NIL:
 			return "nil";
 
@@ -437,7 +433,7 @@ crescent_remove(crescent_State* state, size_t index) {
 		state->stack.data[baseIndex + a] = state->stack.data[baseIndex + a + 1];
 	}
 
-	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NONE;
+	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NIL;
 
 	crescentC_resizeStack(state, --state->stack.topFrame->top);
 }

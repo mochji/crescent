@@ -133,7 +133,7 @@ crescentO_free(crescent_Object* object) {
 		}
 	}
 
-	object->type = CRESCENT_TYPE_NONE;
+	object->type = CRESCENT_TYPE_NIL;
 }
 
 crescent_Boolean
