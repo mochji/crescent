@@ -110,10 +110,10 @@ crescentG_blankLState(void) {
 	state->stack.topFrame->next     = NULL;
 	state->stack.topFrame->previous = NULL;
 
-	state->threadIndex = 0;
-	state->error       = NULL;
 	state->memoryError = (char*)state + sizeof(crescent_State);
+	state->error       = NULL;
 	state->errorJump   = NULL;
+	state->threadIndex = 0;
 	state->gState      = NULL;
 
 	const char* memoryErrorMsg = "out of memory";

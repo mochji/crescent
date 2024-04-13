@@ -2,7 +2,7 @@
 
 this is heavily inspired from lua (which is why its called crescent), and will be similar to lua in both the syntax and c api with stuff i believe can be improved (and isnt absolutely painful to read the surce code)
 
-this is mostly a hyperfixation that became too large
+this is mostly a hyperfixation
 
 #### done
 
