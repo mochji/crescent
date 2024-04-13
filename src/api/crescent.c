@@ -151,11 +151,11 @@ crescent_typeName(int type) {
 
 			break;
 		case CRESCENT_TYPE_INTEGER:
-			return "integer";
+			return "number";
 
 			break;
 		case CRESCENT_TYPE_FLOAT:
-			return "float";
+			return "number";
 
 			break;
 		case CRESCENT_TYPE_STRING:
@@ -167,7 +167,7 @@ crescent_typeName(int type) {
 
 			break;
 		case CRESCENT_TYPE_CFUNCTION:
-			return "cfunction";
+			return "function";
 
 			break;
 	}
