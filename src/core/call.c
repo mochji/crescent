@@ -87,13 +87,6 @@ crescentC_memoryError(crescent_State* state) {
 	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
 
-int
-crescentC_stackUsage(crescent_State* state) {
-	size_t absoluteTop = state->stack.topFrame->base + state->stack.topFrame->top;
-
-	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-}
-
 void
 crescentC_growStack(crescent_State* state, size_t newTop) {
 	size_t           absoluteTop = state->stack.topFrame->base + newTop;
