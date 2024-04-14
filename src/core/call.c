@@ -240,6 +240,10 @@ crescentC_endCall(crescent_State* state, size_t results) {
 
 int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults) {
+	if (maxResults < 0) {
+		maxResults = 0;
+	}
+
 	crescentC_startCall(state, argCount);
 
 	int results = function(state);
