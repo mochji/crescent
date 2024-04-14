@@ -82,6 +82,7 @@ crescentV_OpCode {
 	OP_LODF,     /* S[A] = false             iA            */
 	OP_LODPI,    /* S[A] = B                 iABx          */
 	OP_LODNI,    /* S[A] = -B                iABx          */
+	OP_LODS,     /* S[A] = "" (string)       iA            */
 	OP_LODA,     /* S[A] = [] (array)        iA            */
 	OP_LODC,     /* S[A] = C[B]              iABx          */
 	OP_LODCX,    /* S[A] = CE[B]             iABx          */
