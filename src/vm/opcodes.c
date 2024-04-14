@@ -74,6 +74,7 @@ crescentV_mode[] = {
 	iABC, /* OP_SET     */
 
 	iABC, /* OP_CALL    */
+	iABC, /* OP_TCALL   */
 	iAB,  /* OP_RETURN  */
 	i,    /* OP_RETURN0 */
 	iA,   /* OP_RETURN1 */
