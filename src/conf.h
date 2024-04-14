@@ -178,12 +178,15 @@
  * @ CRESCENT_VM_MAXLOCALS
  *
  * Controls the max amount of locals in the Crescent VM, must be less than or
- * equal to 256 to fit within the unsigned 8 bit integer limit.
+ * equal to 200.
  *
- * This does not affect how many arguments you can pass to functions.
+ * You can't have unlimited locals/stack indexes since the operands passed to
+ * functions that take stack indexes are 8 bit, so only 256 total stack indexes
+ * are possible. It's not 256 since you need extra to pass arguments to
+ * functions and do other stuff.
  */
 
-#define CRESCENT_VM_MAXLOCALS 256
+#define CRESCENT_VM_MAXLOCALS 200
 
 /*
  * ============================================================================
@@ -215,9 +218,9 @@
 #	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif
 
-#if CRESCENT_VM_MAXLOCALS > 256
+#if CRESCENT_VM_MAXLOCALS > 200
 #	undef  CRESCENT_VM_MAXLOCALS
-#	define CRESCENT_VM_MAXLOCALS 256
+#	define CRESCENT_VM_MAXLOCALS 200
 #endif
 
 #define CRESCENT_STATUS_OK    0
