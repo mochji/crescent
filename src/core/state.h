@@ -31,8 +31,8 @@
 
 struct
 crescent_ErrorJump {
-	jmp_buf buffer;
 	int     status;
+	jmp_buf buffer;
 };
 
 struct
