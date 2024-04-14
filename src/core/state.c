@@ -145,6 +145,5 @@ crescentG_closeLState(crescent_State* state) {
 
 	free(state->stack.frames);
 	free(state->stack.data);
-	free(state->errorJump);
 	free(state);
 }
