@@ -68,7 +68,7 @@ crescentG_closeGState(crescent_GState* gState) {
 
 crescent_State*
 crescentG_blankLState(void) {
-	crescent_State* state = malloc(sizeof(crescent_State) + 14);
+	crescent_State* state = malloc(sizeof(crescent_State));
 
 	if (state == NULL) {
 		return NULL;
@@ -110,17 +110,11 @@ crescentG_blankLState(void) {
 	state->stack.topFrame->next     = NULL;
 	state->stack.topFrame->previous = NULL;
 
-	state->memoryError = (char*)state + sizeof(crescent_State);
+	state->memoryError = "out of memory";
 	state->error       = NULL;
 	state->errorJump   = NULL;
 	state->threadIndex = 0;
 	state->gState      = NULL;
-
-	const char* memoryErrorMsg = "out of memory";
-
-	for (size_t a = 0; a < 14; a++) {
-		state->memoryError[a] = memoryErrorMsg[a];
-	}
 
 	return state;
 }
