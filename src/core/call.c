@@ -87,7 +87,7 @@ crescentC_memoryError(crescent_State* state) {
 	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
 
-void
+int
 crescentC_growStack(crescent_State* state, size_t newTop) {
 	size_t           absoluteTop = state->stack.topFrame->base + newTop;
 	size_t           newSize     = state->stack.size;
@@ -104,14 +104,16 @@ crescentC_growStack(crescent_State* state, size_t newTop) {
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
 
 	if (newData == NULL) {
-		crescentC_memoryError(state);
+		return 1;
 	}
 
 	state->stack.size = newSize;
 	state->stack.data = newData;
+
+	return 0;
 }
 
-void
+int
 crescentC_shrinkStack(crescent_State* state, size_t newTop) {
 	size_t           absoluteTop = state->stack.topFrame->base + newTop;
 	size_t           newSize     = state->stack.size;
@@ -134,33 +136,46 @@ crescentC_shrinkStack(crescent_State* state, size_t newTop) {
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
 
 	if (newData == NULL) {
-		crescentC_memoryError(state);
+		return 1;
 	}
 
 	state->stack.size = newSize;
 	state->stack.data = newData;
+
+	return 0;
 }
 
-void
-crescentC_resizeStack(crescent_State* state, size_t newTop) {
+int
+crescentC_resizeStack(crescent_State* state, size_t newTop, int throw) {
 	size_t absoluteTop = state->stack.topFrame->base + newTop;
 	int    usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+	int    failed;
 
 	if (usage < CRESCENT_STACK_SHRINKTHRESHOLD) {
 		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
-			return;
+			return 0;
 		}
 
-		crescentC_shrinkStack(state, newTop);
+		failed = crescentC_shrinkStack(state, newTop);
 
-		return;
+		if (failed && throw) {
+			crescentC_memoryError(state);
+		}
+
+		return failed;
 	}
 
 	if (usage > CRESCENT_STACK_GROWTHRESHOLD) {
-		crescentC_growStack(state, newTop);
+		failed = crescentC_growStack(state, newTop);
 
-		return;
+		if (failed && throw) {
+			crescentC_memoryError(state);
+		}
+
+		return failed;
 	}
+
+	return 0;
 }
 
 void
@@ -255,7 +270,7 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argC
 	}
 
 	crescentC_endCall(state, (size_t)results);
-	crescentC_resizeStack(state, state->stack.topFrame->top);
+	crescentC_resizeStack(state, state->stack.topFrame->top, 1);
 
 	return results;
 }

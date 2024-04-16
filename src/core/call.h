@@ -36,14 +36,14 @@ crescentC_throw(crescent_State* state, int status);
 extern void __attribute__((noreturn))
 crescentC_memoryError(crescent_State* state);
 
-extern void
+extern int
 crescentC_growStack(crescent_State* state, size_t usage);
 
-extern void
+extern int
 crescentC_shrinkStack(crescent_State* state, size_t usage);
 
-extern void
-crescentC_resizeStack(crescent_State* state, size_t newTop);
+extern int
+crescentC_resizeStack(crescent_State* state, size_t newTop, int throw);
 
 extern void
 crescentC_startCall(crescent_State* state, size_t argCount);
