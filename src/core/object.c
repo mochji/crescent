@@ -248,6 +248,10 @@ crescentO_toString(crescent_Object* object, int* isString) {
 		*isString = 0;
 	}
 
+	if (object->type == CRESCENT_TYPE_NIL) {
+		return "nil";
+	}
+
 	if (object->type == CRESCENT_TYPE_BOOLEAN) {
 		return object->value.b ? "true" : "false";
 	}
