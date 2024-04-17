@@ -64,6 +64,9 @@ crescent_setTop(crescent_State* state, size_t newTop);
 extern int
 crescent_type(crescent_State* state, size_t index);
 
+extern size_t
+crescent_length(crescent_State* state, size_t index);
+
 extern char*
 crescent_typeName(int type);
 

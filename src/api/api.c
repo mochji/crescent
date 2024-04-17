@@ -156,6 +156,21 @@ crescent_type(crescent_State* state, size_t index) {
 	return state->stack.data[api_absindex(state, index)].type;
 }
 
+size_t
+crescent_length(crescent_State* state, size_t index) {
+	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
+
+	if (object->type == CRESCENT_TYPE_STRING) {
+		return object->value.s->length;
+	}
+
+	if (object->type == CRESCENT_TYPE_ARRAY) {
+		return object->value.a->length;
+	}
+
+	return 0;
+}
+
 char*
 crescent_typeName(int type) {
 	switch (type) {
