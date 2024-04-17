@@ -29,6 +29,7 @@
 #include "conf.h"
 
 #include "types/string.h"
+#include "types/array.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
@@ -413,6 +414,26 @@ crescent_pushString(crescent_State* state, char* str) {
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
 	state->stack.data[absoluteIndex].value.s = string;
+
+	state->stack.topFrame->top += 1;
+}
+
+void
+crescent_pushArray(crescent_State* state) {
+	size_t          absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Array* array         = crescentA_new(0);
+
+	if (array == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	if (crescentC_resizeStack(state, state->stack.topFrame->top, 0)) {
+		crescentA_free(array);
+		crescentC_memoryError(state);
+	}
+
+	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_ARRAY;
+	state->stack.data[absoluteIndex].value.a = array;
 
 	state->stack.topFrame->top += 1;
 }

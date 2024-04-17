@@ -140,6 +140,9 @@ extern void
 crescent_pushString(crescent_State* state, char* str);
 
 extern void
+crescent_pushArray(crescent_State* state);
+
+extern void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction* function);
 
 extern void
