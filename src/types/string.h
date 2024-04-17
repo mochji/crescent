@@ -58,6 +58,9 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB);
 extern size_t
 crescentS_hash(char* str);
 
+extern char*
+crescentS_copy(char* str);
+
 extern int
 crescentS_hexValue(char c);
 
