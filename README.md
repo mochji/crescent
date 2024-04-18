@@ -8,17 +8,19 @@ this is mostly a hyperfixation
 
  - object structure
  - stack and call structure
- - basic c api
- - opcodes
+ - base c api
  - string type
 
 #### donen't
 
  - array type
- - table type
  - globals
- - metatables/metamethods
  - vm
  - lexer, parser, anything related to the compiler
  - aux library
  - base libs (base, math, io, os, string, etc)
+
+#### implement later
+
+ - table type
+ - metatables/metamethods
