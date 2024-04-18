@@ -171,7 +171,7 @@ crescent_length(crescent_State* state, size_t index) {
 	return 0;
 }
 
-char*
+const char*
 crescent_typeName(int type) {
 	switch (type) {
 		case CRESCENT_TYPE_NIL:
@@ -336,7 +336,7 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
 	return crescentO_toFloat(&state->stack.data[api_absindex(state, index)], isFloat);
 }
 
-char*
+const char*
 crescent_toStringX(crescent_State* state, size_t index, int* isString) {
 	if (api_invalidindex(state, index)) {
 		return 0;
@@ -360,7 +360,7 @@ crescent_toFloat(crescent_State* state, size_t index) {
 	return crescent_toFloatX(state, index, NULL);
 }
 
-char*
+const char*
 crescent_toString(crescent_State* state, size_t index) {
 	return crescent_toStringX(state, index, NULL);
 }
@@ -540,7 +540,7 @@ crescent_clearError(crescent_State* state) {
 	crescentC_setError(state, NULL);
 }
 
-char*
+const char*
 crescent_getError(crescent_State* state) {
 	return state->error;
 }

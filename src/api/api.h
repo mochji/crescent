@@ -67,7 +67,7 @@ crescent_type(crescent_State* state, size_t index);
 extern size_t
 crescent_length(crescent_State* state, size_t index);
 
-extern char*
+extern const char*
 crescent_typeName(int type);
 
 extern void
@@ -109,7 +109,7 @@ crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
 extern crescent_Float
 crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
 
-extern char*
+extern const char*
 crescent_toStringX(crescent_State* state, size_t index, int* isString);
 
 extern crescent_Boolean
@@ -121,7 +121,7 @@ crescent_toInteger(crescent_State* state, size_t index);
 extern crescent_Float
 crescent_toFloat(crescent_State* state, size_t index);
 
-extern char*
+extern const char*
 crescent_toString(crescent_State* state, size_t index);
 
 extern crescent_CFunction*
@@ -178,7 +178,7 @@ crescent_error(crescent_State* state, char* error);
 extern void
 crescent_clearError(crescent_State* state);
 
-extern char*
+extern const char*
 crescent_getError(crescent_State* state);
 
 #endif
