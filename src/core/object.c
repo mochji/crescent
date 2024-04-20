@@ -136,6 +136,42 @@ crescentO_free(crescent_Object* object) {
 	object->type = CRESCENT_TYPE_NIL;
 }
 
+char*
+crescentO_typeName(int type) {
+	switch (type) {
+		case CRESCENT_TYPE_NIL:
+			return "nil";
+
+			break;
+		case CRESCENT_TYPE_BOOLEAN:
+			return "boolean";
+
+			break;
+		case CRESCENT_TYPE_INTEGER:
+			return "number";
+
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			return "number";
+
+			break;
+		case CRESCENT_TYPE_STRING:
+			return "string";
+
+			break;
+		case CRESCENT_TYPE_ARRAY:
+			return "array";
+
+			break;
+		case CRESCENT_TYPE_CFUNCTION:
+			return "function";
+
+			break;
+	}
+
+	return NULL;
+}
+
 crescent_Boolean
 crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
 	if (object->type == CRESCENT_TYPE_BOOLEAN) {

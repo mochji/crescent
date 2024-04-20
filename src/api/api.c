@@ -173,38 +173,7 @@ crescent_length(crescent_State* state, size_t index) {
 
 const char*
 crescent_typeName(int type) {
-	switch (type) {
-		case CRESCENT_TYPE_NIL:
-			return "nil";
-
-			break;
-		case CRESCENT_TYPE_BOOLEAN:
-			return "boolean";
-
-			break;
-		case CRESCENT_TYPE_INTEGER:
-			return "number";
-
-			break;
-		case CRESCENT_TYPE_FLOAT:
-			return "number";
-
-			break;
-		case CRESCENT_TYPE_STRING:
-			return "string";
-
-			break;
-		case CRESCENT_TYPE_ARRAY:
-			return "array";
-
-			break;
-		case CRESCENT_TYPE_CFUNCTION:
-			return "function";
-
-			break;
-	}
-
-	return NULL;
+	return crescentO_typeName(type);
 }
 
 void

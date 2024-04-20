@@ -58,6 +58,9 @@ crescentO_deepClone(crescent_Object* to, crescent_Object* from);
 extern void
 crescentO_free(crescent_Object* object);
 
+extern char*
+crescentO_typeName(int type);
+
 extern crescent_Boolean
 crescentO_toBoolean(crescent_Object* object, int* isBoolean);
 
