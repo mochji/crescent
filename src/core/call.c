@@ -302,6 +302,8 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 			crescentC_endCall(state, 0);
 		}
 
+		crescentC_resizeStack(state, state->stack.topFrame->top, 1);
+
 		results = 0;
 	}
 
