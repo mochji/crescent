@@ -82,6 +82,19 @@ crescentC_throw(crescent_State* state, int status) {
 
 void
 crescentC_memoryError(crescent_State* state) {
+	/*
+	 * error handling on out-of-memory conditions is absolutely fucked for many
+	 * reasons. in crescentC_pCallC we resize the stack after popping the
+	 * old frames since we might not have gotten to the resize stack call in
+	 * crescentC_callC. but in an out-of-memory condition it might fail, and
+	 * because the 'throw' argument is 1, it'll jump right back to the setjmp
+	 * call, return 1, try again, fail, go back, you get it.
+	 *
+	 * why not just call abort() on an out-of-memory error? uhh...
+	 *
+	 * we just gotta hope the user's os is competent and kills the program TnT
+	 */
+
 	state->error = state->memoryError;
 
 	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
