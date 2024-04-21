@@ -132,7 +132,7 @@
  * operation may cause it to resize again and again, being very slow.
  */
 
-#define CRESCENT_STACK_GROWTHRESHOLD 80
+#define CRESCENT_STACK_GROWTHRESHOLD 90
 #define CRESCENT_STACK_SHRINKTHRESHOLD 40
 
 /*
