@@ -223,16 +223,16 @@ crescentC_endCall(crescent_State* state, size_t results) {
 		}
 	}
 
-	size_t fromBaseIndex;
-	size_t toBaseIndex;
-
-	toBaseIndex = newTopFrame->base;
-
-	for (size_t a = 0; a < newTopFrame->top - results; a++) {
-		crescentO_free(&state->stack.data[toBaseIndex + a]);
-	}
-
 	if (results != newTopFrame->top) {
+		size_t fromBaseIndex;
+		size_t toBaseIndex;
+
+		toBaseIndex = newTopFrame->base;
+
+		for (size_t a = 0; a < newTopFrame->top - results; a++) {
+			crescentO_free(&state->stack.data[toBaseIndex + a]);
+		}
+
 		fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
 		toBaseIndex   = newTopFrame->base;
 
