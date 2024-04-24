@@ -91,7 +91,7 @@ void
 crescentC_memoryError(crescent_State* state) {
 	state->error = state->memoryError;
 
-	crescentC_panic(state);
+	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
 
 int
@@ -292,6 +292,8 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 	if (setjmp(newErrorJump.buffer) == 0) {
 		results = crescentC_callC(state, function, argCount, maxResults);
 	} else {
+		state->errorJump = oldErrorJump; /* FIXME: this line is just a hack to get it to work */
+
 		for (size_t a = oldFrameIndex; a < state->stack.frameCount; a++) {
 			crescentC_endCall(state, 0);
 		}
