@@ -90,8 +90,7 @@ crescentC_throw(crescent_State* state, int status) {
 void
 crescentC_memoryError(crescent_State* state) {
 	state->error = state->memoryError;
-
-	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
+	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 }
 
 int
@@ -298,7 +297,10 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t arg
 			crescentC_endCall(state, 0);
 		}
 
-		crescentC_resizeStack(state, state->stack.topFrame->top, 1);
+		if (crescentC_resizeStack(state, state->stack.topFrame->top, 1)) {
+			state->error = "error in error handling";
+			crescentC_throw(state, CRESCENT_STATUS_ERRERR);
+		}
 
 		results = 0;
 	}
