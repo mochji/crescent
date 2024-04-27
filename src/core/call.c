@@ -81,6 +81,9 @@ crescentC_throw(crescent_State* state, int status) {
 	}
 
 	if (gState->baseThread->errorJump != NULL) {
+		gState->baseThread->error = state->error;
+		state->error              = NULL;
+
 		crescentC_throw(gState->baseThread, status);
 	}
 
