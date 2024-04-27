@@ -25,8 +25,8 @@
  * Search '@' for all configurable definitions.
  */
 
-#ifndef CONF_H
-#define CONF_H
+#ifndef CRESCENT_CONF_H
+#define CRESCENT_CONF_H
 
 #include <stdint.h>
 
