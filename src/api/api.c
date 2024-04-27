@@ -308,7 +308,7 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
 const char*
 crescent_toStringX(crescent_State* state, size_t index, int* isString) {
 	if (api_invalidindex(state, index)) {
-		return 0;
+		return NULL;
 	}
 
 	return crescentO_toString(&state->stack.data[api_absindex(state, index)], isString);
@@ -337,7 +337,7 @@ crescent_toString(crescent_State* state, size_t index) {
 crescent_CFunction*
 crescent_toCFunction(crescent_State* state, size_t index) {
 	if (api_invalidindex(state, index)) {
-		return 0;
+		return NULL;
 	}
 
 	return crescentO_toCFunction(&state->stack.data[api_absindex(state, index)], NULL);
