@@ -30,6 +30,9 @@
 extern void
 crescentC_setError(crescent_State* state, char* error);
 
+extern void
+crescentC_moveError(crescent_State* to, crescent_State* from);
+
 extern void __attribute__((noreturn))
 crescentC_panic(crescent_State* state);
 
