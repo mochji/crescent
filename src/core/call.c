@@ -307,25 +307,25 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, int argCou
 	if (setjmp(newErrorJump.buffer) == 0) {
 		results = crescentC_callC(state, function, argCount, maxResults);
 	} else {
-		state->errorJump = oldErrorJump; /* FIXME: this line is just a hack to get it to work */
-
 		for (size_t a = oldFrameIndex; a < state->stack.frameCount; a++) {
 			crescentC_endCall(state, 0);
 		}
 
 		if (crescentC_resizeStack(state, state->stack.topFrame->top, 1)) {
-			state->error = "error in error handling";
+			state->errorJump = oldErrorJump;
+
+			crescentC_setError(state, "error in error handling");
 			crescentC_throw(state, CRESCENT_STATUS_ERRERR);
 		}
 
 		results = 0;
 	}
 
+	state->errorJump = oldErrorJump;
+
 	if (status != NULL) {
 		*status = newErrorJump.status;
 	}
-
-	state->errorJump = oldErrorJump;
 
 	return results;
 }
