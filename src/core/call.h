@@ -52,15 +52,15 @@ extern int
 crescentC_resizeStack(crescent_State* state, size_t newTop, int throw);
 
 extern void
-crescentC_startCall(crescent_State* state, size_t argCount);
+crescentC_startCall(crescent_State* state, int argCount);
 
 extern void
-crescentC_endCall(crescent_State* state, size_t results);
+crescentC_endCall(crescent_State* state, int results);
 
 extern int
-crescentC_callC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults);
+crescentC_callC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults);
 
 extern int
-crescentC_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int maxResults, int* status);
+crescentC_pCallC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults, int* status);
 
 #endif
