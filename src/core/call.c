@@ -62,7 +62,7 @@ crescentC_setError(crescent_State* state, char* error) {
 
 void
 crescentC_moveError(crescent_State* to, crescent_State* from) {
-	if (from->error = from->memoryError) {
+	if (from->error == from->memoryError) {
 		to->error = to->memoryError;
 	} else {
 		to->error = from->error;
