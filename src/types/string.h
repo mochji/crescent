@@ -41,6 +41,9 @@ extern crescent_String*
 crescentS_new(size_t length);
 
 extern crescent_String*
+crescentS_nullString(void);
+
+extern crescent_String*
 crescentS_as(char* str);
 
 extern crescent_String*

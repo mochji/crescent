@@ -55,6 +55,22 @@ crescentS_new(size_t length) {
 }
 
 crescent_String*
+crescentS_nullString(void) {
+	crescent_String* string = malloc(sizeof(crescent_String));
+
+	if (string == NULL) {
+		return NULL;
+	}
+
+	string->size       = 0;
+	string->length     = 0;
+	string->data       = NULL;
+	string->references = 1;
+
+	return string;
+}
+
+crescent_String*
 crescentS_as(char* str) {
 	size_t           length = strlen(str);
 	crescent_String* string = crescentS_new(length);
