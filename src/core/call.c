@@ -313,9 +313,7 @@ crescentC_pCallC(crescent_State* state, crescent_CFunction* function, int argCou
 
 		if (crescentC_resizeStack(state, state->stack.topFrame->top, 1)) {
 			state->errorJump = oldErrorJump;
-
-			crescentC_setError(state, "error in error handling");
-			crescentC_throw(state, CRESCENT_STATUS_ERRERR);
+			crescentC_memoryError(state);
 		}
 
 		results = 0;
