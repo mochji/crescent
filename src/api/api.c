@@ -509,6 +509,33 @@ crescent_clearError(crescent_State* state) {
 	crescentC_setError(state, NULL);
 }
 
+void
+crescent_pushError(crescent_State* state) {
+	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	size_t           errorLength   = strlen(state->error);
+	crescent_String* string        = crescentS_nullString();
+
+	if (string == NULL) {
+		crescentC_memoryError(state);
+	}
+
+	if (crescentC_resizeStack(state, state->stack.topFrame->top, 0)) {
+		crescentS_free(string);
+		crescentC_memoryError(state);
+	}
+
+	string->size   = errorLength + 1;
+	string->length = errorLength;
+	string->data   = state->error;
+
+	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
+	state->stack.data[absoluteIndex].value.s = string;
+
+	state->error = NULL;
+
+	state->stack.topFrame->top += 1;
+}
+
 const char*
 crescent_getError(crescent_State* state) {
 	return state->error;

@@ -178,6 +178,9 @@ crescent_error(crescent_State* state, char* error);
 extern void
 crescent_clearError(crescent_State* state);
 
+extern void
+crescent_pushError(crescent_State* state);
+
 extern const char*
 crescent_getError(crescent_State* state);
 
