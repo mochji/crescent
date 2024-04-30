@@ -91,3 +91,4 @@ echo:
 	@echo "CC       = $(CC)"
 	@echo "CFLAGS   = $(CFLAGS)"
 	@echo "VALGRIND = $(VALGRIND)"
+	@echo "TARGET   = $(TARGET)"
