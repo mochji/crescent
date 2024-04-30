@@ -55,6 +55,9 @@
 #define CRESCENT_AUTHORS   "mochji"
 #define CRESCENT_COPYRIGHT "Crescent " CRESCENT_RELEASE_STR "  Copyright (C) 2024 " CRESCENT_AUTHORS
 
+#undef STR_HELPER
+#undef STR
+
 /*
  * ============================================================================
  * Platform configuration
