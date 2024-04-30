@@ -172,7 +172,7 @@ crescentO_typeName(int type) {
 	return NULL;
 }
 
-crescent_Boolean
+int
 crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
 	if (object->type == CRESCENT_TYPE_BOOLEAN) {
 		if (isBoolean != NULL) {

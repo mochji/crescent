@@ -29,7 +29,7 @@ struct crescent_Array;
 
 union
 crescent_Value {
-	crescent_Boolean        b;
+	int                     b;
 	crescent_Integer        i;
 	crescent_Float          f;
 	struct crescent_String* s;
@@ -61,7 +61,7 @@ crescentO_free(crescent_Object* object);
 extern char*
 crescentO_typeName(int type);
 
-extern crescent_Boolean
+extern int
 crescentO_toBoolean(crescent_Object* object, int* isBoolean);
 
 extern crescent_Integer
