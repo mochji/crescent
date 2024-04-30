@@ -116,18 +116,18 @@ crescentA_resize(crescent_Array* array, size_t newLength) {
 int
 crescentA_compare(crescent_Array* arrayA, crescent_Array* arrayB) {
 	if (arrayA == arrayB) {
-		return 0;
+		return 1;
 	}
 
 	if (arrayA->length != arrayB->length) {
-		return 1;
+		return 0;
 	}
 
 	for (size_t a = 0; a < arrayA->length; a++) {
 		if (crescentO_compare(&arrayA->data[a], &arrayB->data[a])) {
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	return 1;
 }

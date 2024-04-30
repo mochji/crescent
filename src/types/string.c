@@ -144,20 +144,20 @@ crescentS_resize(crescent_String* string, size_t newLength) {
 int
 crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 	if (stringA == stringB) {
-		return 0;
+		return 1;
 	}
 
 	if (stringA->length != stringB->length) {
-		return 1;
+		return 0;
 	}
 
 	for (size_t a = 0; a < stringA->length; a++) {
 		if (stringA->data[a] != stringB->data[a]) {
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 /* djb2 */
