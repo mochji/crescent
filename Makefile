@@ -13,7 +13,7 @@ MAIN      = $(SRC)/crescent.c
 
 STD       = c99
 CC        = gcc
-CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -O2 -std=$(STD) -I$(SRC)
+CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -O2 -I$(SRC)
 
 VALGRIND  = valgrind
 
@@ -23,9 +23,13 @@ TARGET    = $(BUILD)/crescent
 # End of configurable options
 # =============================================================================
 
-CHECKVARS = SRC BUILD CORE API MAIN STD CC CFLAGS TARGET
+CHECKVARS = SRC BUILD CORE API MAIN CC CFLAGS TARGET
 
 $(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
+
+ifdef STD
+	CFLAGS := $(CFLAGS) -std=$(STD)
+endif
 
 ifdef DEBUG
 	CFLAGS := $(CFLAGS) -g
