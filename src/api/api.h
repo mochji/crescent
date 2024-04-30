@@ -140,7 +140,7 @@ extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
 
 extern void
-crescent_pushString(crescent_State* state, char* str);
+crescent_pushString(crescent_State* state, const char* str);
 
 extern void
 crescent_pushArray(crescent_State* state);
@@ -173,7 +173,7 @@ extern int
 crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int results, int* status);
 
 extern void __attribute__((noreturn))
-crescent_error(crescent_State* state, char* error);
+crescent_error(crescent_State* state, const char* error);
 
 extern void
 crescent_clearError(crescent_State* state);

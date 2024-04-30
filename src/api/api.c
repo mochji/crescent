@@ -383,9 +383,9 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 }
 
 void
-crescent_pushString(crescent_State* state, char* str) {
+crescent_pushString(crescent_State* state, const char* str) {
 	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
-	crescent_String* string        = crescentS_as(str);
+	crescent_String* string        = crescentS_as((char*)str);
 
 	if (string == NULL) {
 		crescentC_memoryError(state);
@@ -499,8 +499,8 @@ crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int maxRes
 }
 
 int
-crescent_error(crescent_State* state, char* error) {
-	crescentC_setError(state, error);
+crescent_error(crescent_State* state, const char* error) {
+	crescentC_setError(state, (char*)error);
 	crescentC_throw(state, CRESCENT_STATUS_ERROR);
 }
 
