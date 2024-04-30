@@ -100,7 +100,7 @@ crescent_isArray(crescent_State* state, size_t index);
 extern int
 crescent_isCFunction(crescent_State* state, size_t index);
 
-extern crescent_Boolean
+extern int
 crescent_toBooleanX(crescent_State* state, size_t index, int* isBoolean);
 
 extern crescent_Integer
@@ -112,7 +112,7 @@ crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
 extern const char*
 crescent_toStringX(crescent_State* state, size_t index, int* isString);
 
-extern crescent_Boolean
+extern int
 crescent_toBoolean(crescent_State* state, size_t index);
 
 extern crescent_Integer
@@ -131,7 +131,7 @@ extern void
 crescent_pushNil(crescent_State* state);
 
 extern void
-crescent_pushBoolean(crescent_State* state, crescent_Boolean value);
+crescent_pushBoolean(crescent_State* state, int value);
 
 extern void
 crescent_pushInteger(crescent_State* state, crescent_Integer value);
