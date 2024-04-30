@@ -212,6 +212,14 @@ crescentC_startCall(crescent_State* state, int argCount) {
 	}
 
 	if ((size_t)argCount > oldTopFrame->top) {
+		/*
+		 * should anyone or anything be returning or passing more than
+		 * 2,147,483,647 arguments from or to a funciton? no, that's 32 gib
+		 * of just crescent_Object structs. will someone do that and get
+		 * unexpected results? probably but that's on them tbh. like what'd
+		 * you expect.
+		 */
+
 		if (oldTopFrame->top > INT_MAX) {
 			argCount = INT_MAX;
 		} else {
