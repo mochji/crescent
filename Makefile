@@ -31,10 +31,11 @@ ifdef DEBUG
 	CFLAGS := $(CFLAGS) -g
 endif
 
-COREFILES  = $(wildcard $(CORE)/*.c)
 TYPESFILES = $(wildcard $(TYPES)/*.c)
+COREFILES  = $(wildcard $(CORE)/*.c)
 VMFILES    = $(wildcard $(VM)/*.c)
 APIFILES   = $(wildcard $(API)/*.c)
+OBJECTS    = $(foreach source,$(TYPESFILES) $(COREFILES) $(VMFILES) $(APIFILES),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
 .DEFAULT_GOAL = build
 
@@ -49,13 +50,14 @@ APIFILES   = $(wildcard $(API)/*.c)
 .PHONY: echo
 
 build:
+	echo $(OBJECTS)
 	mkdir -p $(BUILD)
 	$(foreach source,$(TYPESFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
 	$(foreach source,$(COREFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
 	$(foreach source,$(VMFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
 	$(foreach source,$(APIFILES),$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
-	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(BUILD)/*.o
-	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(BUILD)/*.o
+	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
 
 run: build
 	./$(TARGET)
@@ -87,8 +89,8 @@ echo:
 	@echo "VM       = $(VM)"
 	@echo "API      = $(API)"
 	@echo "MAIN     = $(MAIN)"
-	@echo "CC       = $(CC)"
 	@echo "STD      = $(STD)"
+	@echo "CC       = $(CC)"
 	@echo "CFLAGS   = $(CFLAGS)"
 	@echo "VALGRIND = $(VALGRIND)"
 	@echo "TARGET   = $(TARGET)"
