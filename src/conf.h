@@ -77,9 +77,9 @@
 
 /*
  * ============================================================================
- * Primative type configuration
+ * Simple type configuration
  *
- * Definitions that control the types of primative types in Crescent.
+ * Definitions that control the types of simple types in Crescent.
  * ============================================================================
  */
 
