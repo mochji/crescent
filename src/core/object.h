@@ -71,7 +71,7 @@ extern crescent_Float
 crescentO_toFloat(crescent_Object* object, int* isFloat);
 
 extern char*
-crescentO_toString(crescent_Object* object, int* isString);
+crescentO_toString(crescent_Object* object, int* isString, int* addToGC);
 
 extern crescent_CFunction*
 crescentO_toCFunction(crescent_Object* object, int* isCFunction);

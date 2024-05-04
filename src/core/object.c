@@ -288,8 +288,12 @@ crescentO_toFloat(crescent_Object* object, int* isFloat) {
 	return 0;
 }
 
+/*
+ * NOTE: addToGC is unused currently
+ */
+
 char*
-crescentO_toString(crescent_Object* object, int* isString) {
+crescentO_toString(crescent_Object* object, int* isString, int* addToGC) {
 	if (object->type == CRESCENT_TYPE_STRING) {
 		if (isString != NULL) {
 			*isString = 1;
@@ -309,6 +313,8 @@ crescentO_toString(crescent_Object* object, int* isString) {
 	if (object->type == CRESCENT_TYPE_BOOLEAN) {
 		return object->value.b ? "true" : "false";
 	}
+
+	(void)addToGC;
 
 	return NULL;
 }

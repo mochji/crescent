@@ -311,7 +311,7 @@ crescent_toStringX(crescent_State* state, size_t index, int* isString) {
 		return NULL;
 	}
 
-	return crescentO_toString(&state->stack.data[api_absindex(state, index)], isString);
+	return crescentO_toString(&state->stack.data[api_absindex(state, index)], isString, NULL);
 }
 
 int
