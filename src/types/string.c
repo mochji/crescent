@@ -287,6 +287,8 @@ crescentS_toInteger(char* str, int* success) {
 	if (str[0] == '-') {
 		negative = 1;
 		str     += 1;
+	} else if (str[0] == '+') {
+		str += 1;
 	}
 
 	int successful;
