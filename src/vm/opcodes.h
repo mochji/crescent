@@ -127,9 +127,9 @@ crescentV_OpCode {
 
 	OP_CALL,     /* S[A] S[B]() (C args)     iABC              */
 	OP_TCALL,    /* S[A] S[B]() (C args)     iABC              */
-	OP_RETURN,   /* return S[A] .. S[B]      iAB               */
 	OP_RETURN0,  /* return                   i                 */
 	OP_RETURN1,  /* return S[A]              iA                */
+	OP_RETURN,   /* return S[A] .. S[B]      iAB               */
 
 	OP_JMP,      /* PC = L[A]                iAxx              */
 	OP_JMPX,     /* PC = LE[A]               iAxx              */
