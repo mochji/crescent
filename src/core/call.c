@@ -165,7 +165,7 @@ int
 crescentC_resizeStack(crescent_State* state, size_t newTop, int throw) {
 	size_t absoluteTop = state->stack.topFrame->base + newTop;
 	int    usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-	int    failed;
+	int    failed      = 0;
 
 	if (usage < CRESCENT_STACK_SHRINKTHRESHOLD) {
 		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
@@ -173,25 +173,15 @@ crescentC_resizeStack(crescent_State* state, size_t newTop, int throw) {
 		}
 
 		failed = crescentC_shrinkStack(state, newTop);
-
-		if (failed && throw) {
-			crescentC_memoryError(state);
-		}
-
-		return failed;
-	}
-
-	if (usage > CRESCENT_STACK_GROWTHRESHOLD) {
+	} else if (usage > CRESCENT_STACK_GROWTHRESHOLD) {
 		failed = crescentC_growStack(state, newTop);
-
-		if (failed && throw) {
-			crescentC_memoryError(state);
-		}
-
-		return failed;
 	}
 
-	return 0;
+	if (failed && throw) {
+		crescentC_memoryError(state);
+	}
+
+	return failed;
 }
 
 void
