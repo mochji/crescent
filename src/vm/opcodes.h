@@ -80,6 +80,7 @@ crescentV_OpCode {
 	OP_LODN,     /* S[A] = nil               iA                */
 	OP_LODT,     /* S[A] = true              iA                */
 	OP_LODF,     /* S[A] = false             iA                */
+	OP_MODM,     /* S[A] = maybe             iA                */
 	OP_LODPI,    /* S[A] = B                 iABx              */
 	OP_LODNI,    /* S[A] = -B                iABx              */
 	OP_LODS,     /* S[A] = "" (string)       iA                */

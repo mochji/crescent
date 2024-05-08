@@ -30,6 +30,7 @@ crescentV_mode[] = {
 	iA,   /* OP_LODN    */
 	iA,   /* OP_LODT    */
 	iA,   /* OP_LODF    */
+	iA,   /* OP_LODM    */
 	iABx, /* OP_LODPI   */
 	iABx, /* OP_LODNI   */
 	iA,   /* OP_LODS    */
