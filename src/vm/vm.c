@@ -36,7 +36,7 @@ crescentV_compare(crescent_Object* a, crescent_Object* b) {
 
 	if (aType != bType) {
 		if (aType == CRESCENT_TYPE_INTEGER && bType == CRESCENT_TYPE_FLOAT) {
-			return (crescent_Float)b->value.i == b->value.f;
+			return (crescent_Float)a->value.i == b->value.f;
 		}
 
 		if (aType == CRESCENT_TYPE_FLOAT && bType == CRESCENT_TYPE_INTEGER) {
