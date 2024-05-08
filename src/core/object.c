@@ -44,6 +44,11 @@
  * - functions (cfunction)
  */
 
+/*
+ * This function is a strict comparison, see crescentV_compare for comparison
+ * between integers and floats.
+ */
+
 int
 crescentO_compare(crescent_Object* a, crescent_Object* b) {
 	if (a->type != b->type) {
