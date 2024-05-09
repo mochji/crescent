@@ -151,13 +151,7 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 		return 0;
 	}
 
-	for (size_t a = 0; a < stringA->length; a++) {
-		if (stringA->data[a] != stringB->data[a]) {
-			return 0;
-		}
-	}
-
-	return 1;
+	return strcmp(stringA->data, stringB->data) == 0;
 }
 
 /* djb2 */
