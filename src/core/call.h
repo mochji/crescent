@@ -57,10 +57,4 @@ crescentC_startCall(crescent_State* state, int argCount);
 extern void
 crescentC_endCall(crescent_State* state, int results);
 
-extern int
-crescentC_callC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults);
-
-extern int
-crescentC_pCallC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults, int* status);
-
 #endif
