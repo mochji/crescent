@@ -25,15 +25,8 @@
 #include "conf.h"
 
 #include "core/object.h"
-#include "core/state.h"
 
 extern int
 crescentV_compare(crescent_Object* a, crescent_Object* b);
-
-extern int
-crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int maxResults);
-
-extern int
-crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, int maxResults, int* status);
 
 #endif

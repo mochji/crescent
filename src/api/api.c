@@ -33,7 +33,6 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
-#include "vm/vm.h"
 
 /* TODO: throw errors on... stuff that cause errors idrk */
 
@@ -462,31 +461,41 @@ crescent_remove(crescent_State* state, size_t index) {
 }
 
 int
-crescent_call(crescent_State* state, size_t index, size_t argCount) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
+crescent_callC(crescent_State* state, crescent_CFunction* function, size_t argCount) {
+	return crescentC_callC(state, function, argCount, INT_MAX);
+}
 
-	return crescentV_call(state, object, argCount, INT_MAX);
+int
+crescent_pCallC(crescent_State* state, crescent_CFunction* function, size_t argCount, int* status) {
+	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
+}
+
+int
+crescent_call(crescent_State* state, size_t index, size_t argCount) {
+	crescent_CFunction* function = state->stack.data[api_absindex(state, index)].value.c;
+
+	return crescentC_callC(state, function, argCount, INT_MAX);
 }
 
 int
 crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
+	crescent_CFunction* function = state->stack.data[api_absindex(state, index)].value.c;
 
-	return crescentV_pCall(state, object, argCount, INT_MAX, status);
+	return crescentC_pCallC(state, function, argCount, INT_MAX, status);
 }
 
 int
 crescent_callK(crescent_State* state, size_t index, size_t argCount, int maxResults) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
+	crescent_CFunction* function = state->stack.data[api_absindex(state, index)].value.c;
 
-	return crescentV_call(state, object, argCount, maxResults);
+	return crescentC_callC(state, function, argCount, maxResults);
 }
 
 int
 crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int maxResults, int* status) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
+	crescent_CFunction* function = state->stack.data[api_absindex(state, index)].value.c;
 
-	return crescentV_pCall(state, object, argCount, maxResults, status);
+	return crescentC_pCallC(state, function, argCount, maxResults, status);
 }
 
 int

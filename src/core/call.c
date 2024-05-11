@@ -270,3 +270,58 @@ crescentC_endCall(crescent_State* state, int results) {
 	state->stack.frames[state->stack.frameCount] = NULL;
 	state->stack.topFrame                        = oldTopFrame;
 }
+
+int
+crescentC_callC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults) {
+	if (maxResults < 0) {
+		maxResults = 0;
+	}
+
+	crescentC_startCall(state, argCount);
+
+	int results = function(state);
+
+	if (results < 0) {
+		results = 0;
+	} else if (results > maxResults) {
+		results = maxResults;
+	}
+
+	crescentC_endCall(state, results);
+	crescentC_resizeStack(state, state->stack.topFrame->top, 1);
+
+	return results;
+}
+
+int
+crescentC_pCallC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults, int* status) {
+	crescent_ErrorJump* oldErrorJump  = state->errorJump;
+	crescent_ErrorJump  newErrorJump  = {.status = CRESCENT_STATUS_OK};
+	size_t              oldFrameIndex = state->stack.frameCount - 1;
+	int                 results;
+
+	state->errorJump = &newErrorJump;
+
+	if (setjmp(newErrorJump.buffer) == 0) {
+		results = crescentC_callC(state, function, argCount, maxResults);
+	} else {
+		for (size_t a = oldFrameIndex; a < state->stack.frameCount; a++) {
+			crescentC_endCall(state, 0);
+		}
+
+		if (crescentC_resizeStack(state, state->stack.topFrame->top, 1)) {
+			state->errorJump = oldErrorJump;
+			crescentC_memoryError(state);
+		}
+
+		results = 0;
+	}
+
+	state->errorJump = oldErrorJump;
+
+	if (status != NULL) {
+		*status = newErrorJump.status;
+	}
+
+	return results;
+}
