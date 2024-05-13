@@ -131,7 +131,7 @@
  *
  * These 2 values should be at least CRESCENT_STACK_SHRINKTHRESHOLd apart,
  * since resizing multiplies or divides the stack size by 2, doing the
- * oppsoite for the stack usage. If not, it will resize but a stack
+ * opposite for the stack usage. If not, it will resize but a stack
  * operation may cause it to resize again and again, being very slow.
  */
 
