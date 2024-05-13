@@ -212,6 +212,7 @@ crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopF
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
 
+	state->stack.frames  += 1;
 	state->stack.topFrame = newTopFrame;
 }
 
