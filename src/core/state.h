@@ -48,9 +48,7 @@ crescent_State {
 	struct {
 		size_t                  size;
 		struct crescent_Object* data;
-		size_t                  maxFrames;
-		size_t                  frameCount;
-		struct crescent_Frame** frames;
+		size_t                  frames;
 		struct crescent_Frame*  topFrame;
 	} stack;
 	char*                      memoryError;

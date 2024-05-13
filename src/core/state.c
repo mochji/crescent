@@ -39,7 +39,7 @@ crescentG_blankGState(void) {
 
 	gState->maxThreads  = 1;
 	gState->threadCount = 0;
-	gState->threads     = calloc(1, sizeof(crescent_Frame*));
+	gState->threads     = calloc(1, sizeof(crescent_State*));
 	gState->baseThread  = NULL;
 	gState->panic       = NULL;
 
@@ -68,7 +68,7 @@ crescentG_closeGState(crescent_GState* gState) {
 
 crescent_State*
 crescentG_blankLState(void) {
-	crescent_State* state = malloc(sizeof(crescent_State));
+	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_Frame));
 
 	if (state == NULL) {
 		return NULL;
@@ -83,27 +83,8 @@ crescentG_blankLState(void) {
 		return NULL;
 	}
 
-	state->stack.maxFrames  = 256;
-	state->stack.frameCount = 1;
-	state->stack.frames     = calloc(state->stack.maxFrames, sizeof(crescent_Frame*));
-
-	if (state->stack.frames == NULL) {
-		free(state->stack.data);
-		free(state);
-
-		return NULL;
-	}
-
-	state->stack.frames[0] = malloc(sizeof(crescent_Frame));
-	state->stack.topFrame  = state->stack.frames[0];
-
-	if (state->stack.topFrame == NULL) {
-		free(state->stack.frames);
-		free(state->stack.data);
-		free(state);
-
-		return NULL;
-	}
+	state->stack.frames    = 1;
+	state->stack.topFrame  = (crescent_Frame*)(state + 1);
 
 	state->stack.topFrame->base     = 0;
 	state->stack.topFrame->top      = 0;
@@ -129,15 +110,10 @@ crescentG_closeLState(crescent_State* state) {
 		crescentO_free(&state->stack.data[a]);
 	}
 
-	for (size_t a = 0; a < state->stack.frameCount; a++) {
-		free(state->stack.frames[a]);
-	}
-
 	if (state->error != state->memoryError) {
 		free(state->error);
 	}
 
-	free(state->stack.frames);
 	free(state->stack.data);
 	free(state);
 }

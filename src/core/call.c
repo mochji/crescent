@@ -185,21 +185,8 @@ crescentC_resizeStack(crescent_State* state, size_t newTop, int throw) {
 }
 
 void
-crescentC_startCall(crescent_State* state, int argCount) {
-	crescent_Frame* newTopFrame;
-	crescent_Frame* oldTopFrame;
-
-	if (state->stack.frameCount >= state->stack.maxFrames) {
-		crescentC_setError(state, "stack overflow");
-		crescentC_throw(state, CRESCENT_STATUS_ERROR);
-	}
-
-	newTopFrame = malloc(sizeof(crescent_Frame));
-	oldTopFrame = state->stack.topFrame;
-
-	if (newTopFrame == NULL) {
-		crescentC_memoryError(state);
-	}
+crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopFrame) {
+	crescent_Frame* oldTopFrame = state->stack.topFrame;
 
 	if ((size_t)argCount > oldTopFrame->top) {
 		/*
@@ -217,17 +204,15 @@ crescentC_startCall(crescent_State* state, int argCount) {
 		}
 	}
 
-	newTopFrame->base     = oldTopFrame->base + oldTopFrame->top - argCount;
+	oldTopFrame->top -= argCount;
+	oldTopFrame->next = newTopFrame;
+
+	newTopFrame->base     = oldTopFrame->top;
 	newTopFrame->top      = argCount;
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
 
-	oldTopFrame->top -= argCount;
-	oldTopFrame->next = newTopFrame;
-
-	state->stack.frameCount                         += 1;
-	state->stack.frames[state->stack.frameCount - 1] = newTopFrame;
-	state->stack.topFrame                            = newTopFrame;
+	state->stack.topFrame = newTopFrame;
 }
 
 void
@@ -261,67 +246,9 @@ crescentC_endCall(crescent_State* state, int results) {
 		}
 	}
 
-	free(newTopFrame);
-
 	oldTopFrame->top += results;
 	oldTopFrame->next = NULL;
 
-	state->stack.frameCount                     -= 1;
-	state->stack.frames[state->stack.frameCount] = NULL;
-	state->stack.topFrame                        = oldTopFrame;
-}
-
-int
-crescentC_callC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults) {
-	if (maxResults < 0) {
-		maxResults = 0;
-	}
-
-	crescentC_startCall(state, argCount);
-
-	int results = function(state);
-
-	if (results < 0) {
-		results = 0;
-	} else if (results > maxResults) {
-		results = maxResults;
-	}
-
-	crescentC_endCall(state, results);
-	crescentC_resizeStack(state, state->stack.topFrame->top, 1);
-
-	return results;
-}
-
-int
-crescentC_pCallC(crescent_State* state, crescent_CFunction* function, int argCount, int maxResults, int* status) {
-	crescent_ErrorJump* oldErrorJump  = state->errorJump;
-	crescent_ErrorJump  newErrorJump  = {.status = CRESCENT_STATUS_OK};
-	size_t              oldFrameIndex = state->stack.frameCount - 1;
-	int                 results;
-
-	state->errorJump = &newErrorJump;
-
-	if (setjmp(newErrorJump.buffer) == 0) {
-		results = crescentC_callC(state, function, argCount, maxResults);
-	} else {
-		for (size_t a = oldFrameIndex; a < state->stack.frameCount; a++) {
-			crescentC_endCall(state, 0);
-		}
-
-		if (crescentC_resizeStack(state, state->stack.topFrame->top, 1)) {
-			state->errorJump = oldErrorJump;
-			crescentC_memoryError(state);
-		}
-
-		results = 0;
-	}
-
-	state->errorJump = oldErrorJump;
-
-	if (status != NULL) {
-		*status = newErrorJump.status;
-	}
-
-	return results;
+	state->stack.frames  -= 1;
+	state->stack.topFrame = oldTopFrame;
 }
