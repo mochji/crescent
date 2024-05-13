@@ -124,7 +124,7 @@ crescentA_compare(crescent_Array* arrayA, crescent_Array* arrayB) {
 	}
 
 	for (size_t a = 0; a < arrayA->length; a++) {
-		if (crescentO_compare(&arrayA->data[a], &arrayB->data[a])) {
+		if (!crescentO_compare(&arrayA->data[a], &arrayB->data[a])) {
 			return 0;
 		}
 	}
