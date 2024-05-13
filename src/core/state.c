@@ -37,11 +37,13 @@ crescentG_blankGState(void) {
 		return NULL;
 	}
 
-	gState->maxThreads  = 1;
-	gState->threadCount = 0;
-	gState->threads     = calloc(1, sizeof(crescent_State*));
-	gState->baseThread  = NULL;
-	gState->panic       = NULL;
+	gState->memoryError   = "out of memory";
+	gState->nilValue.type = CRESCENT_TYPE_NIL;
+	gState->maxThreads    = 1;
+	gState->threadCount   = 0;
+	gState->threads       = calloc(1, sizeof(crescent_State*));
+	gState->baseThread    = NULL;
+	gState->panic         = NULL;
 
 	if (gState->threads == NULL) {
 		free(gState);
@@ -91,7 +93,6 @@ crescentG_blankLState(void) {
 	state->stack.topFrame->next     = NULL;
 	state->stack.topFrame->previous = NULL;
 
-	state->memoryError = "out of memory";
 	state->error       = NULL;
 	state->errorJump   = NULL;
 	state->threadIndex = 0;
@@ -110,7 +111,7 @@ crescentG_closeLState(crescent_State* state) {
 		crescentO_free(&state->stack.data[a]);
 	}
 
-	if (state->error != state->memoryError) {
+	if (state->error != state->gState->memoryError) {
 		free(state->error);
 	}
 

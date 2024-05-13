@@ -133,7 +133,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, in
 
 		if (crescentC_resizeStack(state, state->stack.topFrame->top, 0)) {
 			crescentC_setError(state, NULL);
-			state->error = state->memoryError;
+			state->error = state->gState->memoryError;
 		}
 
 		results = 0;

@@ -34,7 +34,7 @@
 
 void
 crescentC_setError(crescent_State* state, char* error) {
-	if (state->error != state->memoryError) {
+	if (state->error != state->gState->memoryError) {
 		free(state->error);
 	}
 
@@ -62,8 +62,8 @@ crescentC_setError(crescent_State* state, char* error) {
 
 void
 crescentC_moveError(crescent_State* to, crescent_State* from) {
-	if (from->error == from->memoryError) {
-		to->error = to->memoryError;
+	if (from->error == from->gState->memoryError) {
+		to->error = to->gState->memoryError;
 	} else {
 		to->error = from->error;
 	}
@@ -101,7 +101,7 @@ crescentC_throw(crescent_State* state, int status) {
 
 void
 crescentC_memoryError(crescent_State* state) {
-	state->error = state->memoryError;
+	state->error = state->gState->memoryError;
 	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 }
 

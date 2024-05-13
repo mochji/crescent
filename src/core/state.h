@@ -51,7 +51,6 @@ crescent_State {
 		size_t                  frames;
 		struct crescent_Frame*  topFrame;
 	} stack;
-	char*                      memoryError;
 	char*                      error;
 	struct crescent_ErrorJump* errorJump;
 	size_t                     threadIndex;
@@ -60,6 +59,8 @@ crescent_State {
 
 struct
 crescent_GState {
+	char*                   memoryError;
+	struct crescent_Object  nilValue;
 	size_t                  maxThreads;
 	size_t                  threadCount;
 	struct crescent_State** threads;
