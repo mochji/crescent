@@ -118,7 +118,7 @@
  * Controls the percentage of the top to size ratio of the Crescent stack must
  * exceed when growing or shrinking respectively.
  *
- * These 2 values should be at least CRESCENT_STACK_SHRINKTHRESHOLd apart,
+ * These 2 values should be at least CRESCENT_STACK_SHRINKTHRESHOLD apart,
  * since resizing multiplies or divides the stack size by 2, doing the
  * opposite for the stack usage. If not, it will resize but a stack
  * operation may cause it to resize again and again, being very slow.
