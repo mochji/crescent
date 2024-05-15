@@ -35,8 +35,8 @@
 #define CRESCENT_VERSION (CRESCENT_VERSION_MAJOR * 10 + CRESCENT_VERSION_MINOR)
 #define CRESCENT_RELEASE (CRESCENT_VERSION * 10 + CRESCENT_VERSION_PATCH)
 
-#define STR_HELPER(x) #x
-#define STR(x)        STR_HELPER(x)
+#define CRESCENT_STR_HELPER(x) #x
+#define CRESCENT_STR(x)        CRESCENT_STR_HELPER(x)
 
 #define CRESCENT_VERSION_STR STR(CRESCENT_VERSION_MAJOR) "." STR(CRESCENT_VERSION_MINOR)
 #define CRESCENT_RELEASE_STR CRESCENT_VERSION_STR "." STR(CRESCENT_VERSION_PATCH)
@@ -44,8 +44,8 @@
 #define CRESCENT_AUTHORS   "mochji"
 #define CRESCENT_COPYRIGHT "Crescent " CRESCENT_RELEASE_STR "  Copyright (C) 2024 " CRESCENT_AUTHORS
 
-#undef STR_HELPER
-#undef STR
+#undef CRESCENT_STR_HELPER
+#undef CRESCENT_STR
 
 /*
  * ============================================================================
@@ -57,18 +57,19 @@
  */
 
 /*
- * @ CRESCENT_BITNESS
+ * @ CRESCENT_32BIT
  *
- * Un-comment and change this only if the automatic bitness detection fails.
+ * Change this definition to a non-zero value to restrict Crescent to 32-bit
+ * number types.
  */
 
-/* #define CRESCENT_BITNESS 32 */
+#define CRESCENT_32BIT 0
 
 /*
  * ============================================================================
- * Simple type configuration
+ * Number type configuration
  *
- * Definitions that control the types of simple types in Crescent.
+ * Definitions that control the types of number types within Crescent.
  * ============================================================================
  */
 
@@ -76,8 +77,8 @@
  * @ CRESCENT_INTEGER32
  * @ CRESCENT_FLOAT32
  *
- * Types of crescent_Integer and crescent_Float respectively on a 32-bit
- * platform.
+ * Type of crescent_Integer and crescent_Float when 32-bit numbers are
+ * enabled.
  */
 
 #define CRESCENT_INTEGER32 int32_t
@@ -87,8 +88,8 @@
  * @ CRESCENT_INTEGER64
  * @ CRESCENT_FLOAT64
  *
- * Types of crescent_Integer and crescent_Float respectively on a 64-bit
- * platform.
+ * Type of crescent_Integer and crescent_Float when 64-bit numbers are
+ * enabled (defaulT).
  */
 
 #define CRESCENT_INTEGER64 int64_t
@@ -194,24 +195,12 @@
 #	error Crescent is not supported for C++. (this is a c project, why did you compile this with a c++ compiler?)
 #endif
 
-#ifndef CRESCENT_BITNESS
-#	if   SIZE_MAX == 0xFFFFFFFF
-#		define CRESCENT_BITNESS 32
-#	elif SIZE_MAX == 0xFFFFFFFFFFFFFFFF
-#		define CRESCENT_BITNESS 64
-#	else
-#		error Crescent is only supported for 32-bit and 64-bit platforms. Manually un-comment and define 'CRESCENT_BITNESS' in conf.h if this is an error.
-#	endif
-#endif
-
-#if   CRESCENT_BITNESS == 32
+#if   CRESCENT_32BIT
 #	define CRESCENT_INTEGER CRESCENT_INTEGER32
 #	define CRESCENT_FLOAT   CRESCENT_FLOAT32
-#elif CRESCENT_BITNESS == 64
+#else
 #	define CRESCENT_INTEGER CRESCENT_INTEGER64
 #	define CRESCENT_FLOAT   CRESCENT_FLOAT64
-#else
-#	error Crescent is only supported for 32-bit and 64-bit platforms.
 #endif
 
 #if CRESCENT_VM_MAXLOCALS > 200
