@@ -98,8 +98,7 @@
  * ============================================================================
  * Crescent stack configuration
  *
- * Definitions that control the behavior of the Crescent stack, mainly memory
- * allocation.
+ * Definitions that control the behavior of the Crescent stack.
  * ============================================================================
  */
 
@@ -115,8 +114,8 @@
  * @ CRESCENT_STACK_GROWTHRESHOLD
  * @ CRESCENT_STACK_SHRINKTHRESHOLD
  *
- * Controls the percentage of the top to size ratio of the Crescent stack must
- * exceed when growing or shrinking respectively.
+ * Controls the percentage that the top to size ratio of the Crescent stack
+ * must exceed when growing or shrinking respectively.
  *
  * These 2 values should be at least CRESCENT_STACK_SHRINKTHRESHOLD apart,
  * since resizing multiplies or divides the stack size by 2, doing the
