@@ -10,6 +10,7 @@
 
 #include <stddef.h>
 #include <setjmp.h>
+#include <limits.h>
 
 #include "conf.h"
 
@@ -81,6 +82,11 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 		crescentV_callError(state, object->type);
 	}
 
+	if (state->stack.frames == INT_MAX) {
+		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	}
+
 	crescent_Frame newTopFrame;
 	int            results;
 
@@ -106,9 +112,14 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, in
 		crescentV_callError(state, object->type);
 	}
 
+	if (state->stack.frames == INT_MAX) {
+		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	}
+
 	crescent_ErrorJump* oldErrorJump  = state->errorJump;
 	crescent_ErrorJump  newErrorJump  = {.status = CRESCENT_STATUS_OK};
-	size_t              oldFrameCount = state->stack.frames;
+	int                 oldFrameCount = state->stack.frames;
 	int                 results;
 
 	state->errorJump = &newErrorJump;
@@ -116,7 +127,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, in
 	if (setjmp(newErrorJump.buffer) == 0) {
 		results = crescentV_call(state, object, argCount, maxResults);
 	} else {
-		for (size_t a = oldFrameCount; a < state->stack.frames; a++) {
+		for (; oldFrameCount++ < state->stack.frames;) {
 			crescentC_endCall(state, 0);
 		}
 
