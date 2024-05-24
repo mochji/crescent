@@ -89,7 +89,7 @@
  * @ CRESCENT_FLOAT64
  *
  * Type of crescent_Integer and crescent_Float when 64-bit numbers are
- * enabled (defaulT).
+ * enabled (default).
  */
 
 #define CRESCENT_INTEGER64 int64_t
