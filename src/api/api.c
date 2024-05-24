@@ -75,9 +75,6 @@ crescent_openState(void) {
 		return NULL;
 	}
 
-	gState->maxThreads  = 1;
-	gState->threadCount = 1;
-	gState->threads[0]  = state;
 	gState->baseThread  = state;
 	gState->panic       = &crescent_panic;
 

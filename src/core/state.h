@@ -42,7 +42,7 @@ crescent_State {
 	} stack;
 	char*                      error;
 	struct crescent_ErrorJump* errorJump;
-	size_t                     threadIndex;
+	struct crescent_State*     next;
 	struct crescent_GState*    gState;
 };
 
@@ -50,9 +50,6 @@ struct
 crescent_GState {
 	char*                   memoryError;
 	struct crescent_Object  nilValue;
-	size_t                  maxThreads;
-	size_t                  threadCount;
-	struct crescent_State** threads;
 	struct crescent_State*  baseThread;
 	crescent_CFunction*     panic;
 };
