@@ -32,11 +32,11 @@ crescent_getIndex(crescent_State* state, int index) {
 		return &state->gState->nilValue;
 	}
 
-	if (index > 0) {
+	if (index < 0) {
 		index = state->stack.topFrame->top + index + 1;
 	}
 
-	return index >= state->stack.topFrame->top ?
+	return index <= state->stack.topFrame->top ?
 		&state->stack.data[state->stack.topFrame->base + index - 1] :
 		&state->gState->nilValue;
 }
