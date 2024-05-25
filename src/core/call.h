@@ -32,13 +32,13 @@ extern void __attribute__((noreturn))
 crescentC_memoryError(crescent_State* state);
 
 extern int
-crescentC_growStack(crescent_State* state, size_t usage);
+crescentC_growStack(crescent_State* state, int newTop);
 
 extern int
-crescentC_shrinkStack(crescent_State* state, size_t usage);
+crescentC_shrinkStack(crescent_State* state, int newTop);
 
 extern int
-crescentC_resizeStack(crescent_State* state, size_t newTop, int throw);
+crescentC_resizeStack(crescent_State* state, int newTop, int throw);
 
 extern void
 crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopFrame);

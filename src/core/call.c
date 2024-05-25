@@ -95,8 +95,8 @@ crescentC_memoryError(crescent_State* state) {
 }
 
 int
-crescentC_growStack(crescent_State* state, size_t newTop) {
-	size_t           absoluteTop = state->stack.topFrame->base + newTop;
+crescentC_growStack(crescent_State* state, int newTop) {
+	unsigned int     absoluteTop = state->stack.topFrame->base + newTop;
 	size_t           newSize     = state->stack.size;
 	crescent_Object* newData;
 
@@ -120,8 +120,8 @@ crescentC_growStack(crescent_State* state, size_t newTop) {
 }
 
 int
-crescentC_shrinkStack(crescent_State* state, size_t newTop) {
-	size_t           absoluteTop = state->stack.topFrame->base + newTop;
+crescentC_shrinkStack(crescent_State* state, int newTop) {
+	unsigned int     absoluteTop = state->stack.topFrame->base + newTop;
 	size_t           newSize     = state->stack.size;
 	crescent_Object* newData;
 
@@ -151,10 +151,10 @@ crescentC_shrinkStack(crescent_State* state, size_t newTop) {
 }
 
 int
-crescentC_resizeStack(crescent_State* state, size_t newTop, int throw) {
-	size_t absoluteTop = state->stack.topFrame->base + newTop;
-	int    usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-	int    failed      = 0;
+crescentC_resizeStack(crescent_State* state, int newTop, int throw) {
+	unsigned int absoluteTop = state->stack.topFrame->base + newTop;
+	int          usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
+	int          failed      = 0;
 
 	if (usage < CRESCENT_STACK_SHRINKTHRESHOLD) {
 		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
@@ -177,22 +177,6 @@ void
 crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopFrame) {
 	crescent_Frame* oldTopFrame = state->stack.topFrame;
 
-	if ((size_t)argCount > oldTopFrame->top) {
-		/*
-		 * should anyone or anything be returning or passing more than
-		 * 2,147,483,647 arguments from or to a funciton? no, that's 32 gib
-		 * of just crescent_Object structs. will someone do that and get
-		 * unexpected results? probably but that's on them tbh. like what'd
-		 * you expect.
-		 */
-
-		if (oldTopFrame->top > INT_MAX) {
-			argCount = INT_MAX;
-		} else {
-			argCount = oldTopFrame->top;
-		}
-	}
-
 	oldTopFrame->top -= argCount;
 	oldTopFrame->next = newTopFrame;
 
@@ -210,21 +194,13 @@ crescentC_endCall(crescent_State* state, int results) {
 	crescent_Frame* newTopFrame = state->stack.topFrame;
 	crescent_Frame* oldTopFrame = newTopFrame->previous;
 
-	if ((size_t)results > newTopFrame->top) {
-		if (newTopFrame->top > INT_MAX) {
-			results = INT_MAX;
-		} else {
-			results = newTopFrame->top;
-		}
-	}
-
-	if ((size_t)results != newTopFrame->top) {
-		size_t fromBaseIndex;
-		size_t toBaseIndex;
+	if (results != newTopFrame->top) {
+		unsigned int fromBaseIndex;
+		unsigned int toBaseIndex;
 
 		toBaseIndex = newTopFrame->base;
 
-		for (size_t a = 0; a < newTopFrame->top - results; a++) {
+		for (int a = 0; a < newTopFrame->top - results; a++) {
 			crescentO_free(&state->stack.data[toBaseIndex + a]);
 		}
 

@@ -26,17 +26,20 @@
 
 /* TODO: throw errors on... stuff that cause errors idrk */
 
-#define api_validindex(state, index) \
-	(index > 0 && index <= state->stack.topFrame->top)
+static crescent_Object*
+crescent_getIndex(crescent_State* state, int index) {
+	if (index == 0) {
+		return &state->gState->nilValue;
+	}
 
-#define api_invalidindex(state, index) \
-	(index == 0 || index > state->stack.topFrame->top)
+	if (index > 0) {
+		index = state->stack.topFrame->top + index + 1;
+	}
 
-#define api_absindex(state, index) \
-	(state->stack.topFrame->base + index - 1)
-
-#define api_abstop(state, index) \
-	(state->stack.topFrame->base + state->stack.topFrame->top)
+	return index >= state->stack.topFrame->top ?
+		&state->stack.data[state->stack.topFrame->base + index - 1] :
+		&state->gState->nilValue;
+}
 
 static int
 crescent_panic(crescent_State* state) {
@@ -93,41 +96,32 @@ crescent_setPanic(crescent_State* state, crescent_CFunction* function) {
 	state->gState->panic = function;
 }
 
-size_t
-crescent_absoluteIndex(crescent_State* state, size_t index) {
-	return api_absindex(state, index);
+int
+crescent_validIndex(crescent_State* state, int index) {
+	if (index == 0) {
+		return 0;
+	}
+
+	if (index < 0) {
+		return -index <= state->stack.topFrame->top;
+	}
+
+	return index <= state->stack.topFrame->top;
 }
 
 int
-crescent_validIndex(crescent_State* state, size_t index) {
-	return api_validindex(state, index);
-}
-
-size_t
 crescent_getTop(crescent_State* state) {
 	return state->stack.topFrame->top;
 }
 
-size_t
-crescent_getSize(crescent_State* state) {
-	return state->stack.size;
-}
-
-int
-crescent_getUsage(crescent_State* state) {
-	size_t absoluteTop = state->stack.topFrame->base + state->stack.topFrame->top;
-
-	return (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-}
-
 void
-crescent_setTop(crescent_State* state, size_t newTop) {
+crescent_setTop(crescent_State* state, int newTop) {
 	crescentC_resizeStack(state, newTop, 1);
 
-	size_t absoluteTop = state->stack.topFrame->base + newTop;
-	size_t oldTop      = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int absoluteTop = state->stack.topFrame->base + newTop;
+	unsigned int oldTop      = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	for (size_t a = oldTop; a < absoluteTop; a++) {
+	for (unsigned int a = oldTop; a < absoluteTop; a++) {
 		state->stack.data[a].type = CRESCENT_TYPE_NIL;
 	}
 
@@ -135,17 +129,13 @@ crescent_setTop(crescent_State* state, size_t newTop) {
 }
 
 int
-crescent_type(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return CRESCENT_TYPE_NIL;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type;
+crescent_type(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type;
 }
 
 size_t
-crescent_length(crescent_State* state, size_t index) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
+crescent_length(crescent_State* state, int index) {
+	crescent_Object* object = crescent_getIndex(state, index);
 
 	if (object->type == CRESCENT_TYPE_STRING) {
 		return object->value.s->length;
@@ -164,13 +154,13 @@ crescent_typeName(int type) {
 }
 
 void
-crescent_clone(crescent_State* state, size_t index) {
-	size_t fromIndex = state->stack.topFrame->base + index - 1;
-	size_t toIndex   = state->stack.topFrame->base + state->stack.topFrame->top;
+crescent_clone(crescent_State* state, int index) {
+	crescent_Object* object  = crescent_getIndex(state, index);
+	unsigned int     toIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	if (crescentO_clone(&state->stack.data[toIndex], &state->stack.data[fromIndex])) {
+	if (crescentO_clone(&state->stack.data[toIndex], object)) {
 		crescentC_memoryError(state);
 	}
 
@@ -178,13 +168,13 @@ crescent_clone(crescent_State* state, size_t index) {
 }
 
 void
-crescent_deepClone(crescent_State* state, size_t index) {
-	size_t fromIndex = state->stack.topFrame->base + index - 1;
-	size_t toIndex   = state->stack.topFrame->base + state->stack.topFrame->top;
+crescent_deepClone(crescent_State* state, int index) {
+	crescent_Object* object  = crescent_getIndex(state, index);
+	unsigned int     toIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	if (crescentO_deepClone(&state->stack.data[toIndex], &state->stack.data[fromIndex])) {
+	if (crescentO_deepClone(&state->stack.data[toIndex], object)) {
 		crescentC_memoryError(state);
 	}
 
@@ -192,186 +182,138 @@ crescent_deepClone(crescent_State* state, size_t index) {
 }
 
 int
-crescent_isNil(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 1;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_NIL;
+crescent_isNil(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_NIL;
 }
 
 int
-crescent_isBoolean(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_BOOLEAN;
+crescent_isBoolean(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_BOOLEAN;
 }
 
 int
-crescent_isInteger(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_INTEGER;
+crescent_isInteger(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_INTEGER;
 }
 
 int
-crescent_isFloat(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_FLOAT;
+crescent_isFloat(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_FLOAT;
 }
 
 int
-crescent_isNumber(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	int type = state->stack.data[api_absindex(state, index)].type;
+crescent_isNumber(crescent_State* state, int index) {
+	int type = crescent_getIndex(state, index)->type;
 
 	return type == CRESCENT_TYPE_INTEGER || type == CRESCENT_TYPE_FLOAT;
 }
 
 int
-crescent_isString(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_STRING;
+crescent_isString(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_STRING;
 }
 
 int
-crescent_isArray(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_ARRAY;
+crescent_isArray(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_ARRAY;
 }
 
 int
-crescent_isCFunction(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return state->stack.data[api_absindex(state, index)].type == CRESCENT_TYPE_CFUNCTION;
+crescent_isCFunction(crescent_State* state, int index) {
+	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_CFUNCTION;
 }
 
 int
-crescent_toBooleanX(crescent_State* state, size_t index, int* isBoolean) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return crescentO_toBoolean(&state->stack.data[api_absindex(state, index)], isBoolean);
+crescent_toBooleanX(crescent_State* state, int index, int* isBoolean) {
+	return crescentO_toBoolean(crescent_getIndex(state, index), isBoolean);
 }
 
 crescent_Integer
-crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return crescentO_toInteger(&state->stack.data[api_absindex(state, index)], isInteger);
+crescent_toIntegerX(crescent_State* state, int index, int* isInteger) {
+	return crescentO_toInteger(crescent_getIndex(state, index), isInteger);
 }
 
 crescent_Float
-crescent_toFloatX(crescent_State* state, size_t index, int* isFloat) {
-	if (api_invalidindex(state, index)) {
-		return 0;
-	}
-
-	return crescentO_toFloat(&state->stack.data[api_absindex(state, index)], isFloat);
+crescent_toFloatX(crescent_State* state, int index, int* isFloat) {
+	return crescentO_toFloat(crescent_getIndex(state, index), isFloat);
 }
 
 const char*
-crescent_toStringX(crescent_State* state, size_t index, int* isString) {
-	if (api_invalidindex(state, index)) {
-		return NULL;
-	}
-
-	return crescentO_toString(&state->stack.data[api_absindex(state, index)], isString, NULL);
+crescent_toStringX(crescent_State* state, int index, int* isString) {
+	return crescentO_toString(crescent_getIndex(state, index), isString, NULL);
 }
 
 int
-crescent_toBoolean(crescent_State* state, size_t index) {
-	return crescent_toBooleanX(state, index, NULL);
+crescent_toBoolean(crescent_State* state, int index) {
+	return crescentO_toBoolean(crescent_getIndex(state, index), NULL);
 }
 
 crescent_Integer
-crescent_toInteger(crescent_State* state, size_t index) {
-	return crescent_toIntegerX(state, index, NULL);
+crescent_toInteger(crescent_State* state, int index) {
+	return crescentO_toInteger(crescent_getIndex(state, index), NULL);
 }
 
 crescent_Float
-crescent_toFloat(crescent_State* state, size_t index) {
-	return crescent_toFloatX(state, index, NULL);
+crescent_toFloat(crescent_State* state, int index) {
+	return crescentO_toFloat(crescent_getIndex(state, index), NULL);
 }
 
 const char*
-crescent_toString(crescent_State* state, size_t index) {
-	return crescent_toStringX(state, index, NULL);
+crescent_toString(crescent_State* state, int index) {
+	return crescentO_toString(crescent_getIndex(state, index), NULL, NULL);
 }
 
 crescent_CFunction*
-crescent_toCFunction(crescent_State* state, size_t index) {
-	if (api_invalidindex(state, index)) {
-		return NULL;
-	}
-
-	return crescentO_toCFunction(&state->stack.data[api_absindex(state, index)], NULL);
+crescent_toCFunction(crescent_State* state, int index) {
+	return crescentO_toCFunction(crescent_getIndex(state, index), NULL);
 }
 
 void
 crescent_pushNil(crescent_State* state) {
-	size_t absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, ++state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	state->stack.data[absoluteIndex].type = CRESCENT_TYPE_NIL;
+	state->stack.topFrame->top           += 1;
 }
 
 void
 crescent_pushBoolean(crescent_State* state, int value) {
-	size_t absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, ++state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_BOOLEAN;
 	state->stack.data[absoluteIndex].value.b = value;
+	state->stack.topFrame->top              += 1;
 }
 
 void
 crescent_pushInteger(crescent_State* state, crescent_Integer value) {
-	size_t absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, ++state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_INTEGER;
 	state->stack.data[absoluteIndex].value.i = value;
+	state->stack.topFrame->top              += 1;
 }
 
 void
 crescent_pushFloat(crescent_State* state, crescent_Float value) {
-	size_t absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, ++state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_FLOAT;
 	state->stack.data[absoluteIndex].value.f = value;
+	state->stack.topFrame->top              += 1;
 }
 
 void
 crescent_pushString(crescent_State* state, const char* str) {
-	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int     absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 	crescent_String* string        = crescentS_as((char*)str);
 
 	if (string == NULL) {
@@ -391,7 +333,7 @@ crescent_pushString(crescent_State* state, const char* str) {
 
 void
 crescent_pushArray(crescent_State* state) {
-	size_t          absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int    absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 	crescent_Array* array         = crescentA_new(0);
 
 	if (array == NULL) {
@@ -411,16 +353,17 @@ crescent_pushArray(crescent_State* state) {
 
 void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction* value) {
-	size_t absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	crescentC_resizeStack(state, ++state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_CFUNCTION;
 	state->stack.data[absoluteIndex].value.c = value;
+	state->stack.topFrame->top              += 1;
 }
 
 void
-crescent_pop(crescent_State* state, size_t amount) {
+crescent_pop(crescent_State* state, int amount) {
 	if (amount > state->stack.topFrame->top) {
 		amount = state->stack.topFrame->top;
 	}
@@ -431,48 +374,41 @@ crescent_pop(crescent_State* state, size_t amount) {
 }
 
 void
-crescent_remove(crescent_State* state, size_t index) {
-	if (index == 0 || index > state->stack.topFrame->top) {
-		return;
+crescent_remove(crescent_State* state, int index) {
+	crescent_Object* object = crescent_getIndex(state, index);
+
+	crescentO_free(object);
+
+	for (int a = 0; a < state->stack.topFrame->top - index; a++) {
+		*object = *(object + 1);
+		object++;
 	}
 
-	size_t baseIndex = api_absindex(state, index);
+	object->type = CRESCENT_TYPE_NIL;
 
-	for (size_t a = 0; a < state->stack.topFrame->top - index; a++) {
-		state->stack.data[baseIndex + a] = state->stack.data[baseIndex + a + 1];
-	}
+	crescentC_resizeStack(state, state->stack.topFrame->top - 1, 1);
 
-	state->stack.data[baseIndex + state->stack.topFrame->top - index].type = CRESCENT_TYPE_NIL;
-
-	crescentC_resizeStack(state, --state->stack.topFrame->top, 1);
+	state->stack.topFrame->top -= 1;
 }
 
 int
-crescent_call(crescent_State* state, size_t index, size_t argCount) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
-
-	return crescentV_call(state, object, argCount, INT_MAX);
+crescent_call(crescent_State* state, int index, int argCount) {
+	return crescentV_call(state, crescent_getIndex(state, index), argCount, INT_MAX);
 }
 
 int
-crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
-
-	return crescentV_pCall(state, object, argCount, INT_MAX, status);
+crescent_pCall(crescent_State* state, int index, int argCount, int* status) {
+	return crescentV_pCall(state, crescent_getIndex(state, index), argCount, INT_MAX, status);
 }
 
 int
-crescent_callK(crescent_State* state, size_t index, size_t argCount, int maxResults) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
-
-	return crescentV_call(state, object, argCount, maxResults);
+crescent_callK(crescent_State* state, int index, int argCount, int maxResults) {
+	return crescentV_call(state, crescent_getIndex(state, index), argCount, maxResults);
 }
 
 int
-crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int maxResults, int* status) {
-	crescent_Object* object = &state->stack.data[api_absindex(state, index)];
-
-	return crescentV_pCall(state, object, argCount, maxResults, status);
+crescent_pCallK(crescent_State* state, int index, int argCount, int maxResults, int* status) {
+	return crescentV_pCall(state, crescent_getIndex(state, index), argCount, maxResults, status);
 }
 
 int
@@ -488,7 +424,13 @@ crescent_clearError(crescent_State* state) {
 
 void
 crescent_pushError(crescent_State* state) {
-	size_t           absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	if (state->error == NULL) {
+		crescent_pushNil(state);
+
+		return;
+	}
+
+	unsigned int     absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
 	size_t           errorLength   = strlen(state->error);
 	crescent_String* string        = crescentS_nullString();
 

@@ -32,89 +32,80 @@ crescent_closeState(crescent_State* state);
 extern void
 crescent_setPanic(crescent_State* state, crescent_CFunction* function);
 
-extern size_t
-crescent_absoluteIndex(crescent_State* state, size_t index);
+extern int
+crescent_validIndex(crescent_State* state);
 
 extern int
-crescent_validIndex(crescent_State* state, size_t index);
-
-extern size_t
 crescent_getTop(crescent_State* state);
 
-extern size_t
-crescent_getSize(crescent_State* state);
-
-extern int
-crescent_getUsage(crescent_State* state);
-
 extern void
-crescent_setTop(crescent_State* state, size_t newTop);
+crescent_setTop(crescent_State* state, int newTop);
 
 extern int
-crescent_type(crescent_State* state, size_t index);
+crescent_type(crescent_State* state, int index);
 
 extern size_t
-crescent_length(crescent_State* state, size_t index);
+crescent_length(crescent_State* state, int index);
 
 extern const char*
 crescent_typeName(int type);
 
 extern void
-crescent_clone(crescent_State* state, size_t index);
+crescent_clone(crescent_State* state, int index);
 
 extern void
-crescent_deepClone(crescent_State* state, size_t index);
+crescent_deepClone(crescent_State* state, int index);
 
 extern int
-crescent_isNil(crescent_State* state, size_t index);
+crescent_isNil(crescent_State* state, int index);
 
 extern int
-crescent_isBoolean(crescent_State* state, size_t index);
+crescent_isBoolean(crescent_State* state, int index);
 
 extern int
-crescent_isInteger(crescent_State* state, size_t index);
+crescent_isInteger(crescent_State* state, int index);
 
 extern int
-crescent_isFloat(crescent_State* state, size_t index);
+crescent_isFloat(crescent_State* state, int index);
 
 extern int
-crescent_isNumber(crescent_State* state, size_t index);
+crescent_isNumber(crescent_State* state, int index);
 
 extern int
-crescent_isString(crescent_State* state, size_t index);
+crescent_isString(crescent_State* state, int index);
 
 extern int
-crescent_isArray(crescent_State* state, size_t index);
+crescent_isArray(crescent_State* state, int index);
 
 extern int
-crescent_isCFunction(crescent_State* state, size_t index);
+crescent_isCFunction(crescent_State* state, int index);
 
 extern int
-crescent_toBooleanX(crescent_State* state, size_t index, int* isBoolean);
+crescent_toBooleanX(crescent_State* state, int index, int* isBoolean);
 
 extern crescent_Integer
-crescent_toIntegerX(crescent_State* state, size_t index, int* isInteger);
+crescent_toIntegerX(crescent_State* state, int index, int* isInteger);
 
 extern crescent_Float
-crescent_toFloatX(crescent_State* state, size_t index, int* isFloat);
+crescent_toFloatX(crescent_State* state, int index, int* isFloat);
 
 extern const char*
-crescent_toStringX(crescent_State* state, size_t index, int* isString);
+crescent_toStringX(crescent_State* state, int index, int* isString);
 
 extern int
-crescent_toBoolean(crescent_State* state, size_t index);
+crescent_toBoolean(crescent_State* state, int index);
 
 extern crescent_Integer
-crescent_toInteger(crescent_State* state, size_t index);
+crescent_toInteger(crescent_State* state, int index);
 
 extern crescent_Float
-crescent_toFloat(crescent_State* state, size_t index);
+crescent_toFloat(crescent_State* state, int index);
 
 extern const char*
-crescent_toString(crescent_State* state, size_t index);
+crescent_toString(crescent_State* state, int index);
 
 extern crescent_CFunction*
-crescent_toCFunction(crescent_State* state, size_t index);
+crescent_toCFunction(crescent_State* state, int index);
 
 extern void
 crescent_pushNil(crescent_State* state);
@@ -138,22 +129,22 @@ extern void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction* function);
 
 extern void
-crescent_pop(crescent_State* state, size_t amount);
+crescent_pop(crescent_State* state, int amount);
 
 extern void
-crescent_remove(crescent_State* state, size_t index);
+crescent_remove(crescent_State* state, int index);
 
 extern int
-crescent_call(crescent_State* state, size_t index, size_t argCount);
+crescent_call(crescent_State* state, int index, int argCount);
 
 extern int
-crescent_pCall(crescent_State* state, size_t index, size_t argCount, int* status);
+crescent_pCall(crescent_State* state, int index, int argCount, int* status);
 
 extern int
-crescent_callK(crescent_State* state, size_t index, size_t argCount, int results);
+crescent_callK(crescent_State* state, int index, int argCount, int results);
 
 extern int
-crescent_pCallK(crescent_State* state, size_t index, size_t argCount, int results, int* status);
+crescent_pCallK(crescent_State* state, int index, int argCount, int results, int* status);
 
 extern void __attribute__((noreturn))
 crescent_error(crescent_State* state, const char* error);
