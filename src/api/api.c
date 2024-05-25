@@ -375,6 +375,14 @@ crescent_pop(crescent_State* state, int amount) {
 
 void
 crescent_remove(crescent_State* state, int index) {
+	if (index == 0) {
+		return;
+	}
+
+	if (index < 0) {
+		index = state->stack.topFrame->top + index + 1;
+	}
+
 	crescent_Object* object = crescent_getIndex(state, index);
 
 	crescentO_free(object);
