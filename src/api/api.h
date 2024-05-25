@@ -33,7 +33,7 @@ extern void
 crescent_setPanic(crescent_State* state, crescent_CFunction* function);
 
 extern int
-crescent_validIndex(crescent_State* state);
+crescent_validIndex(crescent_State* state, int index);
 
 extern int
 crescent_getTop(crescent_State* state);
