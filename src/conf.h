@@ -23,7 +23,7 @@
  * ============================================================================
  * Version and license configuration
  *
- * These definitions contain stuff such as Crescent version, copyright
+ * These definitions contain stuff such as Crescent version, license
  * information, etc. These do not need to be changed.
  * ============================================================================
  */
@@ -77,8 +77,7 @@
  * @ CRESCENT_INTEGER32
  * @ CRESCENT_FLOAT32
  *
- * Type of crescent_Integer and crescent_Float when 32-bit numbers are
- * enabled.
+ * Type of crescent_Integer and crescent_Float when 32-bit numbers are enabled.
  */
 
 #define CRESCENT_INTEGER32 int32_t
@@ -88,8 +87,7 @@
  * @ CRESCENT_INTEGER64
  * @ CRESCENT_FLOAT64
  *
- * Type of crescent_Integer and crescent_Float when 64-bit numbers are
- * enabled (default).
+ * Type of crescent_Integer and crescent_Float when 64-bit numbers are enabled.
  */
 
 #define CRESCENT_INTEGER64 int64_t
@@ -106,7 +104,7 @@
 /*
  * @ CRESCENT_STACK_INITSIZE
  *
- * Controls the initial size of the Crescent stack when first allocated.
+ * The initial size of the Crescent stack when first allocated.
  */
 
 #define CRESCENT_STACK_INITSIZE 64
@@ -115,8 +113,8 @@
  * @ CRESCENT_STACK_GROWTHRESHOLD
  * @ CRESCENT_STACK_SHRINKTHRESHOLD
  *
- * Controls the percentage that the top to size ratio of the Crescent stack
- * must exceed when growing or shrinking respectively.
+ * The percentage that the top to size ratio of the Crescent stack must exceed
+ * when growing or shrinking respectively.
  *
  * These 2 values should be at least CRESCENT_STACK_SHRINKTHRESHOLD apart,
  * since resizing multiplies or divides the stack size by 2, doing the
@@ -139,8 +137,8 @@
 /*
  * @ CRESCENT_STRING_ALLOCSPACE
  *
- * Controls how much is added to the length when allocating or reallocating to
- * get the total allocated size for the string.
+ * How much is added to the length when allocating or reallocating to get the
+ * total allocated size for the string.
  */
 
 #define CRESCENT_STRING_ALLOCSPACE 32
@@ -157,8 +155,8 @@
 /*
  * @ CRESCENT_ARRAY_ALLOCSPACE
  *
- * Controls how much is added to the length when allocating or reallocating to
- * get the total allocated size for the array.
+ * How much is added to the length when allocating or reallocating to get the
+ * total allocated size for the array.
  */
 
 #define CRESCENT_ARRAY_ALLOCSPACE 32
@@ -174,8 +172,8 @@
 /*
  * @ CRESCENT_VM_MAXLOCALS
  *
- * Controls the max amount of locals in the Crescent VM, must be less than or
- * equal to 200.
+ * Maximum amount of locals in the Crescent VM, must be less than or equal to
+ * 200.
  *
  * You can't have unlimited locals/stack indexes since the operands passed to
  * functions that take stack indexes are 8 bit, so only 256 total stack indexes
