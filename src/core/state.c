@@ -41,11 +41,13 @@ crescentG_closeGState(crescent_GState* gState) {
 	}
 
 	if (gState->baseThread) {
-		crescent_State* current = gState->baseThread;
-		crescent_State* next;
+		crescent_State* next = gState->baseThread;
+		crescent_State* current;
 
 		do {
-			next = current->next;
+			current = next;
+			next    = next->next;
+
 			crescentG_closeLState(current);
 		} while (next != NULL);
 	}
