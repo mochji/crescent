@@ -14,6 +14,8 @@
 
 #include "conf.h"
 
+#include "types/string.h"
+#include "types/array.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
@@ -44,7 +46,33 @@ crescentV_compare(crescent_Object* a, crescent_Object* b) {
 	return crescentO_compare(a, b);
 }
 
-/* TODO: this is a temporary function until string format */
+/* TODO: these functions are temporary until string format */
+
+static void
+crescentV_lengthError(crescent_State* state, int type) {
+	switch (type) {
+		case CRESCENT_TYPE_NIL:
+			crescentC_setError(state, "attempt to get length of a nil value");
+
+			break;
+		case CRESCENT_TYPE_BOOLEAN:
+			crescentC_setError(state, "attempt to get length of a boolean value");
+
+			break;
+		case CRESCENT_TYPE_INTEGER:
+			crescentC_setError(state, "attempt to get length of a number value");
+
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			crescentC_setError(state, "attempt to get length of a number value");
+
+			break;
+		case CRESCENT_TYPE_CFUNCTION:
+			crescentC_setError(state, "attempt to get length of a string value");
+
+			break;
+	}
+}
 
 static void
 crescentV_callError(crescent_State* state, int type) {
@@ -76,9 +104,23 @@ crescentV_callError(crescent_State* state, int type) {
 	}
 }
 
+size_t
+crescentV_length(crescent_State* state, crescent_Object* object) {
+	if (!obj_haslength(object->type)) {
+		crescentV_lengthError(state, object->type);
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	}
+
+	if (object->type == CRESCENT_TYPE_STRING) {
+		return object->value.s->length;
+	}
+
+	return object->value.a->length;
+}
+
 int
 crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int maxResults) {
-	if (object->type != CRESCENT_TYPE_CFUNCTION) {
+	if (!obj_cancall(object->type)) {
 		crescentV_callError(state, object->type);
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
