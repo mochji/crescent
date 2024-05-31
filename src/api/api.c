@@ -135,17 +135,7 @@ crescent_type(crescent_State* state, int index) {
 
 size_t
 crescent_length(crescent_State* state, int index) {
-	crescent_Object* object = crescent_getIndex(state, index);
-
-	if (object->type == CRESCENT_TYPE_STRING) {
-		return object->value.s->length;
-	}
-
-	if (object->type == CRESCENT_TYPE_ARRAY) {
-		return object->value.a->length;
-	}
-
-	return 0;
+	return crescentV_length(state, crescent_getIndex(state, index));
 }
 
 const char*

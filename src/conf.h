@@ -210,13 +210,23 @@
 #define CRESCENT_STATUS_ERROR  1
 #define CRESCENT_STATUS_ERRMEM 2
 
-#define CRESCENT_TYPE_NIL       0
-#define CRESCENT_TYPE_BOOLEAN   1
-#define CRESCENT_TYPE_INTEGER   2
-#define CRESCENT_TYPE_FLOAT     3
-#define CRESCENT_TYPE_STRING    4
-#define CRESCENT_TYPE_ARRAY     5
-#define CRESCENT_TYPE_CFUNCTION 6
+/*
+ * The last 3 bits within a type tag encode properties about the type:
+ *
+ * (1 = yes, 0 = no)
+ *
+ * - 3rd to last (leftmost) bit: Can you query the length of this type?
+ * - 2nd to last (middle) bit:   Can you call this type?
+ * - last (rightmost) bit:       Is this type a number?
+ */
+
+#define CRESCENT_TYPE_NIL       0  /* 0b00000000 */
+#define CRESCENT_TYPE_BOOLEAN   8  /* 0b00001000 */
+#define CRESCENT_TYPE_INTEGER   1  /* 0b00000001 */
+#define CRESCENT_TYPE_FLOAT     9  /* 0b00001001 */
+#define CRESCENT_TYPE_STRING    4  /* 0b00000100 */
+#define CRESCENT_TYPE_ARRAY     12 /* 0b00001100 */
+#define CRESCENT_TYPE_CFUNCTION 2  /* 0b00000010 */
 
 struct crescent_State;
 
