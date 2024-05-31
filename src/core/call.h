@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef CORE_CALL_H
-#define CORE_CALL_H
+#ifndef CRESCENT_CORE_CALL_H
+#define CRESCENT_CORE_CALL_H
 
 #include "conf.h"
 

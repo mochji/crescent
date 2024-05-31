@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef TYPES_ARRAY_H
-#define TYPES_ARRAY_H
+#ifndef CRESCENT_TYPES_ARRAY_H
+#define CRESCENT_TYPES_ARRAY_H
 
 #include <stddef.h>
 

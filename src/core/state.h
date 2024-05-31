@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef CORE_STATE_H
-#define CORE_STATE_H
+#ifndef CRESCENT_CORE_STATE_H
+#define CRESCENT_CORE_STATE_H
 
 #include <stddef.h>
 #include <setjmp.h>

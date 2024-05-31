@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef CRESCENT_API_H
-#define CRESCENT_API_H
+#ifndef CRESCENT_API_API_H
+#define CRESCENT_API_API_H
 
 #include <stddef.h>
 

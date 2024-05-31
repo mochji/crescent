@@ -9,7 +9,7 @@
  */
 
 /*
- * Crescent main configuration file
+ * Public build configuration for Crescent
  *
  * Search '@' for all configurable definitions.
  */

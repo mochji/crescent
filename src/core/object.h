@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef CORE_OBJECT_H
-#define CORE_OBJECT_H
+#ifndef CRESCENT_CORE_OBJECT_H
+#define CRESCENT_CORE_OBJECT_H
 
 #include "conf.h"
 

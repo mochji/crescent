@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef TYPES_STRING_H
-#define TYPES_STRING_H
+#ifndef CRESCENT_TYPES_STRING_H
+#define CRESCENT_TYPES_STRING_H
 
 #include <stddef.h>
 #include <stdarg.h>

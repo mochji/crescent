@@ -8,8 +8,8 @@
  * MIT License
  */
 
-#ifndef VM_OPCODES_H
-#define VM_OPCODES_H
+#ifndef CRESCENT_VM_OPCODES_H
+#define CRESCENT_VM_OPCODES_H
 
 #include "conf.h"
 
