@@ -44,12 +44,12 @@ crescentG_closeGState(crescent_GState* gState) {
 		crescent_State* next = gState->baseThread;
 		crescent_State* current;
 
-		do {
+		while (next != NULL) {
 			current = next;
 			next    = next->next;
 
 			crescentG_closeLState(current);
-		} while (next != NULL);
+		}
 	}
 
 	free(gState);
@@ -63,17 +63,16 @@ crescentG_blankLState(void) {
 		return NULL;
 	}
 
-	state->stack.size = CRESCENT_STACK_INITSIZE;
-	state->stack.data = calloc(state->stack.size, sizeof(crescent_Object));
+	state->stack.size     = CRESCENT_STACK_INITSIZE;
+	state->stack.data     = calloc(state->stack.size, sizeof(crescent_Object));
+	state->stack.frames   = 1;
+	state->stack.topFrame = (crescent_Frame*)(state + 1);
 
 	if (state->stack.data == NULL) {
 		free(state);
 
 		return NULL;
 	}
-
-	state->stack.frames    = 1;
-	state->stack.topFrame  = (crescent_Frame*)(state + 1);
 
 	state->stack.topFrame->base     = 0;
 	state->stack.topFrame->top      = 0;
