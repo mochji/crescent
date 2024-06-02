@@ -80,7 +80,5 @@ crescentV_mode[] = {
 	iAB,  /* OP_JG      */
 	iAB,  /* OP_JGE     */
 	iAB,  /* OP_JL      */
-	iAB,  /* OP_JLE     */
-
-	iA    /* OP_FREE    */
+	iAB   /* OP_JLE     */
 };

@@ -130,9 +130,7 @@ crescentV_OpCode {
 	OP_JG,       /* if S[A] > S[B] PC++      iAB               */
 	OP_JGE,      /* if S[A] >= S[B] PC++     iAB               */
 	OP_JL,       /* if S[A] < S[B] PC++      iAB               */
-	OP_JLE,      /* if S[A] <= S[B] PC++     iAB               */
-
-	OP_FREE      /* crescentO_free(S[A])     iA                */
+	OP_JLE       /* if S[A] <= S[B] PC++     iAB               */
 };
 
 /*
