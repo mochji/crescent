@@ -121,8 +121,6 @@ crescentV_OpCode {
 	OP_RETURN1,  /* return S[A]              iA                */
 	OP_RETURN,   /* return S[A] .. S[B]      iAB               */
 
-	OP_JMP,      /* PC = L[A]                iAxx              */
-	OP_JMPX,     /* PC = LE[A]               iAxx              */
 	OP_JMPF,     /* PC += A                  iAxx              */
 	OP_JMPB,     /* PC -= A                  iAxx              */
 

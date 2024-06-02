@@ -71,8 +71,6 @@ crescentV_mode[] = {
 	iA,   /* OP_RETURN1 */
 	iAB,  /* OP_RETURN  */
 
-	iAxx, /* OP_JMP     */
-	iAxx, /* OP_JMPX    */
 	iAxx, /* OP_JMPF    */
 	iAxx, /* OP_JMPB    */
 
