@@ -18,10 +18,10 @@
 #define CRESCENT_MAX_INTEGER (~((crescent_Integer)0))
 #define CRESCENT_MAX_SIZET   (~((size_t)0))
 
-#define CRESCENT_MAX_SIZE                         \
-	(CRESCENT_MAX_SIZET > CRESCENT_MAX_INTEGERT ? \
-		CRESCENT_MAX_INTEGER :                    \
-		CRESCENT_MAX_SIZET                        \
+#define CRESCENT_MAX_SIZE                        \
+	(CRESCENT_MAX_SIZET > CRESCENT_MAX_INTEGER ? \
+		CRESCENT_MAX_INTEGER :                   \
+		CRESCENT_MAX_SIZET                       \
 	)
 
 #define CRESCENT_MAX_CALLS  4096
