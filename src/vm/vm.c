@@ -126,10 +126,10 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
 
-	if (state->stack.calls >= CRESCENT_MAXCALLS) {
+	if (state->stack.calls >= CRESCENT_MAX_CALLS) {
 		crescentC_setError(state, "stack overflow");
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
-	} else if (state->stack.cCalls >= CRESCENT_MAXCCALLS) {
+	} else if (state->stack.cCalls >= CRESCENT_MAX_CCALLS) {
 		crescentC_setError(state, "C stack overflow");
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
