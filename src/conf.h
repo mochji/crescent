@@ -163,28 +163,6 @@
 
 /*
  * ============================================================================
- * Crescent VM configuration
- *
- * Definitions that control the behavior of the Crescent virtual machine.
- * ============================================================================
- */
-
-/*
- * @ CRESCENT_VM_MAXLOCALS
- *
- * Maximum amount of locals in the Crescent VM, must be less than or equal to
- * 200.
- *
- * You can't have unlimited locals/stack indexes since the operands passed to
- * functions that take stack indexes are 8 bit, so only 256 total stack indexes
- * are possible. It's not 256 since you need extra to pass arguments to
- * functions and do other stuff.
- */
-
-#define CRESCENT_VM_MAXLOCALS 200
-
-/*
- * ============================================================================
  * End of configurable definitions
  * ============================================================================
  */
@@ -199,11 +177,6 @@
 #else
 #	define CRESCENT_INTEGER CRESCENT_INTEGER64
 #	define CRESCENT_FLOAT   CRESCENT_FLOAT64
-#endif
-
-#if CRESCENT_VM_MAXLOCALS > 200
-#	undef  CRESCENT_VM_MAXLOCALS
-#	define CRESCENT_VM_MAXLOCALS 200
 #endif
 
 #define CRESCENT_STATUS_OK     0
