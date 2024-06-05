@@ -13,6 +13,7 @@
 #include <limits.h>
 
 #include "conf.h"
+#include "limit.h"
 
 #include "types/string.h"
 #include "types/array.h"
@@ -127,6 +128,9 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 
 	if (state->stack.calls >= CRESCENT_MAXCALLS) {
 		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	} else if (state->stack.cCalls >= CRESCENT_MAXCCALLS) {
+		crescentC_setError(state, "C stack overflow");
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
 
