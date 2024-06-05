@@ -65,7 +65,8 @@ crescentG_blankLState(void) {
 
 	state->stack.size     = CRESCENT_STACK_INITSIZE;
 	state->stack.data     = calloc(state->stack.size, sizeof(crescent_Object));
-	state->stack.frames   = 1;
+	state->stack.calls    = 0;
+	state->stack.cCalls   = 0;
 	state->stack.topFrame = (crescent_Frame*)(state + 1);
 
 	if (state->stack.data == NULL) {

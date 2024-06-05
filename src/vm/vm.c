@@ -125,7 +125,7 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
 
-	if (state->stack.frames == INT_MAX) {
+	if (state->stack.calls >= CRESCENT_MAXCALLS) {
 		crescentC_setError(state, "stack overflow");
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
@@ -153,7 +153,7 @@ int
 crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, int maxResults, int* status) {
 	crescent_ErrorJump* oldErrorJump  = state->errorJump;
 	crescent_ErrorJump  newErrorJump  = {.status = CRESCENT_STATUS_OK};
-	int                 oldFrameCount = state->stack.frames;
+	int                 oldCallCount  = state->stack.calls;
 	int                 results;
 
 	state->errorJump = &newErrorJump;
@@ -161,7 +161,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, in
 	if (setjmp(newErrorJump.buffer) == 0) {
 		results = crescentV_call(state, object, argCount, maxResults);
 	} else {
-		for (; oldFrameCount++ < state->stack.frames;) {
+		for (; state->stack.calls > oldCallCount;) {
 			crescentC_endCall(state, 0);
 		}
 

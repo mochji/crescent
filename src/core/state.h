@@ -37,7 +37,8 @@ crescent_State {
 	struct {
 		size_t                  size;
 		struct crescent_Object* data;
-		int                     frames;
+		short                   calls;
+		short                   cCalls;
 		struct crescent_Frame*  topFrame;
 	} stack;
 	char*                      error;

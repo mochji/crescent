@@ -185,7 +185,8 @@ crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopF
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
 
-	state->stack.frames  += 1;
+	state->stack.calls   += 1;
+	state->stack.cCalls  += 1;
 	state->stack.topFrame = newTopFrame;
 }
 
@@ -215,6 +216,7 @@ crescentC_endCall(crescent_State* state, int results) {
 	oldTopFrame->top += results;
 	oldTopFrame->next = NULL;
 
-	state->stack.frames  -= 1;
+	state->stack.calls   -= 1;
+	state->stack.cCalls  -= 1;
 	state->stack.topFrame = oldTopFrame;
 }
