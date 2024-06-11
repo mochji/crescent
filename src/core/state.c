@@ -10,7 +10,6 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include <setjmp.h>
 
 #include "conf.h"
 

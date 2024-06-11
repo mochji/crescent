@@ -230,7 +230,7 @@ crescent_toFloatX(crescent_State* state, int index, int* isFloat) {
 
 const char*
 crescent_toStringX(crescent_State* state, int index, int* isString) {
-	return crescentO_toString(crescent_getIndex(state, index), isString, NULL);
+	return crescentO_toString(crescent_getIndex(state, index), isString);
 }
 
 int
@@ -250,7 +250,7 @@ crescent_toFloat(crescent_State* state, int index) {
 
 const char*
 crescent_toString(crescent_State* state, int index) {
-	return crescentO_toString(crescent_getIndex(state, index), NULL, NULL);
+	return crescentO_toString(crescent_getIndex(state, index), NULL);
 }
 
 crescent_CFunction*

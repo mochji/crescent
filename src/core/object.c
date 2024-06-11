@@ -30,7 +30,7 @@
  * Complex types:
  * - string
  * - array
- * - functions (cfunction)
+ * - cfunction
  */
 
 /*
@@ -207,21 +207,9 @@ crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
 			return object->value.f != 0;
 
 			break;
-		case CRESCENT_TYPE_STRING:
-			return 1;
-
-			break;
-		case CRESCENT_TYPE_ARRAY:
-			return 1;
-
-			break;
-		case CRESCENT_TYPE_CFUNCTION:
-			return 1;
-
-			break;
 	}
 
-	return 0;
+	return 1;
 }
 
 crescent_Integer
@@ -282,12 +270,8 @@ crescentO_toFloat(crescent_Object* object, int* isFloat) {
 	return 0;
 }
 
-/*
- * NOTE: addToGC is unused currently
- */
-
 char*
-crescentO_toString(crescent_Object* object, int* isString, int* addToGC) {
+crescentO_toString(crescent_Object* object, int* isString) {
 	if (object->type == CRESCENT_TYPE_STRING) {
 		if (isString != NULL) {
 			*isString = 1;
@@ -307,8 +291,6 @@ crescentO_toString(crescent_Object* object, int* isString, int* addToGC) {
 	if (object->type == CRESCENT_TYPE_BOOLEAN) {
 		return object->value.b ? "true" : "false";
 	}
-
-	(void)addToGC;
 
 	return NULL;
 }

@@ -10,9 +10,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include <setjmp.h>
 #include <string.h>
-#include <limits.h>
 
 #include "conf.h"
 
@@ -33,20 +31,13 @@ crescentC_setError(crescent_State* state, char* error) {
 		return;
 	}
 
-	size_t length     = strlen(error);
-	char*  stateError = malloc(length + 1);
+	state->error = malloc(strlen(error) + 1);
 
-	if (stateError == NULL) {
+	if (state->error == NULL) {
 		crescentC_memoryError(state);
 	}
 
-	for (size_t a = 0; a < length; a++) {
-		stateError[a] = error[a];
-	}
-
-	stateError[length] = '\0';
-
-	state->error = stateError;
+	strcpy(state->error, error);
 }
 
 void
@@ -95,12 +86,12 @@ crescentC_memoryError(crescent_State* state) {
 }
 
 int
-crescentC_growStack(crescent_State* state, int newTop) {
-	unsigned int     absoluteTop = state->stack.topFrame->base + newTop;
-	size_t           newSize     = state->stack.size;
+crescentC_growStack(crescent_State* state, int top) {
+	unsigned int     newTop  = state->stack.topFrame->base + top;
+	size_t           newSize = state->stack.size;
 	crescent_Object* newData;
 
-	int usage = (absoluteTop * 100 + newSize / 2) / newSize;
+	int usage = (newTop * 100 + newSize / 2) / newSize;
 
 	while (usage > CRESCENT_STACK_GROWTHRESHOLD) {
 		newSize *= 2;
@@ -120,21 +111,21 @@ crescentC_growStack(crescent_State* state, int newTop) {
 }
 
 int
-crescentC_shrinkStack(crescent_State* state, int newTop) {
-	unsigned int     absoluteTop = state->stack.topFrame->base + newTop;
-	size_t           newSize     = state->stack.size;
+crescentC_shrinkStack(crescent_State* state, int top) {
+	unsigned int     newTop  = state->stack.topFrame->base + top;
+	size_t           newSize = state->stack.size;
 	crescent_Object* newData;
 
-	int usage = (absoluteTop * 100 + newSize / 2) / newSize;
+	int usage = (newTop * 100 + newSize / 2) / newSize;
 
 	while (usage < CRESCENT_STACK_SHRINKTHRESHOLD && newSize > CRESCENT_STACK_INITSIZE) {
 		newSize /= 2;
 		usage   *= 2;
 	}
 
-	size_t oldTop = state->stack.topFrame->base + state->stack.topFrame->top;
+	unsigned int oldTop = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	for (size_t a = absoluteTop; a < oldTop; a++) {
+	for (unsigned int a = newTop; a < oldTop; a++) {
 		crescentO_free(&state->stack.data[a]);
 	}
 
@@ -151,19 +142,19 @@ crescentC_shrinkStack(crescent_State* state, int newTop) {
 }
 
 int
-crescentC_resizeStack(crescent_State* state, int newTop, int throw) {
-	unsigned int absoluteTop = state->stack.topFrame->base + newTop;
-	int          usage       = (absoluteTop * 100 + state->stack.size / 2) / state->stack.size;
-	int          failed      = 0;
+crescentC_resizeStack(crescent_State* state, int top, int throw) {
+	unsigned int newTop = state->stack.topFrame->base + top;
+	int          usage  = (newTop * 100 + state->stack.size / 2) / state->stack.size;
+	int          failed = 0;
 
 	if (usage < CRESCENT_STACK_SHRINKTHRESHOLD) {
 		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
 			return 0;
 		}
 
-		failed = crescentC_shrinkStack(state, newTop);
+		failed = crescentC_shrinkStack(state, top);
 	} else if (usage > CRESCENT_STACK_GROWTHRESHOLD) {
-		failed = crescentC_growStack(state, newTop);
+		failed = crescentC_growStack(state, top);
 	}
 
 	if (failed && throw) {
