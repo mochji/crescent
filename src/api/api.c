@@ -113,17 +113,27 @@ crescent_getTop(crescent_State* state) {
 }
 
 void
-crescent_setTop(crescent_State* state, int newTop) {
-	crescentC_resizeStack(state, newTop, 1);
-
-	unsigned int absoluteTop = state->stack.topFrame->base + newTop;
-	unsigned int oldTop      = state->stack.topFrame->base + state->stack.topFrame->top;
-
-	for (unsigned int a = oldTop; a < absoluteTop; a++) {
-		state->stack.data[a].type = CRESCENT_TYPE_NIL;
+crescent_setTop(crescent_State* state, int top) {
+	if (top < 0) {
+		top = 0;
 	}
 
-	state->stack.topFrame->top = newTop;
+	crescentC_resizeStack(state, top, 1);
+
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* to     = state->stack.topFrame->base + top;
+
+	if (object < to) {
+		for (; object < to; object++) {
+			object->type = CRESCENT_TYPE_NIL;
+		}
+	} else {
+		for (; object > to; object--) {
+			crescentO_free(object);
+		}
+	}
+
+	state->stack.topFrame->top = top;
 }
 
 int
@@ -143,12 +153,12 @@ crescent_typeName(int type) {
 
 void
 crescent_clone(crescent_State* state, int index) {
-	crescent_Object* object  = crescent_getIndex(state, index);
-	unsigned int     toIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* from = crescent_getIndex(state, index);
+	crescent_Object* to   = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	if (crescentO_clone(&state->stack.data[toIndex], object)) {
+	if (crescentO_clone(to, from)) {
 		crescentC_memoryError(state);
 	}
 
@@ -157,12 +167,12 @@ crescent_clone(crescent_State* state, int index) {
 
 void
 crescent_deepClone(crescent_State* state, int index) {
-	crescent_Object* object  = crescent_getIndex(state, index);
-	unsigned int     toIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* from = crescent_getIndex(state, index);
+	crescent_Object* to   = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	if (crescentO_deepClone(&state->stack.data[toIndex], object)) {
+	if (crescentO_deepClone(to, from)) {
 		crescentC_memoryError(state);
 	}
 
@@ -256,51 +266,55 @@ crescent_toCFunction(crescent_State* state, int index) {
 
 void
 crescent_pushNil(crescent_State* state) {
-	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	state->stack.data[absoluteIndex].type = CRESCENT_TYPE_NIL;
-	state->stack.topFrame->top           += 1;
+	object->type = CRESCENT_TYPE_NIL;
+
+	state->stack.topFrame->top += 1;
 }
 
 void
 crescent_pushBoolean(crescent_State* state, int value) {
-	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_BOOLEAN;
-	state->stack.data[absoluteIndex].value.b = value;
-	state->stack.topFrame->top              += 1;
+	object->type    = CRESCENT_TYPE_BOOLEAN;
+	object->value.b = value == 1;
+
+	state->stack.topFrame->top += 1;
 }
 
 void
 crescent_pushInteger(crescent_State* state, crescent_Integer value) {
-	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_INTEGER;
-	state->stack.data[absoluteIndex].value.i = value;
-	state->stack.topFrame->top              += 1;
+	object->type    = CRESCENT_TYPE_INTEGER;
+	object->value.i = value;
+
+	state->stack.topFrame->top += 1;
 }
 
 void
 crescent_pushFloat(crescent_State* state, crescent_Float value) {
-	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_FLOAT;
-	state->stack.data[absoluteIndex].value.f = value;
-	state->stack.topFrame->top              += 1;
+	object->type    = CRESCENT_TYPE_FLOAT;
+	object->value.f = value;
+
+	state->stack.topFrame->top += 1;
 }
 
 void
 crescent_pushString(crescent_State* state, const char* str) {
-	unsigned int     absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
-	crescent_String* string        = crescentS_as((char*)str);
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_String* string = crescentS_as((char*)str);
 
 	if (string == NULL) {
 		crescentC_memoryError(state);
@@ -311,16 +325,16 @@ crescent_pushString(crescent_State* state, const char* str) {
 		crescentC_memoryError(state);
 	}
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
-	state->stack.data[absoluteIndex].value.s = string;
+	object->type    = CRESCENT_TYPE_STRING;
+	object->value.s = string;
 
 	state->stack.topFrame->top += 1;
 }
 
 void
 crescent_pushArray(crescent_State* state) {
-	unsigned int    absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
-	crescent_Array* array         = crescentA_new(0);
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Array*  array  = crescentA_new(0);
 
 	if (array == NULL) {
 		crescentC_memoryError(state);
@@ -331,21 +345,22 @@ crescent_pushArray(crescent_State* state) {
 		crescentC_memoryError(state);
 	}
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_ARRAY;
-	state->stack.data[absoluteIndex].value.a = array;
+	object->type    = CRESCENT_TYPE_ARRAY;
+	object->value.a = array;
 
 	state->stack.topFrame->top += 1;
 }
 
 void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction* value) {
-	unsigned int absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* object = state->stack.topFrame->base + state->stack.topFrame->top;
 
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_CFUNCTION;
-	state->stack.data[absoluteIndex].value.c = value;
-	state->stack.topFrame->top              += 1;
+	object->type    = CRESCENT_TYPE_CFUNCTION;
+	object->value.c = value;
+
+	state->stack.topFrame->top += 1;
 }
 
 void
@@ -366,10 +381,14 @@ crescent_remove(crescent_State* state, int index) {
 	}
 
 	if (index < 0) {
-		index = state->stack.topFrame->top + index + 1;
+		if (-index > state->stack.topFrame->top) {
+			return;
+		}
+
+		index = -index;
 	}
 
-	crescent_Object* object = crescent_getIndex(state, index);
+	crescent_Object* object = state->stack.topFrame->base + index - 1;
 
 	crescentO_free(object);
 
@@ -424,9 +443,9 @@ crescent_pushError(crescent_State* state) {
 		return;
 	}
 
-	unsigned int     absoluteIndex = state->stack.topFrame->base + state->stack.topFrame->top;
-	size_t           errorLength   = strlen(state->error);
-	crescent_String* string        = crescentS_nullString();
+	crescent_Object* object      = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_String* string      = crescentS_nullString();
+	size_t           errorLength = strlen(state->error);
 
 	if (string == NULL) {
 		crescentC_memoryError(state);
@@ -439,10 +458,20 @@ crescent_pushError(crescent_State* state) {
 
 	string->size   = errorLength + 1;
 	string->length = errorLength;
-	string->data   = state->error;
 
-	state->stack.data[absoluteIndex].type    = CRESCENT_TYPE_STRING;
-	state->stack.data[absoluteIndex].value.s = string;
+	if (state->error == state->gState->memoryError) {
+		string->data = malloc(errorLength + 1);
+
+		if (string->data == NULL) {
+			crescentS_free(string);
+			crescentC_memoryError(state);
+		}
+	} else {
+		string->data = state->error;
+	}
+
+	object->type    = CRESCENT_TYPE_STRING;
+	object->value.s = string;
 
 	state->error = NULL;
 

@@ -31,17 +31,20 @@ crescentC_throw(crescent_State* state, int status);
 extern void __attribute__((noreturn))
 crescentC_memoryError(crescent_State* state);
 
-extern int
-crescentC_growStack(crescent_State* state, int newTop);
+extern void
+crescentC_correctPointers(crescent_State* state, crescent_Object* newData);
 
 extern int
-crescentC_shrinkStack(crescent_State* state, int newTop);
+crescentC_growStack(crescent_State* state, int usage);
 
 extern int
-crescentC_resizeStack(crescent_State* state, int newTop, int throw);
+crescentC_shrinkStack(crescent_State* state, size_t absTop, int usage);
+
+extern int
+crescentC_resizeStack(crescent_State* state, int top, int throw);
 
 extern void
-crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopFrame);
+crescentC_startCall(crescent_State* state, int args, crescent_Frame* newTopFrame);
 
 extern void
 crescentC_endCall(crescent_State* state, int results);

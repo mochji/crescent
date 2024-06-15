@@ -26,10 +26,10 @@ crescent_ErrorJump {
 
 struct
 crescent_Frame {
-	int                    base;
-	int                    top;
-	struct crescent_Frame* next;
-	struct crescent_Frame* previous;
+	struct crescent_Object* base;
+	int                     top;
+	struct crescent_Frame*  next;
+	struct crescent_Frame*  previous;
 };
 
 struct
@@ -72,7 +72,10 @@ crescentG_blankLState(void);
 extern void
 crescentG_closeLState(crescent_State* state);
 
+#define state_absbase(state) \
+	((size_t)((state)->stack.topFrame->base - (state)->stack.data))
+
 #define state_abstop(state) \
-	((unsigned int)((state)->stack.topFrame->base + (state)->stack.topFrame->top))
+	(state_absbase(state) + (state)->stack.topFrame->top)
 
 #endif

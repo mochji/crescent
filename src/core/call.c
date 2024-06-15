@@ -81,17 +81,31 @@ crescentC_throw(crescent_State* state, int status) {
 
 void
 crescentC_memoryError(crescent_State* state) {
+	if (state->error != state->gState->memoryError) {
+		free(state->error);
+	}
+
 	state->error = state->gState->memoryError;
 	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 }
 
+void
+crescentC_correctPointers(crescent_State* state, crescent_Object* newData) {
+	ptrdiff_t       offset = newData - state->stack.data;
+	crescent_Frame* frame  = state->stack.topFrame;
+
+	while (frame != NULL) {
+		frame->base += offset;
+		frame        = frame->next;
+	}
+}
+
 int
-crescentC_growStack(crescent_State* state, int top) {
-	unsigned int     newTop  = state->stack.topFrame->base + top;
-	size_t           newSize = state->stack.size;
+crescentC_growStack(crescent_State* state, int usage) {
+	size_t           newSize = state->stack.size * 2;
 	crescent_Object* newData;
 
-	int usage = (newTop * 100 + newSize / 2) / newSize;
+	usage /= 2;
 
 	while (usage > CRESCENT_STACK_GROWTHRESHOLD) {
 		newSize *= 2;
@@ -104,6 +118,8 @@ crescentC_growStack(crescent_State* state, int top) {
 		return 1;
 	}
 
+	crescentC_correctPointers(state, newData);
+
 	state->stack.size = newSize;
 	state->stack.data = newData;
 
@@ -111,22 +127,22 @@ crescentC_growStack(crescent_State* state, int top) {
 }
 
 int
-crescentC_shrinkStack(crescent_State* state, int top) {
-	unsigned int     newTop  = state->stack.topFrame->base + top;
-	size_t           newSize = state->stack.size;
+crescentC_shrinkStack(crescent_State* state, size_t absTop, int usage) {
+	size_t           newSize = state->stack.size / 2;
 	crescent_Object* newData;
 
-	int usage = (newTop * 100 + newSize / 2) / newSize;
+	usage *= 2;
 
 	while (usage < CRESCENT_STACK_SHRINKTHRESHOLD && newSize > CRESCENT_STACK_INITSIZE) {
 		newSize /= 2;
 		usage   *= 2;
 	}
 
-	unsigned int oldTop = state->stack.topFrame->base + state->stack.topFrame->top;
+	crescent_Object* object = state->stack.data + absTop;
+	crescent_Object* to     = state->stack.topFrame->base + state->stack.topFrame->top;
 
-	for (unsigned int a = newTop; a < oldTop; a++) {
-		crescentO_free(&state->stack.data[a]);
+	for (; object <= to; object++) {
+		crescentO_free(object);
 	}
 
 	newData = realloc(state->stack.data, newSize * sizeof(crescent_Object));
@@ -134,6 +150,8 @@ crescentC_shrinkStack(crescent_State* state, int top) {
 	if (newData == NULL) {
 		return 1;
 	}
+
+	crescentC_correctPointers(state, newData);
 
 	state->stack.size = newSize;
 	state->stack.data = newData;
@@ -143,18 +161,18 @@ crescentC_shrinkStack(crescent_State* state, int top) {
 
 int
 crescentC_resizeStack(crescent_State* state, int top, int throw) {
-	unsigned int newTop = state->stack.topFrame->base + top;
-	int          usage  = (newTop * 100 + state->stack.size / 2) / state->stack.size;
-	int          failed = 0;
+	size_t absTop = state_absbase(state) + top;
+	int    usage  = (absTop * 100) / state->stack.size;
+	int    failed = 0;
 
 	if (usage < CRESCENT_STACK_SHRINKTHRESHOLD) {
 		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
 			return 0;
 		}
 
-		failed = crescentC_shrinkStack(state, top);
+		failed = crescentC_shrinkStack(state, absTop, usage);
 	} else if (usage > CRESCENT_STACK_GROWTHRESHOLD) {
-		failed = crescentC_growStack(state, top);
+		failed = crescentC_growStack(state, usage);
 	}
 
 	if (failed && throw) {
@@ -165,14 +183,14 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 }
 
 void
-crescentC_startCall(crescent_State* state, int argCount, crescent_Frame* newTopFrame) {
+crescentC_startCall(crescent_State* state, int args, crescent_Frame* newTopFrame) {
 	crescent_Frame* oldTopFrame = state->stack.topFrame;
 
-	oldTopFrame->top -= argCount;
+	oldTopFrame->top -= args;
 	oldTopFrame->next = newTopFrame;
 
-	newTopFrame->base     = oldTopFrame->top;
-	newTopFrame->top      = argCount;
+	newTopFrame->base     = oldTopFrame->base + oldTopFrame->top;
+	newTopFrame->top      = args;
 	newTopFrame->next     = NULL;
 	newTopFrame->previous = oldTopFrame;
 
@@ -187,20 +205,20 @@ crescentC_endCall(crescent_State* state, int results) {
 	crescent_Frame* oldTopFrame = newTopFrame->previous;
 
 	if (results != newTopFrame->top) {
-		unsigned int fromBaseIndex;
-		unsigned int toBaseIndex;
+		crescent_Object* fromBase;
+		crescent_Object* toBase;
 
-		toBaseIndex = newTopFrame->base;
+		toBase = newTopFrame->base;
 
 		for (int a = 0; a < newTopFrame->top - results; a++) {
-			crescentO_free(&state->stack.data[toBaseIndex + a]);
+			crescentO_free(toBase + a);
 		}
 
-		fromBaseIndex = newTopFrame->base + newTopFrame->top - results;
-		toBaseIndex   = newTopFrame->base;
+		fromBase = newTopFrame->base + newTopFrame->top - results;
+		toBase   = newTopFrame->base;
 
 		for (int a = 0; a < results; a++) {
-			state->stack.data[toBaseIndex + a] = state->stack.data[fromBaseIndex + a];
+			*(toBase + a) = *(fromBase + a);
 		}
 	}
 

@@ -74,7 +74,7 @@ crescentG_blankLState(void) {
 		return NULL;
 	}
 
-	state->stack.topFrame->base     = 0;
+	state->stack.topFrame->base     = state->stack.data;
 	state->stack.topFrame->top      = 0;
 	state->stack.topFrame->next     = NULL;
 	state->stack.topFrame->previous = NULL;
@@ -93,8 +93,10 @@ crescentG_closeLState(crescent_State* state) {
 		return;
 	}
 
-	for (unsigned int a = 0; a < state_abstop(state); a++) {
-		crescentO_free(&state->stack.data[a]);
+	crescent_Object* object = state->stack.data;
+
+	for (; object < object + state_abstop(state); object++) {
+		crescentO_free(object);
 	}
 
 	if (state->error != state->gState->memoryError) {
