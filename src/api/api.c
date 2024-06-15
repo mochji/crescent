@@ -24,23 +24,6 @@
 #include "core/call.h"
 #include "vm/vm.h"
 
-/* TODO: throw errors on... stuff that cause errors idrk */
-
-static crescent_Object*
-crescent_getIndex(crescent_State* state, int index) {
-	if (index == 0) {
-		return &state->gState->nilValue;
-	}
-
-	if (index < 0) {
-		index = state->stack.topFrame->top + index + 1;
-	}
-
-	return index <= state->stack.topFrame->top ?
-		&state->stack.data[state->stack.topFrame->base + index - 1] :
-		&state->gState->nilValue;
-}
-
 static int
 crescent_panic(crescent_State* state) {
 	char* error;
@@ -54,6 +37,21 @@ crescent_panic(crescent_State* state) {
 	fprintf(stderr, "PANIC: error within unprotected call to Crescent API (%s)\n", error);
 
 	return 0;
+}
+
+static crescent_Object*
+crescent_getIndex(crescent_State* state, int index) {
+	if (index == 0) {
+		return &state->gState->nilValue;
+	}
+
+	if (index < 0) {
+		index = -index;
+	}
+
+	return index <= state->stack.topFrame->top ?
+		state->stack.topFrame->base + index - 1 :
+		&state->gState->nilValue;
 }
 
 int
@@ -78,8 +76,8 @@ crescent_openState(void) {
 		return NULL;
 	}
 
-	gState->baseThread  = state;
-	gState->panic       = &crescent_panic;
+	gState->baseThread = state;
+	gState->panic      = &crescent_panic;
 
 	state->gState = gState;
 
@@ -193,9 +191,7 @@ crescent_isFloat(crescent_State* state, int index) {
 
 int
 crescent_isNumber(crescent_State* state, int index) {
-	int type = crescent_getIndex(state, index)->type;
-
-	return type == CRESCENT_TYPE_INTEGER || type == CRESCENT_TYPE_FLOAT;
+	return obj_isnumber(crescent_getIndex(state, index)->type);
 }
 
 int
@@ -409,7 +405,7 @@ crescent_pCallK(crescent_State* state, int index, int argCount, int maxResults, 
 	return crescentV_pCall(state, crescent_getIndex(state, index), argCount, maxResults, status);
 }
 
-int
+void
 crescent_error(crescent_State* state, const char* error) {
 	crescentC_setError(state, (char*)error);
 	crescentC_throw(state, CRESCENT_STATUS_ERROR);

@@ -39,7 +39,7 @@ extern int
 crescent_getTop(crescent_State* state);
 
 extern void
-crescent_setTop(crescent_State* state, int newTop);
+crescent_setTop(crescent_State* state, int top);
 
 extern int
 crescent_type(crescent_State* state, int index);

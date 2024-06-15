@@ -204,7 +204,7 @@ crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
 
 			break;
 		case CRESCENT_TYPE_FLOAT:
-			return object->value.f != 0;
+			return object->value.f != 0.0;
 
 			break;
 	}
