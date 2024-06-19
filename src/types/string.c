@@ -158,20 +158,13 @@ crescentS_hash(char* str) {
 
 char*
 crescentS_copy(char* str) {
-	size_t length = strlen(str);
-	char*  cloned = malloc(length + 1);
+	char* cloned = malloc(strlen(str) + 1);
 
 	if (cloned == NULL) {
 		return NULL;
 	}
 
-	for (size_t a = 0; a < length; a++) {
-		cloned[a] = str[a];
-	}
-
-	cloned[length] = '\0';
-
-	return cloned;
+	return strcpy(cloned, str);
 }
 
 int
