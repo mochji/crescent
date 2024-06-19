@@ -135,18 +135,18 @@ extern void
 crescent_remove(crescent_State* state, int index);
 
 extern int
-crescent_call(crescent_State* state, int index, int argCount);
+crescent_call(crescent_State* state, int index, int args);
 
 extern int
-crescent_pCall(crescent_State* state, int index, int argCount, int* status);
+crescent_pCall(crescent_State* state, int index, int args, int* status);
 
 extern int
-crescent_callK(crescent_State* state, int index, int argCount, int results);
+crescent_callK(crescent_State* state, int index, int args, int results);
 
 extern int
-crescent_pCallK(crescent_State* state, int index, int argCount, int results, int* status);
+crescent_pCallK(crescent_State* state, int index, int args, int results, int* status);
 
-extern void __attribute__((noreturn))
+extern void
 crescent_error(crescent_State* state, const char* error);
 
 extern void
