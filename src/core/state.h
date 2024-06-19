@@ -36,7 +36,8 @@ struct
 crescent_State {
 	struct {
 		size_t                  size;
-		struct crescent_Object* data;
+		struct crescent_Object* base;
+		struct crescent_Object* top;
 		short                   calls;
 		short                   cCalls;
 		struct crescent_Frame*  topFrame;
@@ -49,10 +50,11 @@ crescent_State {
 
 struct
 crescent_GState {
-	char*                   memoryError;
-	struct crescent_Object  nilValue;
-	struct crescent_State*  baseThread;
-	crescent_CFunction*     panic;
+	char*                  memoryError;
+	struct crescent_Object nilValue;
+	struct crescent_State* baseThread;
+	struct crescent_State* lastThread;
+	crescent_CFunction*    panic;
 };
 
 typedef struct crescent_ErrorJump crescent_ErrorJump;
@@ -72,10 +74,7 @@ crescentG_blankLState(void);
 extern void
 crescentG_closeLState(crescent_State* state);
 
-#define state_absbase(state) \
-	((size_t)((state)->stack.topFrame->base - (state)->stack.data))
-
-#define state_abstop(state) \
-	(state_absbase(state) + (state)->stack.topFrame->top)
+extern void
+crescentG_connectThread(crescent_GState* gState, crescent_State* state);
 
 #endif

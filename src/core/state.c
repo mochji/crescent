@@ -28,6 +28,7 @@ crescentG_blankGState(void) {
 	gState->memoryError   = "out of memory";
 	gState->nilValue.type = CRESCENT_TYPE_NIL;
 	gState->baseThread    = NULL;
+	gState->lastThread    = NULL;
 	gState->panic         = NULL;
 
 	return gState;
@@ -39,16 +40,14 @@ crescentG_closeGState(crescent_GState* gState) {
 		return;
 	}
 
-	if (gState->baseThread) {
-		crescent_State* next = gState->baseThread;
-		crescent_State* current;
+	crescent_State* current;
+	crescent_State* next = gState->baseThread;
 
-		while (next != NULL) {
-			current = next;
-			next    = next->next;
+	while (next != NULL) {
+		current = next;
+		next    = next->next;
 
-			crescentG_closeLState(current);
-		}
+		crescentG_closeLState(current);
 	}
 
 	free(gState);
@@ -57,32 +56,34 @@ crescentG_closeGState(crescent_GState* gState) {
 crescent_State*
 crescentG_blankLState(void) {
 	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_Frame));
+	crescent_Frame* frame = (crescent_Frame*)(state + 1);
 
 	if (state == NULL) {
 		return NULL;
 	}
 
 	state->stack.size     = CRESCENT_STACK_INITSIZE;
-	state->stack.data     = calloc(state->stack.size, sizeof(crescent_Object));
+	state->stack.base     = calloc(state->stack.size, sizeof(crescent_Object));
+	state->stack.top      = state->stack.base;
 	state->stack.calls    = 0;
 	state->stack.cCalls   = 0;
-	state->stack.topFrame = (crescent_Frame*)(state + 1);
+	state->stack.topFrame = frame;
 
-	if (state->stack.data == NULL) {
+	if (state->stack.base == NULL) {
 		free(state);
 
 		return NULL;
 	}
 
-	state->stack.topFrame->base     = state->stack.data;
-	state->stack.topFrame->top      = 0;
-	state->stack.topFrame->next     = NULL;
-	state->stack.topFrame->previous = NULL;
+	frame->base     = state->stack.base;
+	frame->top      = 0;
+	frame->next     = NULL;
+	frame->previous = NULL;
 
-	state->error       = NULL;
-	state->errorJump   = NULL;
-	state->next        = NULL;
-	state->gState      = NULL;
+	state->error     = NULL;
+	state->errorJump = NULL;
+	state->next      = NULL;
+	state->gState    = NULL;
 
 	return state;
 }
@@ -93,9 +94,9 @@ crescentG_closeLState(crescent_State* state) {
 		return;
 	}
 
-	crescent_Object* object = state->stack.data;
+	crescent_Object* object = state->stack.base;
 
-	for (; object < object + state_abstop(state); object++) {
+	for (; object < state->stack.top; object++) {
 		crescentO_free(object);
 	}
 
@@ -103,6 +104,21 @@ crescentG_closeLState(crescent_State* state) {
 		free(state->error);
 	}
 
-	free(state->stack.data);
+	free(state->stack.base);
 	free(state);
+}
+
+void
+crescentG_connectThread(crescent_GState* gState, crescent_State* state) {
+	if (gState->lastThread == NULL) {
+		gState->baseThread = state;
+		gState->lastThread = state;
+
+		state->gState = gState;
+	} else {
+		gState->lastThread->next = state;
+		gState->lastThread       = state;
+
+		state->gState = gState;
+	}
 }
