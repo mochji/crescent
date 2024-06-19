@@ -148,10 +148,9 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 size_t
 crescentS_hash(char* str) {
 	size_t hash = 5381;
-	size_t a    = 0;
 
-	while (str[a]) {
-		hash = ((hash << 5) + hash) + str[a++];
+	while (*str) {
+		hash = ((hash << 5) + hash) + *(str++);
 	}
 
 	return hash;
