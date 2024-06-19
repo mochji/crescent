@@ -54,17 +54,6 @@ crescentC_moveError(crescent_State* to, crescent_State* from) {
 }
 
 void
-crescentC_panic(crescent_State* state) {
-	crescent_GState* gState = state->gState;
-
-	if (gState->panic != NULL) {
-		gState->panic(state);
-	}
-
-	abort();
-}
-
-void
 crescentC_throw(crescent_State* state, int status) {
 	crescent_GState* gState = state->gState;
 
