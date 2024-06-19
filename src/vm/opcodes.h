@@ -54,11 +54,9 @@ crescentV_OpMode {
 
 /*
  * S  = stack
+ * G  = globals
  * C  = constants
  * CE = constants + 0xFFFF
- * L  = labels
- * LE = labels + 0xFFFFFF
- * G  = globals
  */
 
 enum
