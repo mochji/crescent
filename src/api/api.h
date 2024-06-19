@@ -146,7 +146,7 @@ crescent_callK(crescent_State* state, int index, int args, int results);
 extern int
 crescent_pCallK(crescent_State* state, int index, int args, int results, int* status);
 
-extern void
+extern void __attribute__((noreturn))
 crescent_error(crescent_State* state, const char* error);
 
 extern void
