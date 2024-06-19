@@ -104,26 +104,10 @@
 /*
  * @ CRESCENT_STACK_INITSIZE
  *
- * The initial size of the Crescent stack when first allocated.
+ * The initial and minimum size of the Crescent stack.
  */
 
 #define CRESCENT_STACK_INITSIZE 64
-
-/*
- * @ CRESCENT_STACK_GROWTHRESHOLD
- * @ CRESCENT_STACK_SHRINKTHRESHOLD
- *
- * The percentage that the top to size ratio of the Crescent stack must exceed
- * when growing or shrinking respectively.
- *
- * These 2 values should be at least CRESCENT_STACK_SHRINKTHRESHOLD apart,
- * since resizing multiplies or divides the stack size by 2, doing the
- * opposite for the stack usage. If not, it will resize but a stack
- * operation may cause it to resize again and again, being very slow.
- */
-
-#define CRESCENT_STACK_GROWTHRESHOLD 90
-#define CRESCENT_STACK_SHRINKTHRESHOLD 40
 
 /*
  * ============================================================================
