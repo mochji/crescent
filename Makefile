@@ -43,15 +43,7 @@ OBJECTS    = $(foreach source,$(TYPESFILES) $(COREFILES) $(VMFILES) $(APIFILES),
 
 .DEFAULT_GOAL = build
 
-.PHONY: build
-.PHONY: run
-.PHONY: valgrind
-.PHONY: clean
-.PHONY: rmobj
-.PHONY: todo
-.PHONY: fixme
-.PHONY: notes
-.PHONY: echo
+.PHONY: build run valgrind clean rmobj todo fixme notes echo
 
 build:
 	echo $(OBJECTS)
