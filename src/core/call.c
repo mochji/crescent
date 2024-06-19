@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <setjmp.h>
 
 #include "conf.h"
 
