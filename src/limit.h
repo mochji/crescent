@@ -29,6 +29,4 @@
 
 #define CRESCENT_MAX_LOCALS 200
 
-
-
 #endif
