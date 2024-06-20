@@ -21,7 +21,7 @@ struct
 crescent_Array {
 	size_t                  size;
 	size_t                  length;
-	struct crescent_Object* data;
+	struct crescent_Object* value;
 	size_t                  references;
 };
 

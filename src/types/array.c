@@ -27,10 +27,10 @@ crescentA_new(size_t length) {
 
 	array->size       = length + CRESCENT_ARRAY_ALLOCSPACE;
 	array->length     = length;
-	array->data       = malloc(array->size * sizeof(crescent_Object));
+	array->value      = malloc(array->size * sizeof(crescent_Object));
 	array->references = 1;
 
-	if (array->data == NULL) {
+	if (array->value == NULL) {
 		free(array);
 
 		return NULL;
@@ -49,17 +49,17 @@ crescentA_clone(crescent_Array* array) {
 
 	cloned->size       = array->size;
 	cloned->length     = array->length;
-	cloned->data       = malloc(array->size * sizeof(crescent_Object));
+	cloned->value      = malloc(array->size * sizeof(crescent_Object));
 	cloned->references = 1;
 
-	if (cloned->data == NULL) {
+	if (cloned->value == NULL) {
 		free(cloned);
 
 		return NULL;
 	}
 
 	for (size_t a = 0; a < array->length; a++) {
-		if (crescentO_deepClone(&cloned->data[a], &array->data[a])) {
+		if (crescentO_deepClone(&cloned->value[a], &array->value[a])) {
 			cloned->length = a;
 
 			crescentA_free(cloned);
@@ -78,10 +78,10 @@ crescentA_free(crescent_Array* array) {
 	}
 
 	for (size_t a = 0; a < array->length; a++) {
-		crescentO_free(&array->data[a]);
+		crescentO_free(&array->value[a]);
 	}
 
-	free(array->data);
+	free(array->value);
 	free(array);
 }
 
@@ -89,14 +89,14 @@ int
 crescentA_resize(crescent_Array* array, size_t newLength) {
 	if (newLength >= array->size || array->size - newLength > array->size / 2) {
 		size_t           newSize = newLength + CRESCENT_ARRAY_ALLOCSPACE;
-		crescent_Object* newData = realloc(array->data, newSize);
+		crescent_Object* newData = realloc(array->value, newSize);
 
 		if (newData == NULL) {
 			return 1;
 		}
 
-		array->size = newSize;
-		array->data = newData;
+		array->size  = newSize;
+		array->value = newData;
 	}
 
 	return 0;
@@ -113,7 +113,7 @@ crescentA_compare(crescent_Array* arrayA, crescent_Array* arrayB) {
 	}
 
 	for (size_t a = 0; a < arrayA->length; a++) {
-		if (!crescentO_compare(&arrayA->data[a], &arrayB->data[a])) {
+		if (!crescentO_compare(&arrayA->value[a], &arrayB->value[a])) {
 			return 0;
 		}
 	}
