@@ -148,7 +148,7 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 	}
 
 	crescentC_endCall(state, results);
-	crescentC_resizeStack(state, state->stack.topFrame->top, 1);
+	crescentC_resizeStack(state, state->stack.topFrame->top, 0);
 
 	return results;
 }

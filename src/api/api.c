@@ -163,10 +163,10 @@ crescent_typeName(int type) {
 
 void
 crescent_clone(crescent_State* state, int index) {
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
 	crescent_Object* from = crescent_getIndex(state, index);
 	crescent_Object* to   = state->stack.top;
-
-	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	if (crescentO_clone(to, from)) {
 		crescentC_memoryError(state);
@@ -177,10 +177,10 @@ crescent_clone(crescent_State* state, int index) {
 
 void
 crescent_deepClone(crescent_State* state, int index) {
+	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
 	crescent_Object* from = crescent_getIndex(state, index);
 	crescent_Object* to   = state->stack.top;
-
-	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
 
 	if (crescentO_deepClone(to, from)) {
 		crescentC_memoryError(state);
@@ -276,9 +276,9 @@ crescent_toCFunction(crescent_State* state, int index) {
 
 void
 crescent_pushNil(crescent_State* state) {
-	crescent_Object* object = state->stack.top;
-
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
+	crescent_Object* object = state->stack.top;
 
 	object->type = CRESCENT_TYPE_NIL;
 
@@ -287,9 +287,9 @@ crescent_pushNil(crescent_State* state) {
 
 void
 crescent_pushBoolean(crescent_State* state, int value) {
-	crescent_Object* object = state->stack.top;
-
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
+	crescent_Object* object = state->stack.top;
 
 	object->type    = CRESCENT_TYPE_BOOLEAN;
 	object->value.b = value;
@@ -299,9 +299,9 @@ crescent_pushBoolean(crescent_State* state, int value) {
 
 void
 crescent_pushInteger(crescent_State* state, crescent_Integer value) {
-	crescent_Object* object = state->stack.top;
-
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
+	crescent_Object* object = state->stack.top;
 
 	object->type    = CRESCENT_TYPE_INTEGER;
 	object->value.i = value;
@@ -311,9 +311,9 @@ crescent_pushInteger(crescent_State* state, crescent_Integer value) {
 
 void
 crescent_pushFloat(crescent_State* state, crescent_Float value) {
-	crescent_Object* object = state->stack.top;
-
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
+	crescent_Object* object = state->stack.top;
 
 	object->type    = CRESCENT_TYPE_FLOAT;
 	object->value.f = value;
@@ -323,7 +323,6 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 
 void
 crescent_pushString(crescent_State* state, const char* str) {
-	crescent_Object* object = state->stack.top;
 	crescent_String* string = crescentS_as((char*)str);
 
 	if (string == NULL) {
@@ -335,6 +334,8 @@ crescent_pushString(crescent_State* state, const char* str) {
 		crescentC_memoryError(state);
 	}
 
+	crescent_Object* object = state->stack.top;
+
 	object->type    = CRESCENT_TYPE_STRING;
 	object->value.s = string;
 
@@ -343,8 +344,7 @@ crescent_pushString(crescent_State* state, const char* str) {
 
 void
 crescent_pushArray(crescent_State* state) {
-	crescent_Object* object = state->stack.top;
-	crescent_Array*  array  = crescentA_new(0);
+	crescent_Array* array = crescentA_new(0);
 
 	if (array == NULL) {
 		crescentC_memoryError(state);
@@ -355,6 +355,8 @@ crescent_pushArray(crescent_State* state) {
 		crescentC_memoryError(state);
 	}
 
+	crescent_Object* object = state->stack.top;
+
 	object->type    = CRESCENT_TYPE_ARRAY;
 	object->value.a = array;
 
@@ -363,9 +365,9 @@ crescent_pushArray(crescent_State* state) {
 
 void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction value) {
-	crescent_Object* object = state->stack.top;
-
 	crescentC_resizeStack(state, state->stack.topFrame->top + 1, 1);
+
+	crescent_Object* object = state->stack.top;
 
 	object->type    = CRESCENT_TYPE_CFUNCTION;
 	object->value.c = value;
@@ -466,7 +468,6 @@ crescent_pushError(crescent_State* state) {
 		return;
 	}
 
-	crescent_Object* object      = state->stack.topFrame->base + state->stack.topFrame->top;
 	crescent_String* string      = crescentS_nullString();
 	size_t           errorLength = strlen(state->error);
 
@@ -492,6 +493,8 @@ crescent_pushError(crescent_State* state) {
 	} else {
 		string->value = state->error;
 	}
+
+	crescent_Object* object = state->stack.top;
 
 	object->type    = CRESCENT_TYPE_STRING;
 	object->value.s = string;
