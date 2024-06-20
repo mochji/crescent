@@ -483,14 +483,14 @@ crescent_pushError(crescent_State* state) {
 	string->length = errorLength;
 
 	if (state->error == state->gState->memoryError) {
-		string->data = malloc(errorLength + 1);
+		string->value = malloc(errorLength + 1);
 
-		if (string->data == NULL) {
+		if (string->value == NULL) {
 			crescentS_free(string);
 			crescentC_memoryError(state);
 		}
 	} else {
-		string->data = state->error;
+		string->value = state->error;
 	}
 
 	object->type    = CRESCENT_TYPE_STRING;

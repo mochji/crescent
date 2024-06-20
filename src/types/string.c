@@ -29,16 +29,16 @@ crescentS_new(size_t length) {
 
 	string->size       = length + CRESCENT_STRING_ALLOCSPACE;
 	string->length     = length;
-	string->data       = malloc(string->size);
+	string->value      = malloc(string->size);
 	string->references = 1;
 
-	if (string->data == NULL) {
+	if (string->value == NULL) {
 		free(string);
 
 		return NULL;
 	}
 
-	string->data[0] = '\0';
+	string->value[0] = '\0';
 
 	return string;
 }
@@ -53,7 +53,7 @@ crescentS_nullString(void) {
 
 	string->size       = 0;
 	string->length     = 0;
-	string->data       = NULL;
+	string->value      = NULL;
 	string->references = 1;
 
 	return string;
@@ -69,10 +69,10 @@ crescentS_as(char* str) {
 	}
 
 	for (size_t a = 0; a < length; a++) {
-		string->data[a] = str[a];
+		string->value[a] = str[a];
 	}
 
-	string->data[length] = '\0';
+	string->value[length] = '\0';
 
 	return string;
 }
@@ -87,17 +87,17 @@ crescentS_clone(crescent_String* string) {
 
 	cloned->size       = string->size;
 	cloned->length     = string->length;
-	cloned->data       = malloc(string->size);
+	cloned->value      = malloc(string->size);
 	cloned->references = 1;
 
-	if (cloned->data == NULL) {
+	if (cloned->value == NULL) {
 		free(cloned);
 
 		return NULL;
 	}
 
 	for (size_t a = 0; a <= string->length; a++) {
-		cloned->data[a] = string->data[a];
+		cloned->value[a] = string->value[a];
 	}
 
 	return cloned;
@@ -109,7 +109,7 @@ crescentS_free(crescent_String* string) {
 		return;
 	}
 
-	free(string->data);
+	free(string->value);
 	free(string);
 }
 
@@ -117,14 +117,14 @@ int
 crescentS_resize(crescent_String* string, size_t newLength) {
 	if (newLength >= string->size || string->size - newLength > string->size / 2) {
 		size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
-		char*  newData = realloc(string->data, newSize);
+		char*  newData = realloc(string->value, newSize);
 
 		if (newData == NULL) {
 			return 1;
 		}
 
 		string->size = newSize;
-		string->data = newData;
+		string->value = newData;
 	}
 
 	return 0;
@@ -140,7 +140,7 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 		return 0;
 	}
 
-	return strcmp(stringA->data, stringB->data) == 0;
+	return strcmp(stringA->value, stringB->value) == 0;
 }
 
 /* djb2 */

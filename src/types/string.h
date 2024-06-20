@@ -20,7 +20,7 @@ struct
 crescent_String {
 	size_t size;
 	size_t length;
-	char*  data;
+	char*  value;
 	size_t references;
 };
 

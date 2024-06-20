@@ -235,7 +235,7 @@ crescentO_toInteger(crescent_Object* object, int* isInteger) {
 	}
 
 	if (object->type == CRESCENT_TYPE_STRING) {
-		return crescentS_toInteger(object->value.s->data, NULL);
+		return crescentS_toInteger(object->value.s->value, NULL);
 	}
 
 	return 0;
@@ -264,7 +264,7 @@ crescentO_toFloat(crescent_Object* object, int* isFloat) {
 	}
 
 	if (object->type == CRESCENT_TYPE_STRING) {
-		return crescentS_toFloat(object->value.s->data, NULL);
+		return crescentS_toFloat(object->value.s->value, NULL);
 	}
 
 	return 0;
@@ -277,7 +277,7 @@ crescentO_toString(crescent_Object* object, int* isString) {
 			*isString = 1;
 		}
 
-		return object->value.s->data;
+		return object->value.s->value;
 	}
 
 	if (isString != NULL) {
