@@ -2,56 +2,59 @@
 # Crescent build configuration
 # =============================================================================
 
-SRC       = src
-BUILD     = build
-TYPES     = $(SRC)/types
-CORE      = $(SRC)/core
-VM        = $(SRC)/vm
-API       = $(SRC)/api
+SRC          = src
+BUILD        = build
+TYPES        = $(SRC)/types
+CORE         = $(SRC)/core
+VM           = $(SRC)/vm
+API          = $(SRC)/api
 
-MAIN      = $(SRC)/crescent.c
+MAIN         = $(SRC)/crescent.c
+TARGET       = $(BUILD)/crescent
 
-STD       = c99
-CC        = gcc
-CFLAGS    = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -O2 -I$(SRC)
+STD          = c99
+OPTIMIZATION = 2
+CFLAGS       = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -I$(SRC)
 
-VALGRIND  = valgrind
-
-TARGET    = $(BUILD)/crescent
+CC           = gcc
+VALGRIND     = valgrind
 
 # =============================================================================
 # End of configurable options
 # =============================================================================
 
-CHECKVARS = SRC BUILD CORE API MAIN CC CFLAGS TARGET
-
-$(foreach var, $(CHECKVARS), $(if $($(var)),, $(error $(var) not set)))
-
 ifdef STD
 	CFLAGS := $(CFLAGS) -std=$(STD)
+endif
+
+ifdef OPTIMIZATION
+	CFLAGS := $(CFLAGS) -O$(OPTIMIZATION)
 endif
 
 ifdef DEBUG
 	CFLAGS := $(CFLAGS) -g
 endif
 
-TYPESFILES = $(wildcard $(TYPES)/*.c)
-COREFILES  = $(wildcard $(CORE)/*.c)
-VMFILES    = $(wildcard $(VM)/*.c)
-APIFILES   = $(wildcard $(API)/*.c)
-OBJECTS    = $(foreach source,$(TYPESFILES) $(COREFILES) $(VMFILES) $(APIFILES),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
+TYPESSRC = $(wildcard $(TYPES)/*.c)
+CORESRC  = $(wildcard $(CORE)/*.c)
+VMSRC    = $(wildcard $(VM)/*.c)
+APISRC   = $(wildcard $(API)/*.c)
+OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
 .DEFAULT_GOAL = build
 
-.PHONY: build run valgrind clean rmobj todo fixme notes echo
+.PHONY: build run balgrind clean rmobj todo fixme notes echo
 
 build:
-	echo $(OBJECTS)
 	mkdir -p $(BUILD)
-	$(foreach source,$(TYPESFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
-	$(foreach source,$(COREFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
-	$(foreach source,$(VMFILES),$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
-	$(foreach source,$(APIFILES),$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/$(notdir $(subst .c,.o, $(source))) $(source);)
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/string.o $(TYPES)/string.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/array.o $(TYPES)/array.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/object.o $(CORE)/object.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/state.o $(CORE)/state.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/call.o $(CORE)/call.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/vm.o $(VM)/vm.c
+	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
 
@@ -79,14 +82,15 @@ notes:
 	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME:\|TODO:"
 
 echo:
-	@echo "SRC      = $(SRC)"
-	@echo "BUILD    = $(BUILD)"
-	@echo "CORE     = $(CORE)"
-	@echo "VM       = $(VM)"
-	@echo "API      = $(API)"
-	@echo "MAIN     = $(MAIN)"
-	@echo "STD      = $(STD)"
-	@echo "CC       = $(CC)"
-	@echo "CFLAGS   = $(CFLAGS)"
-	@echo "VALGRIND = $(VALGRIND)"
-	@echo "TARGET   = $(TARGET)"
+	@echo "SRC          = $(SRC)"
+	@echo "BUILD        = $(BUILD)"
+	@echo "CORE         = $(CORE)"
+	@echo "VM           = $(VM)"
+	@echo "API          = $(API)"
+	@echo "MAIN         = $(MAIN)"
+	@echo "STD          = $(STD)"
+	@echo "OPTIMIZATION = $(OPTIMIZATION)"
+	@echo "CFLAGS       = $(CFLAGS)"
+	@echo "CC           = $(CC)"
+	@echo "VALGRIND     = $(VALGRIND)"
+	@echo "TARGET       = $(TARGET)"
