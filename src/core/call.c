@@ -141,7 +141,7 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 
 		size_t size = state->stack.size / 2;
 
-		if (size <= CRESCENT_STACK_INITSIZE) {
+		if (size < CRESCENT_STACK_INITSIZE) {
 			size = CRESCENT_STACK_INITSIZE;
 		}
 
@@ -151,6 +151,8 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 		 */
 
 		crescentC_reallocStack(state, size);
+
+		state->stack.size = size;
 	} else if (absTop >= state->stack.size - 2) {
 		failed = crescentC_reallocStack(state, absTop + absTop / 2);
 	}
