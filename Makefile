@@ -43,7 +43,7 @@ OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$
 
 .DEFAULT_GOAL = build
 
-.PHONY: build run balgrind clean rmobj todo fixme notes echo
+.PHONY: build run valgrind clean rmobj todo fixme notes echo
 
 build:
 	mkdir -p $(BUILD)
