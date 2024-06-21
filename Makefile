@@ -38,7 +38,7 @@ VMSRC    = $(wildcard $(VM)/*.c)
 APISRC   = $(wildcard $(API)/*.c)
 OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
-CFLAGS := -I$(SRC)
+CFLAGS := $(CFLAGS) -I$(SRC)
 
 ifdef STD
 	CFLAGS := $(CFLAGS) -std=$(STD)
