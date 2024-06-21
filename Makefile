@@ -2,26 +2,43 @@
 # Crescent build configuration
 # =============================================================================
 
-SRC          = src
-BUILD        = build
-TYPES        = $(SRC)/types
-CORE         = $(SRC)/core
-VM           = $(SRC)/vm
-API          = $(SRC)/api
-
-MAIN         = $(SRC)/crescent.c
-TARGET       = $(BUILD)/crescent
-
 STD          = c99
 OPTIMIZATION = 2
-CFLAGS       = -Wall -Wextra -Wpedantic -Werror -Wshadow -Wundef -Wdouble-promotion -Wnull-dereference -Wfatal-errors -I$(SRC)
+CFLAGS       =         \
+	-Wall              \
+	-Wextra            \
+	-Wpedantic         \
+	-Werror            \
+	-Wshadow           \
+	-Wundef            \
+	-Wdouble-promotion \
+	-Wnull-dereference \
+	-Wfatal-errors
 
-CC           = gcc
-VALGRIND     = valgrind
+CC       = gcc
+VALGRIND = valgrind
 
 # =============================================================================
 # End of configurable options
 # =============================================================================
+
+SRC    = src
+BUILD  = build
+TYPES  = $(SRC)/types
+CORE   = $(SRC)/core
+VM     = $(SRC)/vm
+API    = $(SRC)/api
+
+MAIN   = $(SRC)/crescent.c
+TARGET = $(BUILD)/crescent
+
+TYPESSRC = $(wildcard $(TYPES)/*.c)
+CORESRC  = $(wildcard $(CORE)/*.c)
+VMSRC    = $(wildcard $(VM)/*.c)
+APISRC   = $(wildcard $(API)/*.c)
+OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
+
+CFLAGS := -I$(SRC)
 
 ifdef STD
 	CFLAGS := $(CFLAGS) -std=$(STD)
@@ -34,12 +51,6 @@ endif
 ifdef DEBUG
 	CFLAGS := $(CFLAGS) -g
 endif
-
-TYPESSRC = $(wildcard $(TYPES)/*.c)
-CORESRC  = $(wildcard $(CORE)/*.c)
-VMSRC    = $(wildcard $(VM)/*.c)
-APISRC   = $(wildcard $(API)/*.c)
-OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
 .DEFAULT_GOAL = build
 
@@ -82,6 +93,11 @@ notes:
 	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME:\|TODO:"
 
 echo:
+	@echo "STD          = $(STD)"
+	@echo "OPTIMIZATION = $(OPTIMIZATION)"
+	@echo "CFLAGS       = $(CFLAGS)"
+	@echo "CC           = $(CC)"
+	@echo "VALGRIND     = $(VALGRIND)"
 	@echo "SRC          = $(SRC)"
 	@echo "BUILD        = $(BUILD)"
 	@echo "TYPES        = $(TYPES)"
@@ -90,8 +106,3 @@ echo:
 	@echo "API          = $(API)"
 	@echo "MAIN         = $(MAIN)"
 	@echo "TARGET       = $(TARGET)"
-	@echo "STD          = $(STD)"
-	@echo "OPTIMIZATION = $(OPTIMIZATION)"
-	@echo "CFLAGS       = $(CFLAGS)"
-	@echo "CC           = $(CC)"
-	@echo "VALGRIND     = $(VALGRIND)"
