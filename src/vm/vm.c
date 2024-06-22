@@ -6,6 +6,7 @@
  * MIT License
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <setjmp.h>
 #include <limits.h>
@@ -154,13 +155,13 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 int
 crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, int maxResults, int* status) {
 	crescent_ErrorJump* oldErrorJump  = state->errorJump;
-	crescent_ErrorJump  newErrorJump  = {.status = CRESCENT_STATUS_OK};
+	crescent_ErrorJump* newErrorJump  = malloc(sizeof(crescent_ErrorJump));
 	int                 oldCallCount  = state->stack.calls;
 	int                 results;
 
-	state->errorJump = &newErrorJump;
+	state->errorJump = newErrorJump;
 
-	if (setjmp(newErrorJump.buffer) == 0) {
+	if (setjmp(newErrorJump->buffer) == 0) {
 		results = crescentV_call(state, object, argCount, maxResults);
 	} else {
 		for (; state->stack.calls > oldCallCount;) {
@@ -178,7 +179,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, in
 	state->errorJump = oldErrorJump;
 
 	if (status != NULL) {
-		*status = newErrorJump.status;
+		*status = newErrorJump->status;
 	}
 
 	return results;
