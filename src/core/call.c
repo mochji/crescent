@@ -14,6 +14,7 @@
 #include <setjmp.h>
 
 #include "conf.h"
+#include "limit.h"
 
 #include "core/object.h"
 #include "core/state.h"
@@ -122,12 +123,12 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 	int    failed  = 0;
 
 	if (absTop <= state->stack.size / 3) {
-		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
+		if (state->stack.size == CRESCENT_MIN_STACK) {
 			return 0;
 		}
 
-		if (newSize < CRESCENT_STACK_INITSIZE) {
-			newSize = CRESCENT_STACK_INITSIZE;
+		if (newSize < CRESCENT_MIN_STACK) {
+			newSize = CRESCENT_MIN_STACK;
 		}
 
 		/*

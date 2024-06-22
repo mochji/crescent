@@ -33,6 +33,8 @@
 		CRESCENT_MAX_SIZET                       \
 	)
 
+#define CRESCENT_MIN_STACK 64
+
 #define CRESCENT_MAX_CALLS  4096
 #define CRESCENT_MAX_CCALLS 200
 

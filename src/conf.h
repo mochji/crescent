@@ -56,22 +56,6 @@
 
 /*
  * ============================================================================
- * Crescent stack configuration
- *
- * Definitions that control the behavior of the Crescent stack.
- * ============================================================================
- */
-
-/*
- * @ CRESCENT_STACK_INITSIZE
- *
- * The initial and minimum size of the Crescent stack.
- */
-
-#define CRESCENT_STACK_INITSIZE 64
-
-/*
- * ============================================================================
  * Crescent string configuration
  *
  * Definitions that control the behavior of Crescent strings, mainly memory

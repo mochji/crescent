@@ -12,6 +12,7 @@
 #include <stddef.h>
 
 #include "conf.h"
+#include "limit.h"
 
 #include "core/object.h"
 
@@ -62,7 +63,7 @@ crescentG_blankLState(void) {
 		return NULL;
 	}
 
-	state->stack.size     = CRESCENT_STACK_INITSIZE;
+	state->stack.size     = CRESCENT_MIN_STACK;
 	state->stack.base     = calloc(state->stack.size, sizeof(crescent_Object));
 	state->stack.top      = state->stack.base;
 	state->stack.calls    = 0;
