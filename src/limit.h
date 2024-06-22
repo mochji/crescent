@@ -25,7 +25,7 @@
 #	define CRESCENT_MAX_INTEGER LLONG_MAX
 #endif
 
-#define CRESCENT_MAX_SIZET SIZE_MAX
+#define CRESCENT_MAX_SIZET (~((size_t)0))
 
 #define CRESCENT_MAX_SIZE                        \
 	(CRESCENT_MAX_SIZET > CRESCENT_MAX_INTEGER ? \
