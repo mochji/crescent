@@ -23,9 +23,9 @@ extern size_t
 crescentV_length(crescent_State* state, crescent_Object* object);
 
 extern int
-crescentV_call(crescent_State* state, crescent_Object* object, int args, int results);
+crescentV_call(crescent_State* state, crescent_Object* object, int args, int maxResults);
 
 extern int
-crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int results, int* status);
+crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int maxResults, int* status);
 
 #endif
