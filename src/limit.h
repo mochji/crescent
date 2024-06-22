@@ -11,12 +11,21 @@
 #ifndef CRESCENT_LIMIT_H
 #define CRESCENT_LIMIT_H
 
-#include <stddef.h>
+#include <limits.h>
 
 #include "conf.h"
 
-#define CRESCENT_MAX_INTEGER (~((crescent_Integer)0))
-#define CRESCENT_MAX_SIZET   (~((size_t)0))
+#if CRESCENT_32BIT
+#	if CRESCENT_32INT
+#		define CRESCENT_MAX_INTEGER INT_MAX
+#	else
+#		define CRESCENT_MAX_INTEGER LONG_MAX
+#	endif
+#else
+#	define CRESCENT_MAX_INTEGER LLONG_MAX
+#endif
+
+#define CRESCENT_MAX_SIZET SIZE_MAX
 
 #define CRESCENT_MAX_SIZE                        \
 	(CRESCENT_MAX_SIZET > CRESCENT_MAX_INTEGER ? \
