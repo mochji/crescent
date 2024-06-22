@@ -2,9 +2,7 @@
  * https://github.com/mochji/crescent
  * api/api.h
  *
- * idrk what this is
  * Copyright (C) 2024 mochji
- *
  * MIT License
  */
 

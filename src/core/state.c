@@ -2,9 +2,7 @@
  * https://github.com/mochji/crescent
  * core/state.c
  *
- * idrk what this is
  * Copyright (C) 2024 mochji
- *
  * MIT License
  */
 
