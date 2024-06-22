@@ -46,7 +46,9 @@ crescent_getIndex(crescent_State* state, int index) {
 	}
 
 	if (index < 0) {
-		index = -index;
+		return -index <= state->stack.topFrame->top ?
+			state->stack.top + index :
+			&state->gState->nilValue;
 	}
 
 	return index <= state->stack.topFrame->top ?
