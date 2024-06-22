@@ -17,7 +17,7 @@
 #ifndef CRESCENT_CONF_H
 #define CRESCENT_CONF_H
 
-#include <stdint.h>
+#include <limits.h>
 
 /*
  * ============================================================================
@@ -34,18 +34,7 @@
 
 #define CRESCENT_VERSION (CRESCENT_VERSION_MAJOR * 10 + CRESCENT_VERSION_MINOR)
 #define CRESCENT_RELEASE (CRESCENT_VERSION * 10 + CRESCENT_VERSION_PATCH)
-
-#define STR_HELPER(x) #x
-#define STR(x)        STR_HELPER(x)
-
-#define CRESCENT_VERSION_STR STR(CRESCENT_VERSION_MAJOR) "." STR(CRESCENT_VERSION_MINOR)
-#define CRESCENT_RELEASE_STR CRESCENT_VERSION_STR "." STR(CRESCENT_VERSION_PATCH)
-
-#define CRESCENT_AUTHORS   "mochji"
-#define CRESCENT_COPYRIGHT "Crescent " CRESCENT_RELEASE_STR "  Copyright (C) 2024 " CRESCENT_AUTHORS
-
-#undef STR_HELPER
-#undef STR
+#define CRESCENT_AUTHORS "mochji"
 
 /*
  * ============================================================================
@@ -60,38 +49,10 @@
  * @ CRESCENT_32BIT
  *
  * Change this definition to a non-zero value to restrict Crescent to 32-bit
- * number types.
+ * number types. (default uses 64-bit types)
  */
 
 #define CRESCENT_32BIT 0
-
-/*
- * ============================================================================
- * Number type configuration
- *
- * Definitions that control the types of number types within Crescent.
- * ============================================================================
- */
-
-/*
- * @ CRESCENT_INTEGER32
- * @ CRESCENT_FLOAT32
- *
- * Type of crescent_Integer and crescent_Float when 32-bit numbers are enabled.
- */
-
-#define CRESCENT_INTEGER32 int32_t
-#define CRESCENT_FLOAT32   float
-
-/*
- * @ CRESCENT_INTEGER64
- * @ CRESCENT_FLOAT64
- *
- * Type of crescent_Integer and crescent_Float when 64-bit numbers are enabled.
- */
-
-#define CRESCENT_INTEGER64 int64_t
-#define CRESCENT_FLOAT64   double
 
 /*
  * ============================================================================
@@ -152,15 +113,23 @@
  */
 
 #ifdef __cplusplus
-#	error Crescent is not supported for C++. (this is a c project, why did you compile this with a c++ compiler?)
+#	error Crescent is not supported for C++. (not yet)
 #endif
 
-#if   CRESCENT_32BIT
-#	define CRESCENT_INTEGER CRESCENT_INTEGER32
-#	define CRESCENT_FLOAT   CRESCENT_FLOAT32
+/* cannot use sizeof within a preprocessor macro :( */
+
+#define CRESCENT_32INT ((UINT_MAX >> 30) >= 3)
+
+#if CRESCENT_32BIT
+#	if CRESCENT_32INT
+#		define CRESCENT_INTEGER int
+#	else
+#		define CRESCENT_INTEGER long
+#	endif
+#	define CRESCENT_FLOAT float
 #else
-#	define CRESCENT_INTEGER CRESCENT_INTEGER64
-#	define CRESCENT_FLOAT   CRESCENT_FLOAT64
+#	define CRESCENT_INTEGER long long
+#	define CRESCENT_FLOAT   double
 #endif
 
 #define CRESCENT_STATUS_OK     0
