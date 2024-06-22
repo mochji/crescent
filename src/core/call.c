@@ -115,35 +115,19 @@ crescentC_reallocStack(crescent_State* state, size_t size) {
 	return 0;
 }
 
-/*
- * Ensures the current stack frame has at least top + 2 stack indexes
- * available.
- *
- * If the new absolute top is 1/3 or less of the current stack size, it will
- * attempt to shrink it to half of the size unless the stack size is
- * CRESCENT_STACK_INITSIZE.
- *
- * If the new absolute top is greater than the current stack size - 2, it will
- * attempt to grow it to the new absolute top * 1.5.
- *
- * If it fails to reallocate the stack and throw is set, it will throw
- * an out of memory error.
- */
-
 int
 crescentC_resizeStack(crescent_State* state, int top, int throw) {
-	size_t absTop = (size_t)(state->stack.topFrame->base - state->stack.base) + top;
-	int    failed = 0;
+	size_t absTop  = (size_t)(state->stack.topFrame->base - state->stack.base) + top;
+	size_t newSize = absTop + absTop / 2;
+	int    failed  = 0;
 
 	if (absTop <= state->stack.size / 3) {
 		if (state->stack.size == CRESCENT_STACK_INITSIZE) {
 			return 0;
 		}
 
-		size_t size = state->stack.size / 2;
-
-		if (size < CRESCENT_STACK_INITSIZE) {
-			size = CRESCENT_STACK_INITSIZE;
+		if (newSize < CRESCENT_STACK_INITSIZE) {
+			newSize = CRESCENT_STACK_INITSIZE;
 		}
 
 		/*
@@ -151,11 +135,11 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 		 * gatekeep and girlboss since it doesnt matter.
 		 */
 
-		crescentC_reallocStack(state, size);
+		crescentC_reallocStack(state, newSize);
 
-		state->stack.size = size;
+		state->stack.size = newSize;
 	} else if (absTop >= state->stack.size - 2) {
-		failed = crescentC_reallocStack(state, absTop + absTop / 2);
+		failed = crescentC_reallocStack(state, newSize);
 	}
 
 	if (failed && throw) {
