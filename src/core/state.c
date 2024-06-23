@@ -95,8 +95,8 @@ crescentG_closeLState(crescent_State* state) {
 
 	crescent_Object* object = state->stack.base;
 
-	for (; object < state->stack.top; object++) {
-		crescentO_free(object);
+	while (object < state->stack.top) {
+		crescentO_free(object++);
 	}
 
 	if (state->error != state->gState->memoryError) {

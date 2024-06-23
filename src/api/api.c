@@ -134,12 +134,12 @@ crescent_setTop(crescent_State* state, int top) {
 	if (object < to) {
 		crescentC_resizeStack(state, top , 1);
 
-		for (; object < to; object++) {
-			object->type = CRESCENT_TYPE_NIL;
+		while (object < to) {
+			(object++)->type = CRESCENT_TYPE_NIL;
 		}
 	} else {
-		for (; object > to; object--) {
-			crescentO_free(object);
+		while (object > to) {
+			crescentO_free(object--);
 		}
 
 		crescentC_resizeStack(state, top , 1);
