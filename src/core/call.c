@@ -130,13 +130,15 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 		}
 
 		/*
-		 * even if reallocating the stack fails here, we can just gaslight,
-		 * gatekeep and girlboss since it doesnt matter.
+		 * even if reallocating the stack fails here, we can just lie and say
+		 * it did since we should never be accessing any pointer greater than
+		 * state->stack.base + state->stack.size - 1, and if we are we were
+		 * already fucked.
 		 */
 
 		crescentC_reallocStack(state, newSize);
 
-		state->stack.size = newSize;
+		state->stack.size = newSize; /* yes we're setting it twice, shut up */
 	} else if (absTop >= state->stack.size - 2) {
 		failed = crescentC_reallocStack(state, newSize);
 	}
