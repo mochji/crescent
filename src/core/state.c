@@ -17,7 +17,7 @@
 #include "core/state.h"
 
 crescent_GState*
-crescentG_blankGState(void) {
+crescentE_blankGState(void) {
 	crescent_GState* gState = malloc(sizeof(crescent_GState));
 
 	if (gState == NULL) {
@@ -34,7 +34,7 @@ crescentG_blankGState(void) {
 }
 
 void
-crescentG_closeGState(crescent_GState* gState) {
+crescentE_closeGState(crescent_GState* gState) {
 	if (gState == NULL) {
 		return;
 	}
@@ -46,14 +46,14 @@ crescentG_closeGState(crescent_GState* gState) {
 		current = next;
 		next    = next->next;
 
-		crescentG_closeLState(current);
+		crescentE_closeLState(current);
 	}
 
 	free(gState);
 }
 
 crescent_State*
-crescentG_blankLState(void) {
+crescentE_blankLState(void) {
 	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_Frame));
 	crescent_Frame* frame = (crescent_Frame*)(state + 1);
 
@@ -88,7 +88,7 @@ crescentG_blankLState(void) {
 }
 
 void
-crescentG_closeLState(crescent_State* state) {
+crescentE_closeLState(crescent_State* state) {
 	if (state == NULL) {
 		return;
 	}
@@ -108,7 +108,7 @@ crescentG_closeLState(crescent_State* state) {
 }
 
 void
-crescentG_connectThread(crescent_GState* gState, crescent_State* state) {
+crescentE_connectThread(crescent_GState* gState, crescent_State* state) {
 	if (gState->lastThread == NULL) {
 		gState->baseThread = state;
 		gState->lastThread = state;

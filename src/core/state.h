@@ -61,18 +61,18 @@ typedef struct crescent_State     crescent_State;
 typedef struct crescent_GState    crescent_GState;
 
 extern crescent_GState*
-crescentG_blankGState(void);
+crescentE_blankGState(void);
 
 extern void
-crescentG_closeGState(crescent_GState* gState);
+crescentE_closeGState(crescent_GState* gState);
 
 extern crescent_State*
-crescentG_blankLState(void);
+crescentE_blankLState(void);
 
 extern void
-crescentG_closeLState(crescent_State* state);
+crescentE_closeLState(crescent_State* state);
 
 extern void
-crescentG_connectThread(crescent_GState* gState, crescent_State* state);
+crescentE_connectThread(crescent_GState* gState, crescent_State* state);
 
 #endif

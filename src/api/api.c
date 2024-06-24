@@ -72,12 +72,12 @@ crescent_release(void) {
 
 crescent_State*
 crescent_openState(void) {
-	crescent_GState* gState = crescentG_blankGState();
-	crescent_State*  state  = crescentG_blankLState();
+	crescent_GState* gState = crescentE_blankGState();
+	crescent_State*  state  = crescentE_blankLState();
 
 	if (gState == NULL || state == NULL) {
-		crescentG_closeGState(gState);
-		crescentG_closeLState(state);
+		crescentE_closeGState(gState);
+		crescentE_closeLState(state);
 
 		return NULL;
 	}
@@ -93,7 +93,7 @@ crescent_openState(void) {
 
 void
 crescent_closeState(crescent_State* state) {
-	crescentG_closeGState(state->gState);
+	crescentE_closeGState(state->gState);
 }
 
 void
