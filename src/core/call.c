@@ -139,7 +139,7 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 		crescentC_reallocStack(state, newSize);
 
 		state->stack.size = newSize; /* yes we're setting it twice, shut up */
-	} else if (absTop >= state->stack.size - 2) {
+	} else if (absTop >= state->stack.size - 1) {
 		failed = crescentC_reallocStack(state, newSize);
 	}
 
