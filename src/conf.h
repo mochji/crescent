@@ -38,7 +38,7 @@
  * ============================================================================
  * Platform configuration
  *
- * Change these definitions, if needed, to compile Crescent for a particular
+ * Change these definitions, if needed, to compile Crescent for a specific
  * platform.
  * ============================================================================
  */
@@ -104,14 +104,19 @@
 
 #if CRESCENT_32BIT
 #	if CRESCENT_32INT
-#		define CRESCENT_INTEGER int
+#		define CRESCENT_INTEGER     int
+#		define CRESCENT_INTEGER_FMT "%d"
 #	else
-#		define CRESCENT_INTEGER long
+#		define CRESCENT_INTEGER     long
+#		define CRESCENT_INTEGER_FMT "%ld"
 #	endif
-#	define CRESCENT_FLOAT float
+#	define CRESCENT_FLOAT     float
+#	define CRESCENT_FLOAT_FMT "%f"
 #else
-#	define CRESCENT_INTEGER long long
-#	define CRESCENT_FLOAT   double
+#	define CRESCENT_INTEGER     long long
+#	define CRESCENT_INTEGER_FMT "%lld"
+#	define CRESCENT_FLOAT       double
+#	define CRESCENT_FLOAT_FMT   "%lf"
 #endif
 
 #define CRESCENT_STATUS_OK     0
