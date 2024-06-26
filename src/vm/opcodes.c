@@ -80,3 +80,74 @@ crescentV_mode[] = {
 	iAB,  /* OP_JL      */
 	iAB   /* OP_JLE     */
 };
+
+const char*
+crescentV_name[] = {
+	"OP_MOV",
+
+	"OP_LODN",
+	"OP_LODT",
+	"OP_LODF",
+	"OP_LODM",
+	"OP_LODPI",
+	"OP_LODNI",
+	"OP_LODS",
+	"OP_LODA",
+	"OP_LODC",
+	"OP_LODCX",
+
+	"OP_GETG",
+	"OP_SETG",
+
+	"OP_ADD",
+	"OP_SUB",
+	"OP_MUL",
+	"OP_POW",
+	"OP_DIV",
+	"OP_MOD",
+
+	"OP_INC",
+	"OP_DEC",
+
+	"OP_BNOT",
+	"OP_BAND",
+	"OP_BNAND",
+	"OP_BOR",
+	"OP_BNOR",
+	"OP_BXOR",
+	"OP_BXNOR",
+	"OP_BSL",
+	"OP_BSR",
+
+	"OP_EVAL",
+	"OP_EQ",
+	"OP_NE",
+	"OP_GT",
+	"OP_GE",
+	"OP_LT",
+	"OP_LE",
+
+	"OP_IS",
+
+	"OP_LENGTH",
+	"OP_CONCAT",
+	"OP_GET",
+	"OP_SET",
+
+	"OP_CALL",
+	"OP_TCALL",
+	"OP_RETURN0",
+	"OP_RETURN1",
+	"OP_RETURN",
+
+	"OP_JMPF",
+	"OP_JMPB",
+
+	"OP_JIS",
+	"OP_JE",
+	"OP_JNE",
+	"OP_JG",
+	"OP_JGE",
+	"OP_JL",
+	"OP_JLE"
+};

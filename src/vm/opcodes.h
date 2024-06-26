@@ -145,4 +145,7 @@ typedef enum crescent_OpCode crescent_OpCode;
 extern crescent_OpMode
 crescentV_mode[];
 
+extern const char*
+crescentV_name[];
+
 #endif
