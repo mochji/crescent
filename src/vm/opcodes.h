@@ -41,7 +41,7 @@
  */
 
 enum
-crescentV_OpMode {
+crescent_OpMode {
 	iABC,
 	iABx,
 	iAxx,
@@ -58,7 +58,7 @@ crescentV_OpMode {
  */
 
 enum
-crescentV_OpCode {
+crescent_OpCode {
 /*  enum            operation                mode        notes */
 	OP_MOV,      /* S[A] = S[B]              iAB               */
 
@@ -139,10 +139,10 @@ crescentV_OpCode {
  *    etc).
  */
 
-typedef enum crescentV_OpMode crescentV_OpMode;
-typedef enum crescentV_OpCode crescentV_OpCode;
+typedef enum crescent_OpMode crescent_OpMode;
+typedef enum crescent_OpCode crescent_OpCode;
 
-extern crescentV_OpMode
+extern crescent_OpMode
 crescentV_mode[];
 
 #endif

@@ -10,7 +10,7 @@
 
 #include "vm/opcodes.h"
 
-crescentV_OpMode
+crescent_OpMode
 crescentV_mode[] = {
 	iAB,  /* OP_MOV     */
 
