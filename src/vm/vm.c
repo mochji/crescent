@@ -119,7 +119,7 @@ crescentV_length(crescent_State* state, crescent_Object* object) {
 }
 
 int
-crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int maxResults) {
+crescentV_call(crescent_State* state, crescent_Object* object, int args, int maxResults) {
 	if (!obj_cancall(object->type)) {
 		crescentV_callError(state, object->type);
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
@@ -136,7 +136,7 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 	crescent_Frame newTopFrame;
 	int            results;
 
-	crescentC_startCall(state, argCount, &newTopFrame);
+	crescentC_startCall(state, args, &newTopFrame);
 
 	results = object->value.c(state);
 
@@ -153,7 +153,7 @@ crescentV_call(crescent_State* state, crescent_Object* object, int argCount, int
 }
 
 int
-crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, int maxResults, int* status) {
+crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int maxResults, int* status) {
 	crescent_ErrorJump* oldErrorJump  = state->errorJump;
 	crescent_ErrorJump* newErrorJump  = malloc(sizeof(crescent_ErrorJump));
 	int                 oldCallCount  = state->stack.calls;
@@ -162,7 +162,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int argCount, in
 	state->errorJump = newErrorJump;
 
 	if (setjmp(newErrorJump->buffer) == 0) {
-		results = crescentV_call(state, object, argCount, maxResults);
+		results = crescentV_call(state, object, args, maxResults);
 	} else {
 		for (; state->stack.calls > oldCallCount;) {
 			crescentC_endCall(state, 0);

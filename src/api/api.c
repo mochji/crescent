@@ -443,13 +443,13 @@ crescent_pCall(crescent_State* state, int index, int args, int* status) {
 }
 
 int
-crescent_callK(crescent_State* state, int index, int args, int results) {
-	return crescentV_call(state, crescent_getIndex(state, index), args, results);
+crescent_callK(crescent_State* state, int index, int args, int maxResults) {
+	return crescentV_call(state, crescent_getIndex(state, index), args, maxResults);
 }
 
 int
-crescent_pCallK(crescent_State* state, int index, int args, int results, int* status) {
-	return crescentV_pCall(state, crescent_getIndex(state, index), args, results, status);
+crescent_pCallK(crescent_State* state, int index, int args, int maxResults, int* status) {
+	return crescentV_pCall(state, crescent_getIndex(state, index), args, maxResults, status);
 }
 
 void
