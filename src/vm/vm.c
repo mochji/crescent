@@ -133,6 +133,16 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
 
+	if (args > state->stack.topFrame->top) {
+		args = state->stack.topFrame->top;
+	} else if (args < 0) {
+		args = 0;
+	}
+
+	if (maxResults < 0) {
+		maxResults = 0;
+	}
+
 	crescent_Frame newTopFrame;
 	int            results;
 
