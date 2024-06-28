@@ -104,8 +104,6 @@ crescent_OpCode {
 	OP_LT,       /* S[A] = S[B] < S[C]       iABC              */
 	OP_LE,       /* S[A] = S[B] <= S[C]      iABC              */
 
-	OP_IS,       /* S[A] = &S[B] == &S[C]    iABC        0     */
-
 	OP_LENGTH,   /* S[A] = #S[B]             iABC              */
 	OP_CONCAT,   /* S[A] = S[A] .. S[B]      iAB               */
 	OP_GET,      /* S[A] = S[B][S[C]]        iABC              */
@@ -128,16 +126,6 @@ crescent_OpCode {
 	OP_JL,       /* if S[A] < S[B] PC++      iAB               */
 	OP_JLE       /* if S[A] <= S[B] PC++     iAB               */
 };
-
-/*
- * Notes:
- *
- * 0: What the operation section for the OP_IS OpCode says is wrong, basically
- *    it compares the address of complex types. It will always return false for
- *    objects that are different types or simple. Otherwise it will compare the
- *    address of the actual data (value.s for strings, value.a for arrays,
- *    etc).
- */
 
 typedef enum crescent_OpMode crescent_OpMode;
 typedef enum crescent_OpCode crescent_OpCode;

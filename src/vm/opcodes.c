@@ -56,8 +56,6 @@ crescentV_mode[] = {
 	iABC, /* OP_LT      */
 	iABC, /* OP_LE      */
 
-	iABC, /* OP_IS      */
-
 	iABC, /* OP_LENGTH  */
 	iAB,  /* OP_CONCAT  */
 	iABC, /* OP_GET     */
@@ -126,8 +124,6 @@ crescentV_name[] = {
 	"OP_GE",
 	"OP_LT",
 	"OP_LE",
-
-	"OP_IS",
 
 	"OP_LENGTH",
 	"OP_CONCAT",
