@@ -9,26 +9,17 @@
 #ifndef CRESCENT_LIMIT_H
 #define CRESCENT_LIMIT_H
 
-#include <limits.h>
+#include <stddef.h>
 
 #include "conf.h"
 
-#if CRESCENT_32BIT
-#	if CRESCENT_32INT
-#		define CRESCENT_MAX_INTEGER INT_MAX
-#	else
-#		define CRESCENT_MAX_INTEGER LONG_MAX
-#	endif
-#else
-#	define CRESCENT_MAX_INTEGER LLONG_MAX
-#endif
-
-#define CRESCENT_MAX_SIZET (~((size_t)0))
+#define CRESCENT_MAX_SIZET   (~((size_t)0))
+#define CRESCENT_MAX_INTEGER CRESCENT_INTEGER_MAX
 
 #define CRESCENT_MAX_SIZE                        \
 	(CRESCENT_MAX_SIZET > CRESCENT_MAX_INTEGER ? \
 		CRESCENT_MAX_INTEGER :                   \
-		CRESCENT_MAX_SIZET                       \
+		CRESCENT_MAX_SIZET;                      \
 	)
 
 /* TODO: actually use MAX_STACK, MIN_TOP and MAX_TOP */
