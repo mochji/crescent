@@ -16,6 +16,7 @@ CFLAGS       =         \
 	-Wfatal-errors
 
 CC       = gcc
+AR       = ar rcs
 VALGRIND = valgrind
 
 # =============================================================================
@@ -68,6 +69,7 @@ build:
 	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/crescent.so $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
+	$(AR) $(BUILD)/libcrescent.a $(OBJECTS)
 
 run: build
 	./$(TARGET)
