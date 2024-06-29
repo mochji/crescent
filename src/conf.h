@@ -106,15 +106,21 @@
 #	if CRESCENT_32INT
 #		define CRESCENT_INTEGER     int
 #		define CRESCENT_INTEGER_FMT "%d"
+#		define CRESCENT_INTEGER_MAX INT_MAX
+#		define CRESCENT_INTEGER_MIN INT_MIN
 #	else
 #		define CRESCENT_INTEGER     long
 #		define CRESCENT_INTEGER_FMT "%ld"
+#		define CRESCENT_INTEGER_MAX LONG_MAX
+#		define CRESCENT_INTEGER_MIN LONG_MIN
 #	endif
 #	define CRESCENT_FLOAT     float
 #	define CRESCENT_FLOAT_FMT "%f"
 #else
 #	define CRESCENT_INTEGER     long long
 #	define CRESCENT_INTEGER_FMT "%lld"
+#	define CRESCENT_INTEGER_MAX LLONG_MAX
+#	define CRESCENT_INTEGER_MIN LLONG_MIN
 #	define CRESCENT_FLOAT       double
 #	define CRESCENT_FLOAT_FMT   "%lf"
 #endif
