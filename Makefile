@@ -23,6 +23,24 @@ VALGRIND = valgrind
 # End of configurable options
 # =============================================================================
 
+ifeq ($(OS),Windows_NT)
+	RM     = del /S
+	RMR    = /Q
+	MKDIR  = mkdir
+	OBJEXT = .obj
+	ARCEXT = .lib
+	LIBEXT = .dll
+	EXEEXT = .exe
+else
+	RM     = rm -f
+	RMR    = -r
+	MKDIR  = mkdir -p
+	OBJEXT = .o
+	ARCEXT = .a
+	LIBEXT = .so
+	EXEEXT =
+endif
+
 SRC    = src
 BUILD  = build
 TYPES  = $(SRC)/types
@@ -37,7 +55,7 @@ TYPESSRC = $(wildcard $(TYPES)/*.c)
 CORESRC  = $(wildcard $(CORE)/*.c)
 VMSRC    = $(wildcard $(VM)/*.c)
 APISRC   = $(wildcard $(API)/*.c)
-OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
+OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,$(OBJEXT),$(notdir $(source))))
 
 CFLAGS := $(CFLAGS) -I$(SRC)
 
@@ -58,18 +76,18 @@ endif
 .PHONY: build run valgrind clean rmobj todo fixme notes echo
 
 build:
-	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/string.o $(TYPES)/string.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/array.o $(TYPES)/array.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/object.o $(CORE)/object.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/state.o $(CORE)/state.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/call.o $(CORE)/call.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/vm.o $(VM)/vm.c
-	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
-	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/libcrescent.so $(OBJECTS)
+	-$(MKDIR) build
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/string$(OBJEXT) $(TYPES)/string.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/array$(OBJEXT) $(TYPES)/array.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/object$(OBJEXT) $(CORE)/object.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/state$(OBJEXT) $(CORE)/state.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/call$(OBJEXT) $(CORE)/call.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/opcodes$(OBJEXT) $(VM)/opcodes.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/vm$(OBJEXT) $(VM)/vm.c
+	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api$(OBJEXT) $(API)/api.c
+	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/libcrescent$(LIBEXT) $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
-	$(AR) $(BUILD)/libcrescent.a $(OBJECTS)
+	$(AR) $(BUILD)/libcrescent$(ARCEXT) $(OBJECTS)
 
 run: build
 	./$(TARGET)
