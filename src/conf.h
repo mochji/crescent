@@ -134,8 +134,8 @@
  *
  * (1 = yes, 0 = no)
  *
- * - 3nd to last (leftmost) bit: Can you call this type?
- * - 2rd to last (middle) bit:   Can you query the length of this type?
+ * - 3rd to last (leftmost) bit: Can you call this type?
+ * - 2nd to last (middle) bit:   Can you query the length of this type?
  * - last (rightmost) bit:       Is this type a number?
  */
 
