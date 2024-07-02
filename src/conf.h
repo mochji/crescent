@@ -134,8 +134,8 @@
  *
  * (1 = yes, 0 = no)
  *
- * - 3rd to last (leftmost) bit: Can you query the length of this type?
- * - 2nd to last (middle) bit:   Can you call this type?
+ * - 3nd to last (leftmost) bit: Can you call this type?
+ * - 2rd to last (middle) bit:   Can you query the length of this type?
  * - last (rightmost) bit:       Is this type a number?
  */
 
@@ -143,9 +143,9 @@
 #define CRESCENT_TYPE_BOOLEAN   8  /* 0b00001000 */
 #define CRESCENT_TYPE_INTEGER   1  /* 0b00000001 */
 #define CRESCENT_TYPE_FLOAT     9  /* 0b00001001 */
-#define CRESCENT_TYPE_STRING    4  /* 0b00000100 */
-#define CRESCENT_TYPE_ARRAY     12 /* 0b00001100 */
-#define CRESCENT_TYPE_CFUNCTION 2  /* 0b00000010 */
+#define CRESCENT_TYPE_STRING    2  /* 0b00000010 */
+#define CRESCENT_TYPE_ARRAY     10 /* 0b00001010 */
+#define CRESCENT_TYPE_CFUNCTION 4  /* 0b00000100 */
 
 struct crescent_State;
 
