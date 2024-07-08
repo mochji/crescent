@@ -68,8 +68,8 @@ build:
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/vm.o $(VM)/vm.c
 	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/libcrescent.so $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
 	$(AR) $(BUILD)/libcrescent.a $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
 
 run: build
 	./$(TARGET)
