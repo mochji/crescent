@@ -85,20 +85,6 @@ crescentC_memoryError(crescent_State* state) {
 	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
 }
 
-void
-crescentC_correctStack(crescent_State* state, crescent_Object* stack) {
-	ptrdiff_t       offset = stack - state->stack.base;
-	crescent_Frame* frame  = state->stack.topFrame;
-
-	state->stack.base = stack;
-	state->stack.top += offset;
-
-	while (frame != NULL) {
-		frame->base += offset;
-		frame        = frame->next;
-	}
-}
-
 int
 crescentC_reallocStack(crescent_State* state, size_t size) {
 	crescent_Object* stack = realloc(state->stack.base, size * sizeof(crescent_Object));
@@ -107,9 +93,17 @@ crescentC_reallocStack(crescent_State* state, size_t size) {
 		return 1;
 	}
 
-	crescentC_correctStack(state, stack);
+	ptrdiff_t       offset = stack - state->stack.base;
+	crescent_Frame* frame  = state->stack.topFrame;
 
 	state->stack.size = size;
+	state->stack.base = stack;
+	state->stack.top += offset;
+
+	while (frame != NULL) {
+		frame->base += offset;
+		frame        = frame->next;
+	}
 
 	return 0;
 }
