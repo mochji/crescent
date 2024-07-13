@@ -108,7 +108,7 @@ crescentE_closeLState(crescent_State* state) {
 }
 
 void
-crescentE_connectThread(crescent_GState* gState, crescent_State* state) {
+crescentE_bindThread(crescent_GState* gState, crescent_State* state) {
 	if (gState->lastThread == NULL) {
 		gState->baseThread = state;
 		gState->lastThread = state;

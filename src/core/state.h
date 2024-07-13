@@ -73,6 +73,6 @@ extern void
 crescentE_closeLState(crescent_State* state);
 
 extern void
-crescentE_connectThread(crescent_GState* gState, crescent_State* state);
+crescentE_bindThread(crescent_GState* gState, crescent_State* state);
 
 #endif
