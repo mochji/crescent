@@ -10,10 +10,11 @@
 #define CRESCENT_LIMIT_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "conf.h"
 
-#define CRESCENT_MAX_SIZET   (~((size_t)0))
+#define CRESCENT_MAX_SIZET   SIZE_MAX
 #define CRESCENT_MAX_INTEGER CRESCENT_INTEGER_MAX
 
 #define CRESCENT_MAX_SIZE                        \
