@@ -14,13 +14,13 @@
 #include "core/object.h"
 #include "core/state.h"
 
-void
+extern void
 crescentC_setError(crescent_State* state, char* error);
 
-void
+extern void
 crescentC_moveError(crescent_State* to, crescent_State* from);
 
-void __attribute__((noreturn))
+extern void __attribute__((noreturn))
 crescentC_throw(crescent_State* state, int status);
 
 extern void __attribute__((noreturn))
