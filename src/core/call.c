@@ -94,7 +94,7 @@ crescentC_reallocStack(crescent_State* state, size_t size) {
 	}
 
 	ptrdiff_t       offset = stack - state->stack.base;
-	crescent_Frame* frame  = state->stack.topFrame;
+	crescent_Frame* frame  = state->stack.frame;
 
 	state->stack.size = size;
 	state->stack.base = stack;
@@ -110,7 +110,7 @@ crescentC_reallocStack(crescent_State* state, size_t size) {
 
 int
 crescentC_resizeStack(crescent_State* state, int top, int throw) {
-	size_t absTop  = (size_t)(state->stack.topFrame->base - state->stack.base) + top;
+	size_t absTop  = (size_t)(state->stack.frame->base - state->stack.base) + top;
 	size_t newSize = absTop + absTop / 2;
 	int    failed  = 0;
 
@@ -145,49 +145,49 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 }
 
 void
-crescentC_startCall(crescent_State* state, int args, crescent_Frame* newTopFrame) {
-	crescent_Frame* oldTopFrame = state->stack.topFrame;
+crescentC_startCall(crescent_State* state, int args, crescent_Frame* frame) {
+	crescent_Frame* oldFrame = state->stack.frame;
 
-	oldTopFrame->top -= args;
-	oldTopFrame->next = newTopFrame;
+	oldFrame->top -= args;
+	oldFrame->next = frame;
 
-	newTopFrame->base     = state->stack.top - args;
-	newTopFrame->top      = args;
-	newTopFrame->next     = NULL;
-	newTopFrame->previous = oldTopFrame;
+	frame->base     = state->stack.top - args;
+	frame->top      = args;
+	frame->next     = NULL;
+	frame->previous = oldFrame;
 
-	state->stack.calls   += 1;
-	state->stack.cCalls  += 1;
-	state->stack.topFrame = newTopFrame;
+	state->stack.calls  += 1;
+	state->stack.cCalls += 1;
+	state->stack.frame   = frame;
 }
 
 void
 crescentC_endCall(crescent_State* state, int results) {
-	crescent_Frame* newTopFrame = state->stack.topFrame;
-	crescent_Frame* oldTopFrame = newTopFrame->previous;
+	crescent_Frame* frame    = state->stack.frame;
+	crescent_Frame* oldFrame = frame->previous;
 
-	if (results != newTopFrame->top) {
+	if (results != frame->top) {
 		crescent_Object* fromBase;
 		crescent_Object* toBase;
 
-		toBase = newTopFrame->base;
+		toBase = frame->base;
 
-		for (int a = 0; a < newTopFrame->top - results; a++) {
+		for (int a = 0; a < frame->top - results; a++) {
 			crescentO_free(toBase + a);
 		}
 
 		fromBase = state->stack.top - results;
-		toBase   = newTopFrame->base;
+		toBase   = frame->base;
 
 		for (int a = 0; a < results; a++) {
 			*(toBase + a) = *(fromBase + a);
 		}
 	}
 
-	oldTopFrame->top += results;
-	oldTopFrame->next = NULL;
+	oldFrame->top += results;
+	oldFrame->next = NULL;
 
 	state->stack.calls   -= 1;
 	state->stack.cCalls  -= 1;
-	state->stack.topFrame = oldTopFrame;
+	state->stack.frame = oldFrame;
 }

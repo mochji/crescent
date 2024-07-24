@@ -61,12 +61,12 @@ crescentE_blankLState(void) {
 		return NULL;
 	}
 
-	state->stack.size     = CRESCENT_MIN_STACK;
-	state->stack.base     = calloc(state->stack.size, sizeof(crescent_Object));
-	state->stack.top      = state->stack.base;
-	state->stack.calls    = 0;
-	state->stack.cCalls   = 0;
-	state->stack.topFrame = frame;
+	state->stack.size   = CRESCENT_MIN_STACK;
+	state->stack.base   = calloc(state->stack.size, sizeof(crescent_Object));
+	state->stack.top    = state->stack.base;
+	state->stack.calls  = 0;
+	state->stack.cCalls = 0;
+	state->stack.frame  = frame;
 
 	if (state->stack.base == NULL) {
 		free(state);

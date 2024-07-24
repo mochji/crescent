@@ -39,7 +39,7 @@ crescent_State {
 		struct crescent_Object* top;
 		short                   calls;
 		short                   cCalls;
-		struct crescent_Frame*  topFrame;
+		struct crescent_Frame*  frame;
 	} stack;
 	char*                      error;
 	struct crescent_ErrorJump* errorJump;

@@ -133,8 +133,8 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
 
-	if (args > state->stack.topFrame->top) {
-		args = state->stack.topFrame->top;
+	if (args > state->stack.frame->top) {
+		args = state->stack.frame->top;
 	} else if (args < 0) {
 		args = 0;
 	}
@@ -143,10 +143,10 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 		maxResults = 0;
 	}
 
-	crescent_Frame newTopFrame;
+	crescent_Frame frame;
 	int            results;
 
-	crescentC_startCall(state, args, &newTopFrame);
+	crescentC_startCall(state, args, &frame);
 
 	results = object->value.c(state);
 
@@ -157,7 +157,7 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 	}
 
 	crescentC_endCall(state, results);
-	crescentC_resizeStack(state, state->stack.topFrame->top, 0);
+	crescentC_resizeStack(state, state->stack.frame->top, 0);
 
 	return results;
 }
@@ -178,7 +178,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int ma
 			crescentC_endCall(state, 0);
 		}
 
-		crescentC_resizeStack(state, state->stack.topFrame->top, 0);
+		crescentC_resizeStack(state, state->stack.frame->top, 0);
 
 		results = 0;
 	}
