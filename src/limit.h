@@ -23,14 +23,12 @@
 #	define CRESCENT_MAX_SIZE CRESCENT_MAX_SIZET
 #endif
 
-/* TODO: actually use MAX_STACK, MIN_TOP and MAX_TOP */
-
 /* global to entire stack */
 #define CRESCENT_MIN_STACK 64
 #define CRESCENT_MAX_STACK CRESCENT_MAX_SIZET
 
 /* local to a stack frame */
-#define CRESCENT_MIN_TOP 8
+#define CRESCENT_MIN_TOP 16
 #define CRESCENT_MAX_TOP (INT_MAX - 1)
 
 #define CRESCENT_MAX_CALLS  4096
