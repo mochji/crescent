@@ -230,10 +230,10 @@ int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults) {
 	crescentC_startCall(
 		state,
-		args,
 		args < CRESCENT_MIN_TOP ?
 			CRESCENT_MIN_TOP :
-			args
+			args,
+		args
 	);
 
 	int results = function(state);
