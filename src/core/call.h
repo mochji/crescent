@@ -33,7 +33,7 @@ extern int
 crescentC_resizeStack(crescent_State* state, int top, int throw);
 
 extern void
-crescentC_startCall(crescent_State* state, int args, crescent_Frame* newTopFrame);
+crescentC_startCall(crescent_State* state, int args);
 
 extern void
 crescentC_endCall(crescent_State* state, int results);

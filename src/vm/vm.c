@@ -143,12 +143,9 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 		maxResults = 0;
 	}
 
-	crescent_Frame frame;
-	int            results;
+	crescentC_startCall(state, args);
 
-	crescentC_startCall(state, args, &frame);
-
-	results = object->value.c(state);
+	int results = object->value.c(state);
 
 	if (results < 0) {
 		results = 0;

@@ -145,8 +145,13 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 }
 
 void
-crescentC_startCall(crescent_State* state, int args, crescent_Frame* frame) {
+crescentC_startCall(crescent_State* state, int args) {
+	crescent_Frame* frame    = malloc(sizeof(crescent_Frame));
 	crescent_Frame* oldFrame = state->stack.frame;
+
+	if (frame == NULL) {
+		crescentC_memoryError(state);
+	}
 
 	oldFrame->top -= args;
 	oldFrame->next = frame;
@@ -189,8 +194,10 @@ crescentC_endCall(crescent_State* state, int results) {
 	oldFrame->top += results;
 	oldFrame->next = NULL;
 
-	state->stack.top     -= discarded;
-	state->stack.calls   -= 1;
-	state->stack.cCalls  -= 1;
-	state->stack.frame = oldFrame;
+	free(frame);
+
+	state->stack.top    -= discarded;
+	state->stack.calls  -= 1;
+	state->stack.cCalls -= 1;
+	state->stack.frame   = oldFrame;
 }
