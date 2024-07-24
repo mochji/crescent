@@ -160,7 +160,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int ma
 
 		while (next != oldFrame) {
 			current = next;
-			next    = next->next;
+			next    = next->previous;
 
 			free(current);
 		}
