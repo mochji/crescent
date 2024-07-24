@@ -150,7 +150,6 @@ crescentC_checkTop(crescent_State* state, int top) {
 		}
 
 		crescentC_reallocStack(state, newSize);
-		state->stack.frame->top = top;
 	} else if (needed > size) {
 		if (newSize > CRESCENT_MAX_STACK) {
 			return 1;
@@ -159,9 +158,9 @@ crescentC_checkTop(crescent_State* state, int top) {
 		if (crescentC_reallocStack(state, newSize)) {
 			return 1;
 		}
-
-		state->stack.frame->top = top;
 	}
+
+	state->stack.frame->top = top;
 
 	return 0;
 }
