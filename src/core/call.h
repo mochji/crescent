@@ -30,10 +30,13 @@ extern int
 crescentC_reallocStack(crescent_State* state, size_t size);
 
 extern int
-crescentC_resizeStack(crescent_State* state, int top, int throw);
+crescentC_checkFree(crescent_State* state, int free);
+
+extern int
+crescentC_checkTop(crescent_State* state, int top);
 
 extern void
-crescentC_startCall(crescent_State* state, int args);
+crescentC_startCall(crescent_State* state, int top, int args);
 
 extern void
 crescentC_endCall(crescent_State* state, int results);

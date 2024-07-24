@@ -75,7 +75,7 @@ crescentE_blankLState(void) {
 	}
 
 	frame->base     = state->stack.base;
-	frame->top      = 0;
+	frame->top      = CRESCENT_MIN_TOP;
 	frame->next     = NULL;
 	frame->previous = NULL;
 

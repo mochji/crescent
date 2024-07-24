@@ -43,21 +43,45 @@ crescent_getIndex(crescent_State* state, int index) {
 		return &state->gState->nilValue;
 	}
 
+	crescent_Object* object;
+
 	if (index < 0) {
-		return -index <= state->stack.frame->top ?
-			state->stack.top + index :
+		object = state->stack.top + index;
+
+		return object >= state->stack.frame->base ?
+			object :
 			&state->gState->nilValue;
 	}
 
-	return index <= state->stack.frame->top ?
-		state->stack.top - index :
+	object = state->stack.frame->base + index - 1;
+
+	return object < state->stack.top ?
+		object :
 		&state->gState->nilValue;
 }
 
-static void
+static crescent_Object*
 crescent_adjustTop(crescent_State* state, int amount) {
-	state->stack.top        += amount;
-	state->stack.frame->top += amount;
+	crescent_Frame* frame = state->stack.frame;
+	int             items = state->stack.top - frame->base;
+
+	if (-amount > items) {
+		amount = -items;
+	}
+
+	items += amount;
+
+	if (amount > 0 && items <= items - amount) {
+		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	} else if (items > frame->top) {
+		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	}
+
+	state->stack.top += amount;
+
+	return state->stack.top - 1;
 }
 
 int
@@ -70,8 +94,13 @@ crescent_release(void) {
 	return CRESCENT_RELEASE;
 }
 
+const char*
+crescent_typeName(int type) {
+	return crescentO_typeName(type);
+}
+
 crescent_State*
-crescent_openState(void) {
+crescent_open(void) {
 	crescent_GState* gState = crescentE_blankGState();
 	crescent_State*  state  = crescentE_blankLState();
 
@@ -92,7 +121,7 @@ crescent_openState(void) {
 }
 
 void
-crescent_closeState(crescent_State* state) {
+crescent_close(crescent_State* state) {
 	crescentE_closeGState(state->gState);
 }
 
@@ -102,21 +131,13 @@ crescent_setPanic(crescent_State* state, crescent_CFunction* function) {
 }
 
 int
-crescent_validIndex(crescent_State* state, int index) {
-	if (index == 0) {
-		return 0;
-	}
-
-	if (index < 0) {
-		return -index <= state->stack.frame->top;
-	}
-
-	return index <= state->stack.frame->top;
+crescent_checkTop(crescent_State* state, int top) {
+	return crescentC_checkTop(state, top);
 }
 
 int
 crescent_getTop(crescent_State* state) {
-	return state->stack.frame->top;
+	return state->stack.top - state->stack.frame->base;
 }
 
 void
@@ -127,26 +148,25 @@ crescent_setTop(crescent_State* state, int top) {
 
 	crescent_Frame* frame = state->stack.frame;
 
-
 	crescent_Object* object = state->stack.top;
 	crescent_Object* to     = frame->base + top;
 
-	if (object < to) {
-		crescentC_resizeStack(state, top , 1);
+	if (to >= frame->base + frame->top) {
+		crescentC_setError(state, "stack overflow");
+		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	}
 
+	if (object < to) {
 		while (object < to) {
 			(object++)->type = CRESCENT_TYPE_NIL;
 		}
 	} else {
 		while (object > to) {
-			crescentO_free(object--);
+			crescentO_free(--object);
 		}
-
-		crescentC_resizeStack(state, top , 1);
 	}
 
-	state->stack.top = frame->base + top;
-	frame->top       = top;
+	state->stack.top = to;
 }
 
 int
@@ -157,39 +177,6 @@ crescent_type(crescent_State* state, int index) {
 size_t
 crescent_length(crescent_State* state, int index) {
 	return crescentV_length(state, crescent_getIndex(state, index));
-}
-
-const char*
-crescent_typeName(int type) {
-	return crescentO_typeName(type);
-}
-
-void
-crescent_clone(crescent_State* state, int index) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* from = crescent_getIndex(state, index);
-	crescent_Object* to   = state->stack.top;
-
-	if (crescentO_clone(to, from)) {
-		crescentC_memoryError(state);
-	}
-
-	crescent_adjustTop(state, 1);
-}
-
-void
-crescent_deepClone(crescent_State* state, int index) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* from = crescent_getIndex(state, index);
-	crescent_Object* to   = state->stack.top;
-
-	if (crescentO_deepClone(to, from)) {
-		crescentC_memoryError(state);
-	}
-
-	crescent_adjustTop(state, 1);
 }
 
 int
@@ -223,18 +210,13 @@ crescent_isString(crescent_State* state, int index) {
 }
 
 int
-crescent_isArray(crescent_State* state, int index) {
-	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_ARRAY;
-}
-
-int
 crescent_isCFunction(crescent_State* state, int index) {
 	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_CFUNCTION;
 }
 
 int
 crescent_toBooleanX(crescent_State* state, int index, int* isBoolean) {
-	return crescentO_toBoolean( crescent_getIndex(state, index), isBoolean);
+	return crescentO_toBoolean(crescent_getIndex(state, index), isBoolean);
 }
 
 crescent_Integer
@@ -279,103 +261,58 @@ crescent_toCFunction(crescent_State* state, int index) {
 
 void
 crescent_pushNil(crescent_State* state) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* object = state->stack.top;
+	crescent_Object* object = crescent_adjustTop(state, 1);
 
 	object->type = CRESCENT_TYPE_NIL;
-
-	crescent_adjustTop(state, 1);
 }
 
 void
 crescent_pushBoolean(crescent_State* state, int value) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* object = state->stack.top;
+	crescent_Object* object = crescent_adjustTop(state, 1);
 
 	object->type    = CRESCENT_TYPE_BOOLEAN;
 	object->value.b = value;
-
-	crescent_adjustTop(state, 1);
 }
 
 void
 crescent_pushInteger(crescent_State* state, crescent_Integer value) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* object = state->stack.top;
+	crescent_Object* object = crescent_adjustTop(state, 1);
 
 	object->type    = CRESCENT_TYPE_INTEGER;
 	object->value.i = value;
-
-	crescent_adjustTop(state, 1);
 }
 
 void
 crescent_pushFloat(crescent_State* state, crescent_Float value) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* object = state->stack.top;
+	crescent_Object* object = crescent_adjustTop(state, 1);
 
 	object->type    = CRESCENT_TYPE_FLOAT;
 	object->value.f = value;
-
-	crescent_adjustTop(state, 1);
 }
 
-void
+const char*
 crescent_pushString(crescent_State* state, const char* str) {
+	crescent_Object* object = crescent_adjustTop(state, 1);
 	crescent_String* string = crescentS_as((char*)str);
 
 	if (string == NULL) {
-		crescentC_memoryError(state);
-	}
+		state->stack.top -= 1;
 
-	if (crescentC_resizeStack(state, state->stack.frame->top + 1, 0)) {
-		crescentS_free(string);
-		crescentC_memoryError(state);
+		return NULL;
 	}
-
-	crescent_Object* object = state->stack.top;
 
 	object->type    = CRESCENT_TYPE_STRING;
 	object->value.s = string;
 
-	crescent_adjustTop(state, 1);
+	return string->value;
 }
 
 void
-crescent_pushArray(crescent_State* state) {
-	crescent_Array* array = crescentA_new(0);
-
-	if (array == NULL) {
-		crescentC_memoryError(state);
-	}
-
-	if (crescentC_resizeStack(state, state->stack.frame->top + 1, 0)) {
-		crescentA_free(array);
-		crescentC_memoryError(state);
-	}
-
-	crescent_Object* object = state->stack.top;
-
-	object->type    = CRESCENT_TYPE_ARRAY;
-	object->value.a = array;
-
-	crescent_adjustTop(state, 1);
-}
-
-void
-crescent_pushCFunction(crescent_State* state, crescent_CFunction value) {
-	crescentC_resizeStack(state, state->stack.frame->top + 1, 1);
-
-	crescent_Object* object = state->stack.top;
+crescent_pushCFunction(crescent_State* state, crescent_CFunction* function) {
+	crescent_Object* object = crescent_adjustTop(state, 1);
 
 	object->type    = CRESCENT_TYPE_CFUNCTION;
-	object->value.c = value;
-
-	crescent_adjustTop(state, 1);
+	object->value.c = function;
 }
 
 void
@@ -385,20 +322,19 @@ crescent_pop(crescent_State* state, int amount) {
 	}
 
 	crescent_Frame* frame = state->stack.frame;
+	int             items = state->stack.top - frame->base;
 
-	if (amount > frame->top) {
-		amount = frame->top;
+	if (amount > items) {
+		amount = items;
 	}
 
-	crescent_Object* object = state->stack.top;
+	crescent_Object* object = state->stack.top - 1;
 
 	for (int a = 0; a < amount; a++) {
 		crescentO_free(object--);
 	}
 
-	crescentC_resizeStack(state, state->stack.frame->top - amount, - 1);
-
-	crescent_adjustTop(state, -amount);
+	state->stack.top -= amount;
 }
 
 void
@@ -408,28 +344,28 @@ crescent_remove(crescent_State* state, int index) {
 	}
 
 	crescent_Frame* frame = state->stack.frame;
+	int             items = state->stack.top - frame->base;
 
 	if (index < 0) {
-		if (-index > frame->top) {
+		if (-index > items) {
 			return;
 		}
 
-		index = -index;
+		index += items + 1;
 	}
 
 	crescent_Object* object = frame->base + index - 1;
 
 	crescentO_free(object);
 
-	for (int a = 0; a < frame->top - index; a++) {
+	for (int a = 0; a < items; a++) {
 		*object = *(object + 1);
 		object++;
 	}
 
 	object->type = CRESCENT_TYPE_NIL;
 
-	crescentC_resizeStack(state, frame->top - 1, 1);
-	crescent_adjustTop(state, -1);
+	state->stack.top -= 1;
 }
 
 int
@@ -452,7 +388,7 @@ crescent_pCallK(crescent_State* state, int index, int args, int maxResults, int*
 	return crescentV_pCall(state, crescent_getIndex(state, index), args, maxResults, status);
 }
 
-void
+void __attribute__((noreturn))
 crescent_error(crescent_State* state, const char* error) {
 	crescentC_setError(state, (char*)error);
 	crescentC_throw(state, CRESCENT_STATUS_ERROR);
@@ -461,50 +397,6 @@ crescent_error(crescent_State* state, const char* error) {
 void
 crescent_clearError(crescent_State* state) {
 	crescentC_setError(state, NULL);
-}
-
-void
-crescent_pushError(crescent_State* state) {
-	if (state->error == NULL) {
-		crescent_pushNil(state);
-
-		return;
-	}
-
-	crescent_String* string      = crescentS_nullString();
-	size_t           errorLength = strlen(state->error);
-
-	if (string == NULL) {
-		crescentC_memoryError(state);
-	}
-
-	if (crescentC_resizeStack(state, state->stack.frame->top, 0)) {
-		crescentS_free(string);
-		crescentC_memoryError(state);
-	}
-
-	string->size   = errorLength + 1;
-	string->length = errorLength;
-
-	if (state->error == state->gState->memoryError) {
-		string->value = malloc(errorLength + 1);
-
-		if (string->value == NULL) {
-			crescentS_free(string);
-			crescentC_memoryError(state);
-		}
-	} else {
-		string->value = state->error;
-	}
-
-	crescent_Object* object = state->stack.top;
-
-	object->type    = CRESCENT_TYPE_STRING;
-	object->value.s = string;
-
-	state->error = NULL;
-
-	state->stack.frame->top += 1;
 }
 
 const char*

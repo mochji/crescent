@@ -86,36 +86,62 @@ crescentC_memoryError(crescent_State* state) {
 }
 
 int
-crescentC_reallocStack(crescent_State* state, size_t size) {
-	crescent_Object* stack = realloc(state->stack.base, size * sizeof(crescent_Object));
+crescentC_reallocStack(crescent_State* state, size_t newSize) {
+	crescent_Object* newStack = realloc(state->stack.base, newSize * sizeof(crescent_Object));
 
-	if (stack == NULL) {
+	if (newStack == NULL) {
 		return 1;
 	}
 
-	ptrdiff_t       offset = stack - state->stack.base;
+	ptrdiff_t       offset = newStack - state->stack.base;
 	crescent_Frame* frame  = state->stack.frame;
 
-	state->stack.size = size;
-	state->stack.base = stack;
+	state->stack.size = newSize;
+	state->stack.base = newStack;
 	state->stack.top += offset;
 
 	while (frame != NULL) {
 		frame->base += offset;
-		frame        = frame->next;
+		frame        = frame->previous;
 	}
 
 	return 0;
 }
 
 int
-crescentC_resizeStack(crescent_State* state, int top, int throw) {
-	size_t absTop  = (size_t)(state->stack.frame->base - state->stack.base) + top;
-	size_t newSize = absTop + absTop / 2;
-	int    failed  = 0;
+crescentC_checkFree(crescent_State* state, int free) {
+	size_t needed = (state->stack.top - state->stack.base) + free + 1;
 
-	if (absTop <= state->stack.size / 3) {
-		if (state->stack.size == CRESCENT_MIN_STACK) {
+	if (needed > state->stack.size) {
+		return crescentC_reallocStack(state, needed);
+	}
+
+	return 0;
+}
+
+int
+crescentC_checkTop(crescent_State* state, int top) {
+	crescent_Object* stack  = state->stack.base;
+	crescent_Frame*  frame  = state->stack.frame;
+	size_t           needed = (frame->base - stack) + top;
+
+	frame = frame->previous;
+
+	while (frame != NULL) {
+		size_t frameNeeds = (frame->base - stack) + frame->top;
+
+		if (frameNeeds > needed) {
+			needed = frameNeeds;
+		}
+
+		frame = frame->previous;
+	}
+
+	size_t size    = state->stack.size;
+	size_t newSize = (needed + needed / 2) + 1;
+
+	if (needed <= size / 3) {
+		if (size == CRESCENT_MIN_STACK) {
 			return 0;
 		}
 
@@ -123,29 +149,25 @@ crescentC_resizeStack(crescent_State* state, int top, int throw) {
 			newSize = CRESCENT_MIN_STACK;
 		}
 
-		/*
-		 * even if reallocating the stack fails here, we can just lie and say
-		 * it did since we should never be accessing any pointer greater than
-		 * state->stack.base + state->stack.size - 1, and if we are we were
-		 * already fucked.
-		 */
-
 		crescentC_reallocStack(state, newSize);
+		state->stack.frame->top = top;
+	} else if (needed > size) {
+		if (newSize > CRESCENT_MAX_STACK) {
+			return 1;
+		}
 
-		state->stack.size = newSize; /* yes we're setting it twice, shut up */
-	} else if (absTop >= state->stack.size - 1) {
-		failed = crescentC_reallocStack(state, newSize);
+		if (crescentC_reallocStack(state, newSize)) {
+			return 1;
+		}
+
+		state->stack.frame->top = top;
 	}
 
-	if (failed && throw) {
-		crescentC_memoryError(state);
-	}
-
-	return failed;
+	return 0;
 }
 
 void
-crescentC_startCall(crescent_State* state, int args) {
+crescentC_startCall(crescent_State* state, int top, int args) {
 	crescent_Frame* frame    = malloc(sizeof(crescent_Frame));
 	crescent_Frame* oldFrame = state->stack.frame;
 
@@ -153,11 +175,14 @@ crescentC_startCall(crescent_State* state, int args) {
 		crescentC_memoryError(state);
 	}
 
-	oldFrame->top -= args;
+	if (crescentC_checkFree(state, top - args)) {
+		crescentC_memoryError(state);
+	}
+
 	oldFrame->next = frame;
 
 	frame->base     = state->stack.top - args;
-	frame->top      = args;
+	frame->top      = top;
 	frame->next     = NULL;
 	frame->previous = oldFrame;
 
@@ -171,7 +196,7 @@ crescentC_endCall(crescent_State* state, int results) {
 	crescent_Frame* frame    = state->stack.frame;
 	crescent_Frame* oldFrame = frame->previous;
 
-	int discarded = frame->top - results;
+	int discarded = (state->stack.top - frame->base) - results;
 
 	if (discarded > 0) {
 		crescent_Object* from;
@@ -204,7 +229,13 @@ crescentC_endCall(crescent_State* state, int results) {
 
 int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults) {
-	crescentC_startCall(state, args);
+	crescentC_startCall(
+		state,
+		args,
+		args < CRESCENT_MIN_TOP ?
+			CRESCENT_MIN_TOP :
+			args
+	);
 
 	int results = function(state);
 

@@ -21,17 +21,20 @@ crescent_version(void);
 extern int
 crescent_release(void);
 
+extern const char*
+crescent_typeName(int type);
+
 extern crescent_State*
-crescent_openState(void);
+crescent_open(void);
 
 extern void
-crescent_closeState(crescent_State* state);
+crescent_close(crescent_State* state);
 
 extern void
 crescent_setPanic(crescent_State* state, crescent_CFunction* function);
 
 extern int
-crescent_validIndex(crescent_State* state, int index);
+crescent_checkTop(crescent_State* state, int top);
 
 extern int
 crescent_getTop(crescent_State* state);
@@ -44,15 +47,6 @@ crescent_type(crescent_State* state, int index);
 
 extern size_t
 crescent_length(crescent_State* state, int index);
-
-extern const char*
-crescent_typeName(int type);
-
-extern void
-crescent_clone(crescent_State* state, int index);
-
-extern void
-crescent_deepClone(crescent_State* state, int index);
 
 extern int
 crescent_isNil(crescent_State* state, int index);
@@ -71,9 +65,6 @@ crescent_isNumber(crescent_State* state, int index);
 
 extern int
 crescent_isString(crescent_State* state, int index);
-
-extern int
-crescent_isArray(crescent_State* state, int index);
 
 extern int
 crescent_isCFunction(crescent_State* state, int index);
@@ -117,11 +108,8 @@ crescent_pushInteger(crescent_State* state, crescent_Integer value);
 extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
 
-extern void
+extern const char*
 crescent_pushString(crescent_State* state, const char* str);
-
-extern void
-crescent_pushArray(crescent_State* state);
 
 extern void
 crescent_pushCFunction(crescent_State* state, crescent_CFunction* function);
@@ -149,9 +137,6 @@ crescent_error(crescent_State* state, const char* error);
 
 extern void
 crescent_clearError(crescent_State* state);
-
-extern void
-crescent_pushError(crescent_State* state);
 
 extern const char*
 crescent_getError(crescent_State* state);
