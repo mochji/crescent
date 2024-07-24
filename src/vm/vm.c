@@ -133,30 +133,7 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
 
-	if (args > state->stack.frame->top) {
-		args = state->stack.frame->top;
-	} else if (args < 0) {
-		args = 0;
-	}
-
-	if (maxResults < 0) {
-		maxResults = 0;
-	}
-
-	crescentC_startCall(state, args);
-
-	int results = object->value.c(state);
-
-	if (results < 0) {
-		results = 0;
-	} else if (results > maxResults) {
-		results = maxResults;
-	}
-
-	crescentC_endCall(state, results);
-	crescentC_resizeStack(state, state->stack.frame->top, 0);
-
-	return results;
+	return crescentC_callC(state, object->value.c, args, maxResults);
 }
 
 int

@@ -201,3 +201,18 @@ crescentC_endCall(crescent_State* state, int results) {
 	state->stack.cCalls -= 1;
 	state->stack.frame   = oldFrame;
 }
+
+int
+crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults) {
+	crescentC_startCall(state, args);
+
+	int results = function(state);
+
+	if (results > maxResults) {
+		results = maxResults;
+	}
+
+	crescentC_endCall(state, results);
+
+	return results;
+}

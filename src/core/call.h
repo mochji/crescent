@@ -38,4 +38,7 @@ crescentC_startCall(crescent_State* state, int args);
 extern void
 crescentC_endCall(crescent_State* state, int results);
 
+extern int
+crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults);
+
 #endif
