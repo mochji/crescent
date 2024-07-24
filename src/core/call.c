@@ -167,20 +167,20 @@ crescentC_endCall(crescent_State* state, int results) {
 	crescent_Frame* oldFrame = frame->previous;
 
 	if (results != frame->top) {
-		crescent_Object* fromBase;
-		crescent_Object* toBase;
+		crescent_Object* from;
+		crescent_Object* to;
 
-		toBase = frame->base;
+		to = frame->base;
 
 		for (int a = 0; a < frame->top - results; a++) {
-			crescentO_free(toBase + a);
+			crescentO_free(to++);
 		}
 
-		fromBase = state->stack.top - results;
-		toBase   = frame->base;
+		from = state->stack.top - results;
+		to   = frame->base;
 
 		for (int a = 0; a < results; a++) {
-			*(toBase + a) = *(fromBase + a);
+			*(to++) = *(from++);
 		}
 	}
 
