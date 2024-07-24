@@ -133,7 +133,7 @@ crescent_setPanic(crescent_State* state, crescent_CFunction* function) {
 
 int
 crescent_checkTop(crescent_State* state, int top) {
-	return crescentC_checkTop(
+	return !crescentC_checkTop(
 		state,
 		top < CRESCENT_MIN_TOP ?
 			CRESCENT_MIN_TOP :
