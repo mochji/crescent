@@ -14,6 +14,7 @@
 #include <limits.h>
 
 #include "conf.h"
+#include "limit.h"
 
 #include "types/string.h"
 #include "types/array.h"
@@ -132,7 +133,12 @@ crescent_setPanic(crescent_State* state, crescent_CFunction* function) {
 
 int
 crescent_checkTop(crescent_State* state, int top) {
-	return crescentC_checkTop(state, top);
+	return crescentC_checkTop(
+		state,
+		top < CRESCENT_MIN_TOP ?
+			CRESCENT_MIN_TOP :
+			top
+	);
 }
 
 int
