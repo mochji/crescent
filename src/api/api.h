@@ -114,7 +114,7 @@ crescent_pushInteger(crescent_State* state, crescent_Integer value);
 extern void
 crescent_pushFloat(crescent_State* state, crescent_Float value);
 
-extern const char*
+extern void
 crescent_pushString(crescent_State* state, const char* str);
 
 extern void

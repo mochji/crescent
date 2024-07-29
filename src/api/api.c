@@ -320,7 +320,7 @@ crescent_pushFloat(crescent_State* state, crescent_Float value) {
 	object->value.f = value;
 }
 
-const char*
+void
 crescent_pushString(crescent_State* state, const char* str) {
 	crescent_Object* object = crescent_adjustTop(state, 1);
 	crescent_String* string = crescentS_as((char*)str);
@@ -328,13 +328,11 @@ crescent_pushString(crescent_State* state, const char* str) {
 	if (string == NULL) {
 		state->stack.top -= 1;
 
-		return NULL;
+		crescentC_memoryError(state);
 	}
 
 	object->type    = CRESCENT_TYPE_STRING;
 	object->value.s = string;
-
-	return string->value;
 }
 
 void
