@@ -185,6 +185,30 @@ crescent_length(crescent_State* state, int index) {
 	return crescentV_length(state, crescent_getIndex(state, index));
 }
 
+void
+crescent_clone(crescent_State* state, int index) {
+	crescent_Object* from = crescent_getIndex(state, index);
+	crescent_Object* to   = crescent_adjustTop(state, 1);
+
+	if (crescentO_clone(to, from)) {
+		state->stack.top -= 1;
+
+		crescentC_memoryError(state);
+	}
+}
+
+void
+crescent_deepClone(crescent_State* state, int index) {
+	crescent_Object* from = crescent_getIndex(state, index);
+	crescent_Object* to   = crescent_adjustTop(state, 1);
+
+	if (crescentO_deepClone(to, from)) {
+		state->stack.top -= 1;
+
+		crescentC_memoryError(state);
+	}
+}
+
 int
 crescent_isNil(crescent_State* state, int index) {
 	return crescent_getIndex(state, index)->type == CRESCENT_TYPE_NIL;

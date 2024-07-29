@@ -48,6 +48,12 @@ crescent_type(crescent_State* state, int index);
 extern size_t
 crescent_length(crescent_State* state, int index);
 
+extern void
+crescent_clone(crescent_State* state, int index);
+
+extern void
+crescent_deepClone(crescent_State* state, int index);
+
 extern int
 crescent_isNil(crescent_State* state, int index);
 
