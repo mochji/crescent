@@ -112,6 +112,10 @@ int
 crescentC_checkFree(crescent_State* state, int free) {
 	size_t needed = (state->stack.top - state->stack.base) + free + 1;
 
+	if (needed > CRESCENT_MAX_STACK) {
+		return 1;
+	}
+
 	if (needed > state->stack.size) {
 		return crescentC_reallocStack(state, needed);
 	}
