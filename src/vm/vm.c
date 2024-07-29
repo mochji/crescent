@@ -149,9 +149,9 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int ma
 		results = crescentV_call(state, object, args, maxResults);
 	} else {
 		crescent_Object* from = state->stack.top - 1;
-		crescent_Object* to   = oldFrame->base;
+		crescent_Object* to   = oldFrame->next->base;
 
-		while (from > to) {
+		while (from >= to) {
 			crescentO_free(from--);
 		}
 
