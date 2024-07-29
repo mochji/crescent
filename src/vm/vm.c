@@ -21,9 +21,9 @@
 #include "core/call.h"
 
 /*
- * This function is a more loose comparison compared to crescentO_compare, as
- * crescentO_compare returns false if the 2 objects are of differing types
- * while this allows comparisons between floats and integers.
+ * This function is a more loose comparison compared to crescentO_compare.
+ * crescentO_compare returns false if the 2 objects are of differing types,
+ * but this allows comparisons between floats and integers.
  */
 
 int
