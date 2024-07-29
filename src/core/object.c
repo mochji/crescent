@@ -14,24 +14,6 @@
 #include "core/object.h"
 
 /*
- * What is a simple or complex type?
- *
- * A complex type is a type who's associated value is a pointer, while a simple
- * type is a type that doesn't have a pointer.
- *
- * Simple types:
- * - nil (doesn't have an associated value but it counts)
- * - boolean
- * - integer
- * - float
- *
- * Complex types:
- * - string
- * - array
- * - cfunction
- */
-
-/*
  * This function is a strict comparison, see crescentV_compare for comparison
  * between integers and floats.
  */
