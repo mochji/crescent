@@ -70,12 +70,7 @@ crescent_adjustTop(crescent_State* state, int amount) {
 		amount = -items;
 	}
 
-	items += amount;
-
-	if (amount > 0 && items <= items - amount) {
-		crescentC_setError(state, "stack overflow");
-		crescentC_throw(state, CRESCENT_STATUS_ERROR);
-	} else if (items > frame->top) {
+	if (items + amount > frame->top) {
 		crescentC_setError(state, "stack overflow");
 		crescentC_throw(state, CRESCENT_STATUS_ERROR);
 	}
