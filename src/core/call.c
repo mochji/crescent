@@ -35,7 +35,7 @@ crescentC_setError(crescent_State* state, char* error) {
 
 	if (state->error == NULL) {
 		state->error = state->gState->memoryError;
-		crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
+		crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 	}
 
 	strcpy(state->error, error);
@@ -82,7 +82,7 @@ crescentC_memoryError(crescent_State* state) {
 	}
 
 	state->error = memoryError;
-	crescentC_throw(state, CRESCENT_STATUS_ERRMEM);
+	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
 
 int

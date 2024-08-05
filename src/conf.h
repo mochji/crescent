@@ -125,9 +125,9 @@
 #	define CRESCENT_FLOAT_FMT   "%lf"
 #endif
 
-#define CRESCENT_STATUS_OK     0
-#define CRESCENT_STATUS_ERROR  1
-#define CRESCENT_STATUS_ERRMEM 2
+#define CRESCENT_STATUS_OK    0
+#define CRESCENT_STATUS_ERROR 1
+#define CRESCENT_STATUS_NOMEM 2
 
 /*
  * The last 3 bits within a type tag encode properties about the type:
