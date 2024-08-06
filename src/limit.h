@@ -29,7 +29,7 @@
 
 /* local to a stack frame */
 #define CRESCENT_MIN_TOP 16
-#define CRESCENT_MAX_TOP (INT_MAX - 1)
+#define CRESCENT_MAX_TOP INT_MAX
 
 #define CRESCENT_MAX_CALLS  4096
 #define CRESCENT_MAX_CCALLS 200

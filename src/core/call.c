@@ -110,7 +110,7 @@ crescentC_reallocStack(crescent_State* state, size_t newSize) {
 
 int
 crescentC_checkFree(crescent_State* state, int free) {
-	size_t needed = (state->stack.top - state->stack.base) + free + 1;
+	size_t needed = (state->stack.top - state->stack.base) + free;
 
 	if (needed > CRESCENT_MAX_STACK) {
 		return 1;
@@ -142,7 +142,7 @@ crescentC_checkTop(crescent_State* state, int top) {
 	}
 
 	size_t size    = state->stack.size;
-	size_t newSize = (needed + needed / 2) + 1;
+	size_t newSize = needed + needed / 2;
 
 	if (needed <= size / 3) {
 		if (size == CRESCENT_MIN_STACK) {
