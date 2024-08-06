@@ -25,7 +25,7 @@
 
 /* global to entire stack */
 #define CRESCENT_MIN_STACK 64
-#define CRESCENT_MAX_STACK CRESCENT_MAX_SIZET
+#define CRESCENT_MAX_STACK SIZE_MAX
 
 /* local to a stack frame */
 #define CRESCENT_MIN_TOP 16
