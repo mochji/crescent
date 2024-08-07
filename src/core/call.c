@@ -179,6 +179,8 @@ crescentC_startCall(crescent_State* state, int top, int args) {
 	}
 
 	if (crescentC_checkFree(state, top - args)) {
+		free(frame);
+
 		crescentC_memoryError(state);
 	}
 
