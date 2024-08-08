@@ -30,6 +30,9 @@ extern int
 crescentC_reallocStack(crescent_State* state, size_t size);
 
 extern int
+crescentC_checkFree(crescent_State* state, int free);
+
+extern int
 crescentC_checkTop(crescent_State* state, int top);
 
 extern void
