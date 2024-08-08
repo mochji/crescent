@@ -166,19 +166,21 @@ crescentO_typeName(int type) {
 
 int
 crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
-		if (isBoolean != NULL) {
-			*isBoolean = 1;
-		}
-
-		return object->value.b;
-	}
+	int type = object->type;
 
 	if (isBoolean != NULL) {
-		*isBoolean = 0;
+		*isBoolean = type == CRESCENT_TYPE_BOOLEAN;
 	}
 
-	switch (object->type) {
+	switch (type) {
+		case CRESCENT_TYPE_NIL:
+			return 0;
+
+			break;
+		case CRESCENT_TYPE_BOOLEAN:
+			return object->value.b;
+
+			break;
 		case CRESCENT_TYPE_INTEGER:
 			return object->value.i != 0;
 
@@ -194,28 +196,25 @@ crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
 
 crescent_Integer
 crescentO_toInteger(crescent_Object* object, int* isInteger) {
-	if (object->type == CRESCENT_TYPE_INTEGER) {
-		if (isInteger != NULL) {
-			*isInteger = 1;
-		}
-
-		return object->value.i;
-	}
+	int type = object->type;
 
 	if (isInteger != NULL) {
-		*isInteger = 0;
+		*isInteger = type == CRESCENT_TYPE_INTEGER;
 	}
 
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
-		return (crescent_Integer)object->value.b;
-	}
+	switch (type) {
+		case CRESCENT_TYPE_INTEGER:
+			return object->value.i;
 
-	if (object->type == CRESCENT_TYPE_FLOAT) {
-		return (crescent_Float)object->value.f;
-	}
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			return (crescent_Integer)object->value.f;
 
-	if (object->type == CRESCENT_TYPE_STRING) {
-		return crescentS_toInteger(object->value.s->value, NULL);
+			break;
+		case CRESCENT_TYPE_STRING:
+			return crescentS_toInteger(object->value.s->value, NULL);
+
+			break;
 	}
 
 	return 0;
@@ -223,28 +222,25 @@ crescentO_toInteger(crescent_Object* object, int* isInteger) {
 
 crescent_Float
 crescentO_toFloat(crescent_Object* object, int* isFloat) {
-	if (object->type == CRESCENT_TYPE_FLOAT) {
-		if (isFloat != NULL) {
-			*isFloat = 1;
-		}
-
-		return object->value.f;
-	}
+	int type = object->type;
 
 	if (isFloat != NULL) {
-		*isFloat = 0;
+		*isFloat = type == CRESCENT_TYPE_FLOAT;
 	}
 
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
-		return (crescent_Float)object->value.b;
-	}
+	switch (type) {
+		case CRESCENT_TYPE_INTEGER:
+			return (crescent_Float)object->value.i;
 
-	if (object->type == CRESCENT_TYPE_INTEGER) {
-		return (crescent_Float)object->value.i;
-	}
+			break;
+		case CRESCENT_TYPE_FLOAT:
+			return object->value.f;
 
-	if (object->type == CRESCENT_TYPE_STRING) {
-		return crescentS_toFloat(object->value.s->value, NULL);
+			break;
+		case CRESCENT_TYPE_STRING:
+			return crescentS_toFloat(object->value.s->value, NULL);
+
+			break;
 	}
 
 	return 0;
@@ -252,23 +248,15 @@ crescentO_toFloat(crescent_Object* object, int* isFloat) {
 
 char*
 crescentO_toString(crescent_Object* object, int* isString) {
-	if (object->type == CRESCENT_TYPE_STRING) {
-		if (isString != NULL) {
-			*isString = 1;
-		}
-
-		return object->value.s->value;
-	}
+	int type = object->type;
 
 	if (isString != NULL) {
-		*isString = 0;
+		*isString = type == CRESCENT_TYPE_STRING;
 	}
 
 	if (object->type == CRESCENT_TYPE_NIL) {
 		return "nil";
-	}
-
-	if (object->type == CRESCENT_TYPE_BOOLEAN) {
+	} else if (object->type == CRESCENT_TYPE_BOOLEAN) {
 		return object->value.b ? "true" : "false";
 	}
 
