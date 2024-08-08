@@ -156,7 +156,7 @@ crescentC_checkTop(crescent_State* state, int top) {
 		crescentC_reallocStack(state, newSize);
 	} else if (needed > size) {
 		if (newSize > CRESCENT_MAX_STACK) {
-			return 1;
+			return 2;
 		}
 
 		if (crescentC_reallocStack(state, newSize)) {
@@ -178,10 +178,17 @@ crescentC_startCall(crescent_State* state, int top, int args) {
 		crescentC_memoryError(state);
 	}
 
-	if (crescentC_checkFree(state, top - args)) {
+	int failed = crescentC_checkFree(state, top - args);
+
+	if (failed) {
 		free(frame);
 
-		crescentC_memoryError(state);
+		if (failed == 2) {
+			crescentC_setError(state, "stack overflow");
+			crescentC_throw(state, CRESCENT_STATUS_ERROR);
+		} else {
+			crescentC_memoryError(state);
+		}
 	}
 
 	oldFrame->next = frame;
