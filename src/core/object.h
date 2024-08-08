@@ -60,9 +60,6 @@ crescentO_toFloat(crescent_Object* object, int* isFloat);
 extern char*
 crescentO_toString(crescent_Object* object, int* isString);
 
-extern crescent_CFunction*
-crescentO_toCFunction(crescent_Object* object, int* isCFunction);
-
 #define obj_cancall(type)   ((type) & 0x04)
 #define obj_haslength(type) ((type) & 0x02)
 #define obj_isnumber(type)  ((type) & 0x01)

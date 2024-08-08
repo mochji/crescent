@@ -274,20 +274,3 @@ crescentO_toString(crescent_Object* object, int* isString) {
 
 	return NULL;
 }
-
-crescent_CFunction*
-crescentO_toCFunction(crescent_Object* object, int* isCFunction) {
-	if (object->type == CRESCENT_TYPE_CFUNCTION) {
-		if (isCFunction != NULL) {
-			*isCFunction = 1;
-		}
-
-		return object->value.c;
-	}
-
-	if (isCFunction != NULL) {
-		*isCFunction = 0;
-	}
-
-	return NULL;
-}

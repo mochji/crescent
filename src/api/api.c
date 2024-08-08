@@ -281,7 +281,13 @@ crescent_toString(crescent_State* state, int index) {
 
 crescent_CFunction*
 crescent_toCFunction(crescent_State* state, int index) {
-	return crescentO_toCFunction(crescent_getIndex(state, index), NULL);
+	crescent_Object* object = crescent_getIndex(state, index);
+
+	if (object->type == CRESCENT_TYPE_CFUNCTION) {
+		return object->value.c;
+	}
+
+	return NULL;
 }
 
 void
