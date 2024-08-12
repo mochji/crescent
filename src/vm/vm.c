@@ -142,8 +142,11 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int ma
 	int                 results;
 
 	errorJump->previous = state->errorJump;
-	errorJump->frame    = state->stack.frame;
 	errorJump->top      = state->stack.top - args;
+	errorJump->calls    = state->stack.calls;
+	errorJump->cCalls   = state->stack.cCalls;
+	errorJump->frame    = state->stack.frame;
+
 	state->errorJump    = errorJump;
 
 	if (setjmp(errorJump->buffer) == 0) {

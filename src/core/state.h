@@ -20,6 +20,8 @@ struct
 crescent_ErrorJump {
 	struct crescent_ErrorJump* previous;
 	struct crescent_Object*    top;
+	int                        calls;
+	int                        cCalls;
 	struct crescent_Frame*     frame;
 	int                        status;
 	jmp_buf                    buffer;

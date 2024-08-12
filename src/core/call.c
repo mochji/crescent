@@ -106,8 +106,10 @@ crescentC_restoreStack(crescent_State* state) {
 		free(current);
 	}
 
-	state->stack.top   = errorJump->top;
-	state->stack.frame = errorJump->frame;
+	state->stack.top    = errorJump->top;
+	state->stack.calls  = errorJump->calls;
+	state->stack.cCalls = errorJump->cCalls;
+	state->stack.frame  = errorJump->frame;
 }
 
 int
