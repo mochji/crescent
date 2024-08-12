@@ -96,16 +96,6 @@ crescentC_restoreStack(crescent_State* state) {
 		crescentO_free(from--);
 	}
 
-	crescent_Frame* current;
-	crescent_Frame* next = state->stack.frame;
-
-	while (next != errorJump->frame) {
-		current = next;
-		next    = next->previous;
-
-		free(current);
-	}
-
 	state->stack.top    = errorJump->top;
 	state->stack.calls  = errorJump->calls;
 	state->stack.cCalls = errorJump->cCalls;
@@ -198,18 +188,12 @@ crescentC_checkTop(crescent_State* state, int top) {
 
 void
 crescentC_startCall(crescent_State* state, int top, int args) {
-	crescent_Frame* frame    = malloc(sizeof(crescent_Frame));
-	crescent_Frame* oldFrame = state->stack.frame;
-
-	if (frame == NULL) {
-		crescentC_memoryError(state);
-	}
+	crescent_Frame* frame    = state->stack.frame;;
+	crescent_Frame* oldFrame = frame->previous;
 
 	int failed = crescentC_checkFree(state, top - args);
 
 	if (failed) {
-		free(frame);
-
 		if (failed == 2) {
 			crescentC_setError(state, "stack overflow");
 			crescentC_throw(state, CRESCENT_STATUS_ERROR);
@@ -258,8 +242,6 @@ crescentC_endCall(crescent_State* state, int results) {
 	oldFrame->top += results;
 	oldFrame->next = NULL;
 
-	free(frame);
-
 	state->stack.top    -= discarded;
 	state->stack.calls  -= 1;
 	state->stack.cCalls -= 1;
@@ -268,6 +250,11 @@ crescentC_endCall(crescent_State* state, int results) {
 
 int
 crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults) {
+	crescent_Frame frame;
+	int            results;
+
+	state->stack.frame = &frame;
+
 	crescentC_startCall(
 		state,
 		args < CRESCENT_MIN_TOP ?
@@ -276,7 +263,7 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, i
 		args
 	);
 
-	int results = function(state);
+	results = function(state);
 
 	if (results > maxResults) {
 		results = maxResults;
