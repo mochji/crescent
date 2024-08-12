@@ -139,31 +139,17 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 int
 crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int maxResults, int* status) {
 	crescent_ErrorJump* errorJump = malloc(sizeof(crescent_ErrorJump));
-	crescent_Frame*     oldFrame  = state->stack.frame;
 	int                 results;
 
 	errorJump->previous = state->errorJump;
+	errorJump->frame    = state->stack.frame;
+	errorJump->top      = state->stack.top - args;
 	state->errorJump    = errorJump;
 
 	if (setjmp(errorJump->buffer) == 0) {
 		results = crescentV_call(state, object, args, maxResults);
 	} else {
-		crescent_Object* from = state->stack.top - 1;
-		crescent_Object* to   = oldFrame->next->base;
-
-		while (from >= to) {
-			crescentO_free(from--);
-		}
-
-		crescent_Frame* current;
-		crescent_Frame* next = state->stack.frame;
-
-		while (next != oldFrame) {
-			current = next;
-			next    = next->previous;
-
-			free(current);
-		}
+		crescentC_restoreStack(state);
 
 		results = 0;
 	}

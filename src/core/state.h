@@ -19,6 +19,8 @@
 struct
 crescent_ErrorJump {
 	struct crescent_ErrorJump* previous;
+	struct crescent_Object*    top;
+	struct crescent_Frame*     frame;
 	int                        status;
 	jmp_buf                    buffer;
 };

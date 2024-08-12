@@ -85,6 +85,31 @@ crescentC_memoryError(crescent_State* state) {
 	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
 }
 
+void
+crescentC_restoreStack(crescent_State* state) {
+	crescent_ErrorJump* errorJump = state->errorJump;
+
+	crescent_Object* from = state->stack.top - 1;
+	crescent_Object* to   = errorJump->top;
+
+	while (from >= to) {
+		crescentO_free(from--);
+	}
+
+	crescent_Frame* current;
+	crescent_Frame* next = state->stack.frame;
+
+	while (next != errorJump->frame) {
+		current = next;
+		next    = next->previous;
+
+		free(current);
+	}
+
+	state->stack.top   = errorJump->top;
+	state->stack.frame = errorJump->frame;
+}
+
 int
 crescentC_reallocStack(crescent_State* state, size_t newSize) {
 	crescent_Object* newStack = realloc(state->stack.base, newSize * sizeof(crescent_Object));
