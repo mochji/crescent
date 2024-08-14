@@ -106,18 +106,3 @@ crescentE_closeLState(crescent_State* state) {
 	free(state->stack.base);
 	free(state);
 }
-
-void
-crescentE_bindThread(crescent_GState* gState, crescent_State* state) {
-	if (gState->lastThread == NULL) {
-		gState->baseThread = state;
-		gState->lastThread = state;
-
-		state->gState = gState;
-	} else {
-		gState->lastThread->next = state;
-		gState->lastThread       = state;
-
-		state->gState = gState;
-	}
-}

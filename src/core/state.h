@@ -77,7 +77,4 @@ crescentE_blankLState(void);
 extern void
 crescentE_closeLState(crescent_State* state);
 
-extern void
-crescentE_bindThread(crescent_GState* gState, crescent_State* state);
-
 #endif
