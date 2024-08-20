@@ -187,9 +187,8 @@ crescentC_checkTop(crescent_State* state, int top) {
 }
 
 void
-crescentC_startCall(crescent_State* state, int top, int args) {
-	crescent_Frame* frame    = state->stack.frame;;
-	crescent_Frame* oldFrame = frame->previous;
+crescentC_startCall(crescent_State* state, crescent_Frame* frame, int top, int args) {
+	crescent_Frame* oldFrame = state->stack.frame;
 
 	int failed = crescentC_checkFree(state, top - args);
 
@@ -253,10 +252,9 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, i
 	crescent_Frame frame;
 	int            results;
 
-	state->stack.frame = &frame;
-
 	crescentC_startCall(
 		state,
+		&frame,
 		args < CRESCENT_MIN_TOP ?
 			CRESCENT_MIN_TOP :
 			args,

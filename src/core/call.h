@@ -39,7 +39,7 @@ extern int
 crescentC_checkTop(crescent_State* state, int top);
 
 extern void
-crescentC_startCall(crescent_State* state, int top, int args);
+crescentC_startCall(crescent_State* state, crescent_Frame* frame,  int top, int args);
 
 extern void
 crescentC_endCall(crescent_State* state, int results);
