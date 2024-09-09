@@ -255,9 +255,9 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, i
 	crescentC_startCall(
 		state,
 		&frame,
-		args < CRESCENT_MIN_TOP ?
-			CRESCENT_MIN_TOP :
-			args,
+		args < CRESCENT_MIN_TOP
+			? CRESCENT_MIN_TOP
+			: args,
 		args
 	);
 

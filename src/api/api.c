@@ -49,16 +49,16 @@ crescent_getIndex(crescent_State* state, int index) {
 	if (index < 0) {
 		object = state->stack.top + index;
 
-		return object >= state->stack.frame->base ?
-			object :
-			&state->gState->nilValue;
+		return object >= state->stack.frame->base
+			? object
+			: &state->gState->nilValue;
 	}
 
 	object = state->stack.frame->base + index - 1;
 
-	return object < state->stack.top ?
-		object :
-		&state->gState->nilValue;
+	return object < state->stack.top
+		? object
+		: &state->gState->nilValue;
 }
 
 static crescent_Object*
@@ -130,9 +130,9 @@ int
 crescent_checkTop(crescent_State* state, int top) {
 	return !crescentC_checkTop(
 		state,
-		top < CRESCENT_MIN_TOP ?
-			CRESCENT_MIN_TOP :
-			top
+		top < CRESCENT_MIN_TOP
+			? CRESCENT_MIN_TOP
+			: top
 	);
 }
 
