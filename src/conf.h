@@ -35,6 +35,7 @@
 
 #define CRESCENT_VERSION (CRESCENT_VERSION_MAJOR * 10 + CRESCENT_VERSION_MINOR)
 #define CRESCENT_RELEASE (CRESCENT_VERSION * 10 + CRESCENT_VERSION_PATCH)
+#define CRESCENT_AUTHORS "mochji"
 
 /*
  * ============================================================================
