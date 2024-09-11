@@ -240,23 +240,23 @@ crescent_isCFunction(crescent_State* state, int index) {
 }
 
 int
-crescent_toBooleanX(crescent_State* state, int index, int* isBoolean) {
-	return crescentO_toBoolean(crescent_getIndex(state, index), isBoolean);
+crescent_toBooleanX(crescent_State* state, int index, int* match) {
+	return crescentO_toBoolean(crescent_getIndex(state, index), match);
 }
 
 crescent_Integer
-crescent_toIntegerX(crescent_State* state, int index, int* isInteger) {
-	return crescentO_toInteger(crescent_getIndex(state, index), isInteger);
+crescent_toIntegerX(crescent_State* state, int index, int* match) {
+	return crescentO_toInteger(crescent_getIndex(state, index), match);
 }
 
 crescent_Float
-crescent_toFloatX(crescent_State* state, int index, int* isFloat) {
-	return crescentO_toFloat(crescent_getIndex(state, index), isFloat);
+crescent_toFloatX(crescent_State* state, int index, int* match) {
+	return crescentO_toFloat(crescent_getIndex(state, index), match);
 }
 
 const char*
-crescent_toStringX(crescent_State* state, int index, int* isString) {
-	return crescentO_toString(crescent_getIndex(state, index), isString);
+crescent_toStringX(crescent_State* state, int index, int* match) {
+	return crescentO_toString(crescent_getIndex(state, index), match);
 }
 
 int

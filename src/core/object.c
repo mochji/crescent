@@ -165,11 +165,11 @@ crescentO_typeName(int type) {
 }
 
 int
-crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
+crescentO_toBoolean(crescent_Object* object, int* match) {
 	int type = object->type;
 
-	if (isBoolean != NULL) {
-		*isBoolean = type == CRESCENT_TYPE_BOOLEAN;
+	if (match != NULL) {
+		*match = type == CRESCENT_TYPE_BOOLEAN;
 	}
 
 	switch (type) {
@@ -195,11 +195,11 @@ crescentO_toBoolean(crescent_Object* object, int* isBoolean) {
 }
 
 crescent_Integer
-crescentO_toInteger(crescent_Object* object, int* isInteger) {
+crescentO_toInteger(crescent_Object* object, int* match) {
 	int type = object->type;
 
-	if (isInteger != NULL) {
-		*isInteger = type == CRESCENT_TYPE_INTEGER;
+	if (match != NULL) {
+		*match = type == CRESCENT_TYPE_INTEGER;
 	}
 
 	switch (type) {
@@ -221,11 +221,11 @@ crescentO_toInteger(crescent_Object* object, int* isInteger) {
 }
 
 crescent_Float
-crescentO_toFloat(crescent_Object* object, int* isFloat) {
+crescentO_toFloat(crescent_Object* object, int* match) {
 	int type = object->type;
 
-	if (isFloat != NULL) {
-		*isFloat = type == CRESCENT_TYPE_FLOAT;
+	if (match != NULL) {
+		*match = type == CRESCENT_TYPE_FLOAT;
 	}
 
 	switch (type) {
@@ -247,11 +247,11 @@ crescentO_toFloat(crescent_Object* object, int* isFloat) {
 }
 
 char*
-crescentO_toString(crescent_Object* object, int* isString) {
+crescentO_toString(crescent_Object* object, int* match) {
 	int type = object->type;
 
-	if (isString != NULL) {
-		*isString = type == CRESCENT_TYPE_STRING;
+	if (match != NULL) {
+		*match = type == CRESCENT_TYPE_STRING;
 	}
 
 	if (object->type == CRESCENT_TYPE_NIL) {

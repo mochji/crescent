@@ -49,16 +49,16 @@ extern char*
 crescentO_typeName(int type);
 
 extern int
-crescentO_toBoolean(crescent_Object* object, int* isBoolean);
+crescentO_toBoolean(crescent_Object* object, int* match);
 
 extern crescent_Integer
-crescentO_toInteger(crescent_Object* object, int* isInteger);
+crescentO_toInteger(crescent_Object* object, int* match);
 
 extern crescent_Float
-crescentO_toFloat(crescent_Object* object, int* isFloat);
+crescentO_toFloat(crescent_Object* object, int* match);
 
 extern char*
-crescentO_toString(crescent_Object* object, int* isString);
+crescentO_toString(crescent_Object* object, int* match);
 
 #define obj_cancall(type)   ((type) & 0x04)
 #define obj_haslength(type) ((type) & 0x02)

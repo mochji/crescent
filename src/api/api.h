@@ -76,16 +76,16 @@ extern int
 crescent_isCFunction(crescent_State* state, int index);
 
 extern int
-crescent_toBooleanX(crescent_State* state, int index, int* isBoolean);
+crescent_toBooleanX(crescent_State* state, int index, int* match);
 
 extern crescent_Integer
-crescent_toIntegerX(crescent_State* state, int index, int* isInteger);
+crescent_toIntegerX(crescent_State* state, int index, int* match);
 
 extern crescent_Float
-crescent_toFloatX(crescent_State* state, int index, int* isFloat);
+crescent_toFloatX(crescent_State* state, int index, int* match);
 
 extern const char*
-crescent_toStringX(crescent_State* state, int index, int* isString);
+crescent_toStringX(crescent_State* state, int index, int* match);
 
 extern int
 crescent_toBoolean(crescent_State* state, int index);
