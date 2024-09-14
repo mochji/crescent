@@ -9,7 +9,6 @@
 #ifndef CRESCENT_LIMIT_H
 #define CRESCENT_LIMIT_H
 
-#include <stddef.h>
 #include <stdint.h>
 
 #include "conf.h"
