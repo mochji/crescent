@@ -56,22 +56,17 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 
 int
 crescentO_clone(crescent_Object* to, crescent_Object* from) {
-	if (from->type == CRESCENT_TYPE_STRING) {
-		crescent_String* cloned = crescentS_clone(from->value.s);
+	int            type  = from->type;
+	crescent_Value value = from->value;
 
-		if (cloned == NULL) {
-			return 1;
-		}
-
-		to->type    = CRESCENT_TYPE_STRING;
-		to->value.s = cloned;
-	} else {
-		if (from->type == CRESCENT_TYPE_ARRAY) {
-			from->value.a->references += 1;
-		}
-
-		*to = *from;
+	if (type == CRESCENT_TYPE_STRING) {
+		value.s->references += 1;
+	} else if (type == CRESCENT_TYPE_ARRAY) {
+		value.a->references += 1;
 	}
+
+	to->type  = type;
+	to->value = value;
 
 	return 0;
 }
