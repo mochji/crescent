@@ -14,8 +14,6 @@
 #include "conf.h"
 #include "limit.h"
 
-#include "types/string.h"
-#include "types/array.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
