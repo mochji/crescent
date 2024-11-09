@@ -18,6 +18,8 @@
 #include "core/state.h"
 #include "core/call.h"
 
+#include "vm/vm.h"
+
 /*
  * This function is a more loose comparison compared to crescentO_compare.
  * crescentO_compare returns false if the 2 objects are of differing types,
