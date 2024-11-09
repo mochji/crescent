@@ -15,6 +15,8 @@
 
 #include "conf.h"
 
+#include "core/object.h"
+
 #include "types/string.h"
 
 crescent_String*

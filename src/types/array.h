@@ -15,16 +15,6 @@
 
 #include "core/object.h"
 
-struct
-crescent_Array {
-	size_t                  size;
-	size_t                  length;
-	struct crescent_Object* value;
-	size_t                  references;
-};
-
-typedef struct crescent_Array crescent_Array;
-
 extern crescent_Array*
 crescentA_new(size_t length);
 

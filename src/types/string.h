@@ -14,15 +14,7 @@
 
 #include "conf.h"
 
-struct
-crescent_String {
-	size_t size;
-	size_t length;
-	char*  value;
-	size_t references;
-};
-
-typedef struct crescent_String crescent_String;
+#include "core/object.h"
 
 extern crescent_String*
 crescentS_new(size_t length);

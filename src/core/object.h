@@ -11,6 +11,12 @@
 
 #include "conf.h"
 
+/*
+ * the forward declaration here is temporary until i start development on the
+ * garbage collector, which will create a "crescent_GCValue" union containing
+ * pointers to the collectable types.
+ */
+
 struct crescent_String;
 struct crescent_Array;
 
@@ -30,8 +36,26 @@ crescent_Object {
 	union crescent_Value value;
 };
 
+struct
+crescent_String {
+	size_t size;
+	size_t length;
+	char*  value;
+	size_t references;
+};
+
+struct
+crescent_Array {
+	size_t                  size;
+	size_t                  length;
+	struct crescent_Object* value;
+	size_t                  references;
+};
+
 typedef union  crescent_Value  crescent_Value;
 typedef struct crescent_Object crescent_Object;
+typedef struct crescent_String crescent_String;
+typedef struct crescent_Array  crescent_Array;
 
 extern int
 crescentO_compare(crescent_Object* a, crescent_Object* b);
