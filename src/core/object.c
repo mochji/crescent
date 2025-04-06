@@ -167,23 +167,10 @@ crescentO_toBoolean(crescent_Object* object, int* match) {
 		*match = type == CRESCENT_TYPE_BOOLEAN;
 	}
 
-	switch (type) {
-		case CRESCENT_TYPE_NIL:
-			return 0;
-
-			break;
-		case CRESCENT_TYPE_BOOLEAN:
-			return object->value.b;
-
-			break;
-		case CRESCENT_TYPE_INTEGER:
-			return object->value.i != 0;
-
-			break;
-		case CRESCENT_TYPE_FLOAT:
-			return object->value.f != 0;
-
-			break;
+	if (type == CRESCENT_TYPE_NIL) {
+		return 0;
+	} else if (type == CRESCENT_TYPE_BOOLEAN) {
+		return object->value.b;
 	}
 
 	return 1;
