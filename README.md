@@ -5,3 +5,5 @@ this is heavily inspired from lua (which is why its called crescent), and will b
 ## hey!
 
 i'm still working on this, i'm just really burnt out and have been having trouble focusing. i'm working on a full rewrite that also adds a tri-color garbage collector. if you want, you can see my notes on it [here](https://docs.google.com/document/d/1gKf8HEIRBkPg-KbFVpFiXwLZHMCvQeFsa8SnRnHviDQ/edit?usp=sharing).
+
+and also coming back to some honestly shitty code after about 8 to 9 months makes it pretty hard to understand what you were doing and what it does
