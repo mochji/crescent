@@ -27,28 +27,16 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 	switch (a->type) {
 		case CRESCENT_TYPE_BOOLEAN:
 			return a->value.b == b->value.b;
-
-			break;
 		case CRESCENT_TYPE_INTEGER:
 			return a->value.i == b->value.i;
-
-			break;
 		case CRESCENT_TYPE_FLOAT:
 			return a->value.f == b->value.f;
-
-			break;
 		case CRESCENT_TYPE_STRING:
 			return crescentS_compare(a->value.s, b->value.s);
-
-			break;
 		case CRESCENT_TYPE_ARRAY:
 			return crescentA_compare(a->value.a, b->value.a);
-
-			break;
 		case CRESCENT_TYPE_CFUNCTION:
 			return a->value.c == b->value.c;
-
-			break;
 	}
 
 	return 0;
@@ -128,32 +116,18 @@ crescentO_typeName(int type) {
 	switch (type) {
 		case CRESCENT_TYPE_NIL:
 			return "nil";
-
-			break;
 		case CRESCENT_TYPE_BOOLEAN:
 			return "boolean";
-
-			break;
 		case CRESCENT_TYPE_INTEGER:
 			return "number";
-
-			break;
 		case CRESCENT_TYPE_FLOAT:
 			return "number";
-
-			break;
 		case CRESCENT_TYPE_STRING:
 			return "string";
-
-			break;
 		case CRESCENT_TYPE_ARRAY:
 			return "array";
-
-			break;
 		case CRESCENT_TYPE_CFUNCTION:
 			return "function";
-
-			break;
 	}
 
 	return NULL;
@@ -187,16 +161,10 @@ crescentO_toInteger(crescent_Object* object, int* match) {
 	switch (type) {
 		case CRESCENT_TYPE_INTEGER:
 			return object->value.i;
-
-			break;
 		case CRESCENT_TYPE_FLOAT:
 			return (crescent_Integer)object->value.f;
-
-			break;
 		case CRESCENT_TYPE_STRING:
 			return crescentS_toInteger(object->value.s->value, NULL);
-
-			break;
 	}
 
 	return 0;
@@ -213,16 +181,10 @@ crescentO_toFloat(crescent_Object* object, int* match) {
 	switch (type) {
 		case CRESCENT_TYPE_INTEGER:
 			return (crescent_Float)object->value.i;
-
-			break;
 		case CRESCENT_TYPE_FLOAT:
 			return object->value.f;
-
-			break;
 		case CRESCENT_TYPE_STRING:
 			return crescentS_toFloat(object->value.s->value, NULL);
-
-			break;
 	}
 
 	return 0;
