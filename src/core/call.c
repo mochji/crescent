@@ -2,7 +2,7 @@
  * https://github.com/mochji/crescent
  * core/call.c
  *
- * Copyright (C) 2024 mochji
+ * Copyright (C) 2025 mochji
  * MIT License
  */
 
