@@ -13,8 +13,8 @@
 
 /*
  * the forward declaration here is temporary until i start development on the
- * garbage collector, which will create a "crescent_GCValue" union containing
- * pointers to the collectable types.
+ * garbage collector, which will create a "crescent_GCHeader* struct that
+ * points to the collectable type
  */
 
 struct crescent_String;
