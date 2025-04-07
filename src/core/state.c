@@ -79,10 +79,10 @@ crescentE_blankLState(void) {
 	frame->next     = NULL;
 	frame->previous = NULL;
 
-	state->error     = NULL;
-	state->errorJump = NULL;
-	state->next      = NULL;
-	state->gState    = NULL;
+	state->error   = NULL;
+	state->handler = NULL;
+	state->next    = NULL;
+	state->gState  = NULL;
 
 	return state;
 }
@@ -101,6 +101,10 @@ crescentE_closeLState(crescent_State* state) {
 
 	if (state->error != state->gState->memoryError) {
 		free(state->error);
+	}
+
+	if (state->handler != NULL) {
+		free(state->handler);
 	}
 
 	free(state->stack.base);

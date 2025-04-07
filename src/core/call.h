@@ -14,6 +14,8 @@
 #include "core/object.h"
 #include "core/state.h"
 
+/* error handling */
+
 extern void
 crescentC_setError(crescent_State* state, char* error);
 
@@ -27,16 +29,23 @@ extern void __attribute__((noreturn))
 crescentC_memoryError(crescent_State* state);
 
 extern void
-crescentC_restoreStack(crescent_State* state);
+crescentC_restoreStack(crescent_State* state, short level);
+
+/* stack resizing */
 
 extern int
-crescentC_reallocStack(crescent_State* state, size_t size);
+crescentC_reallocStack(crescent_State* state, size_t newSize, int throw);
 
 extern int
-crescentC_checkFree(crescent_State* state, int free);
+crescentC_resizeStack(crescent_State* state, size_t needed, int throw);
 
 extern int
-crescentC_checkTop(crescent_State* state, int top);
+crescentC_checkTop(crescent_State* state, int top, int throw);
+
+extern int
+crescentC_checkFree(crescent_State* state, int free, int throw);
+
+/* calling */
 
 extern void
 crescentC_startCall(crescent_State* state, crescent_Frame* frame,  int top, int args);

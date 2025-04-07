@@ -138,32 +138,30 @@ crescentV_call(crescent_State* state, crescent_Object* object, int args, int max
 
 int
 crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int maxResults, int* status) {
-	crescent_ErrorJump* errorJump = malloc(sizeof(crescent_ErrorJump));
-	int                 results;
+	crescent_Handler* handler = malloc(sizeof(crescent_Handler));
+	int               results;
 
-	errorJump->previous = state->errorJump;
-	errorJump->top      = state->stack.top - args;
-	errorJump->calls    = state->stack.calls;
-	errorJump->cCalls   = state->stack.cCalls;
-	errorJump->frame    = state->stack.frame;
+	short calls = state->stack.calls;
 
-	state->errorJump    = errorJump;
+	handler->previous = state->handler;
+	handler->status   = CRESCENT_STATUS_OK;
 
-	if (setjmp(errorJump->buffer) == 0) {
+	state->handler = handler;
+
+	if (setjmp(handler->buffer) == 0) {
 		results = crescentV_call(state, object, args, maxResults);
 	} else {
-		crescentC_restoreStack(state);
+		crescentC_restoreStack(state, calls);
 
 		results = 0;
 	}
 
-	state->errorJump = errorJump->previous;
-
 	if (status != NULL) {
-		*status = errorJump->status;
+		*status = handler->status;
 	}
 
-	free(errorJump);
+	state->handler = handler->previous;
+	free(handler);
 
 	return results;
 }

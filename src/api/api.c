@@ -132,7 +132,8 @@ crescent_checkTop(crescent_State* state, int top) {
 		state,
 		top < CRESCENT_MIN_TOP
 			? CRESCENT_MIN_TOP
-			: top
+			: top,
+		0
 	);
 }
 

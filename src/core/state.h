@@ -17,14 +17,10 @@
 #include "core/object.h"
 
 struct
-crescent_ErrorJump {
-	struct crescent_ErrorJump* previous;
-	struct crescent_Object*    top;
-	int                        calls;
-	int                        cCalls;
-	struct crescent_Frame*     frame;
-	int                        status;
-	jmp_buf                    buffer;
+crescent_Handler {
+	struct crescent_Handler* previous;
+	int                      status;
+	jmp_buf                  buffer;
 };
 
 struct
@@ -45,10 +41,10 @@ crescent_State {
 		short                   cCalls;
 		struct crescent_Frame*  frame;
 	} stack;
-	char*                      error;
-	struct crescent_ErrorJump* errorJump;
-	struct crescent_State*     next;
-	struct crescent_GState*    gState;
+	char*                    error;
+	struct crescent_Handler* handler;
+	struct crescent_State*   next;
+	struct crescent_GState*  gState;
 };
 
 struct
@@ -60,10 +56,10 @@ crescent_GState {
 	crescent_CFunction*    panic;
 };
 
-typedef struct crescent_ErrorJump crescent_ErrorJump;
-typedef struct crescent_Frame     crescent_Frame;
-typedef struct crescent_State     crescent_State;
-typedef struct crescent_GState    crescent_GState;
+typedef struct crescent_Handler crescent_Handler;
+typedef struct crescent_Frame   crescent_Frame;
+typedef struct crescent_State   crescent_State;
+typedef struct crescent_GState  crescent_GState;
 
 extern crescent_GState*
 crescentE_blankGState(void);

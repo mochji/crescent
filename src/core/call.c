@@ -19,6 +19,8 @@
 
 #include "core/call.h"
 
+/* next: error handling and stack resizing */
+
 void
 crescentC_setError(crescent_State* state, char* error) {
 	if (state->error != state->gState->memoryError) {
@@ -56,12 +58,12 @@ void
 crescentC_throw(crescent_State* state, int status) {
 	crescent_GState* gState = state->gState;
 
-	if (state->errorJump != NULL) {
-		state->errorJump->status = status;
-		longjmp(state->errorJump->buffer, 1);
+	if (state->handler != NULL) {
+		state->handler->status = status;
+		longjmp(state->handler->buffer, 1);
 	}
 
-	if (gState->baseThread->errorJump != NULL) {
+	if (gState->baseThread->handler != NULL) {
 		crescentC_moveError(gState->baseThread, state);
 		crescentC_throw(gState->baseThread, status);
 	}
@@ -86,27 +88,35 @@ crescentC_memoryError(crescent_State* state) {
 }
 
 void
-crescentC_restoreStack(crescent_State* state) {
-	crescent_ErrorJump* errorJump = state->errorJump;
+crescentC_restoreStack(crescent_State* state, short level) {
+	while (state->stack.calls > level) {
+		crescent_Frame* frame = state->stack.frame;
 
-	crescent_Object* from = state->stack.top - 1;
-	crescent_Object* to   = errorJump->top;
+		crescent_Object* from = state->stack.top - 1;
+		crescent_Object* to   = frame->base;
 
-	while (from >= to) {
-		crescentO_free(from--);
+		while (from >= to) {
+			crescentO_free(from--);
+		}
+
+		state->stack.top     = to;
+		state->stack.calls  -= 1;
+		state->stack.cCalls -= 1;
+		state->stack.frame   = frame->previous;
+
+		free(frame);
 	}
-
-	state->stack.top    = errorJump->top;
-	state->stack.calls  = errorJump->calls;
-	state->stack.cCalls = errorJump->cCalls;
-	state->stack.frame  = errorJump->frame;
 }
 
 int
-crescentC_reallocStack(crescent_State* state, size_t newSize) {
+crescentC_reallocStack(crescent_State* state, size_t newSize, int throw) {
 	crescent_Object* newStack = realloc(state->stack.base, newSize * sizeof(crescent_Object));
 
 	if (newStack == NULL) {
+		if (throw) {
+			crescentC_memoryError(state);
+		}
+
 		return 1;
 	}
 
@@ -126,22 +136,38 @@ crescentC_reallocStack(crescent_State* state, size_t newSize) {
 }
 
 int
-crescentC_checkFree(crescent_State* state, int free) {
-	size_t needed = (state->stack.top - state->stack.base) + free;
-
+crescentC_resizeStack(crescent_State* state, size_t needed, int throw) {
 	if (needed > CRESCENT_MAX_STACK) {
+		if (throw) {
+			crescentC_setError(state, "stack overflow");
+			crescentC_throw(state, CRESCENT_STATUS_ERROR);
+		}
+
 		return 1;
 	}
 
-	if (needed > state->stack.size) {
-		return crescentC_reallocStack(state, needed);
+	size_t size    = state->stack.size;
+	size_t newSize = needed + needed / 2;
+
+	if (newSize > CRESCENT_MAX_STACK) {
+		newSize = needed;
+	} else if (newSize < CRESCENT_MIN_STACK) {
+		newSize = CRESCENT_MIN_STACK;
+	}
+
+	if (needed <= size / 3 && size > CRESCENT_MIN_STACK) {
+		crescentC_reallocStack(state, newSize, 0);
+
+		return 0;
+	} else if (needed > size) {
+		return crescentC_reallocStack(state, newSize, throw);
 	}
 
 	return 0;
 }
 
 int
-crescentC_checkTop(crescent_State* state, int top) {
+crescentC_checkTop(crescent_State* state, int top, int throw) {
 	crescent_Object* stack  = state->stack.base;
 	crescent_Frame*  frame  = state->stack.frame;
 	size_t           needed = (frame->base - stack) + top;
@@ -158,27 +184,8 @@ crescentC_checkTop(crescent_State* state, int top) {
 		frame = frame->previous;
 	}
 
-	size_t size    = state->stack.size;
-	size_t newSize = needed + needed / 2;
-
-	if (needed <= size / 3) {
-		if (size == CRESCENT_MIN_STACK) {
-			return 0;
-		}
-
-		if (newSize < CRESCENT_MIN_STACK) {
-			newSize = CRESCENT_MIN_STACK;
-		}
-
-		crescentC_reallocStack(state, newSize);
-	} else if (needed > size) {
-		if (newSize > CRESCENT_MAX_STACK) {
-			return 2;
-		}
-
-		if (crescentC_reallocStack(state, newSize)) {
-			return 1;
-		}
+	if (crescentC_resizeStack(state, needed, throw)) {
+		return 1;
 	}
 
 	state->stack.frame->top = top;
@@ -186,20 +193,22 @@ crescentC_checkTop(crescent_State* state, int top) {
 	return 0;
 }
 
+int
+crescentC_checkFree(crescent_State* state, int free, int throw) {
+	size_t needed = (state->stack.top - state->stack.base) + free;
+
+	if (needed > state->stack.size) {
+		return crescentC_resizeStack(state, needed, throw);
+	}
+
+	return 0;
+}
+
 void
 crescentC_startCall(crescent_State* state, crescent_Frame* frame, int top, int args) {
+	crescentC_checkFree(state, top - args, 1);
+
 	crescent_Frame* oldFrame = state->stack.frame;
-
-	int failed = crescentC_checkFree(state, top - args);
-
-	if (failed) {
-		if (failed == 2) {
-			crescentC_setError(state, "stack overflow");
-			crescentC_throw(state, CRESCENT_STATUS_ERROR);
-		} else {
-			crescentC_memoryError(state);
-		}
-	}
 
 	oldFrame->next = frame;
 
