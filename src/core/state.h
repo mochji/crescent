@@ -51,7 +51,7 @@ struct
 crescent_GState {
 	char*                  memoryError;
 	struct crescent_Object nilValue;
-	struct crescent_State* baseThread;
+	struct crescent_State* mainThread;
 	struct crescent_State* lastThread;
 	crescent_CFunction*    panic;
 };

@@ -26,7 +26,7 @@ crescentE_blankGState(void) {
 
 	gState->memoryError   = "out of memory";
 	gState->nilValue.type = CRESCENT_TYPE_NIL;
-	gState->baseThread    = NULL;
+	gState->mainThread    = NULL;
 	gState->lastThread    = NULL;
 	gState->panic         = NULL;
 
@@ -40,7 +40,7 @@ crescentE_closeGState(crescent_GState* gState) {
 	}
 
 	crescent_State* current;
-	crescent_State* next = gState->baseThread;
+	crescent_State* next = gState->mainThread;
 
 	while (next != NULL) {
 		current = next;

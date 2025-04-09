@@ -63,9 +63,9 @@ crescentC_throw(crescent_State* state, int status) {
 		longjmp(state->handler->buffer, 1);
 	}
 
-	if (gState->baseThread->handler != NULL) {
-		crescentC_moveError(gState->baseThread, state);
-		crescentC_throw(gState->baseThread, status);
+	if (gState->mainThread->handler != NULL) {
+		crescentC_moveError(gState->mainThread, state);
+		crescentC_throw(gState->mainThread, status);
 	}
 
 	if (gState->panic != NULL) {
