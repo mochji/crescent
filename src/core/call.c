@@ -59,8 +59,8 @@ crescentC_throw(crescent_State* state, int status) {
 	crescent_GState* gState = state->gState;
 
 	if (state->handler != NULL) {
-		state->handler->status = status;
-		longjmp(state->handler->buffer, 1);
+		state->status = status;
+		longjmp(*state->handler, 1);
 	}
 
 	if (gState->mainThread->handler != NULL) {

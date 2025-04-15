@@ -79,6 +79,7 @@ crescentE_blankLState(void) {
 	frame->next     = NULL;
 	frame->previous = NULL;
 
+	state->status  = CRESCENT_STATUS_OK;
 	state->error   = NULL;
 	state->handler = NULL;
 	state->next    = NULL;
