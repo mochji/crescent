@@ -19,15 +19,15 @@
 
 #include "types/string.h"
 
-crescent_String*
-crescentS_new(size_t length) {
-	crescent_String* string = malloc(sizeof(crescent_String));
+crs_String*
+crsS_new(size_t length) {
+	crs_String* string = malloc(sizeof(crs_String));
 
 	if (string == NULL) {
 		return NULL;
 	}
 
-	string->size       = length + CRESCENT_STRING_ALLOCSPACE;
+	string->size       = length + CRS_STRING_ALLOCSPACE;
 	string->length     = length;
 	string->value      = malloc(string->size);
 	string->references = 1;
@@ -43,9 +43,9 @@ crescentS_new(size_t length) {
 	return string;
 }
 
-crescent_String*
-crescentS_nullString(void) {
-	crescent_String* string = malloc(sizeof(crescent_String));
+crs_String*
+crsS_nullString(void) {
+	crs_String* string = malloc(sizeof(crs_String));
 
 	if (string == NULL) {
 		return NULL;
@@ -59,10 +59,10 @@ crescentS_nullString(void) {
 	return string;
 }
 
-crescent_String*
-crescentS_as(char* str) {
-	size_t           length = strlen(str);
-	crescent_String* string = crescentS_new(length);
+crs_String*
+crsS_as(char* str) {
+	size_t      length = strlen(str);
+	crs_String* string = crsS_new(length);
 
 	if (string == NULL) {
 		return NULL;
@@ -77,9 +77,9 @@ crescentS_as(char* str) {
 	return string;
 }
 
-crescent_String*
-crescentS_clone(crescent_String* string) {
-	crescent_String* cloned = malloc(sizeof(crescent_String));
+crs_String*
+crsS_clone(crs_String* string) {
+	crs_String* cloned = malloc(sizeof(crs_String));
 
 	if (cloned == NULL) {
 		return NULL;
@@ -104,7 +104,7 @@ crescentS_clone(crescent_String* string) {
 }
 
 void
-crescentS_free(crescent_String* string) {
+crsS_free(crs_String* string) {
 	if (string == NULL) {
 		return;
 	}
@@ -114,9 +114,9 @@ crescentS_free(crescent_String* string) {
 }
 
 int
-crescentS_resize(crescent_String* string, size_t newLength) {
+crsS_resize(crs_String* string, size_t newLength) {
 	if (newLength >= string->size || string->size - newLength > string->size / 2) {
-		size_t newSize = newLength + CRESCENT_STRING_ALLOCSPACE;
+		size_t newSize = newLength + CRS_STRING_ALLOCSPACE;
 		char*  newData = realloc(string->value, newSize);
 
 		if (newData == NULL) {
@@ -131,7 +131,7 @@ crescentS_resize(crescent_String* string, size_t newLength) {
 }
 
 int
-crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
+crsS_compare(crs_String* stringA, crs_String* stringB) {
 	if (stringA == stringB) {
 		return 1;
 	}
@@ -146,7 +146,7 @@ crescentS_compare(crescent_String* stringA, crescent_String* stringB) {
 /* djb2 */
 
 size_t
-crescentS_hash(char* str) {
+crsS_hash(char* str) {
 	size_t hash = 5381;
 
 	while (*str) {
@@ -157,7 +157,7 @@ crescentS_hash(char* str) {
 }
 
 char*
-crescentS_copy(char* str) {
+crsS_copy(char* str) {
 	char* cloned = malloc(strlen(str) + 1);
 
 	if (cloned == NULL) {
@@ -168,7 +168,7 @@ crescentS_copy(char* str) {
 }
 
 int
-crescentS_hexValue(char c) {
+crsS_hexValue(char c) {
 	if (isdigit(c)) {
 		return c - '0';
 	}
@@ -177,8 +177,8 @@ crescentS_hexValue(char c) {
 }
 
 static int
-crescentS_bToInteger(char* str, crescent_Integer* result) {
-	crescent_Integer value = 0;
+crsS_bToInteger(char* str, crs_Integer* result) {
+	crs_Integer value = 0;
 
 	int  success = 1;
 	char c;
@@ -203,8 +203,8 @@ crescentS_bToInteger(char* str, crescent_Integer* result) {
 }
 
 static int
-crescentS_dToInteger(char* str, crescent_Integer* result) {
-	crescent_Integer value = 0;
+crsS_dToInteger(char* str, crs_Integer* result) {
+	crs_Integer value = 0;
 
 	int  success = 1;
 	char c;
@@ -229,8 +229,8 @@ crescentS_dToInteger(char* str, crescent_Integer* result) {
 }
 
 static int
-crescentS_xToInteger(char* str, crescent_Integer* result) {
-	crescent_Integer value = 0;
+crsS_xToInteger(char* str, crs_Integer* result) {
+	crs_Integer value = 0;
 
 	int  success = 1;
 	char c;
@@ -244,7 +244,7 @@ crescentS_xToInteger(char* str, crescent_Integer* result) {
 		}
 
 		value *= 16;
-		value += crescentS_hexValue(c);
+		value += crsS_hexValue(c);
 	}
 
 	if (result != NULL) {
@@ -254,10 +254,10 @@ crescentS_xToInteger(char* str, crescent_Integer* result) {
 	return success;
 }
 
-crescent_Integer
-crescentS_toInteger(char* str, int* success) {
-	crescent_Integer value;
-	int              negative = 0;
+crs_Integer
+crsS_toInteger(char* str, int* success) {
+	crs_Integer value;
+	int         negative = 0;
 
 	if (str[0] == '-') {
 		negative = 1;
@@ -269,11 +269,11 @@ crescentS_toInteger(char* str, int* success) {
 	int successful;
 
 	if (str[0] == '0' && tolower(str[1]) == 'b') {
-		successful = crescentS_bToInteger(str + 2, &value);
+		successful = crsS_bToInteger(str + 2, &value);
 	} else if (str[0] == '0' && tolower(str[1]) == 'x') {
-		successful = crescentS_xToInteger(str + 2, &value);
+		successful = crsS_xToInteger(str + 2, &value);
 	} else {
-		successful = crescentS_dToInteger(str, &value);
+		successful = crsS_dToInteger(str, &value);
 	}
 
 	if (negative && successful) {
@@ -289,12 +289,12 @@ crescentS_toInteger(char* str, int* success) {
 
 /* TODO: support for exponents (e12, e-6, E+50, you get it) */
 
-crescent_Float
-crescentS_toFloat(char* str, int* success) {
-	crescent_Float value    = 0;
-	int            negative = 0;
-	int            afterDot = 0;
-	crescent_Float scale    = 0.1;
+crs_Float
+crsS_toFloat(char* str, int* success) {
+	crs_Float value    = 0;
+	int       negative = 0;
+	int       afterDot = 0;
+	crs_Float scale    = 0.1;
 
 	if (str[0] == '-') {
 		negative = 1;
@@ -343,5 +343,5 @@ crescentS_toFloat(char* str, int* success) {
 
 /*
  * TODO: make dynamic string format function from scratch, add crescent format codes like %I and
- * %F for crescent_Integer and crescent_Float
+ * %F for crs_Integer and crs_Float
  */

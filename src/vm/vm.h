@@ -6,8 +6,8 @@
  * MIT License
  */
 
-#ifndef CRESCENT_VM_VM_H
-#define CRESCENT_VM_VM_H
+#ifndef CRS_VM_VM_H
+#define CRS_VM_VM_H
 
 #include <stddef.h>
 
@@ -17,15 +17,15 @@
 #include "core/state.h"
 
 extern int
-crescentV_compare(crescent_Object* a, crescent_Object* b);
+crsV_compare(crs_Object* a, crs_Object* b);
 
 extern size_t
-crescentV_length(crescent_State* state, crescent_Object* object);
+crsV_length(crs_State* state, crs_Object* object);
 
 extern int
-crescentV_call(crescent_State* state, crescent_Object* object, int args, int maxResults);
+crsV_call(crs_State* state, crs_Object* object, int args, int maxResults);
 
 extern int
-crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int maxResults, int* status);
+crsV_pCall(crs_State* state, crs_Object* object, int args, int maxResults, int* status);
 
 #endif

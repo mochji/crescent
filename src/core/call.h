@@ -6,8 +6,8 @@
  * MIT License
  */
 
-#ifndef CRESCENT_CORE_CALL_H
-#define CRESCENT_CORE_CALL_H
+#ifndef CRS_CORE_CALL_H
+#define CRS_CORE_CALL_H
 
 #include "conf.h"
 
@@ -17,43 +17,43 @@
 /* error handling */
 
 extern void
-crescentC_setError(crescent_State* state, char* error);
+crsC_setError(crs_State* state, char* error);
 
 extern void
-crescentC_moveError(crescent_State* to, crescent_State* from);
+crsC_moveError(crs_State* to, crs_State* from);
 
 extern void __attribute__((noreturn))
-crescentC_throw(crescent_State* state, int status);
+crsC_throw(crs_State* state, int status);
 
 extern void __attribute__((noreturn))
-crescentC_memoryError(crescent_State* state);
+crsC_memoryError(crs_State* state);
 
 extern void
-crescentC_restoreStack(crescent_State* state, short level);
+crsC_restoreStack(crs_State* state, short level);
 
 /* stack resizing */
 
 extern int
-crescentC_reallocStack(crescent_State* state, size_t newSize, int throw);
+crsC_reallocStack(crs_State* state, size_t newSize, int throw);
 
 extern int
-crescentC_resizeStack(crescent_State* state, size_t needed, int throw);
+crsC_resizeStack(crs_State* state, size_t needed, int throw);
 
 extern int
-crescentC_checkTop(crescent_State* state, int top, int throw);
+crsC_checkTop(crs_State* state, int top, int throw);
 
 extern int
-crescentC_checkFree(crescent_State* state, int free, int throw);
+crsC_checkFree(crs_State* state, int free, int throw);
 
 /* calling */
 
 extern void
-crescentC_startCall(crescent_State* state, crescent_Frame* frame,  int top, int args);
+crsC_startCall(crs_State* state, crs_Frame* frame,  int top, int args);
 
 extern void
-crescentC_endCall(crescent_State* state, int results);
+crsC_endCall(crs_State* state, int results);
 
 extern int
-crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults);
+crsC_callC(crs_State* state, crs_CFunction* function, int args, int maxResults);
 
 #endif

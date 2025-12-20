@@ -14,28 +14,28 @@
 #include "core/object.h"
 
 /*
- * This function is a strict comparison, see crescentV_compare for comparison
+ * This function is a strict comparison, see crsV_compare for comparison
  * between integers and floats.
  */
 
 int
-crescentO_compare(crescent_Object* a, crescent_Object* b) {
+crsO_compare(crs_Object* a, crs_Object* b) {
 	if (a->type != b->type) {
 		return 0;
 	}
 
 	switch (a->type) {
-		case CRESCENT_TYPE_BOOLEAN:
+		case CRS_TYPE_BOOLEAN:
 			return a->value.b == b->value.b;
-		case CRESCENT_TYPE_INTEGER:
+		case CRS_TYPE_INTEGER:
 			return a->value.i == b->value.i;
-		case CRESCENT_TYPE_FLOAT:
+		case CRS_TYPE_FLOAT:
 			return a->value.f == b->value.f;
-		case CRESCENT_TYPE_STRING:
-			return crescentS_compare(a->value.s, b->value.s);
-		case CRESCENT_TYPE_ARRAY:
-			return crescentA_compare(a->value.a, b->value.a);
-		case CRESCENT_TYPE_CFUNCTION:
+		case CRS_TYPE_STRING:
+			return crsS_compare(a->value.s, b->value.s);
+		case CRS_TYPE_ARRAY:
+			return crsA_compare(a->value.a, b->value.a);
+		case CRS_TYPE_CFUNCTION:
 			return a->value.c == b->value.c;
 	}
 
@@ -43,13 +43,13 @@ crescentO_compare(crescent_Object* a, crescent_Object* b) {
 }
 
 int
-crescentO_clone(crescent_Object* to, crescent_Object* from) {
-	int            type  = from->type;
-	crescent_Value value = from->value;
+crsO_clone(crs_Object* to, crs_Object* from) {
+	int       type  = from->type;
+	crs_Value value = from->value;
 
-	if (type == CRESCENT_TYPE_STRING) {
+	if (type == CRS_TYPE_STRING) {
 		value.s->references += 1;
-	} else if (type == CRESCENT_TYPE_ARRAY) {
+	} else if (type == CRS_TYPE_ARRAY) {
 		value.a->references += 1;
 	}
 
@@ -60,26 +60,26 @@ crescentO_clone(crescent_Object* to, crescent_Object* from) {
 }
 
 int
-crescentO_deepClone(crescent_Object* to, crescent_Object* from) {
+crsO_deepClone(crs_Object* to, crs_Object* from) {
 	void* cloned;
 
-	if (from->type == CRESCENT_TYPE_STRING) {
-		cloned = crescentS_clone(from->value.s);
+	if (from->type == CRS_TYPE_STRING) {
+		cloned = crsS_clone(from->value.s);
 
 		if (cloned == NULL) {
 			return 1;
 		}
 
-		to->type    = CRESCENT_TYPE_STRING;
+		to->type    = CRS_TYPE_STRING;
 		to->value.s = cloned;
-	} else if (from->type == CRESCENT_TYPE_ARRAY) {
-		cloned = crescentA_clone(from->value.a);
+	} else if (from->type == CRS_TYPE_ARRAY) {
+		cloned = crsA_clone(from->value.a);
 
 		if (cloned == NULL) {
 			return 1;
 		}
 
-		to->type    = CRESCENT_TYPE_ARRAY;
+		to->type    = CRS_TYPE_ARRAY;
 		to->value.a = cloned;
 	} else {
 		*to = *from;
@@ -89,44 +89,44 @@ crescentO_deepClone(crescent_Object* to, crescent_Object* from) {
 }
 
 void
-crescentO_free(crescent_Object* object) {
+crsO_free(crs_Object* object) {
 	if (object == NULL) {
 		return;
 	}
 
-	if (object->type == CRESCENT_TYPE_STRING) {
+	if (object->type == CRS_TYPE_STRING) {
 		object->value.s->references -= 1;
 
 		if (object->value.s->references == 0) {
-			crescentS_free(object->value.s);
+			crsS_free(object->value.s);
 		}
-	} else if (object->type == CRESCENT_TYPE_ARRAY) {
+	} else if (object->type == CRS_TYPE_ARRAY) {
 		object->value.a->references -= 1;
 
 		if (object->value.a->references == 0) {
-			crescentA_free(object->value.a);
+			crsA_free(object->value.a);
 		}
 	}
 
-	object->type = CRESCENT_TYPE_NIL;
+	object->type = CRS_TYPE_NIL;
 }
 
 char*
-crescentO_typeName(int type) {
+crsO_typeName(int type) {
 	switch (type) {
-		case CRESCENT_TYPE_NIL:
+		case CRS_TYPE_NIL:
 			return "nil";
-		case CRESCENT_TYPE_BOOLEAN:
+		case CRS_TYPE_BOOLEAN:
 			return "boolean";
-		case CRESCENT_TYPE_INTEGER:
+		case CRS_TYPE_INTEGER:
 			return "number";
-		case CRESCENT_TYPE_FLOAT:
+		case CRS_TYPE_FLOAT:
 			return "number";
-		case CRESCENT_TYPE_STRING:
+		case CRS_TYPE_STRING:
 			return "string";
-		case CRESCENT_TYPE_ARRAY:
+		case CRS_TYPE_ARRAY:
 			return "array";
-		case CRESCENT_TYPE_CFUNCTION:
+		case CRS_TYPE_CFUNCTION:
 			return "function";
 	}
 
@@ -134,73 +134,73 @@ crescentO_typeName(int type) {
 }
 
 int
-crescentO_toBoolean(crescent_Object* object, int* match) {
+crsO_toBoolean(crs_Object* object, int* match) {
 	int type = object->type;
 
 	if (match != NULL) {
-		*match = type == CRESCENT_TYPE_BOOLEAN;
+		*match = type == CRS_TYPE_BOOLEAN;
 	}
 
-	if (type == CRESCENT_TYPE_NIL) {
+	if (type == CRS_TYPE_NIL) {
 		return 0;
-	} else if (type == CRESCENT_TYPE_BOOLEAN) {
+	} else if (type == CRS_TYPE_BOOLEAN) {
 		return object->value.b;
 	}
 
 	return 1;
 }
 
-crescent_Integer
-crescentO_toInteger(crescent_Object* object, int* match) {
+crs_Integer
+crsO_toInteger(crs_Object* object, int* match) {
 	int type = object->type;
 
 	if (match != NULL) {
-		*match = type == CRESCENT_TYPE_INTEGER;
+		*match = type == CRS_TYPE_INTEGER;
 	}
 
 	switch (type) {
-		case CRESCENT_TYPE_INTEGER:
+		case CRS_TYPE_INTEGER:
 			return object->value.i;
-		case CRESCENT_TYPE_FLOAT:
-			return (crescent_Integer)object->value.f;
-		case CRESCENT_TYPE_STRING:
-			return crescentS_toInteger(object->value.s->value, NULL);
+		case CRS_TYPE_FLOAT:
+			return (crs_Integer)object->value.f;
+		case CRS_TYPE_STRING:
+			return crsS_toInteger(object->value.s->value, NULL);
 	}
 
 	return 0;
 }
 
-crescent_Float
-crescentO_toFloat(crescent_Object* object, int* match) {
+crs_Float
+crsO_toFloat(crs_Object* object, int* match) {
 	int type = object->type;
 
 	if (match != NULL) {
-		*match = type == CRESCENT_TYPE_FLOAT;
+		*match = type == CRS_TYPE_FLOAT;
 	}
 
 	switch (type) {
-		case CRESCENT_TYPE_INTEGER:
-			return (crescent_Float)object->value.i;
-		case CRESCENT_TYPE_FLOAT:
+		case CRS_TYPE_INTEGER:
+			return (crs_Float)object->value.i;
+		case CRS_TYPE_FLOAT:
 			return object->value.f;
-		case CRESCENT_TYPE_STRING:
-			return crescentS_toFloat(object->value.s->value, NULL);
+		case CRS_TYPE_STRING:
+			return crsS_toFloat(object->value.s->value, NULL);
 	}
 
 	return 0;
 }
 
 char*
-crescentO_toString(crescent_Object* object, int* match) {
+crsO_toString(crs_Object* object, int* match) {
 	int type = object->type;
 
 	if (match != NULL) {
-		*match = type == CRESCENT_TYPE_STRING;
+		*match = type == CRS_TYPE_STRING;
 	}
 
-	if (object->type == CRESCENT_TYPE_NIL) {
+	if (object->type == CRS_TYPE_NIL) {
 		return "nil";
-	} else if (object->type == CRESCENT_TYPE_BOOLEAN) {
+	} else if (object->type == CRS_TYPE_BOOLEAN) {
 		return object->value.b ? "true" : "false";
 	}
 

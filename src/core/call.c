@@ -22,7 +22,7 @@
 /* next: error handling and stack resizing */
 
 void
-crescentC_setError(crescent_State* state, char* error) {
+crsC_setError(crs_State* state, char* error) {
 	if (state->error != state->gState->memoryError) {
 		free(state->error);
 	}
@@ -37,14 +37,14 @@ crescentC_setError(crescent_State* state, char* error) {
 
 	if (state->error == NULL) {
 		state->error = state->gState->memoryError;
-		crescentC_throw(state, CRESCENT_STATUS_NOMEM);
+		crsC_throw(state, CRS_STATUS_NOMEM);
 	}
 
 	strcpy(state->error, error);
 }
 
 void
-crescentC_moveError(crescent_State* to, crescent_State* from) {
+crsC_moveError(crs_State* to, crs_State* from) {
 	if (from->error == from->gState->memoryError) {
 		to->error = to->gState->memoryError;
 	} else {
@@ -55,8 +55,8 @@ crescentC_moveError(crescent_State* to, crescent_State* from) {
 }
 
 void
-crescentC_throw(crescent_State* state, int status) {
-	crescent_GState* gState = state->gState;
+crsC_throw(crs_State* state, int status) {
+	crs_GState* gState = state->gState;
 
 	if (state->handler != NULL) {
 		state->status = status;
@@ -64,8 +64,8 @@ crescentC_throw(crescent_State* state, int status) {
 	}
 
 	if (gState->mainThread->handler != NULL) {
-		crescentC_moveError(gState->mainThread, state);
-		crescentC_throw(gState->mainThread, status);
+		crsC_moveError(gState->mainThread, state);
+		crsC_throw(gState->mainThread, status);
 	}
 
 	if (gState->panic != NULL) {
@@ -76,7 +76,7 @@ crescentC_throw(crescent_State* state, int status) {
 }
 
 void
-crescentC_memoryError(crescent_State* state) {
+crsC_memoryError(crs_State* state) {
 	char* memoryError = state->gState->memoryError;
 
 	if (state->error != memoryError) {
@@ -84,19 +84,19 @@ crescentC_memoryError(crescent_State* state) {
 	}
 
 	state->error = memoryError;
-	crescentC_throw(state, CRESCENT_STATUS_NOMEM);
+	crsC_throw(state, CRS_STATUS_NOMEM);
 }
 
 void
-crescentC_restoreStack(crescent_State* state, short level) {
+crsC_restoreStack(crs_State* state, short level) {
 	while (state->stack.calls > level) {
-		crescent_Frame* frame = state->stack.frame;
+		crs_Frame* frame = state->stack.frame;
 
-		crescent_Object* from = state->stack.top - 1;
-		crescent_Object* to   = frame->base;
+		crs_Object* from = state->stack.top - 1;
+		crs_Object* to   = frame->base;
 
 		while (from >= to) {
-			crescentO_free(from--);
+			crsO_free(from--);
 		}
 
 		state->stack.top     = to;
@@ -109,19 +109,19 @@ crescentC_restoreStack(crescent_State* state, short level) {
 }
 
 int
-crescentC_reallocStack(crescent_State* state, size_t newSize, int throw) {
-	crescent_Object* newStack = realloc(state->stack.base, newSize * sizeof(crescent_Object));
+crsC_reallocStack(crs_State* state, size_t newSize, int throw) {
+	crs_Object* newStack = realloc(state->stack.base, newSize * sizeof(crs_Object));
 
 	if (newStack == NULL) {
 		if (throw) {
-			crescentC_memoryError(state);
+			crsC_memoryError(state);
 		}
 
 		return 1;
 	}
 
-	ptrdiff_t       offset = newStack - state->stack.base;
-	crescent_Frame* frame  = state->stack.frame;
+	ptrdiff_t  offset = newStack - state->stack.base;
+	crs_Frame* frame  = state->stack.frame;
 
 	state->stack.size = newSize;
 	state->stack.base = newStack;
@@ -136,11 +136,11 @@ crescentC_reallocStack(crescent_State* state, size_t newSize, int throw) {
 }
 
 int
-crescentC_resizeStack(crescent_State* state, size_t needed, int throw) {
-	if (needed > CRESCENT_MAX_STACK) {
+crsC_resizeStack(crs_State* state, size_t needed, int throw) {
+	if (needed > CRS_MAX_STACK) {
 		if (throw) {
-			crescentC_setError(state, "stack overflow");
-			crescentC_throw(state, CRESCENT_STATUS_ERROR);
+			crsC_setError(state, "stack overflow");
+			crsC_throw(state, CRS_STATUS_ERROR);
 		}
 
 		return 1;
@@ -149,28 +149,28 @@ crescentC_resizeStack(crescent_State* state, size_t needed, int throw) {
 	size_t size    = state->stack.size;
 	size_t newSize = needed + needed / 2;
 
-	if (newSize > CRESCENT_MAX_STACK) {
+	if (newSize > CRS_MAX_STACK) {
 		newSize = needed;
-	} else if (newSize < CRESCENT_MIN_STACK) {
-		newSize = CRESCENT_MIN_STACK;
+	} else if (newSize < CRS_MIN_STACK) {
+		newSize = CRS_MIN_STACK;
 	}
 
-	if (needed <= size / 3 && size > CRESCENT_MIN_STACK) {
-		crescentC_reallocStack(state, newSize, 0);
+	if (needed <= size / 3 && size > CRS_MIN_STACK) {
+		crsC_reallocStack(state, newSize, 0);
 
 		return 0;
 	} else if (needed > size) {
-		return crescentC_reallocStack(state, newSize, throw);
+		return crsC_reallocStack(state, newSize, throw);
 	}
 
 	return 0;
 }
 
 int
-crescentC_checkTop(crescent_State* state, int top, int throw) {
-	crescent_Object* stack  = state->stack.base;
-	crescent_Frame*  frame  = state->stack.frame;
-	size_t           needed = (frame->base - stack) + top;
+crsC_checkTop(crs_State* state, int top, int throw) {
+	crs_Object* stack  = state->stack.base;
+	crs_Frame*  frame  = state->stack.frame;
+	size_t      needed = (frame->base - stack) + top;
 
 	frame = frame->previous;
 
@@ -184,7 +184,7 @@ crescentC_checkTop(crescent_State* state, int top, int throw) {
 		frame = frame->previous;
 	}
 
-	if (crescentC_resizeStack(state, needed, throw)) {
+	if (crsC_resizeStack(state, needed, throw)) {
 		return 1;
 	}
 
@@ -194,21 +194,21 @@ crescentC_checkTop(crescent_State* state, int top, int throw) {
 }
 
 int
-crescentC_checkFree(crescent_State* state, int free, int throw) {
+crsC_checkFree(crs_State* state, int free, int throw) {
 	size_t needed = (state->stack.top - state->stack.base) + free;
 
 	if (needed > state->stack.size) {
-		return crescentC_resizeStack(state, needed, throw);
+		return crsC_resizeStack(state, needed, throw);
 	}
 
 	return 0;
 }
 
 void
-crescentC_startCall(crescent_State* state, crescent_Frame* frame, int top, int args) {
-	crescentC_checkFree(state, top - args, 1);
+crsC_startCall(crs_State* state, crs_Frame* frame, int top, int args) {
+	crsC_checkFree(state, top - args, 1);
 
-	crescent_Frame* oldFrame = state->stack.frame;
+	crs_Frame* oldFrame = state->stack.frame;
 
 	oldFrame->next = frame;
 
@@ -223,20 +223,20 @@ crescentC_startCall(crescent_State* state, crescent_Frame* frame, int top, int a
 }
 
 void
-crescentC_endCall(crescent_State* state, int results) {
-	crescent_Frame* frame    = state->stack.frame;
-	crescent_Frame* oldFrame = frame->previous;
+crsC_endCall(crs_State* state, int results) {
+	crs_Frame* frame    = state->stack.frame;
+	crs_Frame* oldFrame = frame->previous;
 
 	int discarded = (state->stack.top - frame->base) - results;
 
 	if (discarded > 0) {
-		crescent_Object* from;
-		crescent_Object* to;
+		crs_Object* from;
+		crs_Object* to;
 
 		to = frame->base;
 
 		for (int a = 0; a < discarded; a++) {
-			crescentO_free(to++);
+			crsO_free(to++);
 		}
 
 		from = state->stack.top - results;
@@ -257,15 +257,15 @@ crescentC_endCall(crescent_State* state, int results) {
 }
 
 int
-crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, int maxResults) {
-	crescent_Frame frame;
-	int            results;
+crsC_callC(crs_State* state, crs_CFunction* function, int args, int maxResults) {
+	crs_Frame frame;
+	int       results;
 
-	crescentC_startCall(
+	crsC_startCall(
 		state,
 		&frame,
-		args < CRESCENT_MIN_TOP
-			? CRESCENT_MIN_TOP
+		args < CRS_MIN_TOP
+			? CRS_MIN_TOP
 			: args,
 		args
 	);
@@ -276,7 +276,7 @@ crescentC_callC(crescent_State* state, crescent_CFunction* function, int args, i
 		results = maxResults;
 	}
 
-	crescentC_endCall(state, results);
+	crsC_endCall(state, results);
 
 	return results;
 }

@@ -6,8 +6,8 @@
  * MIT License
  */
 
-#ifndef CRESCENT_VM_OPCODES_H
-#define CRESCENT_VM_OPCODES_H
+#ifndef CRS_VM_OPCODES_H
+#define CRS_VM_OPCODES_H
 
 #include "conf.h"
 
@@ -41,7 +41,7 @@
  */
 
 enum
-crescent_OpMode {
+crs_OpMode {
 	iABC,
 	iABx,
 	iAxx,
@@ -58,7 +58,7 @@ crescent_OpMode {
  */
 
 enum
-crescent_OpCode {
+crs_OpCode {
 /*  enum            operation                mode        notes */
 	OP_MOV,      /* S[A] = S[B]              iAB               */
 
@@ -127,13 +127,13 @@ crescent_OpCode {
 	OP_JLE       /* if S[A] <= S[B] PC++     iAB               */
 };
 
-typedef enum crescent_OpMode crescent_OpMode;
-typedef enum crescent_OpCode crescent_OpCode;
+typedef enum crs_OpMode crs_OpMode;
+typedef enum crs_OpCode crs_OpCode;
 
-extern crescent_OpMode
-crescentV_mode[];
+extern crs_OpMode
+crsV_mode[];
 
 extern const char*
-crescentV_name[];
+crsV_name[];
 
 #endif

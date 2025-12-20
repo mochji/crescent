@@ -6,145 +6,145 @@
  * MIT License
  */
 
-#ifndef CRESCENT_API_API_H
-#define CRESCENT_API_API_H
+#ifndef CRS_API_API_H
+#define CRS_API_API_H
 
 #include <stddef.h>
 
 #include "conf.h"
 
-typedef struct crescent_State crescent_State;
+typedef struct crs_State crs_State;
 
 extern int
-crescent_version(void);
+crs_version(void);
 
 extern int
-crescent_release(void);
+crs_release(void);
 
 extern const char*
-crescent_typeName(int type);
+crs_typeName(int type);
 
-extern crescent_State*
-crescent_open(void);
-
-extern void
-crescent_close(crescent_State* state);
+extern crs_State*
+crs_open(void);
 
 extern void
-crescent_setPanic(crescent_State* state, crescent_CFunction* function);
-
-extern int
-crescent_checkTop(crescent_State* state, int top);
-
-extern int
-crescent_getTop(crescent_State* state);
+crs_close(crs_State* state);
 
 extern void
-crescent_setTop(crescent_State* state, int top);
+crs_setPanic(crs_State* state, crs_CFunction* function);
 
 extern int
-crescent_type(crescent_State* state, int index);
+crs_checkTop(crs_State* state, int top);
+
+extern int
+crs_getTop(crs_State* state);
+
+extern void
+crs_setTop(crs_State* state, int top);
+
+extern int
+crs_type(crs_State* state, int index);
 
 extern size_t
-crescent_length(crescent_State* state, int index);
+crs_length(crs_State* state, int index);
 
 extern void
-crescent_clone(crescent_State* state, int index);
+crs_clone(crs_State* state, int index);
 
 extern void
-crescent_deepClone(crescent_State* state, int index);
+crs_deepClone(crs_State* state, int index);
 
 extern int
-crescent_isNil(crescent_State* state, int index);
+crs_isNil(crs_State* state, int index);
 
 extern int
-crescent_isBoolean(crescent_State* state, int index);
+crs_isBoolean(crs_State* state, int index);
 
 extern int
-crescent_isInteger(crescent_State* state, int index);
+crs_isInteger(crs_State* state, int index);
 
 extern int
-crescent_isFloat(crescent_State* state, int index);
+crs_isFloat(crs_State* state, int index);
 
 extern int
-crescent_isNumber(crescent_State* state, int index);
+crs_isNumber(crs_State* state, int index);
 
 extern int
-crescent_isString(crescent_State* state, int index);
+crs_isString(crs_State* state, int index);
 
 extern int
-crescent_isCFunction(crescent_State* state, int index);
+crs_isCFunction(crs_State* state, int index);
 
 extern int
-crescent_toBooleanX(crescent_State* state, int index, int* match);
+crs_toBooleanX(crs_State* state, int index, int* match);
 
-extern crescent_Integer
-crescent_toIntegerX(crescent_State* state, int index, int* match);
+extern crs_Integer
+crs_toIntegerX(crs_State* state, int index, int* match);
 
-extern crescent_Float
-crescent_toFloatX(crescent_State* state, int index, int* match);
+extern crs_Float
+crs_toFloatX(crs_State* state, int index, int* match);
 
 extern const char*
-crescent_toStringX(crescent_State* state, int index, int* match);
+crs_toStringX(crs_State* state, int index, int* match);
 
 extern int
-crescent_toBoolean(crescent_State* state, int index);
+crs_toBoolean(crs_State* state, int index);
 
-extern crescent_Integer
-crescent_toInteger(crescent_State* state, int index);
+extern crs_Integer
+crs_toInteger(crs_State* state, int index);
 
-extern crescent_Float
-crescent_toFloat(crescent_State* state, int index);
+extern crs_Float
+crs_toFloat(crs_State* state, int index);
 
 extern const char*
-crescent_toString(crescent_State* state, int index);
+crs_toString(crs_State* state, int index);
 
-extern crescent_CFunction*
-crescent_toCFunction(crescent_State* state, int index);
-
-extern void
-crescent_pushNil(crescent_State* state);
+extern crs_CFunction*
+crs_toCFunction(crs_State* state, int index);
 
 extern void
-crescent_pushBoolean(crescent_State* state, int value);
+crs_pushNil(crs_State* state);
 
 extern void
-crescent_pushInteger(crescent_State* state, crescent_Integer value);
+crs_pushBoolean(crs_State* state, int value);
 
 extern void
-crescent_pushFloat(crescent_State* state, crescent_Float value);
+crs_pushInteger(crs_State* state, crs_Integer value);
 
 extern void
-crescent_pushString(crescent_State* state, const char* str);
+crs_pushFloat(crs_State* state, crs_Float value);
 
 extern void
-crescent_pushCFunction(crescent_State* state, crescent_CFunction* function);
+crs_pushString(crs_State* state, const char* str);
 
 extern void
-crescent_pop(crescent_State* state, int amount);
+crs_pushCFunction(crs_State* state, crs_CFunction* function);
 
 extern void
-crescent_remove(crescent_State* state, int index);
+crs_pop(crs_State* state, int amount);
+
+extern void
+crs_remove(crs_State* state, int index);
 
 extern int
-crescent_call(crescent_State* state, int index, int args);
+crs_call(crs_State* state, int index, int args);
 
 extern int
-crescent_pCall(crescent_State* state, int index, int args, int* status);
+crs_pCall(crs_State* state, int index, int args, int* status);
 
 extern int
-crescent_callK(crescent_State* state, int index, int args, int maxResults);
+crs_callK(crs_State* state, int index, int args, int maxResults);
 
 extern int
-crescent_pCallK(crescent_State* state, int index, int args, int maxResults, int* status);
+crs_pCallK(crs_State* state, int index, int args, int maxResults, int* status);
 
 extern void __attribute__((noreturn))
-crescent_error(crescent_State* state, const char* error);
+crs_error(crs_State* state, const char* error);
 
 extern void
-crescent_clearError(crescent_State* state);
+crs_clearError(crs_State* state);
 
 extern const char*
-crescent_getError(crescent_State* state);
+crs_getError(crs_State* state);
 
 #endif

@@ -21,97 +21,97 @@
 #include "vm/vm.h"
 
 /*
- * This function is a more loose comparison compared to crescentO_compare.
- * crescentO_compare returns false if the 2 objects are of differing types,
+ * This function is a more loose comparison compared to crsO_compare.
+ * crsO_compare returns false if the 2 objects are of differing types,
  * but this allows comparisons between floats and integers.
  */
 
 int
-crescentV_compare(crescent_Object* a, crescent_Object* b) {
+crsV_compare(crs_Object* a, crs_Object* b) {
 	int aType = a->type;
 	int bType = b->type;
 
 	if (aType != bType) {
-		if (aType == CRESCENT_TYPE_INTEGER && bType == CRESCENT_TYPE_FLOAT) {
-			return (crescent_Float)a->value.i == b->value.f;
+		if (aType == CRS_TYPE_INTEGER && bType == CRS_TYPE_FLOAT) {
+			return (crs_Float)a->value.i == b->value.f;
 		}
 
-		if (aType == CRESCENT_TYPE_FLOAT && bType == CRESCENT_TYPE_INTEGER) {
-			return a->value.f == (crescent_Float)b->value.i;
+		if (aType == CRS_TYPE_FLOAT && bType == CRS_TYPE_INTEGER) {
+			return a->value.f == (crs_Float)b->value.i;
 		}
 
 		return 0;
 	}
 
-	return crescentO_compare(a, b);
+	return crsO_compare(a, b);
 }
 
 /* TODO: these functions are temporary until string format */
 
 static void
-crescentV_lengthError(crescent_State* state, int type) {
+crsV_lengthError(crs_State* state, int type) {
 	switch (type) {
-		case CRESCENT_TYPE_NIL:
-			crescentC_setError(state, "attempt to get length of a nil value");
+		case CRS_TYPE_NIL:
+			crsC_setError(state, "attempt to get length of a nil value");
 
 			break;
-		case CRESCENT_TYPE_BOOLEAN:
-			crescentC_setError(state, "attempt to get length of a boolean value");
+		case CRS_TYPE_BOOLEAN:
+			crsC_setError(state, "attempt to get length of a boolean value");
 
 			break;
-		case CRESCENT_TYPE_INTEGER:
-			crescentC_setError(state, "attempt to get length of a number value");
+		case CRS_TYPE_INTEGER:
+			crsC_setError(state, "attempt to get length of a number value");
 
 			break;
-		case CRESCENT_TYPE_FLOAT:
-			crescentC_setError(state, "attempt to get length of a number value");
+		case CRS_TYPE_FLOAT:
+			crsC_setError(state, "attempt to get length of a number value");
 
 			break;
-		case CRESCENT_TYPE_CFUNCTION:
-			crescentC_setError(state, "attempt to get length of a string value");
+		case CRS_TYPE_CFUNCTION:
+			crsC_setError(state, "attempt to get length of a string value");
 
 			break;
 	}
 }
 
 static void
-crescentV_callError(crescent_State* state, int type) {
+crsV_callError(crs_State* state, int type) {
 	switch (type) {
-		case CRESCENT_TYPE_NIL:
-			crescentC_setError(state, "attempt to call a nil value");
+		case CRS_TYPE_NIL:
+			crsC_setError(state, "attempt to call a nil value");
 
 			break;
-		case CRESCENT_TYPE_BOOLEAN:
-			crescentC_setError(state, "attempt to call a boolean value");
+		case CRS_TYPE_BOOLEAN:
+			crsC_setError(state, "attempt to call a boolean value");
 
 			break;
-		case CRESCENT_TYPE_INTEGER:
-			crescentC_setError(state, "attempt to call a number value");
+		case CRS_TYPE_INTEGER:
+			crsC_setError(state, "attempt to call a number value");
 
 			break;
-		case CRESCENT_TYPE_FLOAT:
-			crescentC_setError(state, "attempt to call a number value");
+		case CRS_TYPE_FLOAT:
+			crsC_setError(state, "attempt to call a number value");
 
 			break;
-		case CRESCENT_TYPE_STRING:
-			crescentC_setError(state, "attempt to call a string value");
+		case CRS_TYPE_STRING:
+			crsC_setError(state, "attempt to call a string value");
 
 			break;
-		case CRESCENT_TYPE_ARRAY:
-			crescentC_setError(state, "attempt to call a array value");
+		case CRS_TYPE_ARRAY:
+			crsC_setError(state, "attempt to call a array value");
 
 			break;
 	}
 }
 
 size_t
-crescentV_length(crescent_State* state, crescent_Object* object) {
+crsV_length(crs_State* state, crs_Object* object) {
 	if (!obj_haslength(object->type)) {
-		crescentV_lengthError(state, object->type);
-		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+		crsV_lengthError(state, object->type);
+		crsC_throw(state, CRS_STATUS_ERROR);
 	}
 
-	if (object->type == CRESCENT_TYPE_STRING) {
+	if (object->type == CRS_TYPE_STRING) {
 		return object->value.s->length;
 	}
 
@@ -119,25 +119,25 @@ crescentV_length(crescent_State* state, crescent_Object* object) {
 }
 
 int
-crescentV_call(crescent_State* state, crescent_Object* object, int args, int maxResults) {
+crsV_call(crs_State* state, crs_Object* object, int args, int maxResults) {
 	if (!obj_cancall(object->type)) {
-		crescentV_callError(state, object->type);
-		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+		crsV_callError(state, object->type);
+		crsC_throw(state, CRS_STATUS_ERROR);
 	}
 
-	if (state->stack.calls >= CRESCENT_MAX_CALLS) {
-		crescentC_setError(state, "stack overflow");
-		crescentC_throw(state, CRESCENT_STATUS_ERROR);
-	} else if (state->stack.cCalls >= CRESCENT_MAX_CCALLS) {
-		crescentC_setError(state, "C stack overflow");
-		crescentC_throw(state, CRESCENT_STATUS_ERROR);
+	if (state->stack.calls >= CRS_MAX_CALLS) {
+		crsC_setError(state, "stack overflow");
+		crsC_throw(state, CRS_STATUS_ERROR);
+	} else if (state->stack.cCalls >= CRS_MAX_CCALLS) {
+		crsC_setError(state, "C stack overflow");
+		crsC_throw(state, CRS_STATUS_ERROR);
 	}
 
-	return crescentC_callC(state, object->value.c, args, maxResults);
+	return crsC_callC(state, object->value.c, args, maxResults);
 }
 
 int
-crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int maxResults, int* status) {
+crsV_pCall(crs_State* state, crs_Object* object, int args, int maxResults, int* status) {
 	jmp_buf* handler  = malloc(sizeof(jmp_buf));
 	jmp_buf* previous = state->handler;
 	short    calls    = state->stack.calls;
@@ -147,9 +147,9 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int ma
 	int results;
 
 	if (setjmp(*handler) == 0) {
-		results = crescentV_call(state, object, args, maxResults);
+		results = crsV_call(state, object, args, maxResults);
 	} else {
-		crescentC_restoreStack(state, calls);
+		crsC_restoreStack(state, calls);
 		results = 0;
 	}
 
@@ -157,7 +157,7 @@ crescentV_pCall(crescent_State* state, crescent_Object* object, int args, int ma
 		*status = state->status;
 	}
 
-	state->status  = CRESCENT_STATUS_OK;
+	state->status  = CRS_STATUS_OK;
 	state->handler = previous;
 	free(handler);
 

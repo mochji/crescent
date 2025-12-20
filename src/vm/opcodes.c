@@ -10,8 +10,8 @@
 
 #include "vm/opcodes.h"
 
-crescent_OpMode
-crescentV_mode[] = {
+crs_OpMode
+crsV_mode[] = {
 	iAB,  /* OP_MOV     */
 
 	iA,   /* OP_LODN    */
@@ -80,7 +80,7 @@ crescentV_mode[] = {
 };
 
 const char*
-crescentV_name[] = {
+crsV_name[] = {
 	"OP_MOV",
 
 	"OP_LODN",

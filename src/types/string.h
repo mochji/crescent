@@ -6,8 +6,8 @@
  * MIT License
  */
 
-#ifndef CRESCENT_TYPES_STRING_H
-#define CRESCENT_TYPES_STRING_H
+#ifndef CRS_TYPES_STRING_H
+#define CRS_TYPES_STRING_H
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -16,40 +16,40 @@
 
 #include "core/object.h"
 
-extern crescent_String*
-crescentS_new(size_t length);
+extern crs_String*
+crsS_new(size_t length);
 
-extern crescent_String*
-crescentS_nullString(void);
+extern crs_String*
+crsS_nullString(void);
 
-extern crescent_String*
-crescentS_as(char* str);
+extern crs_String*
+crsS_as(char* str);
 
-extern crescent_String*
-crescentS_clone(crescent_String* string);
+extern crs_String*
+crsS_clone(crs_String* string);
 
 extern void
-crescentS_free(crescent_String* string);
+crsS_free(crs_String* string);
 
 extern int
-crescentS_resize(crescent_String* string, size_t newLength);
+crsS_resize(crs_String* string, size_t newLength);
 
 extern int
-crescentS_compare(crescent_String* stringA, crescent_String* stringB);
+crsS_compare(crs_String* stringA, crs_String* stringB);
 
 extern size_t
-crescentS_hash(char* str);
+crsS_hash(char* str);
 
 extern char*
-crescentS_copy(char* str);
+crsS_copy(char* str);
 
 extern int
-crescentS_hexValue(char c);
+crsS_hexValue(char c);
 
-extern crescent_Integer
-crescentS_toInteger(char* str, int* success);
+extern crs_Integer
+crsS_toInteger(char* str, int* success);
 
-extern crescent_Float
-crescentS_toFloat(char* str, int* success);
+extern crs_Float
+crsS_toFloat(char* str, int* success);
 
 #endif

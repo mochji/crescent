@@ -6,8 +6,8 @@
  * MIT License
  */
 
-#ifndef CRESCENT_CORE_STATE_H
-#define CRESCENT_CORE_STATE_H
+#ifndef CRS_CORE_STATE_H
+#define CRS_CORE_STATE_H
 
 #include <stddef.h>
 #include <setjmp.h>
@@ -17,53 +17,53 @@
 #include "core/object.h"
 
 struct
-crescent_Frame {
-	struct crescent_Object* base;
-	int                     top;
-	struct crescent_Frame*  next;
-	struct crescent_Frame*  previous;
+crs_Frame {
+	struct crs_Object* base;
+	int                top;
+	struct crs_Frame*  next;
+	struct crs_Frame*  previous;
 };
 
 struct
-crescent_State {
+crs_State {
 	struct {
-		size_t                  size;
-		struct crescent_Object* base;
-		struct crescent_Object* top;
-		short                   calls;
-		short                   cCalls;
-		struct crescent_Frame*  frame;
+		size_t             size;
+		struct crs_Object* base;
+		struct crs_Object* top;
+		short              calls;
+		short              cCalls;
+		struct crs_Frame*  frame;
 	} stack;
-	int                      status;
-	char*                    error;
-	jmp_buf*                 handler;
-	struct crescent_State*   next;
-	struct crescent_GState*  gState;
+	int                 status;
+	char*               error;
+	jmp_buf*            handler;
+	struct crs_State*   next;
+	struct crs_GState*  gState;
 };
 
 struct
-crescent_GState {
-	char*                  memoryError;
-	struct crescent_Object nilValue;
-	struct crescent_State* mainThread;
-	struct crescent_State* lastThread;
-	crescent_CFunction*    panic;
+crs_GState {
+	char*             memoryError;
+	struct crs_Object nilValue;
+	struct crs_State* mainThread;
+	struct crs_State* lastThread;
+	crs_CFunction*    panic;
 };
 
-typedef struct crescent_Frame  crescent_Frame;
-typedef struct crescent_State  crescent_State;
-typedef struct crescent_GState crescent_GState;
+typedef struct crs_Frame  crs_Frame;
+typedef struct crs_State  crs_State;
+typedef struct crs_GState crs_GState;
 
-extern crescent_GState*
-crescentE_blankGState(void);
-
-extern void
-crescentE_closeGState(crescent_GState* gState);
-
-extern crescent_State*
-crescentE_blankLState(void);
+extern crs_GState*
+crsE_blankGState(void);
 
 extern void
-crescentE_closeLState(crescent_State* state);
+crsE_closeGState(crs_GState* gState);
+
+extern crs_State*
+crsE_blankLState(void);
+
+extern void
+crsE_closeLState(crs_State* state);
 
 #endif

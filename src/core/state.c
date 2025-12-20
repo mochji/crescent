@@ -16,16 +16,16 @@
 
 #include "core/state.h"
 
-crescent_GState*
-crescentE_blankGState(void) {
-	crescent_GState* gState = malloc(sizeof(crescent_GState));
+crs_GState*
+crsE_blankGState(void) {
+	crs_GState* gState = malloc(sizeof(crs_GState));
 
 	if (gState == NULL) {
 		return NULL;
 	}
 
 	gState->memoryError   = "out of memory";
-	gState->nilValue.type = CRESCENT_TYPE_NIL;
+	gState->nilValue.type = CRS_TYPE_NIL;
 	gState->mainThread    = NULL;
 	gState->lastThread    = NULL;
 	gState->panic         = NULL;
@@ -34,35 +34,35 @@ crescentE_blankGState(void) {
 }
 
 void
-crescentE_closeGState(crescent_GState* gState) {
+crsE_closeGState(crs_GState* gState) {
 	if (gState == NULL) {
 		return;
 	}
 
-	crescent_State* current;
-	crescent_State* next = gState->mainThread;
+	crs_State* current;
+	crs_State* next = gState->mainThread;
 
 	while (next != NULL) {
 		current = next;
 		next    = next->next;
 
-		crescentE_closeLState(current);
+		crsE_closeLState(current);
 	}
 
 	free(gState);
 }
 
-crescent_State*
-crescentE_blankLState(void) {
-	crescent_State* state = malloc(sizeof(crescent_State) + sizeof(crescent_Frame));
-	crescent_Frame* frame = (crescent_Frame*)(state + 1);
+crs_State*
+crsE_blankLState(void) {
+	crs_State* state = malloc(sizeof(crs_State) + sizeof(crs_Frame));
+	crs_Frame* frame = (crs_Frame*)(state + 1);
 
 	if (state == NULL) {
 		return NULL;
 	}
 
-	state->stack.size   = CRESCENT_MIN_STACK;
-	state->stack.base   = calloc(state->stack.size, sizeof(crescent_Object));
+	state->stack.size   = CRS_MIN_STACK;
+	state->stack.base   = calloc(state->stack.size, sizeof(crs_Object));
 	state->stack.top    = state->stack.base;
 	state->stack.calls  = 0;
 	state->stack.cCalls = 0;
@@ -75,11 +75,11 @@ crescentE_blankLState(void) {
 	}
 
 	frame->base     = state->stack.base;
-	frame->top      = CRESCENT_MIN_TOP;
+	frame->top      = CRS_MIN_TOP;
 	frame->next     = NULL;
 	frame->previous = NULL;
 
-	state->status  = CRESCENT_STATUS_OK;
+	state->status  = CRS_STATUS_OK;
 	state->error   = NULL;
 	state->handler = NULL;
 	state->next    = NULL;
@@ -89,15 +89,15 @@ crescentE_blankLState(void) {
 }
 
 void
-crescentE_closeLState(crescent_State* state) {
+crsE_closeLState(crs_State* state) {
 	if (state == NULL) {
 		return;
 	}
 
-	crescent_Object* object = state->stack.base;
+	crs_Object* object = state->stack.base;
 
 	while (object < state->stack.top) {
-		crescentO_free(object++);
+		crsO_free(object++);
 	}
 
 	if (state->error != state->gState->memoryError) {

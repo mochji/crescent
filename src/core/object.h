@@ -6,38 +6,38 @@
  * MIT License
  */
 
-#ifndef CRESCENT_CORE_OBJECT_H
-#define CRESCENT_CORE_OBJECT_H
+#ifndef CRS_CORE_OBJECT_H
+#define CRS_CORE_OBJECT_H
 
 #include "conf.h"
 
 /*
  * the forward declaration here is temporary until i start development on the
- * garbage collector, which will create a "crescent_GCHeader* struct that
+ * garbage collector, which will create a "crs_GCHeader* struct that
  * points to the collectable type
  */
 
-struct crescent_String;
-struct crescent_Array;
+struct crs_String;
+struct crs_Array;
 
 union
-crescent_Value {
-	int                     b;
-	crescent_Integer        i;
-	crescent_Float          f;
-	struct crescent_String* s;
-	struct crescent_Array*  a;
-	crescent_CFunction*     c;
+crs_Value {
+	int                b;
+	crs_Integer        i;
+	crs_Float          f;
+	struct crs_String* s;
+	struct crs_Array*  a;
+	crs_CFunction*     c;
 };
 
 struct
-crescent_Object {
-	unsigned char        type;
-	union crescent_Value value;
+crs_Object {
+	unsigned char   type;
+	union crs_Value value;
 };
 
 struct
-crescent_String {
+crs_String {
 	size_t size;
 	size_t length;
 	char*  value;
@@ -45,44 +45,44 @@ crescent_String {
 };
 
 struct
-crescent_Array {
-	size_t                  size;
-	size_t                  length;
-	struct crescent_Object* value;
-	size_t                  references;
+crs_Array {
+	size_t             size;
+	size_t             length;
+	struct crs_Object* value;
+	size_t             references;
 };
 
-typedef union  crescent_Value  crescent_Value;
-typedef struct crescent_Object crescent_Object;
-typedef struct crescent_String crescent_String;
-typedef struct crescent_Array  crescent_Array;
+typedef union  crs_Value  crs_Value;
+typedef struct crs_Object crs_Object;
+typedef struct crs_String crs_String;
+typedef struct crs_Array  crs_Array;
 
 extern int
-crescentO_compare(crescent_Object* a, crescent_Object* b);
+crsO_compare(crs_Object* a, crs_Object* b);
 
 extern int
-crescentO_clone(crescent_Object* to, crescent_Object* from);
+crsO_clone(crs_Object* to, crs_Object* from);
 
 extern int
-crescentO_deepClone(crescent_Object* to, crescent_Object* from);
+crsO_deepClone(crs_Object* to, crs_Object* from);
 
 extern void
-crescentO_free(crescent_Object* object);
+crsO_free(crs_Object* object);
 
 extern char*
-crescentO_typeName(int type);
+crsO_typeName(int type);
 
 extern int
-crescentO_toBoolean(crescent_Object* object, int* match);
+crsO_toBoolean(crs_Object* object, int* match);
 
-extern crescent_Integer
-crescentO_toInteger(crescent_Object* object, int* match);
+extern crs_Integer
+crsO_toInteger(crs_Object* object, int* match);
 
-extern crescent_Float
-crescentO_toFloat(crescent_Object* object, int* match);
+extern crs_Float
+crsO_toFloat(crs_Object* object, int* match);
 
 extern char*
-crescentO_toString(crescent_Object* object, int* match);
+crsO_toString(crs_Object* object, int* match);
 
 #define obj_cancall(type)   ((type) & 0x04)
 #define obj_haslength(type) ((type) & 0x02)
