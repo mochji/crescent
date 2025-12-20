@@ -25,7 +25,7 @@ crs_Frame {
 };
 
 struct
-crs_State {
+crs_Thread {
 	struct {
 		size_t             size;
 		struct crs_Object* base;
@@ -37,33 +37,33 @@ crs_State {
 	int                 status;
 	char*               error;
 	jmp_buf*            handler;
-	struct crs_State*   next;
-	struct crs_GState*  gState;
+	struct crs_Thread*  next;
+	struct crs_State*   state;
 };
 
 struct
-crs_GState {
-	char*             memoryError;
-	struct crs_Object nilValue;
-	struct crs_State* mainThread;
-	struct crs_State* lastThread;
-	crs_CFunction*    panic;
+crs_State {
+	char*              memoryError;
+	struct crs_Object  nilValue;
+	struct crs_Thread* mainThread;
+	struct crs_Thread* lastThread;
+	crs_CFunction*     panic;
 };
 
 typedef struct crs_Frame  crs_Frame;
+typedef struct crs_Thread crs_Thread;
 typedef struct crs_State  crs_State;
-typedef struct crs_GState crs_GState;
-
-extern crs_GState*
-crsE_blankGState(void);
-
-extern void
-crsE_closeGState(crs_GState* gState);
 
 extern crs_State*
-crsE_blankLState(void);
+crsE_blankState(void);
 
 extern void
-crsE_closeLState(crs_State* state);
+crsE_closeState(crs_State* state);
+
+extern crs_Thread*
+crsE_blankThread(void);
+
+extern void
+crsE_closeThread(crs_Thread* thread);
 
 #endif

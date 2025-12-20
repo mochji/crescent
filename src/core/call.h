@@ -17,43 +17,43 @@
 /* error handling */
 
 extern void
-crsC_setError(crs_State* state, char* error);
+crsC_setError(crs_Thread* thread, char* error);
 
 extern void
-crsC_moveError(crs_State* to, crs_State* from);
+crsC_moveError(crs_Thread* to, crs_Thread* from);
 
 extern void __attribute__((noreturn))
-crsC_throw(crs_State* state, int status);
+crsC_throw(crs_Thread* thread, int status);
 
 extern void __attribute__((noreturn))
-crsC_memoryError(crs_State* state);
+crsC_memoryError(crs_Thread* thread);
 
 extern void
-crsC_restoreStack(crs_State* state, short level);
+crsC_restoreStack(crs_Thread* thread, short level);
 
 /* stack resizing */
 
 extern int
-crsC_reallocStack(crs_State* state, size_t newSize, int throw);
+crsC_reallocStack(crs_Thread* thread, size_t newSize, int throw);
 
 extern int
-crsC_resizeStack(crs_State* state, size_t needed, int throw);
+crsC_resizeStack(crs_Thread* thread, size_t needed, int throw);
 
 extern int
-crsC_checkTop(crs_State* state, int top, int throw);
+crsC_checkTop(crs_Thread* thread, int top, int throw);
 
 extern int
-crsC_checkFree(crs_State* state, int free, int throw);
+crsC_checkFree(crs_Thread* thread, int free, int throw);
 
 /* calling */
 
 extern void
-crsC_startCall(crs_State* state, crs_Frame* frame,  int top, int args);
+crsC_startCall(crs_Thread* thread, crs_Frame* frame,  int top, int args);
 
 extern void
-crsC_endCall(crs_State* state, int results);
+crsC_endCall(crs_Thread* thread, int results);
 
 extern int
-crsC_callC(crs_State* state, crs_CFunction* function, int args, int maxResults);
+crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int maxResults);
 
 #endif

@@ -20,12 +20,12 @@ extern int
 crsV_compare(crs_Object* a, crs_Object* b);
 
 extern size_t
-crsV_length(crs_State* state, crs_Object* object);
+crsV_length(crs_Thread* thread, crs_Object* object);
 
 extern int
-crsV_call(crs_State* state, crs_Object* object, int args, int maxResults);
+crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults);
 
 extern int
-crsV_pCall(crs_State* state, crs_Object* object, int args, int maxResults, int* status);
+crsV_pCall(crs_Thread* thread, crs_Object* object, int args, int maxResults, int* status);
 
 #endif

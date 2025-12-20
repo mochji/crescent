@@ -160,10 +160,10 @@
 #	define CRS_FLOAT_FMT "%llf"
 #endif
 
-struct crs_State;
+struct crs_Thread;
 
 typedef CRS_INTEGER crs_Integer;
 typedef CRS_FLOAT   crs_Float;
-typedef int        (crs_CFunction)(struct crs_State*);
+typedef int        (crs_CFunction)(struct crs_Thread*);
 
 #endif

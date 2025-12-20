@@ -13,7 +13,7 @@
 
 #include "conf.h"
 
-typedef struct crs_State crs_State;
+typedef struct crs_Thread crs_Thread;
 
 extern int
 crs_version(void);
@@ -24,127 +24,127 @@ crs_release(void);
 extern const char*
 crs_typeName(int type);
 
-extern crs_State*
+extern crs_Thread*
 crs_open(void);
 
 extern void
-crs_close(crs_State* state);
+crs_close(crs_Thread* thread);
 
 extern void
-crs_setPanic(crs_State* state, crs_CFunction* function);
+crs_setPanic(crs_Thread* thread, crs_CFunction* function);
 
 extern int
-crs_checkTop(crs_State* state, int top);
+crs_checkTop(crs_Thread* thread, int top);
 
 extern int
-crs_getTop(crs_State* state);
+crs_getTop(crs_Thread* thread);
 
 extern void
-crs_setTop(crs_State* state, int top);
+crs_setTop(crs_Thread* thread, int top);
 
 extern int
-crs_type(crs_State* state, int index);
+crs_type(crs_Thread* thread, int index);
 
 extern size_t
-crs_length(crs_State* state, int index);
+crs_length(crs_Thread* thread, int index);
 
 extern void
-crs_clone(crs_State* state, int index);
+crs_clone(crs_Thread* thread, int index);
 
 extern void
-crs_deepClone(crs_State* state, int index);
+crs_deepClone(crs_Thread* thread, int index);
 
 extern int
-crs_isNil(crs_State* state, int index);
+crs_isNil(crs_Thread* thread, int index);
 
 extern int
-crs_isBoolean(crs_State* state, int index);
+crs_isBoolean(crs_Thread* thread, int index);
 
 extern int
-crs_isInteger(crs_State* state, int index);
+crs_isInteger(crs_Thread* thread, int index);
 
 extern int
-crs_isFloat(crs_State* state, int index);
+crs_isFloat(crs_Thread* thread, int index);
 
 extern int
-crs_isNumber(crs_State* state, int index);
+crs_isNumber(crs_Thread* thread, int index);
 
 extern int
-crs_isString(crs_State* state, int index);
+crs_isString(crs_Thread* thread, int index);
 
 extern int
-crs_isCFunction(crs_State* state, int index);
+crs_isCFunction(crs_Thread* thread, int index);
 
 extern int
-crs_toBooleanX(crs_State* state, int index, int* match);
+crs_toBooleanX(crs_Thread* thread, int index, int* match);
 
 extern crs_Integer
-crs_toIntegerX(crs_State* state, int index, int* match);
+crs_toIntegerX(crs_Thread* thread, int index, int* match);
 
 extern crs_Float
-crs_toFloatX(crs_State* state, int index, int* match);
+crs_toFloatX(crs_Thread* thread, int index, int* match);
 
 extern const char*
-crs_toStringX(crs_State* state, int index, int* match);
+crs_toStringX(crs_Thread* thread, int index, int* match);
 
 extern int
-crs_toBoolean(crs_State* state, int index);
+crs_toBoolean(crs_Thread* thread, int index);
 
 extern crs_Integer
-crs_toInteger(crs_State* state, int index);
+crs_toInteger(crs_Thread* thread, int index);
 
 extern crs_Float
-crs_toFloat(crs_State* state, int index);
+crs_toFloat(crs_Thread* thread, int index);
 
 extern const char*
-crs_toString(crs_State* state, int index);
+crs_toString(crs_Thread* thread, int index);
 
 extern crs_CFunction*
-crs_toCFunction(crs_State* state, int index);
+crs_toCFunction(crs_Thread* thread, int index);
 
 extern void
-crs_pushNil(crs_State* state);
+crs_pushNil(crs_Thread* thread);
 
 extern void
-crs_pushBoolean(crs_State* state, int value);
+crs_pushBoolean(crs_Thread* thread, int value);
 
 extern void
-crs_pushInteger(crs_State* state, crs_Integer value);
+crs_pushInteger(crs_Thread* thread, crs_Integer value);
 
 extern void
-crs_pushFloat(crs_State* state, crs_Float value);
+crs_pushFloat(crs_Thread* thread, crs_Float value);
 
 extern void
-crs_pushString(crs_State* state, const char* str);
+crs_pushString(crs_Thread* thread, const char* str);
 
 extern void
-crs_pushCFunction(crs_State* state, crs_CFunction* function);
+crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
 
 extern void
-crs_pop(crs_State* state, int amount);
+crs_pop(crs_Thread* thread, int amount);
 
 extern void
-crs_remove(crs_State* state, int index);
+crs_remove(crs_Thread* thread, int index);
 
 extern int
-crs_call(crs_State* state, int index, int args);
+crs_call(crs_Thread* thread, int index, int args);
 
 extern int
-crs_pCall(crs_State* state, int index, int args, int* status);
+crs_pCall(crs_Thread* thread, int index, int args, int* status);
 
 extern int
-crs_callK(crs_State* state, int index, int args, int maxResults);
+crs_callK(crs_Thread* thread, int index, int args, int maxResults);
 
 extern int
-crs_pCallK(crs_State* state, int index, int args, int maxResults, int* status);
+crs_pCallK(crs_Thread* thread, int index, int args, int maxResults, int* status);
 
 extern void __attribute__((noreturn))
-crs_error(crs_State* state, const char* error);
+crs_error(crs_Thread* thread, const char* error);
 
 extern void
-crs_clearError(crs_State* state);
+crs_clearError(crs_Thread* thread);
 
 extern const char*
-crs_getError(crs_State* state);
+crs_getError(crs_Thread* thread);
 
 #endif

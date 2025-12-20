@@ -22,31 +22,31 @@
 /* next: error handling and stack resizing */
 
 void
-crsC_setError(crs_State* state, char* error) {
-	if (state->error != state->gState->memoryError) {
-		free(state->error);
+crsC_setError(crs_Thread* thread, char* error) {
+	if (thread->error != thread->state->memoryError) {
+		free(thread->error);
 	}
 
 	if (error == NULL) {
-		state->error = NULL;
+		thread->error = NULL;
 
 		return;
 	}
 
-	state->error = malloc(strlen(error) + 1);
+	thread->error = malloc(strlen(error) + 1);
 
-	if (state->error == NULL) {
-		state->error = state->gState->memoryError;
-		crsC_throw(state, CRS_STATUS_NOMEM);
+	if (thread->error == NULL) {
+		thread->error = thread->state->memoryError;
+		crsC_throw(thread, CRS_STATUS_NOMEM);
 	}
 
-	strcpy(state->error, error);
+	strcpy(thread->error, error);
 }
 
 void
-crsC_moveError(crs_State* to, crs_State* from) {
-	if (from->error == from->gState->memoryError) {
-		to->error = to->gState->memoryError;
+crsC_moveError(crs_Thread* to, crs_Thread* from) {
+	if (from->error == from->state->memoryError) {
+		to->error = to->state->memoryError;
 	} else {
 		to->error = from->error;
 	}
@@ -55,77 +55,77 @@ crsC_moveError(crs_State* to, crs_State* from) {
 }
 
 void
-crsC_throw(crs_State* state, int status) {
-	crs_GState* gState = state->gState;
+crsC_throw(crs_Thread* thread, int status) {
+	crs_State* state = thread->state;
 
-	if (state->handler != NULL) {
-		state->status = status;
-		longjmp(*state->handler, 1);
+	if (thread->handler != NULL) {
+		thread->status = status;
+		longjmp(*thread->handler, 1);
 	}
 
-	if (gState->mainThread->handler != NULL) {
-		crsC_moveError(gState->mainThread, state);
-		crsC_throw(gState->mainThread, status);
+	if (state->mainThread->handler != NULL) {
+		crsC_moveError(state->mainThread, thread);
+		crsC_throw(state->mainThread, status);
 	}
 
-	if (gState->panic != NULL) {
-		gState->panic(state);
+	if (state->panic != NULL) {
+		state->panic(thread);
 	}
 
 	abort();
 }
 
 void
-crsC_memoryError(crs_State* state) {
-	char* memoryError = state->gState->memoryError;
+crsC_memoryError(crs_Thread* thread) {
+	char* memoryError = thread->state->memoryError;
 
-	if (state->error != memoryError) {
-		free(state->error);
+	if (thread->error != memoryError) {
+		free(thread->error);
 	}
 
-	state->error = memoryError;
-	crsC_throw(state, CRS_STATUS_NOMEM);
+	thread->error = memoryError;
+	crsC_throw(thread, CRS_STATUS_NOMEM);
 }
 
 void
-crsC_restoreStack(crs_State* state, short level) {
-	while (state->stack.calls > level) {
-		crs_Frame* frame = state->stack.frame;
+crsC_restoreStack(crs_Thread* thread, short level) {
+	while (thread->stack.calls > level) {
+		crs_Frame* frame = thread->stack.frame;
 
-		crs_Object* from = state->stack.top - 1;
+		crs_Object* from = thread->stack.top - 1;
 		crs_Object* to   = frame->base;
 
 		while (from >= to) {
 			crsO_free(from--);
 		}
 
-		state->stack.top     = to;
-		state->stack.calls  -= 1;
-		state->stack.cCalls -= 1;
-		state->stack.frame   = frame->previous;
+		thread->stack.top     = to;
+		thread->stack.calls  -= 1;
+		thread->stack.cCalls -= 1;
+		thread->stack.frame   = frame->previous;
 
 		free(frame);
 	}
 }
 
 int
-crsC_reallocStack(crs_State* state, size_t newSize, int throw) {
-	crs_Object* newStack = realloc(state->stack.base, newSize * sizeof(crs_Object));
+crsC_reallocStack(crs_Thread* thread, size_t newSize, int throw) {
+	crs_Object* newStack = realloc(thread->stack.base, newSize * sizeof(crs_Object));
 
 	if (newStack == NULL) {
 		if (throw) {
-			crsC_memoryError(state);
+			crsC_memoryError(thread);
 		}
 
 		return 1;
 	}
 
-	ptrdiff_t  offset = newStack - state->stack.base;
-	crs_Frame* frame  = state->stack.frame;
+	ptrdiff_t  offset = newStack - thread->stack.base;
+	crs_Frame* frame  = thread->stack.frame;
 
-	state->stack.size = newSize;
-	state->stack.base = newStack;
-	state->stack.top += offset;
+	thread->stack.size = newSize;
+	thread->stack.base = newStack;
+	thread->stack.top += offset;
 
 	while (frame != NULL) {
 		frame->base += offset;
@@ -136,17 +136,17 @@ crsC_reallocStack(crs_State* state, size_t newSize, int throw) {
 }
 
 int
-crsC_resizeStack(crs_State* state, size_t needed, int throw) {
+crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
 	if (needed > CRS_MAX_STACK) {
 		if (throw) {
-			crsC_setError(state, "stack overflow");
-			crsC_throw(state, CRS_STATUS_ERROR);
+			crsC_setError(thread, "stack overflow");
+			crsC_throw(thread, CRS_STATUS_ERROR);
 		}
 
 		return 1;
 	}
 
-	size_t size    = state->stack.size;
+	size_t size    = thread->stack.size;
 	size_t newSize = needed + needed / 2;
 
 	if (newSize > CRS_MAX_STACK) {
@@ -156,20 +156,20 @@ crsC_resizeStack(crs_State* state, size_t needed, int throw) {
 	}
 
 	if (needed <= size / 3 && size > CRS_MIN_STACK) {
-		crsC_reallocStack(state, newSize, 0);
+		crsC_reallocStack(thread, newSize, 0);
 
 		return 0;
 	} else if (needed > size) {
-		return crsC_reallocStack(state, newSize, throw);
+		return crsC_reallocStack(thread, newSize, throw);
 	}
 
 	return 0;
 }
 
 int
-crsC_checkTop(crs_State* state, int top, int throw) {
-	crs_Object* stack  = state->stack.base;
-	crs_Frame*  frame  = state->stack.frame;
+crsC_checkTop(crs_Thread* thread, int top, int throw) {
+	crs_Object* stack  = thread->stack.base;
+	crs_Frame*  frame  = thread->stack.frame;
 	size_t      needed = (frame->base - stack) + top;
 
 	frame = frame->previous;
@@ -184,50 +184,50 @@ crsC_checkTop(crs_State* state, int top, int throw) {
 		frame = frame->previous;
 	}
 
-	if (crsC_resizeStack(state, needed, throw)) {
+	if (crsC_resizeStack(thread, needed, throw)) {
 		return 1;
 	}
 
-	state->stack.frame->top = top;
+	thread->stack.frame->top = top;
 
 	return 0;
 }
 
 int
-crsC_checkFree(crs_State* state, int free, int throw) {
-	size_t needed = (state->stack.top - state->stack.base) + free;
+crsC_checkFree(crs_Thread* thread, int free, int throw) {
+	size_t needed = (thread->stack.top - thread->stack.base) + free;
 
-	if (needed > state->stack.size) {
-		return crsC_resizeStack(state, needed, throw);
+	if (needed > thread->stack.size) {
+		return crsC_resizeStack(thread, needed, throw);
 	}
 
 	return 0;
 }
 
 void
-crsC_startCall(crs_State* state, crs_Frame* frame, int top, int args) {
-	crsC_checkFree(state, top - args, 1);
+crsC_startCall(crs_Thread* thread, crs_Frame* frame, int top, int args) {
+	crsC_checkFree(thread, top - args, 1);
 
-	crs_Frame* oldFrame = state->stack.frame;
+	crs_Frame* oldFrame = thread->stack.frame;
 
 	oldFrame->next = frame;
 
-	frame->base     = state->stack.top - args;
+	frame->base     = thread->stack.top - args;
 	frame->top      = top;
 	frame->next     = NULL;
 	frame->previous = oldFrame;
 
-	state->stack.calls  += 1;
-	state->stack.cCalls += 1;
-	state->stack.frame   = frame;
+	thread->stack.calls  += 1;
+	thread->stack.cCalls += 1;
+	thread->stack.frame   = frame;
 }
 
 void
-crsC_endCall(crs_State* state, int results) {
-	crs_Frame* frame    = state->stack.frame;
+crsC_endCall(crs_Thread* thread, int results) {
+	crs_Frame* frame    = thread->stack.frame;
 	crs_Frame* oldFrame = frame->previous;
 
-	int discarded = (state->stack.top - frame->base) - results;
+	int discarded = (thread->stack.top - frame->base) - results;
 
 	if (discarded > 0) {
 		crs_Object* from;
@@ -239,7 +239,7 @@ crsC_endCall(crs_State* state, int results) {
 			crsO_free(to++);
 		}
 
-		from = state->stack.top - results;
+		from = thread->stack.top - results;
 		to   = frame->base;
 
 		for (int a = 0; a < results; a++) {
@@ -250,19 +250,19 @@ crsC_endCall(crs_State* state, int results) {
 	oldFrame->top += results;
 	oldFrame->next = NULL;
 
-	state->stack.top    -= discarded;
-	state->stack.calls  -= 1;
-	state->stack.cCalls -= 1;
-	state->stack.frame   = oldFrame;
+	thread->stack.top    -= discarded;
+	thread->stack.calls  -= 1;
+	thread->stack.cCalls -= 1;
+	thread->stack.frame   = oldFrame;
 }
 
 int
-crsC_callC(crs_State* state, crs_CFunction* function, int args, int maxResults) {
+crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int maxResults) {
 	crs_Frame frame;
 	int       results;
 
 	crsC_startCall(
-		state,
+		thread,
 		&frame,
 		args < CRS_MIN_TOP
 			? CRS_MIN_TOP
@@ -270,13 +270,13 @@ crsC_callC(crs_State* state, crs_CFunction* function, int args, int maxResults) 
 		args
 	);
 
-	results = function(state);
+	results = function(thread);
 
 	if (results > maxResults) {
 		results = maxResults;
 	}
 
-	crsC_endCall(state, results);
+	crsC_endCall(thread, results);
 
 	return results;
 }

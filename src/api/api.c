@@ -24,11 +24,11 @@
 #include "vm/vm.h"
 
 static int
-crs_panic(crs_State* state) {
+crs_panic(crs_Thread* thread) {
 	char* error;
 
-	if (state->error != NULL) {
-		error = state->error;
+	if (thread->error != NULL) {
+		error = thread->error;
 	} else {
 		error = "no error";
 	}
@@ -39,45 +39,45 @@ crs_panic(crs_State* state) {
 }
 
 static crs_Object*
-crs_getIndex(crs_State* state, int index) {
+crs_getIndex(crs_Thread* thread, int index) {
 	if (index == 0) {
-		return &state->gState->nilValue;
+		return &thread->state->nilValue;
 	}
 
 	crs_Object* object;
 
 	if (index < 0) {
-		object = state->stack.top + index;
+		object = thread->stack.top + index;
 
-		return object >= state->stack.frame->base
+		return object >= thread->stack.frame->base
 			? object
-			: &state->gState->nilValue;
+			: &thread->state->nilValue;
 	}
 
-	object = state->stack.frame->base + index - 1;
+	object = thread->stack.frame->base + index - 1;
 
-	return object < state->stack.top
+	return object < thread->stack.top
 		? object
-		: &state->gState->nilValue;
+		: &thread->state->nilValue;
 }
 
 static crs_Object*
-crs_adjustTop(crs_State* state, int amount) {
-	crs_Frame* frame = state->stack.frame;
-	int        items = state->stack.top - frame->base;
+crs_adjustTop(crs_Thread* thread, int amount) {
+	crs_Frame* frame = thread->stack.frame;
+	int        items = thread->stack.top - frame->base;
 
 	if (-amount > items) {
 		amount = -items;
 	}
 
 	if (items + amount > frame->top) {
-		crsC_setError(state, "stack overflow");
-		crsC_throw(state, CRS_STATUS_ERROR);
+		crsC_setError(thread, "stack overflow");
+		crsC_throw(thread, CRS_STATUS_ERROR);
 	}
 
-	state->stack.top += amount;
+	thread->stack.top += amount;
 
-	return state->stack.top - 1;
+	return thread->stack.top - 1;
 }
 
 int
@@ -95,41 +95,41 @@ crs_typeName(int type) {
 	return crsO_typeName(type);
 }
 
-crs_State*
+crs_Thread*
 crs_open(void) {
-	crs_GState* gState = crsE_blankGState();
-	crs_State*  state  = crsE_blankLState();
+	crs_State*  state  = crsE_blankState();
+	crs_Thread* thread = crsE_blankThread();
 
-	if (gState == NULL || state == NULL) {
-		crsE_closeGState(gState);
-		crsE_closeLState(state);
+	if (state == NULL || thread == NULL) {
+		crsE_closeState(state);
+		crsE_closeThread(thread);
 
 		return NULL;
 	}
 
-	gState->mainThread = state;
-	gState->lastThread = state;
-	gState->panic      = &crs_panic;
+	state->mainThread = thread;
+	state->lastThread = thread;
+	state->panic      = &crs_panic;
 
-	state->gState = gState;
+	thread->state = state;
 
-	return state;
+	return thread;
 }
 
 void
-crs_close(crs_State* state) {
-	crsE_closeGState(state->gState);
+crs_close(crs_Thread* thread) {
+	crsE_closeState(thread->state);
 }
 
 void
-crs_setPanic(crs_State* state, crs_CFunction* function) {
-	state->gState->panic = function;
+crs_setPanic(crs_Thread* thread, crs_CFunction* function) {
+	thread->state->panic = function;
 }
 
 int
-crs_checkTop(crs_State* state, int top) {
+crs_checkTop(crs_Thread* thread, int top) {
 	return !crsC_checkTop(
-		state,
+		thread,
 		top < CRS_MIN_TOP
 			? CRS_MIN_TOP
 			: top,
@@ -138,24 +138,24 @@ crs_checkTop(crs_State* state, int top) {
 }
 
 int
-crs_getTop(crs_State* state) {
-	return state->stack.top - state->stack.frame->base;
+crs_getTop(crs_Thread* thread) {
+	return thread->stack.top - thread->stack.frame->base;
 }
 
 void
-crs_setTop(crs_State* state, int top) {
+crs_setTop(crs_Thread* thread, int top) {
 	if (top < 0) {
 		top = 0;
 	}
 
-	crs_Frame* frame = state->stack.frame;
+	crs_Frame* frame = thread->stack.frame;
 
-	crs_Object* object = state->stack.top;
+	crs_Object* object = thread->stack.top;
 	crs_Object* to     = frame->base + top;
 
 	if (to >= frame->base + frame->top) {
-		crsC_setError(state, "stack overflow");
-		crsC_throw(state, CRS_STATUS_ERROR);
+		crsC_setError(thread, "stack overflow");
+		crsC_throw(thread, CRS_STATUS_ERROR);
 	}
 
 	if (object < to) {
@@ -168,121 +168,121 @@ crs_setTop(crs_State* state, int top) {
 		}
 	}
 
-	state->stack.top = to;
+	thread->stack.top = to;
 }
 
 int
-crs_type(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type;
+crs_type(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type;
 }
 
 size_t
-crs_length(crs_State* state, int index) {
-	return crsV_length(state, crs_getIndex(state, index));
+crs_length(crs_Thread* thread, int index) {
+	return crsV_length(thread, crs_getIndex(thread, index));
 }
 
 void
-crs_clone(crs_State* state, int index) {
-	crs_Object* from = crs_getIndex(state, index);
-	crs_Object* to   = crs_adjustTop(state, 1);
+crs_clone(crs_Thread* thread, int index) {
+	crs_Object* from = crs_getIndex(thread, index);
+	crs_Object* to   = crs_adjustTop(thread, 1);
 
 	if (crsO_clone(to, from)) {
-		state->stack.top -= 1;
+		thread->stack.top -= 1;
 
-		crsC_memoryError(state);
+		crsC_memoryError(thread);
 	}
 }
 
 void
-crs_deepClone(crs_State* state, int index) {
-	crs_Object* from = crs_getIndex(state, index);
-	crs_Object* to   = crs_adjustTop(state, 1);
+crs_deepClone(crs_Thread* thread, int index) {
+	crs_Object* from = crs_getIndex(thread, index);
+	crs_Object* to   = crs_adjustTop(thread, 1);
 
 	if (crsO_deepClone(to, from)) {
-		state->stack.top -= 1;
+		thread->stack.top -= 1;
 
-		crsC_memoryError(state);
+		crsC_memoryError(thread);
 	}
 }
 
 int
-crs_isNil(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type == CRS_TYPE_NIL;
+crs_isNil(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_NIL;
 }
 
 int
-crs_isBoolean(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type == CRS_TYPE_BOOLEAN;
+crs_isBoolean(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_BOOLEAN;
 }
 
 int
-crs_isInteger(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type == CRS_TYPE_INTEGER;
+crs_isInteger(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_INTEGER;
 }
 
 int
-crs_isFloat(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type == CRS_TYPE_FLOAT;
+crs_isFloat(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_FLOAT;
 }
 
 int
-crs_isNumber(crs_State* state, int index) {
-	return obj_isnumber(crs_getIndex(state, index)->type);
+crs_isNumber(crs_Thread* thread, int index) {
+	return obj_isnumber(crs_getIndex(thread, index)->type);
 }
 
 int
-crs_isString(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type == CRS_TYPE_STRING;
+crs_isString(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_STRING;
 }
 
 int
-crs_isCFunction(crs_State* state, int index) {
-	return crs_getIndex(state, index)->type == CRS_TYPE_CFUNCTION;
+crs_isCFunction(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_CFUNCTION;
 }
 
 int
-crs_toBooleanX(crs_State* state, int index, int* match) {
-	return crsO_toBoolean(crs_getIndex(state, index), match);
+crs_toBooleanX(crs_Thread* thread, int index, int* match) {
+	return crsO_toBoolean(crs_getIndex(thread, index), match);
 }
 
 crs_Integer
-crs_toIntegerX(crs_State* state, int index, int* match) {
-	return crsO_toInteger(crs_getIndex(state, index), match);
+crs_toIntegerX(crs_Thread* thread, int index, int* match) {
+	return crsO_toInteger(crs_getIndex(thread, index), match);
 }
 
 crs_Float
-crs_toFloatX(crs_State* state, int index, int* match) {
-	return crsO_toFloat(crs_getIndex(state, index), match);
+crs_toFloatX(crs_Thread* thread, int index, int* match) {
+	return crsO_toFloat(crs_getIndex(thread, index), match);
 }
 
 const char*
-crs_toStringX(crs_State* state, int index, int* match) {
-	return crsO_toString(crs_getIndex(state, index), match);
+crs_toStringX(crs_Thread* thread, int index, int* match) {
+	return crsO_toString(crs_getIndex(thread, index), match);
 }
 
 int
-crs_toBoolean(crs_State* state, int index) {
-	return crsO_toBoolean(crs_getIndex(state, index), NULL);
+crs_toBoolean(crs_Thread* thread, int index) {
+	return crsO_toBoolean(crs_getIndex(thread, index), NULL);
 }
 
 crs_Integer
-crs_toInteger(crs_State* state, int index) {
-	return crsO_toInteger(crs_getIndex(state, index), NULL);
+crs_toInteger(crs_Thread* thread, int index) {
+	return crsO_toInteger(crs_getIndex(thread, index), NULL);
 }
 
 crs_Float
-crs_toFloat(crs_State* state, int index) {
-	return crsO_toFloat(crs_getIndex(state, index), NULL);
+crs_toFloat(crs_Thread* thread, int index) {
+	return crsO_toFloat(crs_getIndex(thread, index), NULL);
 }
 
 const char*
-crs_toString(crs_State* state, int index) {
-	return crsO_toString(crs_getIndex(state, index), NULL);
+crs_toString(crs_Thread* thread, int index) {
+	return crsO_toString(crs_getIndex(thread, index), NULL);
 }
 
 crs_CFunction*
-crs_toCFunction(crs_State* state, int index) {
-	crs_Object* object = crs_getIndex(state, index);
+crs_toCFunction(crs_Thread* thread, int index) {
+	crs_Object* object = crs_getIndex(thread, index);
 
 	if (object->type == CRS_TYPE_CFUNCTION) {
 		return object->value.c;
@@ -292,45 +292,45 @@ crs_toCFunction(crs_State* state, int index) {
 }
 
 void
-crs_pushNil(crs_State* state) {
-	crs_Object* object = crs_adjustTop(state, 1);
+crs_pushNil(crs_Thread* thread) {
+	crs_Object* object = crs_adjustTop(thread, 1);
 
 	object->type = CRS_TYPE_NIL;
 }
 
 void
-crs_pushBoolean(crs_State* state, int value) {
-	crs_Object* object = crs_adjustTop(state, 1);
+crs_pushBoolean(crs_Thread* thread, int value) {
+	crs_Object* object = crs_adjustTop(thread, 1);
 
 	object->type    = CRS_TYPE_BOOLEAN;
 	object->value.b = value;
 }
 
 void
-crs_pushInteger(crs_State* state, crs_Integer value) {
-	crs_Object* object = crs_adjustTop(state, 1);
+crs_pushInteger(crs_Thread* thread, crs_Integer value) {
+	crs_Object* object = crs_adjustTop(thread, 1);
 
 	object->type    = CRS_TYPE_INTEGER;
 	object->value.i = value;
 }
 
 void
-crs_pushFloat(crs_State* state, crs_Float value) {
-	crs_Object* object = crs_adjustTop(state, 1);
+crs_pushFloat(crs_Thread* thread, crs_Float value) {
+	crs_Object* object = crs_adjustTop(thread, 1);
 
 	object->type    = CRS_TYPE_FLOAT;
 	object->value.f = value;
 }
 
 void
-crs_pushString(crs_State* state, const char* str) {
-	crs_Object* object = crs_adjustTop(state, 1);
+crs_pushString(crs_Thread* thread, const char* str) {
+	crs_Object* object = crs_adjustTop(thread, 1);
 	crs_String* string = crsS_as((char*)str);
 
 	if (string == NULL) {
-		state->stack.top -= 1;
+		thread->stack.top -= 1;
 
-		crsC_memoryError(state);
+		crsC_memoryError(thread);
 	}
 
 	object->type    = CRS_TYPE_STRING;
@@ -338,43 +338,43 @@ crs_pushString(crs_State* state, const char* str) {
 }
 
 void
-crs_pushCFunction(crs_State* state, crs_CFunction* function) {
-	crs_Object* object = crs_adjustTop(state, 1);
+crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
+	crs_Object* object = crs_adjustTop(thread, 1);
 
 	object->type    = CRS_TYPE_CFUNCTION;
 	object->value.c = function;
 }
 
 void
-crs_pop(crs_State* state, int amount) {
+crs_pop(crs_Thread* thread, int amount) {
 	if (amount <= 0) {
 		return;
 	}
 
-	crs_Frame* frame = state->stack.frame;
-	int        items = state->stack.top - frame->base;
+	crs_Frame* frame = thread->stack.frame;
+	int        items = thread->stack.top - frame->base;
 
 	if (amount > items) {
 		amount = items;
 	}
 
-	crs_Object* object = state->stack.top - 1;
+	crs_Object* object = thread->stack.top - 1;
 
 	for (int a = 0; a < amount; a++) {
 		crsO_free(object--);
 	}
 
-	state->stack.top -= amount;
+	thread->stack.top -= amount;
 }
 
 void
-crs_remove(crs_State* state, int index) {
+crs_remove(crs_Thread* thread, int index) {
 	if (index == 0) {
 		return;
 	}
 
-	crs_Frame* frame = state->stack.frame;
-	int        items = state->stack.top - frame->base;
+	crs_Frame* frame = thread->stack.frame;
+	int        items = thread->stack.top - frame->base;
 
 	if (index < 0) {
 		if (-index > items) {
@@ -395,41 +395,41 @@ crs_remove(crs_State* state, int index) {
 
 	object->type = CRS_TYPE_NIL;
 
-	state->stack.top -= 1;
+	thread->stack.top -= 1;
 }
 
 int
-crs_call(crs_State* state, int index, int args) {
-	return crsV_call(state, crs_getIndex(state, index), args, INT_MAX);
+crs_call(crs_Thread* thread, int index, int args) {
+	return crsV_call(thread, crs_getIndex(thread, index), args, INT_MAX);
 }
 
 int
-crs_pCall(crs_State* state, int index, int args, int* status) {
-	return crsV_pCall(state, crs_getIndex(state, index), args, INT_MAX, status);
+crs_pCall(crs_Thread* thread, int index, int args, int* status) {
+	return crsV_pCall(thread, crs_getIndex(thread, index), args, INT_MAX, status);
 }
 
 int
-crs_callK(crs_State* state, int index, int args, int maxResults) {
-	return crsV_call(state, crs_getIndex(state, index), args, maxResults);
+crs_callK(crs_Thread* thread, int index, int args, int maxResults) {
+	return crsV_call(thread, crs_getIndex(thread, index), args, maxResults);
 }
 
 int
-crs_pCallK(crs_State* state, int index, int args, int maxResults, int* status) {
-	return crsV_pCall(state, crs_getIndex(state, index), args, maxResults, status);
+crs_pCallK(crs_Thread* thread, int index, int args, int maxResults, int* status) {
+	return crsV_pCall(thread, crs_getIndex(thread, index), args, maxResults, status);
 }
 
 void __attribute__((noreturn))
-crs_error(crs_State* state, const char* error) {
-	crsC_setError(state, (char*)error);
-	crsC_throw(state, CRS_STATUS_ERROR);
+crs_error(crs_Thread* thread, const char* error) {
+	crsC_setError(thread, (char*)error);
+	crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
 void
-crs_clearError(crs_State* state) {
-	crsC_setError(state, NULL);
+crs_clearError(crs_Thread* thread) {
+	crsC_setError(thread, NULL);
 }
 
 const char*
-crs_getError(crs_State* state) {
-	return state->error;
+crs_getError(crs_Thread* thread) {
+	return thread->error;
 }
