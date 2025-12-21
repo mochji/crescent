@@ -44,6 +44,9 @@ crs_Thread {
 
 struct
 crs_State {
+	struct {
+		crs_mem usage;
+	}                  gc;
 	char*              memoryError;
 	struct crs_Object  nilValue;
 	struct crs_Thread* mainThread;
