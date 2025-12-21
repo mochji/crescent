@@ -26,8 +26,7 @@ crsE_newState(void) {
 
 	state->memoryError   = "out of memory";
 	state->nilValue.type = CRS_TYPE_NIL;
-	state->mainThread    = NULL;
-	state->lastThread    = NULL;
+	state->thread        = NULL;
 	state->panic         = NULL;
 
 	return state;
@@ -39,16 +38,7 @@ crsE_freeState(crs_State* state) {
 		return;
 	}
 
-	crs_Thread* current;
-	crs_Thread* next = state->mainThread;
-
-	while (next != NULL) {
-		current = next;
-		next    = next->next;
-
-		crsE_freeThread(current);
-	}
-
+	crsE_freeThread(state->thread);
 	free(state);
 }
 
@@ -82,18 +72,13 @@ crsE_newThread(crs_State* state) {
 	thread->status  = CRS_STATUS_OK;
 	thread->error   = NULL;
 	thread->handler = NULL;
-	thread->next    = NULL;
 	thread->state   = state;
 
-	if (state->mainThread == NULL) {
-		state->mainThread = thread;
+	if (state->thread == NULL) {
+		state->thread = thread;
 	}
 
-	if (state->lastThread != NULL) {
-		state->lastThread->next = thread;
-	}
-
-	state->lastThread = thread;
+	state->thread = thread;
 
 	return thread;
 }

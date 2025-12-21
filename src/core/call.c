@@ -68,11 +68,6 @@ crsC_throw(crs_Thread* thread, int status) {
 		longjmp(*thread->handler, 1);
 	}
 
-	if (state->mainThread->handler != NULL) {
-		crsC_moveError(state->mainThread, thread);
-		crsC_throw(state->mainThread, status);
-	}
-
 	if (state->panic != NULL) {
 		state->panic(thread);
 	}

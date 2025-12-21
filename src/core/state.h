@@ -34,12 +34,11 @@ crs_Thread {
 		short              calls;
 		short              cCalls;
 		struct crs_Frame*  frame;
-	}                  stack;
-	int                status;
-	char*              error;
-	jmp_buf*           handler;
-	struct crs_Thread* next;
-	struct crs_State*  state;
+	}                 stack;
+	int               status;
+	char*             error;
+	jmp_buf*          handler;
+	struct crs_State* state;
 };
 
 struct
@@ -49,8 +48,7 @@ crs_State {
 	}                  gc;
 	char*              memoryError;
 	struct crs_Object  nilValue;
-	struct crs_Thread* mainThread;
-	struct crs_Thread* lastThread;
+	struct crs_Thread* thread;
 	crs_CFunction*     panic;
 };
 
