@@ -17,7 +17,7 @@
 #include "core/state.h"
 
 crs_State*
-crsE_blankState(void) {
+crsE_newState(void) {
 	crs_State* state = malloc(sizeof(crs_State));
 
 	if (state == NULL) {
@@ -34,7 +34,7 @@ crsE_blankState(void) {
 }
 
 void
-crsE_closeState(crs_State* state) {
+crsE_freeState(crs_State* state) {
 	if (state == NULL) {
 		return;
 	}
@@ -46,14 +46,14 @@ crsE_closeState(crs_State* state) {
 		current = next;
 		next    = next->next;
 
-		crsE_closeThread(current);
+		crsE_freeThread(current);
 	}
 
 	free(state);
 }
 
 crs_Thread*
-crsE_blankThread(crs_State* state) {
+crsE_newThread(crs_State* state) {
 	crs_Thread* thread = malloc(sizeof(crs_Thread) + sizeof(crs_Frame));
 	crs_Frame*  frame  = (crs_Frame*)(thread + 1);
 
@@ -99,7 +99,7 @@ crsE_blankThread(crs_State* state) {
 }
 
 void
-crsE_closeThread(crs_Thread* thread) {
+crsE_freeThread(crs_Thread* thread) {
 	if (thread == NULL) {
 		return;
 	}

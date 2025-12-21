@@ -59,15 +59,15 @@ typedef struct crs_Thread crs_Thread;
 typedef struct crs_State  crs_State;
 
 extern crs_State*
-crsE_blankState(void);
+crsE_newState(void);
 
 extern void
-crsE_closeState(crs_State* state);
+crsE_freeState(crs_State* state);
 
 extern crs_Thread*
-crsE_blankThread(crs_State* state);
+crsE_newThread(crs_State* state);
 
 extern void
-crsE_closeThread(crs_Thread* thread);
+crsE_freeThread(crs_Thread* thread);
 
 #endif

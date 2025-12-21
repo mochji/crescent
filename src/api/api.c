@@ -97,12 +97,12 @@ crs_typeName(int type) {
 
 crs_Thread*
 crs_open(void) {
-	crs_State*  state  = crsE_blankState();
-	crs_Thread* thread = crsE_blankThread(state);
+	crs_State*  state  = crsE_newState();
+	crs_Thread* thread = crsE_newThread(state);
 
 	if (state == NULL || thread == NULL) {
-		crsE_closeState(state);
-		crsE_closeThread(thread);
+		crsE_freeState(state);
+		crsE_freeThread(thread);
 
 		return NULL;
 	}
@@ -114,7 +114,7 @@ crs_open(void) {
 
 void
 crs_close(crs_Thread* thread) {
-	crsE_closeState(thread->state);
+	crsE_freeState(thread->state);
 }
 
 void
