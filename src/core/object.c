@@ -7,6 +7,7 @@
  */
 
 #include "conf.h"
+#include "limit.h"
 
 #include "types/string.h"
 #include "types/array.h"

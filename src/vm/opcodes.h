@@ -10,6 +10,7 @@
 #define CRS_VM_OPCODES_H
 
 #include "conf.h"
+#include "limit.h"
 
 /*
  * Crescent VM instruction formats

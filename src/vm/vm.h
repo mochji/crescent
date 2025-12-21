@@ -12,6 +12,7 @@
 #include <stddef.h>
 
 #include "conf.h"
+#include "limit.h"
 
 #include "core/object.h"
 #include "core/state.h"

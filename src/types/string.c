@@ -14,6 +14,7 @@
 #include <ctype.h>
 
 #include "conf.h"
+#include "limit.h"
 
 #include "core/object.h"
 

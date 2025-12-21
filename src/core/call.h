@@ -10,6 +10,7 @@
 #define CRS_CORE_CALL_H
 
 #include "conf.h"
+#include "limit.h"
 
 #include "core/object.h"
 #include "core/state.h"

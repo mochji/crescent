@@ -10,6 +10,7 @@
 #define CRS_CORE_OBJECT_H
 
 #include "conf.h"
+#include "limit.h"
 
 /*
  * the forward declaration here is temporary until i start development on the
