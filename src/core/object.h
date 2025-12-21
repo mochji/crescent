@@ -33,7 +33,7 @@ crs_Value {
 
 struct
 crs_Object {
-	unsigned char   type;
+	crs_byte        type;
 	union crs_Value value;
 };
 

@@ -31,4 +31,12 @@
 
 #define CRS_MAX_LOCALS 200
 
+typedef unsigned char crs_byte;
+
+#if CRS_32INT
+typedef unsigned long crs_mem;
+#else
+typedef size_t crs_mem;
+#endif
+
 #endif
