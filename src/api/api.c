@@ -98,7 +98,7 @@ crs_typeName(int type) {
 crs_Thread*
 crs_open(void) {
 	crs_State*  state  = crsE_blankState();
-	crs_Thread* thread = crsE_blankThread();
+	crs_Thread* thread = crsE_blankThread(state);
 
 	if (state == NULL || thread == NULL) {
 		crsE_closeState(state);
@@ -107,11 +107,7 @@ crs_open(void) {
 		return NULL;
 	}
 
-	state->mainThread = thread;
-	state->lastThread = thread;
-	state->panic      = &crs_panic;
-
-	thread->state = state;
+	state->panic = &crs_panic;
 
 	return thread;
 }

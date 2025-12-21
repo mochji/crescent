@@ -34,12 +34,12 @@ crs_Thread {
 		short              calls;
 		short              cCalls;
 		struct crs_Frame*  frame;
-	}                   stack;
-	int                 status;
-	char*               error;
-	jmp_buf*            handler;
-	struct crs_Thread*  next;
-	struct crs_State*   state;
+	}                  stack;
+	int                status;
+	char*              error;
+	jmp_buf*           handler;
+	struct crs_Thread* next;
+	struct crs_State*  state;
 };
 
 struct
@@ -65,7 +65,7 @@ extern void
 crsE_closeState(crs_State* state);
 
 extern crs_Thread*
-crsE_blankThread(void);
+crsE_blankThread(crs_State* state);
 
 extern void
 crsE_closeThread(crs_Thread* thread);

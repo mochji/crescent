@@ -53,7 +53,7 @@ crsE_closeState(crs_State* state) {
 }
 
 crs_Thread*
-crsE_blankThread(void) {
+crsE_blankThread(crs_State* state) {
 	crs_Thread* thread = malloc(sizeof(crs_Thread) + sizeof(crs_Frame));
 	crs_Frame*  frame  = (crs_Frame*)(thread + 1);
 
@@ -83,7 +83,17 @@ crsE_blankThread(void) {
 	thread->error   = NULL;
 	thread->handler = NULL;
 	thread->next    = NULL;
-	thread->state   = NULL;
+	thread->state   = state;
+
+	if (state->mainThread == NULL) {
+		state->mainThread = thread;
+	}
+
+	if (state->lastThread != NULL) {
+		state->lastThread->next = thread;
+	}
+
+	state->lastThread = thread;
 
 	return thread;
 }
