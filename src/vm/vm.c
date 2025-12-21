@@ -106,21 +106,19 @@ crsV_callError(crs_Thread* thread, int type) {
 
 size_t
 crsV_length(crs_Thread* thread, crs_Object* object) {
-	if (!obj_haslength(object->type)) {
+	if (object->type == CRS_TYPE_STRING) {
+		return object->value.s->length;
+	} else if (object->type == CRS_TYPE_ARRAY) {
+		return object->value.a->length;
+	} else {
 		crsV_lengthError(thread, object->type);
 		crsC_throw(thread, CRS_STATUS_ERROR);
 	}
-
-	if (object->type == CRS_TYPE_STRING) {
-		return object->value.s->length;
-	}
-
-	return object->value.a->length;
 }
 
 int
 crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults) {
-	if (!obj_cancall(object->type)) {
+	if (object->type != CRS_TYPE_CFUNCTION) {
 		crsV_callError(thread, object->type);
 		crsC_throw(thread, CRS_STATUS_ERROR);
 	}

@@ -111,22 +111,29 @@
 #endif
 
 /*
- * The last 3 bits within a type tag encode properties about the type:
+ * The lower 4 bits within a type tag encode some properties of the type, most
+ * of which are for the garbage collector.
  *
  * (1 = yes, 0 = no)
  *
- * - 3rd to last (leftmost) bit: Can you call this type?
- * - 2nd to last (middle) bit:   Can you query the length of this type?
- * - last (rightmost) bit:       Is this type a number?
+ * bit 0 (1): Is this type a number?
+ * bit 1 (2): Is this type collectable?
+ * bit 2 (4): Can this type reference objects? (a)
+ * bit 3 (8): Should this type be traversed atomically? (b)
+ *
+ * The high 4 differentiate it from other types with the same properties.
+ *
+ * a: If a type cannot reference objects, there's no use in marking it gray.
+ * b: For types without write barriers: they should be traversed atomically.
  */
 
-#define CRS_TYPE_NIL       0  /* 0b00000000 */
-#define CRS_TYPE_BOOLEAN   8  /* 0b00001000 */
-#define CRS_TYPE_INTEGER   1  /* 0b00000001 */
-#define CRS_TYPE_FLOAT     9  /* 0b00001001 */
-#define CRS_TYPE_STRING    2  /* 0b00000010 */
-#define CRS_TYPE_ARRAY     10 /* 0b00001010 */
-#define CRS_TYPE_CFUNCTION 4  /* 0b00000100 */
+#define CRS_TYPE_NIL       0  /* 0000 0000 */
+#define CRS_TYPE_BOOLEAN   16 /* 0001 0000 */
+#define CRS_TYPE_INTEGER   1  /* 0000 0001 */
+#define CRS_TYPE_FLOAT     17 /* 0001 0001 */
+#define CRS_TYPE_CFUNCTION 32 /* 0010 0000 */
+#define CRS_TYPE_STRING    2  /* 0000 0010 */
+#define CRS_TYPE_ARRAY     6 /* 0000 0110 */
 
 #define CRS_STATUS_OK    0
 #define CRS_STATUS_ERROR 1
