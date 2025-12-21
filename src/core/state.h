@@ -34,7 +34,7 @@ crs_Thread {
 		short              calls;
 		short              cCalls;
 		struct crs_Frame*  frame;
-	} stack;
+	}                   stack;
 	int                 status;
 	char*               error;
 	jmp_buf*            handler;
