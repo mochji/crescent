@@ -3,10 +3,21 @@
 #include "api/api.h"
 
 int
+test(crs_Thread* thread) {
+	crs_error(thread, "error message");
+
+	return 0;
+}
+
+int
 main() {
 	crs_Thread* thread = crs_open();
+	int         status;
 
-	printf("thread address: %p\n", (void*)thread);
+	crs_pushCFunction(thread, test);
+	crs_pCall(thread, 1, 0, &status);
+
+	printf("%s (%d)\n", crs_getError(thread), status);
 
 	crs_close(thread);
 

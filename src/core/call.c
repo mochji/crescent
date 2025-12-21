@@ -19,7 +19,12 @@
 
 #include "core/call.h"
 
-/* next: error handling and stack resizing */
+/*
+ * TODO: rework error handling
+ *
+ * error handling is to be replaced with a better object-error system, so
+ * pretty much everything here related to error handling is to be redone.
+ */
 
 void
 crsC_setError(crs_Thread* thread, char* error) {
@@ -103,8 +108,6 @@ crsC_restoreStack(crs_Thread* thread, short level) {
 		thread->stack.calls  -= 1;
 		thread->stack.cCalls -= 1;
 		thread->stack.frame   = frame->previous;
-
-		free(frame);
 	}
 }
 
