@@ -17,13 +17,13 @@
  * An instruction can be anywhere from 8 to 32 bits wide, provided that it is
  * a multiple of 8. (8, 16, 24, 32)
  *
- *       | DDDDDDDD | CCCCCCCC | BBBBBBBB | AAAAAAAA |
- * iABC  | Op. C    | Op B.    | Op. A    | OpCode   | (32 bits)
- * iABx  | Op. B               | Op. A    | OpCode   | (32 bits)
- * iAxx  | Op. A                          | OpCode   | (32 bits)
- * iAB              | Op. B    | Op. A    | OpCode   | (24 bits)
- * iA                          | Op. A    | OpCode   | (16 bits)
- * i                                      | OpCode   | (8  bits)
+ *       | AAAAAAAA | BBBBBBBB | CCCCCCCC | DDDDDDDD |
+ * i     | OpCode   |                                  (8  bits)
+ * iA    | OpCode   | Op. A    |                       (16 bits)
+ * iAB   | OpCode   | Op. A    | Op. B    |            (24 bits)
+ * iAxx  | OpCode   | Op. A                          | (32 bits)
+ * iABx  | OpCode   | Op. A    | Op. B               | (32 bits)
+ * iABC  | OpCode   | Op. A    | Op. B    | Op. C    | (32 bits)
  *
  * - i: OpCode
  * - A: Operand A
@@ -119,8 +119,8 @@ crs_OpCode {
 	OP_JMPB,     /* PC -= A                  iAxx              */
 
 	OP_JEVAL,    /* if (boolean)S[A] PC++    iA                */
-	OP_JE,       /* if S[A] == S[A] PC++     iAB               */
-	OP_JNE,      /* if S[A] != S[A] PC++     iAB               */
+	OP_JE,       /* if S[A] == S[B] PC++     iAB               */
+	OP_JNE,      /* if S[A] != S[B] PC++     iAB               */
 	OP_JG,       /* if S[A] > S[B] PC++      iAB               */
 	OP_JGE,      /* if S[A] >= S[B] PC++     iAB               */
 	OP_JL,       /* if S[A] < S[B] PC++      iAB               */
