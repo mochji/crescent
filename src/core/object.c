@@ -15,7 +15,7 @@
 #include "core/object.h"
 
 /*
- * This function is a strict comparison, see crsV_compare for comparison
+ * This function is a strict comparison; see crsV_compare for comparison
  * between integers and floats.
  */
 

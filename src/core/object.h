@@ -21,6 +21,14 @@
 struct crs_String;
 struct crs_Array;
 
+struct
+crs_GCHeader {
+	struct crs_GCHeader* next;
+	struct crs_GCHeader* set;
+	crs_byte             mark;
+	crs_byte             type;
+};
+
 union
 crs_Value {
 	int                b;
