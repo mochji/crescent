@@ -1,3 +1,11 @@
+/*
+ * https://github.com/mochji/crescent
+ * crescent.c
+ *
+ * Copyright (C) 2025 mochji
+ * MIT License
+ */
+
 #include <stdio.h>
 
 #include "api/api.h"
