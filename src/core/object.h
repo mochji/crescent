@@ -117,7 +117,7 @@ crsO_toString(crs_Object* object, int* match);
 #define obj_setc(o, v) {(o)->type = CRS_TYPE_CFUNCTION; (o)->value.c = (v);}
 
 /* gc header */
-#define obj_geth(o)   ((o)->value.gc)
+#define obj_geth(o)    ((o)->value.gc)
 #define obj_seth(o, v) {(o)->type = (v)->type; (o)->value.gc = (v);}
 
 /* gc object */
