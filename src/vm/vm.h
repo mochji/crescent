@@ -17,9 +17,6 @@
 #include "core/object.h"
 #include "core/state.h"
 
-extern int
-crsV_compare(crs_Object* a, crs_Object* b);
-
 extern size_t
 crsV_length(crs_Thread* thread, crs_Object* object);
 

@@ -14,18 +14,24 @@
 
 #include "core/object.h"
 
-/*
- * This function is a strict comparison; see crsV_compare for comparison
- * between integers and floats.
- */
-
 int
 crsO_compare(crs_Object* a, crs_Object* b) {
-	if (a->type != b->type) {
+	crs_byte aType = a->type;
+	crs_byte bType = b->type;
+
+	if (aType != bType) {
+		if (aType == CRS_TYPE_INTEGER && bType == CRS_TYPE_FLOAT) {
+			return (crs_Float)obj_geti(a) == obj_getf(b);
+		}
+
+		if (aType == CRS_TYPE_FLOAT && bType == CRS_TYPE_INTEGER) {
+			return obj_getf(a) == (crs_Float)obj_geti(b);
+		}
+
 		return 0;
 	}
 
-	switch (a->type) {
+	switch (aType) {
 		case CRS_TYPE_BOOLEAN:
 			return obj_getb(a) == obj_getb(b);
 		case CRS_TYPE_INTEGER:

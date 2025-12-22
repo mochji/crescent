@@ -20,32 +20,6 @@
 
 #include "vm/vm.h"
 
-/*
- * This function is a more loose comparison compared to crsO_compare.
- * crsO_compare returns false if the 2 objects are of differing types,
- * but this allows comparisons between floats and integers.
- */
-
-int
-crsV_compare(crs_Object* a, crs_Object* b) {
-	int aType = a->type;
-	int bType = b->type;
-
-	if (aType != bType) {
-		if (aType == CRS_TYPE_INTEGER && bType == CRS_TYPE_FLOAT) {
-			return (crs_Float)obj_geti(a) == obj_getf(b);
-		}
-
-		if (aType == CRS_TYPE_FLOAT && bType == CRS_TYPE_INTEGER) {
-			return obj_getf(a) == (crs_Float)obj_geti(b);
-		}
-
-		return 0;
-	}
-
-	return crsO_compare(a, b);
-}
-
 /* TODO: these functions are temporary until string format */
 
 static void
