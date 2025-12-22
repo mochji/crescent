@@ -70,10 +70,10 @@ extern int
 crs_isNumber(crs_Thread* thread, int index);
 
 extern int
-crs_isString(crs_Thread* thread, int index);
+crs_isCFunction(crs_Thread* thread, int index);
 
 extern int
-crs_isCFunction(crs_Thread* thread, int index);
+crs_isString(crs_Thread* thread, int index);
 
 extern int
 crs_toBooleanX(crs_Thread* thread, int index, int* match);
@@ -96,11 +96,11 @@ crs_toInteger(crs_Thread* thread, int index);
 extern crs_Float
 crs_toFloat(crs_Thread* thread, int index);
 
-extern const char*
-crs_toString(crs_Thread* thread, int index);
-
 extern crs_CFunction*
 crs_toCFunction(crs_Thread* thread, int index);
+
+extern const char*
+crs_toString(crs_Thread* thread, int index);
 
 extern void
 crs_pushNil(crs_Thread* thread);
@@ -115,10 +115,10 @@ extern void
 crs_pushFloat(crs_Thread* thread, crs_Float value);
 
 extern void
-crs_pushString(crs_Thread* thread, const char* str);
+crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
 
 extern void
-crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
+crs_pushString(crs_Thread* thread, const char* str);
 
 extern void
 crs_pop(crs_Thread* thread, int amount);

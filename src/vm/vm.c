@@ -33,11 +33,11 @@ crsV_compare(crs_Object* a, crs_Object* b) {
 
 	if (aType != bType) {
 		if (aType == CRS_TYPE_INTEGER && bType == CRS_TYPE_FLOAT) {
-			return (crs_Float)a->value.i == b->value.f;
+			return (crs_Float)obj_geti(a) == obj_getf(b);
 		}
 
 		if (aType == CRS_TYPE_FLOAT && bType == CRS_TYPE_INTEGER) {
-			return a->value.f == (crs_Float)b->value.i;
+			return obj_getf(a) == (crs_Float)obj_geti(b);
 		}
 
 		return 0;
@@ -107,9 +107,9 @@ crsV_callError(crs_Thread* thread, int type) {
 size_t
 crsV_length(crs_Thread* thread, crs_Object* object) {
 	if (object->type == CRS_TYPE_STRING) {
-		return object->value.s->length;
+		return obj_gets(object)->length;
 	} else if (object->type == CRS_TYPE_ARRAY) {
-		return object->value.a->length;
+		return obj_geta(object)->length;
 	} else {
 		crsV_lengthError(thread, object->type);
 		crsC_throw(thread, CRS_STATUS_ERROR);
@@ -131,7 +131,7 @@ crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults) {
 		crsC_throw(thread, CRS_STATUS_ERROR);
 	}
 
-	return crsC_callC(thread, object->value.c, args, maxResults);
+	return crsC_callC(thread, obj_getc(object), args, maxResults);
 }
 
 int

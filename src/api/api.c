@@ -227,13 +227,13 @@ crs_isNumber(crs_Thread* thread, int index) {
 }
 
 int
-crs_isString(crs_Thread* thread, int index) {
-	return crs_getIndex(thread, index)->type == CRS_TYPE_STRING;
+crs_isCFunction(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_CFUNCTION;
 }
 
 int
-crs_isCFunction(crs_Thread* thread, int index) {
-	return crs_getIndex(thread, index)->type == CRS_TYPE_CFUNCTION;
+crs_isString(crs_Thread* thread, int index) {
+	return crs_getIndex(thread, index)->type == CRS_TYPE_STRING;
 }
 
 int
@@ -271,20 +271,20 @@ crs_toFloat(crs_Thread* thread, int index) {
 	return crsO_toFloat(crs_getIndex(thread, index), NULL);
 }
 
-const char*
-crs_toString(crs_Thread* thread, int index) {
-	return crsO_toString(crs_getIndex(thread, index), NULL);
-}
-
 crs_CFunction*
 crs_toCFunction(crs_Thread* thread, int index) {
 	crs_Object* object = crs_getIndex(thread, index);
 
 	if (object->type == CRS_TYPE_CFUNCTION) {
-		return object->value.c;
+		return obj_getc(object);
 	}
 
 	return NULL;
+}
+
+const char*
+crs_toString(crs_Thread* thread, int index) {
+	return crsO_toString(crs_getIndex(thread, index), NULL);
 }
 
 void
@@ -298,24 +298,28 @@ void
 crs_pushBoolean(crs_Thread* thread, int value) {
 	crs_Object* object = crs_adjustTop(thread, 1);
 
-	object->type    = CRS_TYPE_BOOLEAN;
-	object->value.b = value;
+	obj_setb(object, value);
 }
 
 void
 crs_pushInteger(crs_Thread* thread, crs_Integer value) {
 	crs_Object* object = crs_adjustTop(thread, 1);
 
-	object->type    = CRS_TYPE_INTEGER;
-	object->value.i = value;
+	obj_seti(object, value);
 }
 
 void
 crs_pushFloat(crs_Thread* thread, crs_Float value) {
 	crs_Object* object = crs_adjustTop(thread, 1);
 
-	object->type    = CRS_TYPE_FLOAT;
-	object->value.f = value;
+	obj_setf(object, value);
+}
+
+void
+crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
+	crs_Object* object = crs_adjustTop(thread, 1);
+
+	obj_setc(object, function);
 }
 
 void
@@ -329,16 +333,7 @@ crs_pushString(crs_Thread* thread, const char* str) {
 		crsC_memoryError(thread);
 	}
 
-	object->type    = CRS_TYPE_STRING;
-	object->value.s = string;
-}
-
-void
-crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
-	crs_Object* object = crs_adjustTop(thread, 1);
-
-	object->type    = CRS_TYPE_CFUNCTION;
-	object->value.c = function;
+	obj_setgc(object, string);
 }
 
 void

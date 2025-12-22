@@ -27,17 +27,17 @@ crsO_compare(crs_Object* a, crs_Object* b) {
 
 	switch (a->type) {
 		case CRS_TYPE_BOOLEAN:
-			return a->value.b == b->value.b;
+			return obj_getb(a) == obj_getb(b);
 		case CRS_TYPE_INTEGER:
-			return a->value.i == b->value.i;
+			return obj_geti(a) == obj_geti(b);
 		case CRS_TYPE_FLOAT:
-			return a->value.f == b->value.f;
-		case CRS_TYPE_STRING:
-			return crsS_compare(a->value.s, b->value.s);
-		case CRS_TYPE_ARRAY:
-			return crsA_compare(a->value.a, b->value.a);
+			return obj_getf(a) == obj_getf(b);
 		case CRS_TYPE_CFUNCTION:
-			return a->value.c == b->value.c;
+			return obj_getc(a) == obj_getc(b);
+		case CRS_TYPE_STRING:
+			return crsS_compare(obj_gets(a), obj_gets(b));
+		case CRS_TYPE_ARRAY:
+			return crsA_compare(obj_geta(a), obj_geta(b));
 	}
 
 	return 0;
@@ -45,45 +45,45 @@ crsO_compare(crs_Object* a, crs_Object* b) {
 
 int
 crsO_clone(crs_Object* to, crs_Object* from) {
-	int       type  = from->type;
-	crs_Value value = from->value;
+	/* TODO: remove me! */
+
+	int type = from->type;
 
 	if (type == CRS_TYPE_STRING) {
-		value.s->references += 1;
+		obj_gets(from)->references += 1;
 	} else if (type == CRS_TYPE_ARRAY) {
-		value.a->references += 1;
+		obj_geta(from)->references += 1;
 	}
 
-	to->type  = type;
-	to->value = value;
+	obj_seto(to, from);
 
 	return 0;
 }
 
 int
 crsO_deepClone(crs_Object* to, crs_Object* from) {
+	/* TODO: remove me! */
+
 	void* cloned;
 
 	if (from->type == CRS_TYPE_STRING) {
-		cloned = crsS_clone(from->value.s);
+		cloned = crsS_clone(obj_gets(from));
 
 		if (cloned == NULL) {
 			return 1;
 		}
 
-		to->type    = CRS_TYPE_STRING;
-		to->value.s = cloned;
+		obj_setgc(to, cloned);
 	} else if (from->type == CRS_TYPE_ARRAY) {
-		cloned = crsA_clone(from->value.a);
+		cloned = crsA_clone(obj_geta(from));
 
 		if (cloned == NULL) {
 			return 1;
 		}
 
-		to->type    = CRS_TYPE_ARRAY;
-		to->value.a = cloned;
+		obj_setgc(to, cloned);
 	} else {
-		*to = *from;
+		obj_seto(to, from);
 	}
 
 	return 0;
@@ -96,20 +96,22 @@ crsO_free(crs_Object* object) {
 	}
 
 	if (object->type == CRS_TYPE_STRING) {
-		object->value.s->references -= 1;
+		crs_String* string  = obj_gets(object);
+		string->references -= 1;
 
-		if (object->value.s->references == 0) {
-			crsS_free(object->value.s);
+		if (string->references == 0) {
+			crsS_free(string);
 		}
 	} else if (object->type == CRS_TYPE_ARRAY) {
-		object->value.a->references -= 1;
+		crs_Array* array   = obj_geta(object);
+		array->references -= 1;
 
-		if (object->value.a->references == 0) {
-			crsA_free(object->value.a);
+		if (array->references == 0) {
+			crsA_free(array);
 		}
 	}
 
-	object->type = CRS_TYPE_NIL;
+	obj_setn(object);
 }
 
 char*
@@ -145,7 +147,7 @@ crsO_toBoolean(crs_Object* object, int* match) {
 	if (type == CRS_TYPE_NIL) {
 		return 0;
 	} else if (type == CRS_TYPE_BOOLEAN) {
-		return object->value.b;
+		return obj_getb(object);
 	}
 
 	return 1;
@@ -161,11 +163,11 @@ crsO_toInteger(crs_Object* object, int* match) {
 
 	switch (type) {
 		case CRS_TYPE_INTEGER:
-			return object->value.i;
+			return obj_geti(object);
 		case CRS_TYPE_FLOAT:
-			return (crs_Integer)object->value.f;
+			return (crs_Integer)obj_getf(object);
 		case CRS_TYPE_STRING:
-			return crsS_toInteger(object->value.s->value, NULL);
+			return crsS_toInteger(obj_gets(object)->value, NULL);
 	}
 
 	return 0;
@@ -181,11 +183,11 @@ crsO_toFloat(crs_Object* object, int* match) {
 
 	switch (type) {
 		case CRS_TYPE_INTEGER:
-			return (crs_Float)object->value.i;
+			return (crs_Float)obj_geti(object);
 		case CRS_TYPE_FLOAT:
-			return object->value.f;
+			return obj_getf(object);
 		case CRS_TYPE_STRING:
-			return crsS_toFloat(object->value.s->value, NULL);
+			return crsS_toFloat(obj_gets(object)->value, NULL);
 	}
 
 	return 0;
@@ -199,11 +201,14 @@ crsO_toString(crs_Object* object, int* match) {
 		*match = type == CRS_TYPE_STRING;
 	}
 
-	if (object->type == CRS_TYPE_NIL) {
-		return "nil";
-	} else if (object->type == CRS_TYPE_BOOLEAN) {
-		return object->value.b ? "true" : "false";
+	switch (type) {
+		case CRS_TYPE_NIL:
+			return "nil";
+		case CRS_TYPE_BOOLEAN:
+			return obj_getb(object) ? "true" : "false";
+		case CRS_TYPE_STRING:
+			return obj_gets(object)->value;
 	}
 
-	return NULL;
+	return "";
 }

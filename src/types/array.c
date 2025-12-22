@@ -24,6 +24,9 @@ crsA_new(size_t length) {
 		return NULL;
 	}
 
+	/* TODO: properly set up header once gc is implemented */
+	array->header.type = CRS_TYPE_ARRAY;
+
 	array->size       = length + CRS_ARRAY_ALLOCSPACE;
 	array->length     = length;
 	array->value      = malloc(array->size * sizeof(crs_Object));
@@ -45,6 +48,9 @@ crsA_clone(crs_Array* array) {
 	if (cloned == NULL) {
 		return NULL;
 	}
+
+	/* TODO: properly set up header once gc is implemented */
+	cloned->header.type = CRS_TYPE_ARRAY;
 
 	cloned->size       = array->size;
 	cloned->length     = array->length;

@@ -28,6 +28,9 @@ crsS_new(size_t length) {
 		return NULL;
 	}
 
+	/* TODO: properly set up header once gc is implemented */
+	string->header.type = CRS_TYPE_STRING;
+
 	string->size       = length + CRS_STRING_ALLOCSPACE;
 	string->length     = length;
 	string->value      = malloc(string->size);
@@ -51,6 +54,9 @@ crsS_nullString(void) {
 	if (string == NULL) {
 		return NULL;
 	}
+
+	/* TODO: properly set up header once gc is implemented */
+	string->header.type = CRS_TYPE_STRING;
 
 	string->size       = 0;
 	string->length     = 0;
@@ -85,6 +91,9 @@ crsS_clone(crs_String* string) {
 	if (cloned == NULL) {
 		return NULL;
 	}
+
+	/* TODO: properly set up header once gc is implemented */
+	cloned->header.type = CRS_TYPE_STRING;
 
 	cloned->size       = string->size;
 	cloned->length     = string->length;
