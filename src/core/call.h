@@ -20,9 +20,6 @@
 extern void
 crsC_setError(crs_Thread* thread, char* error);
 
-extern void
-crsC_moveError(crs_Thread* to, crs_Thread* from);
-
 extern void __attribute__((noreturn))
 crsC_throw(crs_Thread* thread, int status);
 

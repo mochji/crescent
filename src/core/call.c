@@ -49,17 +49,6 @@ crsC_setError(crs_Thread* thread, char* error) {
 }
 
 void
-crsC_moveError(crs_Thread* to, crs_Thread* from) {
-	if (from->error == from->state->memoryError) {
-		to->error = to->state->memoryError;
-	} else {
-		to->error = from->error;
-	}
-
-	from->error = NULL;
-}
-
-void
 crsC_throw(crs_Thread* thread, int status) {
 	crs_State* state = thread->state;
 
