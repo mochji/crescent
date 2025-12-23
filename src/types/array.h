@@ -16,6 +16,8 @@
 
 #include "core/object.h"
 
+/* TODO: redo everything here. everything! */
+
 extern crs_Array*
 crsA_new(size_t length);
 

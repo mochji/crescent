@@ -63,11 +63,29 @@ typedef struct crs_Array  crs_Array;
 extern int
 crsO_compare(crs_Object* a, crs_Object* b);
 
+/*
+ * TODO
+ *
+ * crsO_clone and crsO_deepClone are to be removed once the gc is implemented.
+ * these functions not only edit the soon-to-be-obsolete reference counter, but
+ * also "deep cloning" is something to implement way later, possibly in
+ * metatables or whatever i decide to call those (probably gonna stick with
+ * metatables).
+ */
+
 extern int
 crsO_clone(crs_Object* to, crs_Object* from);
 
 extern int
 crsO_deepClone(crs_Object* to, crs_Object* from);
+
+/*
+ * TODO
+ *
+ * crsO_free is to be removed once the gc is implemented. freeing objects will
+ * be handled automatically by the gc, so we just need to set the object to nil
+ * or remove the reference to it.
+ */
 
 extern void
 crsO_free(crs_Object* object);

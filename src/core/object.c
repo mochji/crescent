@@ -51,8 +51,6 @@ crsO_compare(crs_Object* a, crs_Object* b) {
 
 int
 crsO_clone(crs_Object* to, crs_Object* from) {
-	/* TODO: remove me! */
-
 	int type = from->type;
 
 	if (type == CRS_TYPE_STRING) {
@@ -68,8 +66,6 @@ crsO_clone(crs_Object* to, crs_Object* from) {
 
 int
 crsO_deepClone(crs_Object* to, crs_Object* from) {
-	/* TODO: remove me! */
-
 	void* cloned;
 
 	if (from->type == CRS_TYPE_STRING) {
