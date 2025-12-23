@@ -46,13 +46,4 @@ crsS_hash(char* str);
 extern char*
 crsS_copy(char* str);
 
-extern int
-crsS_hexValue(char c);
-
-extern crs_Integer
-crsS_toInteger(char* str, int* success);
-
-extern crs_Float
-crsS_toFloat(char* str, int* success);
-
 #endif

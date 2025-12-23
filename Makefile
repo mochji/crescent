@@ -63,6 +63,7 @@ build:
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/array.o $(TYPES)/array.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/object.o $(CORE)/object.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/memory.o $(CORE)/memory.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/format.o $(CORE)/format.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/state.o $(CORE)/state.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/call.o $(CORE)/call.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
