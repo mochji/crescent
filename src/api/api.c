@@ -147,7 +147,7 @@ crs_setTop(crs_Thread* thread, int top) {
 	crs_Frame* frame = thread->stack.frame;
 
 	crs_Object* object = thread->stack.top;
-	crs_Object* to     = frame->base + top;
+	crs_Object* to     = frame->base + top - 1;
 
 	if (to >= frame->base + frame->top) {
 		crsC_setError(thread, "stack overflow");
