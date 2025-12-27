@@ -6,8 +6,8 @@
  * MIT License
  */
 
-#ifndef CRS_FORMAT_H
-#define CRS_FORMAT_H
+#ifndef CRS_CORE_FORMAT_H
+#define CRS_CORE_FORMAT_H
 
 #include "conf.h"
 #include "limit.h"
