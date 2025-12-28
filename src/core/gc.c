@@ -75,8 +75,8 @@ crsG_new(crs_Thread* thread, crs_GCHeader* header, crs_byte type, int immune) {
 		setwhite(header);
 
 		/*
-		 * if the gc is sweeping, move the sweep pointer past the new object if it
-		 * isn't already past it.
+		 * if the gc is sweeping, move the sweep pointer past the new object if
+		 * it isn't already past it.
 		 */
 
 		if (!keepinvariant(state) && state->gc.sweep == &state->gc.all) {
