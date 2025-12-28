@@ -9,6 +9,8 @@
 #ifndef CRS_CORE_OBJECT_H
 #define CRS_CORE_OBJECT_H
 
+#include <stddef.h>
+
 #include "conf.h"
 #include "limit.h"
 
