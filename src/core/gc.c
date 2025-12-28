@@ -9,6 +9,9 @@
 #include "conf.h"
 #include "limit.h"
 
+#include "core/object.h"
+#include "core/state.h"
+
 #include "core/gc.h"
 
 /*
@@ -45,9 +48,42 @@
 /*
  * During the sweep phase, we don't have the keep the invariant, and as such,
  * write barriers are not activated.
- *
- * TODO: once i get it implemented, explain how new--and therefore white--
- * objects are not collected during the sweep phase
  */
 
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
+
+void
+crsG_new(crs_Thread* thread, crs_GCHeader* header, crs_byte type, int immune) {
+	crs_State* state = thread->state;
+
+	if (immune) {
+		/*
+		 * immune objects are kept gray, and they will remain as such. since
+		 * they are already marked (non-white), they will not be marked again
+		 * and added to the gray list or turned black. and since they are not
+		 * in the all list, they won't be swept and turned white either.
+		 *
+		 * this gives immunity to the object itself, but not to any it
+		 * references--they must be referenced by another non-immune alive
+		 * object.
+		 */
+
+		linklist(header, state->gc.immune);
+		setgray(header);
+	} else {
+		linklist(header, state->gc.all);
+		setwhite(header);
+
+		/*
+		 * if the gc is sweeping, move the sweep pointer past the new object if it
+		 * isn't already past it.
+		 */
+
+		if (!keepinvariant(state) && state->gc.sweep == &state->gc.all) {
+			state->gc.sweep = &header->next;
+		}
+	}
+
+	header->set  = NULL;
+	header->type = type;
+}

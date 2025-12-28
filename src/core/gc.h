@@ -77,4 +77,7 @@
 #define CRS_GCPHASE_ATOMIC  2
 #define CRS_GCPHASE_SWEEP   3
 
+extern void
+crsG_new(crs_Thread* thread, crs_GCHeader* header, crs_byte type, int immune);
+
 #endif
