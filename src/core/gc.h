@@ -46,7 +46,7 @@
  *
  * multiplier:
  *   Percent of the memory allocated since the last step (which may be more
- *   than the step parameter) that should be marked or sweeped in this step.
+ *   than the step parameter) that should be marked or swept in this step.
  *
  *   For example:
  *     - A value of 800 means it works at eight times the rate of allocation.
