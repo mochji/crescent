@@ -40,9 +40,10 @@ typedef size_t crs_mem;
 #endif
 
 /* useful bit macros */
-#define bit_mask(b)     (1 << (b))
-#define bit_get(x, m)   ((x) & (m))
-#define bit_set(x, m)   ((x) | (m))
-#define bit_reset(x, m) ((x) & ~(m))
+#define bit_mask(b)         (1 << (b))
+#define bit_get(x, m)       ((x) & (m))
+#define bit_set(x, m)       ((x) | (m))
+#define bit_reset(x, m)     ((x) & ~(m))
+#define bit_change(x, v, m) (((x) & ~(m)) | (v))
 
 #endif
