@@ -27,6 +27,7 @@ crs_Frame {
 
 struct
 crs_Thread {
+	struct crs_GCHeader header;
 	struct {
 		size_t             size;
 		struct crs_Object* base;
@@ -41,10 +42,48 @@ crs_Thread {
 	struct crs_State* state;
 };
 
+/*
+ * GC lists
+ *
+ * All collectable objects are in a long linked list, of which there are two:
+ *
+ * all:
+ *   Objects in this list are subject to collection, as this is the list
+ *   scanned during the sweep phase; most objects are added to this list.
+ *
+ * immune:
+ *   Special objects, immune from collection, are added to this list. This
+ *   list is not scanned during the sweep phase.
+ */
+
+/*
+ * GC sets
+ *
+ * While an object must always be in a list, it isn't always in a set.
+ *
+ * gray:
+ *   Objects in this list are gray, and must be scanned for references to other
+ *   objects.
+ *
+ * grayAgain:
+ *   Objects in this list are also gray, but will be traversed in the atomic
+ *   phase. Objects here either do not have write barriers (threads) or have
+ *   been set back to gray by a write barrier.
+ */
+
 struct
 crs_State {
 	struct {
-		crs_mem usage;
+		crs_byte              status;
+		crs_byte              phase;
+		crs_mem               usage;
+		crs_mem               next;
+		unsigned short        params[3];
+		struct crs_GCHeader*  all;
+		struct crs_GCHeader*  immune;
+		struct crs_GCHeader*  gray;
+		struct crs_GCHeader*  grayAgain;
+		struct crs_GCHeader** sweep;
 	}                  gc;
 	char*              memoryError;
 	struct crs_Object  nilValue;

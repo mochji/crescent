@@ -51,6 +51,9 @@ crsE_newThread(crs_State* state) {
 		return NULL;
 	}
 
+	/* TODO: temporary asildjhasdj */
+	thread->header.type = CRS_TYPE_THREAD;
+
 	thread->stack.size   = CRS_MIN_STACK;
 	thread->stack.base   = calloc(thread->stack.size, sizeof(crs_Object));
 	thread->stack.top    = thread->stack.base;

@@ -12,6 +12,16 @@
 #include "conf.h"
 #include "limit.h"
 
+/*
+ * All collectable objects start with crs_GCHeader, which is how they are
+ * referenced in the collector. To convert a header to an object (and vice
+ * versa), you can just cast it. The header is always at the beginning, meaning
+ * that it has an offset of zero bytes and the same pointer points to both the
+ * header and type.
+ *
+ * (see obj_to* macros after the function definitions)
+ */
+
 struct
 crs_GCHeader {
 	struct crs_GCHeader* next;
@@ -111,6 +121,7 @@ crsO_toString(crs_Object* object, int* match);
 #define obj_toheader(o) ((crs_GCHeader*)o)
 #define obj_tostring(h) ((crs_String*)h)
 #define obj_toarray(h)  ((crs_Array*)h)
+#define obj_tothread(h) ((crs_Thread*)h)
 
 /* object */
 #define obj_seto(a, b) {(a)->type = (b)->type; (a)->value = (b)->value;}
