@@ -51,7 +51,7 @@
  *   For example:
  *     - A value of 800 means it works at eight times the rate of allocation.
  *     - A value of 200 means it works at twice the rate of allocation.
- *     - A value of 100 means it works at the same rate of allocation.
+ *     - A value of 100 means it works at the rate of allocation.
  *     - A value of 0 means no work is ever done in a step.
  *
  *   Values less than or equal to 100 will most likely cause the collector to
