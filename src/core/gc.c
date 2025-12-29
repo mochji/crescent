@@ -39,8 +39,8 @@
 #define setgray(h)  ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET))
 
 /* see type enums in conf.h */
-#define traversable(h) ((h)->type & 4)
-#define grayagain(h)   ((h)->type & 8)
+#define istraversable(h) ((h)->type & 4)
+#define isgrayagain(h)   ((h)->type & 8)
 
 #define linklist(h, l) {(h)->next = (l); (l) = (h);}
 #define linkset(h, s)  {(h)->set = (s); (s) = (h);}
