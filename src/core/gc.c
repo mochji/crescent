@@ -29,8 +29,8 @@
 #define CRS_MASK_BLACK bit_mask(1)
 #define CRS_MASK_SET   (CRS_MASK_WHITE | CRS_MASK_BLACK)
 
-#define iswhite(h) bit_get((h)->mark, CRS_BIT_WHITE)
-#define isblack(h) bit_get((h)->mark, CRS_BIT_BLACK)
+#define iswhite(h) bit_get((h)->mark, CRS_MASK_WHITE)
+#define isblack(h) bit_get((h)->mark, CRS_MASK_BLACK)
 #define isgray(h)  (!bit_get((h)->mark, CRS_MASK_SET))
 
 /* reset all set bits, then set the correct one */
