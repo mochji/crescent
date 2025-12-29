@@ -117,8 +117,8 @@ crsO_toFloat(crs_Object* object, int* match);
 extern char*
 crsO_toString(crs_Object* object, int* match);
 
-#define obj_isnumber(type)      ((type) & 0x01)
-#define obj_iscollectable(type) ((type) & 0x02)
+#define obj_isnumber(o)      ((o)->type & 1)
+#define obj_iscollectable(o) ((o)->type & 2)
 
 #define obj_toheader(o) ((crs_GCHeader*)o)
 #define obj_tostring(h) ((crs_String*)h)

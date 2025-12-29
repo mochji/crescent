@@ -223,7 +223,7 @@ crs_isFloat(crs_Thread* thread, int index) {
 
 int
 crs_isNumber(crs_Thread* thread, int index) {
-	return obj_isnumber(crs_getIndex(thread, index)->type);
+	return obj_isnumber(crs_getIndex(thread, index));
 }
 
 int
