@@ -62,7 +62,7 @@ crs_Thread {
  * While an object must always be in a list, it isn't always in a set.
  *
  * gray:
- *   Objects in this list are gray, and must be scanned for references to other
+ *   Objects in this list are gray and must be scanned for references to other
  *   objects.
  *
  * grayAgain:

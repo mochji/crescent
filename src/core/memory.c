@@ -58,6 +58,10 @@ crsM_realloc_(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
 
 void
 crsM_free_(crs_Thread* thread, void* block, size_t size) {
+	if (block == NULL) {
+		return;
+	}
+
 	free(block);
 	thread->state->gc.usage -= size;
 }
