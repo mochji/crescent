@@ -170,7 +170,7 @@ crsO_toInteger(crs_Object* object, int* match) {
 		case CRS_TYPE_FLOAT:
 			return (crs_Integer)obj_getf(object);
 		case CRS_TYPE_STRING:
-			return crsF_toInteger(obj_gets(object)->value, NULL);
+			return crsF_toInteger(obj_gets(object)->contents, NULL);
 	}
 
 	return 0;
@@ -190,7 +190,7 @@ crsO_toFloat(crs_Object* object, int* match) {
 		case CRS_TYPE_FLOAT:
 			return obj_getf(object);
 		case CRS_TYPE_STRING:
-			return crsF_toFloat(obj_gets(object)->value, NULL);
+			return crsF_toFloat(obj_gets(object)->contents, NULL);
 	}
 
 	return 0;
@@ -210,7 +210,7 @@ crsO_toString(crs_Object* object, int* match) {
 		case CRS_TYPE_BOOLEAN:
 			return obj_getb(object) ? "true" : "false";
 		case CRS_TYPE_STRING:
-			return obj_gets(object)->value;
+			return obj_gets(object)->contents;
 	}
 
 	return "";

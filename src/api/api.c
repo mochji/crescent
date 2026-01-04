@@ -325,7 +325,7 @@ crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
 void
 crs_pushString(crs_Thread* thread, const char* str) {
 	crs_Object* object = crs_adjustTop(thread, 1);
-	crs_String* string = crsS_as((char*)str);
+	crs_String* string = crsS_new((char*)str);
 
 	if (string == NULL) {
 		thread->stack.top -= 1;

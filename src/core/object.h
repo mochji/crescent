@@ -54,10 +54,9 @@ typedef struct crs_Object   crs_Object;
 struct
 crs_String {
 	struct crs_GCHeader header;
-	size_t              size;
 	size_t              length;
-	char*               value;
-	size_t              references;
+	size_t              references; /* TODO: REMOVE! */
+	char                contents[];
 };
 
 struct

@@ -20,13 +20,7 @@
 /* TODO: redo everything here. everything! */
 
 extern crs_String*
-crsS_new(size_t length);
-
-extern crs_String*
-crsS_nullString(void);
-
-extern crs_String*
-crsS_as(char* str);
+crsS_new(char* contents);
 
 extern crs_String*
 crsS_clone(crs_String* string);
@@ -35,15 +29,6 @@ extern void
 crsS_free(crs_String* string);
 
 extern int
-crsS_resize(crs_String* string, size_t newLength);
-
-extern int
 crsS_compare(crs_String* stringA, crs_String* stringB);
-
-extern size_t
-crsS_hash(char* str);
-
-extern char*
-crsS_copy(char* str);
 
 #endif
