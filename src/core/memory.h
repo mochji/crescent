@@ -23,8 +23,8 @@ crsM_realloc_(crs_Thread* thread, void* block, size_t size, size_t oldSize);
 extern void
 crsM_free_(crs_Thread* thread, void* block, size_t size);
 
-#define obj_new(t, o)  (crsM_malloc_((t), sizeof(o)))
-#define obj_free(t, o) (crsM_free_((t), (o), sizeof(*o)))
+#define obj_new(t, o)     (crsM_malloc_((t), sizeof(o)))
+#define obj_free(t, b, o) (crsM_free_((t), (b), sizeof(*o)))
 
 #define vec_new(t, n, o)          (crsM_malloc_((t), (n) * sizeof(o)))
 #define vec_resize(t, v, n, p, o) (crsM_realloc_((t), (v), (n) * sizeof(o), (p) * sizeof(o)))
