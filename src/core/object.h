@@ -64,8 +64,8 @@ crs_Array {
 	struct crs_GCHeader header;
 	size_t              size;
 	size_t              length;
-	struct crs_Object*  value;
-	size_t              references;
+	size_t              references; /* TODO: REMOVE! */
+	struct crs_Object*  contents;
 };
 
 typedef struct crs_String crs_String;

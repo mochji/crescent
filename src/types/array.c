@@ -17,22 +17,22 @@
 #include "types/array.h"
 
 crs_Array*
-crsA_new(size_t length) {
+crsA_new(size_t size) {
 	crs_Array* array = malloc(sizeof(crs_Array));
 
 	if (array == NULL) {
 		return NULL;
 	}
 
-	/* TODO: properly set up header once gc is implemented */
+	/* TODO: properly set up gc header once gc is implemented */
 	array->header.type = CRS_TYPE_ARRAY;
 
-	array->size       = length + CRS_ARRAY_ALLOCSPACE;
-	array->length     = length;
-	array->value      = malloc(array->size * sizeof(crs_Object));
+	array->size       = size;
+	array->length     = 0;
 	array->references = 1;
+	array->contents   = malloc(size * sizeof(crs_Object));
 
-	if (array->value == NULL) {
+	if (array->contents == NULL) {
 		free(array);
 
 		return NULL;
@@ -54,17 +54,17 @@ crsA_clone(crs_Array* array) {
 
 	cloned->size       = array->size;
 	cloned->length     = array->length;
-	cloned->value      = malloc(array->size * sizeof(crs_Object));
+	cloned->contents   = malloc(array->size * sizeof(crs_Object));
 	cloned->references = 1;
 
-	if (cloned->value == NULL) {
+	if (cloned->contents == NULL) {
 		free(cloned);
 
 		return NULL;
 	}
 
 	for (size_t a = 0; a < array->length; a++) {
-		if (crsO_deepClone(&cloned->value[a], &array->value[a])) {
+		if (crsO_deepClone(&cloned->contents[a], &array->contents[a])) {
 			cloned->length = a;
 
 			crsA_free(cloned);
@@ -83,10 +83,10 @@ crsA_free(crs_Array* array) {
 	}
 
 	for (size_t a = 0; a < array->length; a++) {
-		crsO_free(&array->value[a]);
+		crsO_free(&array->contents[a]);
 	}
 
-	free(array->value);
+	free(array->contents);
 	free(array);
 }
 
@@ -94,14 +94,14 @@ int
 crsA_resize(crs_Array* array, size_t newLength) {
 	if (newLength >= array->size || array->size - newLength > array->size / 2) {
 		size_t      newSize = newLength + CRS_ARRAY_ALLOCSPACE;
-		crs_Object* newData = realloc(array->value, newSize);
+		crs_Object* newData = realloc(array->contents, newSize);
 
 		if (newData == NULL) {
 			return 1;
 		}
 
 		array->size  = newSize;
-		array->value = newData;
+		array->contents = newData;
 	}
 
 	return 0;
@@ -118,7 +118,7 @@ crsA_compare(crs_Array* arrayA, crs_Array* arrayB) {
 	}
 
 	for (size_t a = 0; a < arrayA->length; a++) {
-		if (!crsO_compare(&arrayA->value[a], &arrayB->value[a])) {
+		if (!crsO_compare(&arrayA->contents[a], &arrayB->contents[a])) {
 			return 0;
 		}
 	}

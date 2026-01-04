@@ -19,7 +19,7 @@
 /* TODO: redo everything here. everything! */
 
 extern crs_Array*
-crsA_new(size_t length);
+crsA_new(size_t size);
 
 extern crs_Array*
 crsA_clone(crs_Array* array);
