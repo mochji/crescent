@@ -2,7 +2,7 @@
  * https://github.com/mochji/crescent
  * vm/vm.h
  *
- * Copyright (C) 2025 mochji
+ * Copyright (C) 2026 mochji
  * MIT License
  */
 

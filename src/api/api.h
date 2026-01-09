@@ -2,7 +2,7 @@
  * https://github.com/mochji/crescent
  * api/api.h
  *
- * Copyright (C) 2025 mochji
+ * Copyright (C) 2026 mochji
  * MIT License
  */
 
