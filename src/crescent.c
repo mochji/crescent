@@ -11,7 +11,7 @@
 #include "api/api.h"
 
 int
-main() {
+main(void) {
 	crs_Thread* thread = crs_open();
 
 	crs_pushNil(thread);
