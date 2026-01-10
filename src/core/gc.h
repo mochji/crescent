@@ -49,7 +49,7 @@
  *   than the step parameter) that should be marked or swept in this step.
  *
  *   For example:
- *     - A value of 800 means it works at eight times the rate of allocation.
+ *     - A value of 400 means it works at four times the rate of allocation.
  *     - A value of 200 means it works at twice the rate of allocation.
  *     - A value of 100 means it works at the rate of allocation.
  *     - A value of 0 means no work is ever done in a step.
@@ -67,7 +67,7 @@
 /* these are only defaults; they can be changed during runtime */
 #define CRS_GCP_PAUSE      100
 #define CRS_GCP_STEP       12
-#define CRS_GCP_MULTIPLIER 800
+#define CRS_GCP_MULTIPLIER 400
 
 #define gc_getparam(s, n)    ((s)->gc.params[CRS_INDEX_GC##n])
 #define gc_setparam(s, n, v) ((s)->gc.params[CRS_INDEX_GC##n] = (v))
