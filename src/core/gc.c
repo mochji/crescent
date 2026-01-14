@@ -6,6 +6,8 @@
  * MIT License
  */
 
+#include <stdlib.h>
+
 #include "conf.h"
 #include "limit.h"
 
@@ -52,38 +54,45 @@
 
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
 
-void
-crsG_new(crs_Thread* thread, crs_GCHeader* header, crs_byte type, int immune) {
-	crs_State* state = thread->state;
+crs_GCHeader*
+crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
+	crs_State*    state  = thread->state;
+	crs_GCHeader* header = malloc(size);
 
-	if (immune) {
-		/*
-		 * immune objects are kept gray, and they will remain as such. since
-		 * they are already marked (non-white), they will not be marked again
-		 * and added to the gray list or turned black. and since they are not
-		 * in the all list, they won't be swept and turned white either.
-		 *
-		 * this gives immunity to the object itself, but not to any it
-		 * references--they must be referenced by another non-immune alive
-		 * object.
-		 */
-
-		linklist(header, state->gc.immune);
-		setgray(header);
-	} else {
-		linklist(header, state->gc.all);
-		setwhite(header);
-
-		/*
-		 * if the gc is sweeping, move the sweep pointer past the new object if
-		 * it isn't already past it.
-		 */
-
-		if (!keepinvariant(state) && state->gc.sweep == &state->gc.all) {
-			state->gc.sweep = &header->next;
-		}
-	}
-
+	linklist(header, state->gc.all);
+	setwhite(header);
 	header->set  = NULL;
 	header->type = type;
+
+	/*
+	 * if the gc is sweeping, move the sweep pointer past the new object if it
+	 * isn't already past it.
+	 */
+	if (!keepinvariant(state) && state->gc.sweep == &state->gc.all) {
+		state->gc.sweep = &header->next;
+	}
+
+	return header;
+}
+
+/* set the newest object in the gc as immune */
+void
+crsG_setImmune(crs_Thread* thread) {
+	crs_State*    state  = thread->state;
+	crs_GCHeader* header = state->gc.all;
+
+	state->gc.all = header->next; /* remove from all list */
+
+	/*
+	 * immune objects are kept gray, and they will remain as such. since they
+	 * are already marked (non-white), they will not be marked again and added
+	 * to the gray list or turned black. and since they are not in the all
+	 * list, they won't be swept and turned white either.
+	 *
+	 * this gives immunity to the object itself, but not any it references--
+	 * they must be referenced by another, non-immune and alive object.
+	 */
+
+	linklist(header, state->gc.immune);
+	setgray(header);
 }
