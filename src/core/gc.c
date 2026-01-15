@@ -13,6 +13,7 @@
 
 #include "core/object.h"
 #include "core/state.h"
+#include "core/memory.h"
 
 #include "core/gc.h"
 
@@ -57,7 +58,7 @@
 crs_GCHeader*
 crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
 	crs_State*    state  = thread->state;
-	crs_GCHeader* header = malloc(size);
+	crs_GCHeader* header = mem_new(thread, size);
 
 	linklist(header, state->gc.all);
 	setwhite(header);
