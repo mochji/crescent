@@ -55,7 +55,8 @@
 
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
 
-crs_GCHeader*
+/* returning as void removes the need to cast the type */
+void*
 crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
 	crs_State*    state  = thread->state;
 	crs_GCHeader* header = mem_new(thread, size);
@@ -85,13 +86,13 @@ crsG_setImmune(crs_Thread* thread) {
 	state->gc.all = header->next; /* remove from all list */
 
 	/*
-	 * immune objects are kept gray, and they will remain as such. since they
+	 * Immune objects are kept gray, and they will remain as such. Since they
 	 * are already marked (non-white), they will not be marked again and added
-	 * to the gray list or turned black. and since they are not in the all
+	 * to the gray list or turned black. And since they are not in the all
 	 * list, they won't be swept and turned white either.
 	 *
-	 * this gives immunity to the object itself, but not any it references--
-	 * they must be referenced by another, non-immune and alive object.
+	 * This gives immunity to the object itself, but not any it references--
+	 * they must be referenced by an alive, non-immune object.
 	 */
 
 	linklist(header, state->gc.immune);
