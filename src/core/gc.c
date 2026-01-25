@@ -49,7 +49,7 @@
 #define linkset(h, s)  {(h)->set = (s); (s) = (h);}
 
 /*
- * During the sweep phase, we don't have the keep the invariant, and as such,
+ * During the sweep phase, we don't have to keep the invariant, and as such,
  * write barriers are not activated.
  */
 
