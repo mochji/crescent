@@ -55,6 +55,19 @@
 
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
 
+static crs_mem
+applyParameter(crs_mem value, unsigned short parameter) {
+	if (value < 100) {
+		return (value * parameter) / 100; /* shouldn't overflow */
+	}
+
+	if (parameter > CRS_MAX_MEM / (value / 100)) {
+		return CRS_MAX_MEM; /* would overflow; return maximum value */
+	}
+
+	return ((value / 100) * parameter) + ((value % 100) * parameter) / 100;
+}
+
 /* returning as void removes the need to cast the type */
 void*
 crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
