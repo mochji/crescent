@@ -86,6 +86,30 @@ mark_header(crs_State* state, crs_GCHeader* header) {
 #define mark_instance(s, i) mark_header((s), obj_toheader(i))
 #define mark_object(s, o)   mark_header((s), obj_geth(o))
 
+static crs_mem
+traverse_array(crs_State* state, crs_Array* array) {
+	crs_Object* object = array->contents;
+
+	for (size_t a = 0; a < array->length; a++) {
+		mark_object(state, object);
+		object++;
+	}
+
+	return sizeof(crs_Array) + array->size * sizeof(crs_Object);
+}
+
+static crs_mem
+traverse_thread(crs_State* state, crs_Thread* thread) {
+	crs_Object* object = thread->stack.base;
+
+	while (object < thread->stack.top) {
+		mark_object(state, object);
+		object++;
+	}
+
+	return sizeof(crs_Thread) + thread->stack.size * sizeof(crs_Object);
+}
+
 /* returning as void removes the need to cast the type */
 void*
 crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
