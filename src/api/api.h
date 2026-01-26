@@ -51,9 +51,6 @@ crs_length(crs_Thread* thread, int index);
 extern void
 crs_clone(crs_Thread* thread, int index);
 
-extern void
-crs_deepClone(crs_Thread* thread, int index);
-
 extern int
 crs_isNil(crs_Thread* thread, int index);
 

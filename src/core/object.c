@@ -50,7 +50,7 @@ crsO_compare(crs_Object* a, crs_Object* b) {
 	return 0;
 }
 
-int
+void
 crsO_clone(crs_Object* to, crs_Object* from) {
 	int type = from->type;
 
@@ -61,35 +61,6 @@ crsO_clone(crs_Object* to, crs_Object* from) {
 	}
 
 	obj_seto(to, from);
-
-	return 0;
-}
-
-int
-crsO_deepClone(crs_Object* to, crs_Object* from) {
-	void* cloned;
-
-	if (from->type == CRS_TYPE_STRING) {
-		cloned = crsS_clone(obj_gets(from));
-
-		if (cloned == NULL) {
-			return 1;
-		}
-
-		obj_setgc(to, cloned);
-	} else if (from->type == CRS_TYPE_ARRAY) {
-		cloned = crsA_clone(obj_geta(from));
-
-		if (cloned == NULL) {
-			return 1;
-		}
-
-		obj_setgc(to, cloned);
-	} else {
-		obj_seto(to, from);
-	}
-
-	return 0;
 }
 
 void

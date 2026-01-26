@@ -182,23 +182,7 @@ crs_clone(crs_Thread* thread, int index) {
 	crs_Object* from = crs_getIndex(thread, index);
 	crs_Object* to   = crs_adjustTop(thread, 1);
 
-	if (crsO_clone(to, from)) {
-		thread->stack.top -= 1;
-
-		crsC_memoryError(thread);
-	}
-}
-
-void
-crs_deepClone(crs_Thread* thread, int index) {
-	crs_Object* from = crs_getIndex(thread, index);
-	crs_Object* to   = crs_adjustTop(thread, 1);
-
-	if (crsO_deepClone(to, from)) {
-		thread->stack.top -= 1;
-
-		crsC_memoryError(thread);
-	}
+	crsO_clone(to, from);
 }
 
 int

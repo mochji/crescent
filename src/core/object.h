@@ -84,11 +84,8 @@ crsO_compare(crs_Object* a, crs_Object* b);
  * metatables).
  */
 
-extern int
+extern void
 crsO_clone(crs_Object* to, crs_Object* from);
-
-extern int
-crsO_deepClone(crs_Object* to, crs_Object* from);
 
 /*
  * TODO

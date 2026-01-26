@@ -22,9 +22,6 @@
 extern crs_String*
 crsS_new(char* contents);
 
-extern crs_String*
-crsS_clone(crs_String* string);
-
 extern void
 crsS_free(crs_String* string);
 

@@ -21,9 +21,6 @@
 extern crs_Array*
 crsA_new(size_t size);
 
-extern crs_Array*
-crsA_clone(crs_Array* array);
-
 extern void
 crsA_free(crs_Array* array);
 

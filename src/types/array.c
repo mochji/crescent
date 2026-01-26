@@ -41,41 +41,6 @@ crsA_new(size_t size) {
 	return array;
 }
 
-crs_Array*
-crsA_clone(crs_Array* array) {
-	crs_Array* cloned = malloc(sizeof(crs_Array));
-
-	if (cloned == NULL) {
-		return NULL;
-	}
-
-	/* TODO: properly set up header once gc is implemented */
-	cloned->header.type = CRS_TYPE_ARRAY;
-
-	cloned->size       = array->size;
-	cloned->length     = array->length;
-	cloned->contents   = malloc(array->size * sizeof(crs_Object));
-	cloned->references = 1;
-
-	if (cloned->contents == NULL) {
-		free(cloned);
-
-		return NULL;
-	}
-
-	for (size_t a = 0; a < array->length; a++) {
-		if (crsO_deepClone(&cloned->contents[a], &array->contents[a])) {
-			cloned->length = a;
-
-			crsA_free(cloned);
-
-			return NULL;
-		}
-	}
-
-	return cloned;
-}
-
 void
 crsA_free(crs_Array* array) {
 	if (array == NULL) {

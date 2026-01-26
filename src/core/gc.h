@@ -44,8 +44,8 @@
  *     - A value of 0 forces the collector to immediately start another cycle.
  *
  * step:
- *   How many bytes must be allocated for another step to begin; specifically
- *   2^step bytes.
+ *   How many bytes must be allocated for another step to begin in the same
+ *   cycle.
  *
  * multiplier:
  *   Percent of the memory allocated since the last step (which may be more

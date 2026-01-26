@@ -36,11 +36,6 @@ crsS_new(char* contents) {
 	return string;
 }
 
-crs_String*
-crsS_clone(crs_String* string) {
-	return crsS_new(string->contents);
-}
-
 void
 crsS_free(crs_String* string) {
 	if (string == NULL) {
