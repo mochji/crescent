@@ -55,6 +55,7 @@
 
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
 
+/* return parameter% of value, accounting for overflows */
 static crs_mem
 applyParameter(crs_mem value, unsigned short parameter) {
 	if (value < 100) {
@@ -68,6 +69,23 @@ applyParameter(crs_mem value, unsigned short parameter) {
 	return ((value / 100) * parameter) + ((value % 100) * parameter) / 100;
 }
 
+static void
+mark_header(crs_State* state, crs_GCHeader* header) {
+	if (!iswhite(header)) {
+		return;
+	}
+
+	if (istraversable(header)) {
+		linkset(header, state->gc.gray);
+		setgray(header);
+	} else {
+		setblack(header);
+	}
+}
+
+#define mark_instance(s, i) mark_header((s), obj_toheader(i))
+#define mark_object(s, o)   mark_header((s), obj_geth(o))
+
 /* returning as void removes the need to cast the type */
 void*
 crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
@@ -80,8 +98,8 @@ crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
 	header->type = type;
 
 	/*
-	 * if the gc is sweeping, move the sweep pointer past the new object if it
-	 * isn't already past it.
+	 * if the gc is sweeping, ensure the object doesn't get collected by moving
+	 * the sweep pointer past it if it isn't already.
 	 */
 	if (!keepinvariant(state) && state->gc.sweep == &state->gc.all) {
 		state->gc.sweep = &header->next;
@@ -90,7 +108,6 @@ crsG_new(crs_Thread* thread, crs_byte type, size_t size) {
 	return header;
 }
 
-/* set the newest object in the gc as immune */
 void
 crsG_setImmune(crs_Thread* thread) {
 	crs_State*    state  = thread->state;
