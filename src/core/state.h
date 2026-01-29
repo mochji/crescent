@@ -71,13 +71,13 @@ crs_Thread {
  * While an object must always be in a list, it isn't always in a set.
  *
  * gray:
- *   Objects in this list are gray and must be scanned for references to other
+ *   Objects in this list are gray and must be scanned for references to white
  *   objects.
  *
  * grayAgain:
- *   Objects in this list are also gray, but will be traversed in the atomic
- *   phase. Objects here either do not have write barriers (threads) or have
- *   been set back to gray by a write barrier.
+ *   Objects in this list are also gray, but will be traversed once again in
+ *   the atomic phase--hence the name. Objects in here have either been set
+ *   back to gray by a write barrier or do not have write barriers (threads).
  */
 
 struct
