@@ -55,6 +55,12 @@
 
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
 
+/*
+ * ===========================
+ *  generic
+ * ===========================
+ */
+
 /* return parameter% of value, accounting for overflows */
 static crs_mem
 applyParam(crs_mem value, unsigned short parameter) {
@@ -97,6 +103,12 @@ setPause(crs_State* state, crs_mem pause) {
 	state->gc.last = usage;
 }
 
+/*
+ * ===========================
+ *  marking
+ * ===========================
+ */
+
 static void
 mark_header(crs_State* state, crs_GCHeader* header) {
 	if (!iswhite(header)) {
@@ -113,6 +125,12 @@ mark_header(crs_State* state, crs_GCHeader* header) {
 
 #define mark_object(s, i) mark_header((s), obj_toheader(i))
 #define mark_value(s, o)  mark_header((s), obj_geth(o))
+
+/*
+ * ===========================
+ *  traversing
+ * ===========================
+ */
 
 static crs_mem
 traverse_array(crs_State* state, crs_Array* array) {
@@ -136,6 +154,12 @@ traverse_thread(crs_State* state, crs_Thread* thread) {
 
 	return 1 + (object - thread->stack.base);
 }
+
+/*
+ * ===========================
+ *  list iteration
+ * ===========================
+ */
 
 static crs_mem
 traverse(crs_State* state, int atomic) {
@@ -172,6 +196,12 @@ sweep(crs_State* state) {
 
 	return 1;
 }
+
+/*
+ * ===========================
+ *  steps
+ * ===========================
+ */
 
 /*
  * GC phases
@@ -259,6 +289,12 @@ step_single(crs_State* state) {
 }
 
 /*
+ * ===========================
+ *  incremental gc
+ * ===========================
+ */
+
+/*
  * GC work
  *
  * How much work is performed in a step is determined by units of work. One
@@ -305,6 +341,12 @@ incremental_step(crs_State* state) {
 		return 0;
 	}
 }
+
+/*
+ * ===========================
+ *  control
+ * ===========================
+ */
 
 /* returning as void removes the need to cast the type */
 void*
