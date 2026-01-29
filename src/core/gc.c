@@ -249,6 +249,10 @@ step_mark(crs_State* state) {
 
 static crs_mem
 step_atomic(crs_State* state) {
+	while (state->gc.gray != NULL) {
+		traverse(state, 1);
+	}
+
 	state->gc.gray      = state->gc.grayAgain;
 	state->gc.grayAgain = NULL;
 
