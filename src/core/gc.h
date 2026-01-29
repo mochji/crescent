@@ -75,4 +75,10 @@ crsG_new(crs_Thread* thread, crs_byte type, size_t size);
 extern void
 crsG_setImmune(crs_Thread* thread);
 
+extern int
+crsG_step(crs_Thread* thread);
+
+extern void
+crsG_full(crs_Thread* thread, int emergency);
+
 #endif
