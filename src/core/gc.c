@@ -320,8 +320,8 @@ incremental_full(crs_State* state) {
 
 static int
 incremental_step(crs_State* state) {
-	crs_mem multiplier = gc_getparam(state, MULTIPLIER);
-	crs_mem work       = state->gc.last - state->gc.usage;
+	unsigned short multiplier = gc_getparam(state, MULTIPLIER);
+	crs_mem        work       = state->gc.last - state->gc.usage;
 
 	work = applyParam(work / 1024, multiplier);
 
