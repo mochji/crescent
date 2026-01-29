@@ -129,15 +129,12 @@ traverse_array(crs_State* state, crs_Array* array) {
 static crs_mem
 traverse_thread(crs_State* state, crs_Thread* thread) {
 	crs_Object* object = thread->stack.base;
-	crs_mem     count  = 0;
 
-	while (object < thread->stack.top) {
+	for (; object < thread->stack.top; object++) {
 		mark_value(state, object);
-		object++;
-		count++;
 	}
 
-	return 1 + count;
+	return 1 + (object - thread->stack.base);
 }
 
 static crs_mem
