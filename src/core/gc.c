@@ -57,7 +57,7 @@
 
 /* return parameter% of value, accounting for overflows */
 static crs_mem
-applyParameter(crs_mem value, unsigned short parameter) {
+applyParam(crs_mem value, unsigned short parameter) {
 	if (value < 100) {
 		return (value * parameter) / 100; /* shouldn't overflow */
 	}
