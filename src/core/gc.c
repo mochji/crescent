@@ -331,7 +331,7 @@ incremental_step(crs_State* state) {
 	}
 
 	if (state->gc.phase == CRS_GCPHASE_RESTART) {
-		setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE));
+		setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
 
 		return 1;
 	} else {
