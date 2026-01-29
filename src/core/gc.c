@@ -316,6 +316,7 @@ incremental_full(crs_State* state) {
 	}
 
 	incremental_until(state, CRS_GCPHASE_RESTART);
+	setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
 }
 
 static int
