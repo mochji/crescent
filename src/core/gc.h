@@ -75,6 +75,12 @@ crsG_new(crs_Thread* thread, crs_byte type, size_t size);
 extern void
 crsG_setImmune(crs_Thread* thread);
 
+extern void
+crsG_barrierF(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
+
+extern void
+crsG_barrierB(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
+
 extern int
 crsG_step(crs_Thread* thread);
 

@@ -396,6 +396,27 @@ crsG_setImmune(crs_Thread* thread) {
 	setgray(header);
 }
 
+#define dobarrier(s, b, w) ((isblack(b) && iswhite(w)) && keepinvariant(s))
+
+void
+crsG_barrierF(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+	crs_State* state = thread->state;
+
+	if (dobarrier(state, black, white)) {
+		mark_header(state, white);
+	}
+}
+
+void
+crsG_barrierB(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+	crs_State* state = thread->state;
+
+	if (dobarrier(state, black, white)) {
+		linkset(black, state->gc.grayAgain);
+		setgray(black);
+	}
+}
+
 int
 crsG_step(crs_Thread* thread) {
 	crs_State* state = thread->state;
