@@ -15,9 +15,6 @@
 #include "limit.h"
 
 #include "core/object.h"
-#include "core/state.h"
-
-/* TODO: redo everything here. everything! */
 
 extern crs_Array*
 crsA_new(crs_Thread* thread, size_t size);

@@ -13,7 +13,6 @@
 #include "limit.h"
 
 #include "core/object.h"
-#include "core/state.h"
 
 /* error handling */
 

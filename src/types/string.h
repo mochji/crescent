@@ -15,7 +15,6 @@
 #include "conf.h"
 #include "limit.h"
 
-#include "core/state.h"
 #include "core/object.h"
 
 extern crs_String*

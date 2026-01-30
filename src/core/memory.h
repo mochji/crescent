@@ -14,8 +14,6 @@
 #include "conf.h"
 #include "limit.h"
 
-#include "core/state.h"
-
 extern void*
 crsM_malloc_(crs_Thread* thread, size_t size);
 
