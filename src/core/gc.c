@@ -11,6 +11,8 @@
 #include "conf.h"
 #include "limit.h"
 
+#include "types/string.h"
+#include "types/array.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
@@ -75,18 +77,17 @@ applyParam(crs_mem value, unsigned short parameter) {
 	return ((value / 100) * parameter) + ((value % 100) * parameter) / 100;
 }
 
-/* TODO: this */
 static void
 freeObject(crs_State* state, crs_GCHeader* header) {
 	((void)state);
 
 	switch (header->type) {
 		case CRS_TYPE_STRING:
-			break;
+			crsS_free(obj_tostring(header)); break;
 		case CRS_TYPE_ARRAY:
-			break;
+			crsA_free(obj_toarray(header)); break;
 		case CRS_TYPE_THREAD:
-			break;
+			crsE_freeThread(obj_tothread(header)); break;
 	}
 }
 
