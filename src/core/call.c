@@ -85,7 +85,7 @@ crsC_restoreStack(crs_Thread* thread, short level) {
 		crs_Object* to   = frame->base;
 
 		while (from >= to) {
-			crsO_free(from--);
+			crsO_free(thread, from--);
 		}
 
 		thread->stack.top     = to;
@@ -223,7 +223,7 @@ crsC_endCall(crs_Thread* thread, int results) {
 		to = frame->base;
 
 		for (int a = 0; a < discarded; a++) {
-			crsO_free(to++);
+			crsO_free(thread, to++);
 		}
 
 		from = thread->stack.top - results;

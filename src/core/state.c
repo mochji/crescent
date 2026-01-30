@@ -95,7 +95,7 @@ crsE_freeThread(crs_Thread* thread) {
 	crs_Object* object = thread->stack.base;
 
 	while (object < thread->stack.top) {
-		crsO_free(object++);
+		crsO_free(thread, object++);
 	}
 
 	if (thread->error != thread->state->memoryError) {

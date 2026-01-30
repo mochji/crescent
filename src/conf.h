@@ -169,6 +169,7 @@
 #endif
 
 struct crs_Thread;
+typedef struct crs_Thread crs_Thread;
 
 typedef CRS_INTEGER crs_Integer;
 typedef CRS_FLOAT   crs_Float;

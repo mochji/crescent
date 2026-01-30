@@ -102,7 +102,6 @@ crs_State {
 };
 
 typedef struct crs_Frame  crs_Frame;
-typedef struct crs_Thread crs_Thread;
 typedef struct crs_State  crs_State;
 
 extern crs_State*

@@ -56,7 +56,7 @@ crs_String {
 	struct crs_GCHeader header;
 	size_t              length;
 	size_t              references; /* TODO: REMOVE! */
-	char                contents[];
+	char*               contents;
 };
 
 struct
@@ -96,7 +96,7 @@ crsO_clone(crs_Object* to, crs_Object* from);
  */
 
 extern void
-crsO_free(crs_Object* object);
+crsO_free(crs_Thread* thread, crs_Object* object);
 
 extern char*
 crsO_typeName(int type);

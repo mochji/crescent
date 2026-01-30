@@ -13,8 +13,6 @@
 #include "types/array.h"
 #include "core/format.h"
 
-#include "core/object.h"
-
 int
 crsO_compare(crs_Object* a, crs_Object* b) {
 	crs_byte aType = a->type;
@@ -64,7 +62,7 @@ crsO_clone(crs_Object* to, crs_Object* from) {
 }
 
 void
-crsO_free(crs_Object* object) {
+crsO_free(crs_Thread* thread, crs_Object* object) {
 	if (object == NULL) {
 		return;
 	}
@@ -74,14 +72,14 @@ crsO_free(crs_Object* object) {
 		string->references -= 1;
 
 		if (string->references == 0) {
-			crsS_free(string);
+			crsS_free(thread, string);
 		}
 	} else if (object->type == CRS_TYPE_ARRAY) {
 		crs_Array* array   = obj_geta(object);
 		array->references -= 1;
 
 		if (array->references == 0) {
-			crsA_free(array);
+			crsA_free(thread, array);
 		}
 	}
 

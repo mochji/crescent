@@ -13,11 +13,14 @@
 #include "limit.h"
 
 #include "core/object.h"
+#include "core/state.h"
 
 #include "types/array.h"
 
 crs_Array*
-crsA_new(size_t size) {
+crsA_new(crs_Thread* thread, size_t size) {
+	(void)thread;
+
 	crs_Array* array = malloc(sizeof(crs_Array));
 
 	if (array == NULL) {
@@ -42,13 +45,13 @@ crsA_new(size_t size) {
 }
 
 void
-crsA_free(crs_Array* array) {
+crsA_free(crs_Thread* thread, crs_Array* array) {
 	if (array == NULL) {
 		return;
 	}
 
 	for (size_t a = 0; a < array->length; a++) {
-		crsO_free(&array->contents[a]);
+		crsO_free(thread, &array->contents[a]);
 	}
 
 	free(array->contents);

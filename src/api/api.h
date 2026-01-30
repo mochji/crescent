@@ -13,8 +13,6 @@
 
 #include "conf.h"
 
-typedef struct crs_Thread crs_Thread;
-
 extern int
 crs_version(void);
 

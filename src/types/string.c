@@ -14,35 +14,40 @@
 #include "limit.h"
 
 #include "core/object.h"
+#include "core/state.h"
+#include "core/memory.h"
+#include "core/gc.h"
 
 #include "types/string.h"
 
 crs_String*
-crsS_new(char* contents) {
-	size_t      length = strlen(contents);
-	crs_String* string = malloc(sizeof(crs_String) + (length + 1) * sizeof(char));
+crsS_new(crs_Thread* thread, char* str) {
+	size_t length   = strlen(str);
+	char*  contents = mem_snew(thread, length);
 
-	if (string == NULL) {
+	if (contents == NULL) {
 		return NULL;
 	}
 
-	/* TODO: properly set up header once gc is implemented */
-	string->header.type = CRS_TYPE_STRING;
+	crs_String* string = crsG_new(thread, CRS_TYPE_STRING, sizeof(crs_String));
+
+	if (string == NULL) {
+		mem_sfree(thread, contents, length);
+
+		return NULL;
+	}
 
 	string->length     = length;
+	string->contents   = contents;
 	string->references = 1;
-	strcpy(string->contents, contents);
 
 	return string;
 }
 
 void
-crsS_free(crs_String* string) {
-	if (string == NULL) {
-		return;
-	}
-
-	free(string);
+crsS_free(crs_Thread* thread, crs_String* string) {
+	mem_sfree(thread, string->contents, string->length);
+	mem_freeobj(thread, string);
 }
 
 int

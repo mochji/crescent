@@ -15,14 +15,15 @@
 #include "limit.h"
 
 #include "core/object.h"
+#include "core/state.h"
 
 /* TODO: redo everything here. everything! */
 
 extern crs_Array*
-crsA_new(size_t size);
+crsA_new(crs_Thread* thread, size_t size);
 
 extern void
-crsA_free(crs_Array* array);
+crsA_free(crs_Thread* thread, crs_Array* array);
 
 extern int
 crsA_resize(crs_Array* array, size_t newLength);

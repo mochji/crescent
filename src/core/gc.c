@@ -79,13 +79,13 @@ applyParam(crs_mem value, unsigned short parameter) {
 
 static void
 freeObject(crs_State* state, crs_GCHeader* header) {
-	((void)state);
+	crs_Thread* thread = state->thread;
 
 	switch (header->type) {
 		case CRS_TYPE_STRING:
-			crsS_free(obj_tostring(header)); break;
+			crsS_free(thread, obj_tostring(header)); break;
 		case CRS_TYPE_ARRAY:
-			crsA_free(obj_toarray(header)); break;
+			crsA_free(thread, obj_toarray(header)); break;
 		case CRS_TYPE_THREAD:
 			crsE_freeThread(obj_tothread(header)); break;
 	}

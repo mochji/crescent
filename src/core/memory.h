@@ -27,6 +27,7 @@ crsM_free_(crs_Thread* thread, void* block, size_t size);
 
 #define mem_new(t, s)     (crsM_malloc_((t), (s)))
 #define mem_free(t, b, s) (crsM_free_((t), (b), (s)))
+#define mem_freeobj(t, o) (crsM_free_((t), (o), sizeof(o)))
 
 #define mem_vnew(t, n, o)          (crsM_malloc_((t), (n) * sizeof(o)))
 #define mem_vresize(t, v, n, p, o) (crsM_realloc_((t), (v), (n) * sizeof(o), (p) * sizeof(o)))

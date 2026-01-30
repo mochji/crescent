@@ -15,15 +15,14 @@
 #include "conf.h"
 #include "limit.h"
 
+#include "core/state.h"
 #include "core/object.h"
 
-/* TODO: redo everything here. everything! */
-
 extern crs_String*
-crsS_new(char* contents);
+crsS_new(crs_Thread* thread, char* contents);
 
 extern void
-crsS_free(crs_String* string);
+crsS_free(crs_Thread* thread, crs_String* string);
 
 extern int
 crsS_compare(crs_String* stringA, crs_String* stringB);

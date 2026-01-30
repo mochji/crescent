@@ -160,7 +160,7 @@ crs_setTop(crs_Thread* thread, int top) {
 		}
 	} else {
 		while (object > to) {
-			crsO_free(--object);
+			crsO_free(thread, --object);
 		}
 	}
 
@@ -309,7 +309,7 @@ crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
 void
 crs_pushString(crs_Thread* thread, const char* str) {
 	crs_Object* object = crs_adjustTop(thread, 1);
-	crs_String* string = crsS_new((char*)str);
+	crs_String* string = crsS_new(thread, (char*)str);
 
 	if (string == NULL) {
 		thread->stack.top -= 1;
@@ -336,7 +336,7 @@ crs_pop(crs_Thread* thread, int amount) {
 	crs_Object* object = thread->stack.top - 1;
 
 	for (int a = 0; a < amount; a++) {
-		crsO_free(object--);
+		crsO_free(thread, object--);
 	}
 
 	thread->stack.top -= amount;
@@ -361,7 +361,7 @@ crs_remove(crs_Thread* thread, int index) {
 
 	crs_Object* object = frame->base + index - 1;
 
-	crsO_free(object);
+	crsO_free(thread, object);
 
 	for (int a = 0; a < items; a++) {
 		*object = *(object + 1);
