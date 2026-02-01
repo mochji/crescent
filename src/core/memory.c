@@ -13,6 +13,7 @@
 #include "limit.h"
 
 #include "core/state.h"
+#include "core/gc.h"
 #include "core/call.h"
 
 #include "core/memory.h"
@@ -28,13 +29,17 @@ crsM_malloc(crs_Thread* thread, size_t size) {
 	crs_State* state = thread->state;
 	void*      block = malloc(size);
 
-	if (!block) {
-		/*
-		 * TODO: when the gc is implemented, do a full collection and try
-		 * again. if it still fails, then return NULL.
-		 */
+	if (block == NULL) {
+		if (gc_getstatus(state, STOPEM)) {
+			return NULL;
+		}
 
-		return NULL;
+		crsG_full(thread, 1);
+		block = malloc(size);
+
+		if (block == NULL) {
+			return NULL;
+		}
 	}
 
 	state->gc.usage += size;
@@ -48,13 +53,17 @@ crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
 
 	block = realloc(block, size);
 
-	if (!block) {
-		/*
-		 * TODO: when the gc is implemented, do a full collection and try
-		 * again. if it still fails, then return NULL.
-		 */
+	if (block == NULL) {
+		if (gc_getstatus(state, STOPEM)) {
+			return NULL;
+		}
 
-		return NULL;
+		crsG_full(thread, 1);
+		block = malloc(size);
+
+		if (block == NULL) {
+			return NULL;
+		}
 	}
 
 	state->gc.usage -= oldSize;
