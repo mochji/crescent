@@ -20,118 +20,82 @@
 
 #include "vm/vm.h"
 
-/* TODO: these functions are temporary until string format */
-
-static void
-crsV_lengthError(crs_Thread* thread, int type) {
-	switch (type) {
-		case CRS_TYPE_NIL:
-			crsC_setError(thread, "attempt to get length of a nil value");
-
-			break;
-		case CRS_TYPE_BOOLEAN:
-			crsC_setError(thread, "attempt to get length of a boolean value");
-
-			break;
-		case CRS_TYPE_INTEGER:
-			crsC_setError(thread, "attempt to get length of a number value");
-
-			break;
-		case CRS_TYPE_FLOAT:
-			crsC_setError(thread, "attempt to get length of a number value");
-
-			break;
-		case CRS_TYPE_CFUNCTION:
-			crsC_setError(thread, "attempt to get length of a string value");
-
-			break;
-	}
-}
-
-static void
-crsV_callError(crs_Thread* thread, int type) {
-	switch (type) {
-		case CRS_TYPE_NIL:
-			crsC_setError(thread, "attempt to call a nil value");
-
-			break;
-		case CRS_TYPE_BOOLEAN:
-			crsC_setError(thread, "attempt to call a boolean value");
-
-			break;
-		case CRS_TYPE_INTEGER:
-			crsC_setError(thread, "attempt to call a number value");
-
-			break;
-		case CRS_TYPE_FLOAT:
-			crsC_setError(thread, "attempt to call a number value");
-
-			break;
-		case CRS_TYPE_STRING:
-			crsC_setError(thread, "attempt to call a string value");
-
-			break;
-		case CRS_TYPE_ARRAY:
-			crsC_setError(thread, "attempt to call a array value");
-
-			break;
-	}
-}
-
 size_t
 crsV_length(crs_Thread* thread, crs_Object* object) {
-	if (object->type == CRS_TYPE_STRING) {
-		return obj_gets(object)->length;
-	} else if (object->type == CRS_TYPE_ARRAY) {
-		return obj_geta(object)->length;
-	} else {
-		crsV_lengthError(thread, object->type);
-		crsC_throw(thread, CRS_STATUS_ERROR);
+	switch (object->type) {
+		case CRS_TYPE_STRING:
+			return obj_gets(object)->length;
+		case CRS_TYPE_ARRAY:
+			return obj_geta(object)->length;
 	}
+
+	/* TODO: proper error message */
+	crsC_error(thread, "cannot get length");
 }
 
 int
 crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults) {
 	if (object->type != CRS_TYPE_CFUNCTION) {
-		crsV_callError(thread, object->type);
-		crsC_throw(thread, CRS_STATUS_ERROR);
+		/* TODO: proper error message */
+		crsC_error(thread, "cannot call");
 	}
 
 	if (thread->stack.calls >= CRS_MAX_CALLS) {
-		crsC_setError(thread, "stack overflow");
-		crsC_throw(thread, CRS_STATUS_ERROR);
+		crsC_error(thread, "stack overflow");
 	} else if (thread->stack.cCalls >= CRS_MAX_CCALLS) {
-		crsC_setError(thread, "C stack overflow");
-		crsC_throw(thread, CRS_STATUS_ERROR);
+		crsC_error(thread, "C stack overflow");
 	}
 
 	return crsC_callC(thread, obj_getc(object), args, maxResults);
 }
 
+static void
+pushError(crs_Thread* thread) {
+	crs_Frame*  frame = thread->stack.frame;
+	crs_Object* top   = thread->stack.top;
+	crs_Object* error = &thread->error;
+	int         items = top - frame->base;
+
+	if (items >= CRS_MAX_TOP) {
+		crsC_error(thread, "stack overflow");
+	}
+
+	crsC_checkFree(thread, 1, 1);
+
+	obj_seto(top, error);
+	obj_setn(error);
+
+	thread->stack.top++;
+}
+
 int
 crsV_pCall(crs_Thread* thread, crs_Object* object, int args, int maxResults, int* status) {
-	jmp_buf* handler  = malloc(sizeof(jmp_buf));
 	jmp_buf* previous = thread->handler;
 	short    calls    = thread->stack.calls;
+	jmp_buf  handler;
 
-	thread->handler = handler;
+	thread->handler = &handler;
 
 	int results;
+	int code = setjmp(handler);
 
-	if (setjmp(*handler) == 0) {
+	if (!code) {
 		results = crsV_call(thread, object, args, maxResults);
+		code    = CRS_STATUS_OK;
+
+		thread->handler = previous;
 	} else {
+		thread->handler = previous;
+
 		crsC_restoreStack(thread, calls);
+		pushError(thread);
+
 		results = 0;
 	}
 
 	if (status != NULL) {
-		*status = thread->status;
+		*status = code;
 	}
-
-	thread->status  = CRS_STATUS_OK;
-	thread->handler = previous;
-	free(handler);
 
 	return results;
 }

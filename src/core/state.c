@@ -13,18 +13,19 @@
 #include "limit.h"
 
 #include "core/object.h"
+#include "core/memory.h"
+#include "core/gc.h"
 
 #include "core/state.h"
 
-crs_State*
-crsE_newState(void) {
+static crs_State*
+newState(void) {
 	crs_State* state = malloc(sizeof(crs_State));
 
 	if (state == NULL) {
 		return NULL;
 	}
 
-	state->memoryError   = "out of memory";
 	state->nilValue.type = CRS_TYPE_NIL;
 	state->thread        = NULL;
 	state->panic         = NULL;
@@ -32,18 +33,8 @@ crsE_newState(void) {
 	return state;
 }
 
-void
-crsE_freeState(crs_State* state) {
-	if (state == NULL) {
-		return;
-	}
-
-	crsE_freeThread(state->thread);
-	free(state);
-}
-
-crs_Thread*
-crsE_newThread(crs_State* state) {
+static crs_Thread*
+newThread(void) {
 	crs_Thread* thread = malloc(sizeof(crs_Thread) + sizeof(crs_Frame));
 	crs_Frame*  frame  = (crs_Frame*)(thread + 1);
 
@@ -51,14 +42,11 @@ crsE_newThread(crs_State* state) {
 		return NULL;
 	}
 
-	/* TODO: temporary asildjhasdj */
-	thread->header.type = CRS_TYPE_THREAD;
-
 	thread->stack.size   = CRS_MIN_STACK;
 	thread->stack.base   = calloc(thread->stack.size, sizeof(crs_Object));
 	thread->stack.top    = thread->stack.base;
-	thread->stack.calls  = 0;
-	thread->stack.cCalls = 0;
+	thread->stack.calls  = 1;
+	thread->stack.cCalls = 1;
 	thread->stack.frame  = frame;
 
 	if (thread->stack.base == NULL) {
@@ -69,43 +57,55 @@ crsE_newThread(crs_State* state) {
 
 	frame->base     = thread->stack.base;
 	frame->top      = CRS_MIN_TOP;
-	frame->next     = NULL;
 	frame->previous = NULL;
 
-	thread->status  = CRS_STATUS_OK;
-	thread->error   = NULL;
-	thread->handler = NULL;
-	thread->state   = state;
+	thread->handler    = NULL;
+	thread->error.type = CRS_TYPE_NIL;
+	thread->state      = NULL;
 
-	if (state->thread == NULL) {
-		state->thread = thread;
+	return thread;
+}
+
+crs_Thread*
+crsE_open(void) {
+	crs_State*  state = newState();
+	crs_Thread* thread;
+
+	if (state == NULL) {
+		free(state);
+
+		return NULL;
+	}
+
+	thread = newThread();
+
+	if (thread == NULL) {
+		free(state);
+
+		return NULL;
 	}
 
 	state->thread = thread;
+	thread->state = state;
+
+	if (crsG_init(state)) {
+		crsE_freeState(state);
+
+		return NULL;
+	}
 
 	return thread;
 }
 
 void
 crsE_freeThread(crs_Thread* thread) {
-	if (thread == NULL) {
-		return;
-	}
+	mem_vfree(thread, thread->stack.base, thread->stack.size, crs_Object);
+	mem_dealloc(thread, thread, sizeof(crs_Thread) + sizeof(crs_Frame));
+}
 
-	crs_Object* object = thread->stack.base;
-
-	while (object < thread->stack.top) {
-		crsO_free(thread, object++);
-	}
-
-	if (thread->error != thread->state->memoryError) {
-		free(thread->error);
-	}
-
-	if (thread->handler != NULL) {
-		free(thread->handler);
-	}
-
-	free(thread->stack.base);
-	free(thread);
+void
+crsE_freeState(crs_State* state) {
+	crsG_freeAll(state);
+	crsE_freeThread(state->thread);
+	free(state);
 }

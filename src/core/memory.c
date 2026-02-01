@@ -13,11 +13,18 @@
 #include "limit.h"
 
 #include "core/state.h"
+#include "core/call.h"
 
 #include "core/memory.h"
 
+void
+crsM_error(crs_Thread* thread) {
+	obj_setgc(&thread->error, thread->state->memoryError);
+	crsC_throw(thread);
+}
+
 void*
-crsM_malloc_(crs_Thread* thread, size_t size) {
+crsM_malloc(crs_Thread* thread, size_t size) {
 	crs_State* state = thread->state;
 	void*      block = malloc(size);
 
@@ -36,7 +43,7 @@ crsM_malloc_(crs_Thread* thread, size_t size) {
 }
 
 void*
-crsM_realloc_(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
+crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
 	crs_State* state = thread->state;
 
 	block = realloc(block, size);
@@ -57,7 +64,7 @@ crsM_realloc_(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
 }
 
 void
-crsM_free_(crs_Thread* thread, void* block, size_t size) {
+crsM_free(crs_Thread* thread, void* block, size_t size) {
 	if (block == NULL) {
 		return;
 	}

@@ -28,7 +28,7 @@ crsS_new(crs_Thread* thread, char* str) {
 		return NULL;
 	}
 
-	crs_String* string = crsG_new(thread, CRS_TYPE_STRING, sizeof(crs_String));
+	crs_String* string = crsG_new(thread, CRS_TYPE_STRING, crs_String);
 
 	if (string == NULL) {
 		mem_sfree(thread, contents, length);
@@ -36,9 +36,8 @@ crsS_new(crs_Thread* thread, char* str) {
 		return NULL;
 	}
 
-	string->length     = length;
-	string->contents   = contents;
-	string->references = 1;
+	string->length   = length;
+	string->contents = strcpy(contents, str);
 
 	return string;
 }
@@ -46,7 +45,7 @@ crsS_new(crs_Thread* thread, char* str) {
 void
 crsS_free(crs_Thread* thread, crs_String* string) {
 	mem_sfree(thread, string->contents, string->length);
-	mem_freeobj(thread, string);
+	mem_free(thread, string);
 }
 
 int

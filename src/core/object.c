@@ -48,44 +48,6 @@ crsO_compare(crs_Object* a, crs_Object* b) {
 	return 0;
 }
 
-void
-crsO_clone(crs_Object* to, crs_Object* from) {
-	int type = from->type;
-
-	if (type == CRS_TYPE_STRING) {
-		obj_gets(from)->references += 1;
-	} else if (type == CRS_TYPE_ARRAY) {
-		obj_geta(from)->references += 1;
-	}
-
-	obj_seto(to, from);
-}
-
-void
-crsO_free(crs_Thread* thread, crs_Object* object) {
-	if (object == NULL) {
-		return;
-	}
-
-	if (object->type == CRS_TYPE_STRING) {
-		crs_String* string  = obj_gets(object);
-		string->references -= 1;
-
-		if (string->references == 0) {
-			crsS_free(thread, string);
-		}
-	} else if (object->type == CRS_TYPE_ARRAY) {
-		crs_Array* array   = obj_geta(object);
-		array->references -= 1;
-
-		if (array->references == 0) {
-			crsA_free(thread, array);
-		}
-	}
-
-	obj_setn(object);
-}
-
 char*
 crsO_typeName(int type) {
 	switch (type) {

@@ -23,9 +23,6 @@ extern void
 crsA_free(crs_Thread* thread, crs_Array* array);
 
 extern int
-crsA_resize(crs_Array* array, size_t newLength);
-
-extern int
 crsA_compare(crs_Array* arrayA, crs_Array* arrayB);
 
 #endif

@@ -31,14 +31,23 @@ crs_close(crs_Thread* thread);
 extern void
 crs_setPanic(crs_Thread* thread, crs_CFunction* function);
 
-extern int
-crs_checkTop(crs_Thread* thread, int top);
+extern void
+crs_error(crs_Thread* thread, int index);
 
 extern int
 crs_getTop(crs_Thread* thread);
 
+extern int
+crs_checkTop(crs_Thread* thread, int top);
+
 extern void
 crs_setTop(crs_Thread* thread, int top);
+
+extern void
+crs_pop(crs_Thread* thread, int amount);
+
+extern void
+crs_remove(crs_Thread* thread, int index);
 
 extern int
 crs_type(crs_Thread* thread, int index);
@@ -115,12 +124,6 @@ crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
 extern void
 crs_pushString(crs_Thread* thread, const char* str);
 
-extern void
-crs_pop(crs_Thread* thread, int amount);
-
-extern void
-crs_remove(crs_Thread* thread, int index);
-
 extern int
 crs_call(crs_Thread* thread, int index, int args);
 
@@ -128,18 +131,9 @@ extern int
 crs_pCall(crs_Thread* thread, int index, int args, int* status);
 
 extern int
-crs_callK(crs_Thread* thread, int index, int args, int maxResults);
+crs_callX(crs_Thread* thread, int index, int args, int maxResults);
 
 extern int
-crs_pCallK(crs_Thread* thread, int index, int args, int maxResults, int* status);
-
-extern void __attribute__((noreturn))
-crs_error(crs_Thread* thread, const char* error);
-
-extern void
-crs_clearError(crs_Thread* thread);
-
-extern const char*
-crs_getError(crs_Thread* thread);
+crs_pCallX(crs_Thread* thread, int index, int args, int maxResults, int* status);
 
 #endif

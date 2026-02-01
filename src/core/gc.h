@@ -69,8 +69,16 @@
 #define CRS_GCPHASE_ATOMIC  2
 #define CRS_GCPHASE_SWEEP   3
 
+extern int
+crsG_init(crs_State* state);
+
+extern void
+crsG_freeAll(crs_State* state);
+
 extern void*
-crsG_new(crs_Thread* thread, crs_byte type, size_t size);
+crsG_new_(crs_Thread* thread, crs_byte type, size_t size);
+
+#define crsG_new(t, b, o) crsG_new_((t), (b), sizeof(o))
 
 extern void
 crsG_setImmune(crs_Thread* thread);
@@ -86,5 +94,8 @@ crsG_step(crs_Thread* thread);
 
 extern void
 crsG_full(crs_Thread* thread, int emergency);
+
+#define crsG_check(t) \
+	((t)->state->gc.usage >= (t)->state->gc.next ? crsG_step(t) : 0)
 
 #endif

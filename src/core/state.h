@@ -21,7 +21,6 @@ struct
 crs_Frame {
 	struct crs_Object* base;
 	int                top;
-	struct crs_Frame*  next;
 	struct crs_Frame*  previous;
 };
 
@@ -36,9 +35,8 @@ crs_Thread {
 		short              cCalls;
 		struct crs_Frame*  frame;
 	}                 stack;
-	int               status;
-	char*             error;
 	jmp_buf*          handler;
+	struct crs_Object error;
 	struct crs_State* state;
 };
 
@@ -95,7 +93,7 @@ crs_State {
 		struct crs_GCHeader*  grayAgain;
 		struct crs_GCHeader** sweep;
 	}                  gc;
-	char*              memoryError;
+	struct crs_String* memoryError;
 	struct crs_Object  nilValue;
 	struct crs_Thread* thread;
 	crs_CFunction*     panic;
@@ -104,16 +102,13 @@ crs_State {
 typedef struct crs_Frame  crs_Frame;
 typedef struct crs_State  crs_State;
 
-extern crs_State*
-crsE_newState(void);
-
-extern void
-crsE_freeState(crs_State* state);
-
 extern crs_Thread*
-crsE_newThread(crs_State* state);
+crsE_open(void);
 
 extern void
 crsE_freeThread(crs_Thread* thread);
+
+extern void
+crsE_freeState(crs_State* state);
 
 #endif

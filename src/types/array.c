@@ -26,7 +26,7 @@ crsA_new(crs_Thread* thread, size_t size) {
 		return NULL;
 	}
 
-	crs_Array* array = crsG_new(thread, CRS_TYPE_ARRAY, sizeof(crs_Array));
+	crs_Array* array = crsG_new(thread, CRS_TYPE_ARRAY, crs_Array);
 
 	if (array == NULL) {
 		mem_vfree(thread, contents, size, crs_Object);
@@ -37,19 +37,14 @@ crsA_new(crs_Thread* thread, size_t size) {
 	array->size       = size;
 	array->length     = 0;
 	array->contents   = contents;
-	array->references = 1;
 
 	return array;
 }
 
 void
 crsA_free(crs_Thread* thread, crs_Array* array) {
-	for (size_t a = 0; a < array->length; a++) {
-		crsO_free(thread, &array->contents[a]);
-	}
-
 	mem_vfree(thread, array->contents, array->size, crs_Object);
-	mem_freeobj(thread, array);
+	mem_free(thread, array);
 }
 
 int
