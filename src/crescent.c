@@ -181,6 +181,17 @@ panicking(crs_Thread* thread) {
 }
 
 void
+garbage(crs_Thread* thread) {
+	int counter = 0;
+
+	for (;;) {
+		crs_pushString(thread, "sdujrfiouwieruiowu4h5rt3w-9485iu8oi3e4ertui8e984oi5thuj345t0-9i34095tuj90o834uj5t9803uj459i0uj390i8o5ujt4iodjfgioujewi4otjdfg");
+		crs_pop(thread, 1);
+		printf("%d\n", counter++);
+	}
+}
+
+void
 choose(crs_Thread* thread, char option) {
 	printf("========\n");
 
@@ -203,6 +214,10 @@ choose(crs_Thread* thread, char option) {
 			break;
 		case 'p':
 			panicking(thread);
+
+			break;
+		case 'g':
+			garbage(thread);
 
 			break;
 		case 'q':
@@ -228,6 +243,7 @@ main(void) {
 		printf("c: calling\n");
 		printf("h: handling\n");
 		printf("p: panicking\n");
+		printf("g: garbage\n");
 		printf("q: quit\n");
 		printf("> ");
 
