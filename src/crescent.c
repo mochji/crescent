@@ -177,7 +177,7 @@ handling(crs_Thread* thread) {
 void
 panicking(crs_Thread* thread) {
 	crs_pushCFunction(thread, &mischievous);
-	crs_call(thread, 1, 0);
+	crs_call(thread, 1, 1);
 }
 
 void
