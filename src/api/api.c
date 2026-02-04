@@ -348,7 +348,7 @@ void
 crs_pushNil(crs_Thread* thread) {
 	crs_Object* object = adjustTop(thread, 1);
 
-	object->type = CRS_TYPE_NIL;
+	obj_setn(object);
 }
 
 void
