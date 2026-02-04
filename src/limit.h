@@ -42,8 +42,6 @@ typedef size_t crs_mem;
 #define CRS_MAX_MEM SIZE_MAX
 #endif
 
-#define CRS_MAX_SWEEP 50
-
 /* useful bit macros */
 #define bit_mask(b)         (1 << (b))
 #define bit_get(x, m)       ((x) & (m))

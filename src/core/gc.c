@@ -349,10 +349,6 @@ incremental_step(crs_State* state) {
 	}
 
 	while (work) {
-		if (state->gc.phase == CRS_GCPHASE_SWEEP && work > CRS_MAX_SWEEP) {
-			work = CRS_MAX_SWEEP;
-		}
-
 		crs_mem done = step_single(state);
 		work         = done > work ? 0 : work - done;
 	}
