@@ -91,16 +91,6 @@
 #endif
 
 /*
- * @ CRS_STRING_ALLOCSPACE
- * @ CRS_ARRAY_ALLOCSPACE
- *
- * THESE DEFINITIONS WILL BE REMOVED !!
- */
-
-#define CRS_STRING_ALLOCSPACE 32
-#define CRS_ARRAY_ALLOCSPACE 32
-
-/*
  * ============================================================================
  * End of configurable options
  * ============================================================================
