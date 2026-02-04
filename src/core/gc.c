@@ -137,7 +137,7 @@ mark_header(crs_State* state, crs_GCHeader* header) {
 }
 
 #define mark_object(s, i) mark_header((s), obj_toheader(i))
-#define mark_value(s, o)  mark_header((s), obj_geth(o))
+#define mark_value(s, o)  {if (obj_iscollectable(o)) mark_header((s), obj_geth(o));}
 
 /*
  * ===========================
@@ -242,6 +242,7 @@ sweep(crs_State* state) {
 static crs_mem
 step_restart(crs_State* state) {
 	state->gc.sweep = &state->gc.all; /* reset sweep */
+	setwhite(obj_toheader(state->thread)); /* not in all list; wasn't reset */
 	mark_object(state, state->thread);
 
 	state->gc.phase = CRS_GCPHASE_MARK;
@@ -378,6 +379,8 @@ crsG_init(crs_State* state) {
 	/* after this, the state and thread should be set up fully */
 
 	crs_Thread* thread = state->thread;
+
+	thread->header.type = CRS_TYPE_THREAD;
 
 	gc_setstatus(state, STOP, 0);
 	gc_setstatus(state, EMERGENCY, 0);
