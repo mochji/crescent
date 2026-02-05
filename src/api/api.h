@@ -13,6 +13,15 @@
 
 #include "conf.h"
 
+#define CRS_GC_FULL  1
+#define CRS_GC_USAGE 2
+
+#define CRS_GC_STOP       0
+#define CRS_GC_STOPEM     1
+#define CRS_GC_PAUSE      2
+#define CRS_GC_STEP       3
+#define CRS_GC_MULTIPLIER 4
+
 extern int
 crs_version(void);
 
@@ -33,6 +42,15 @@ crs_setPanic(crs_Thread* thread, crs_CFunction* function);
 
 extern void
 crs_error(crs_Thread* thread, int index);
+
+extern int
+crs_gc(crs_Thread* thread, int option);
+
+extern int
+crs_getGC(crs_Thread* thread, int option);
+
+extern void
+crs_setGC(crs_Thread* thread, int option, unsigned short value);
 
 extern int
 crs_getTop(crs_Thread* thread);

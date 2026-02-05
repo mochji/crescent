@@ -21,6 +21,8 @@
 #include "core/call.h"
 #include "vm/vm.h"
 
+#include "api/api.h"
+
 static int
 panic(crs_Thread* thread) {
 	crs_Object* error = &thread->error;
@@ -122,6 +124,76 @@ crs_error(crs_Thread* thread, int index) {
 
 	obj_seto(&thread->error, object);
 	crsC_throw(thread);
+}
+
+/*
+ * ===========================
+ *  gc management
+ * ===========================
+ */
+
+int
+crs_gc(crs_Thread* thread, int option) {
+	switch (option) {
+		case CRS_GC_STEP:
+			return crsG_step(thread);
+		case CRS_GC_FULL:
+			crsG_full(thread, 0); return 1;
+		case CRS_GC_USAGE:
+			return (int)(thread->state->gc.usage / 1024);
+	}
+
+	return 0;
+}
+
+int
+crs_getGC(crs_Thread* thread, int option) {
+	crs_State* state = thread->state;
+
+	switch (option) {
+		case CRS_GC_STOP:
+			return gc_getstatus(state, STOP);
+		case CRS_GC_STOPEM:
+			return gc_getstatus(state, STOPEM);
+		case CRS_GC_PAUSE:
+			return gc_getparam(state, PAUSE);
+		case CRS_GC_STEP:
+			return gc_getparam(state, STEP);
+		case CRS_GC_MULTIPLIER:
+			return gc_getparam(state, MULTIPLIER);
+	}
+
+	return 0;
+}
+
+void
+crs_setGC(crs_Thread* thread, int option, unsigned short value) {
+	crs_State* state = thread->state;
+
+	switch (option) {
+		case CRS_GC_STOP:
+			value = value != 0;
+			gc_setstatus(state, STOP, value);
+
+			break;
+		case CRS_GC_STOPEM:
+			value = value != 0;
+			gc_setstatus(state, STOPEM, value);
+
+			break;
+		case CRS_GC_PAUSE:
+			gc_setparam(state, PAUSE, value);
+
+			break;
+		case CRS_GC_STEP:
+			gc_setparam(state, STEP, value);
+
+			break;
+		case CRS_GC_MULTIPLIER:
+			gc_setparam(state, MULTIPLIER, value);
+
+			break;
+	}
 }
 
 /*
