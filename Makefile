@@ -13,8 +13,7 @@ CFLAGS       =         \
 	-Wundef            \
 	-Wdouble-promotion \
 	-Wnull-dereference \
-	-Wfatal-errors     \
-	-Wno-unused-function # TEMPORARY!!!!!
+	-Wfatal-errors
 
 CC       = gcc
 AR       = ar rcs
