@@ -13,14 +13,14 @@
 
 #include "conf.h"
 
-#define CRS_GC_FULL  1
-#define CRS_GC_USAGE 2
+#define CRS_GC_FULL  0
+#define CRS_GC_USAGE 1
 
-#define CRS_GC_STOP       0
-#define CRS_GC_STOPEM     1
-#define CRS_GC_PAUSE      2
-#define CRS_GC_STEP       3
-#define CRS_GC_MULTIPLIER 4
+#define CRS_GC_STOP       2
+#define CRS_GC_STOPEM     3
+#define CRS_GC_PAUSE      4
+#define CRS_GC_STEP       5
+#define CRS_GC_MULTIPLIER 6
 
 extern int
 crs_version(void);

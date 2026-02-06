@@ -143,7 +143,7 @@ crs_gc(crs_Thread* thread, int option) {
 			return (int)(thread->state->gc.usage / 1024);
 	}
 
-	return 0;
+	return -1;
 }
 
 int
@@ -163,7 +163,7 @@ crs_getGC(crs_Thread* thread, int option) {
 			return gc_getparam(state, MULTIPLIER);
 	}
 
-	return 0;
+	return -1;
 }
 
 void
