@@ -29,6 +29,9 @@
  * If not:
  *   - Call the state's panic function. This is the last chance to jump out.
  *   - If it returns, call abort.
+ *
+ * WARNING: As a pcall might catch and handle any error, be careful to ensure
+ * the state of the thread when you throw one.
  */
 
 void

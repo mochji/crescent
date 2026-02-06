@@ -231,8 +231,8 @@ sweep(crs_State* state) {
  *   traversal.
  *
  * atomic (atomic):
- *   Traverse the entire grayAgain list. By now, all reachable objects should
- *   be marked as black, so we can begin sweeping.
+ *   Traverse the entire grayAgain set. By now, all reachable objects should be
+ *   marked as black, so we can begin sweeping.
  *
  * sweep:
  *   Sweep an item in the all list; if it's dead, remove it from the list and
@@ -447,8 +447,8 @@ crsG_setImmune(crs_Thread* thread) {
 	/*
 	 * Immune objects are kept gray, and they will remain as such. Since they
 	 * are already marked (non-white), they will not be marked again and added
-	 * to the gray list or turned black. And since they are not in the all
-	 * list, they won't be swept and turned white either.
+	 * to the gray set or turned black. And since they are not in the all list,
+	 * they won't be swept and turned white either.
 	 *
 	 * This gives immunity to the object itself, but not any it references--
 	 * they must be referenced by an alive, non-immune object.
