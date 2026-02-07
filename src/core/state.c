@@ -72,8 +72,6 @@ crsE_open(void) {
 	crs_Thread* thread;
 
 	if (state == NULL) {
-		free(state);
-
 		return NULL;
 	}
 
