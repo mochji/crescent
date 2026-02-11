@@ -55,7 +55,7 @@ endif
 
 .DEFAULT_GOAL = build
 
-.PHONY: run valgrind clean rmobj todo fixme notes echo
+.PHONY: build run valgrind clean rmobj todo fixme notes echo
 
 build:
 	mkdir -p $(BUILD)
