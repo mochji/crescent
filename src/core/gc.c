@@ -374,7 +374,15 @@ int
 crsG_init(crs_State* state) {
 	/* after this, the state and thread should be set up fully */
 
-	crs_Thread* thread = state->thread;
+	crs_Thread* thread      = state->thread;
+	crs_String* memoryError = crsS_new(thread, "out of memory");
+
+	if (memoryError == NULL) {
+		return 1;
+	}
+
+	crsG_setImmune(thread);
+	state->memoryError = memoryError;
 
 	thread->header.type = CRS_TYPE_THREAD;
 
@@ -391,16 +399,6 @@ crsG_init(crs_State* state) {
 
 	state->gc.phase = CRS_GCPHASE_RESTART;
 	state->gc.usage = usage;
-
-	crs_String* memoryError = crsS_new(thread, "out of memory");
-
-	if (memoryError == NULL) {
-		return 1;
-	}
-
-	crsG_setImmune(thread);
-
-	state->memoryError = memoryError;
 
 	setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
 
