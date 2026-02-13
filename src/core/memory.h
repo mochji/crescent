@@ -27,7 +27,7 @@ extern void
 crsM_free(crs_Thread* thread, void* block, size_t size);
 
 #define mem_new(t, o)  (crsM_malloc((t), sizeof(o)));
-#define mem_free(t, o) (crsM_free((t), (o), sizeof(o)));
+#define mem_free(t, o) (crsM_free((t), (o), sizeof(*(o))));
 
 #define mem_alloc(t, s)      (crsM_malloc((t), (s)));
 #define mem_dealloc(t, b, s) (crsM_free((t), (b), (s)));
