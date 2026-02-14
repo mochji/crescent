@@ -184,7 +184,7 @@ void
 garbage(crs_Thread* thread) {
 	int counter = 0;
 
-	for (;;) {
+	for (int a = 0; a < 900000; a++) {
 		crs_pushString(thread, "sdujrfiouwieruiowu4h5rt3w-9485iu8oi3e4ertui8e984oi5thuj345t0-9i34095tuj90o834uj5t9803uj459i0uj390i8o5ujt4iodjfgioujewi4otjdfg");
 		crs_pop(thread, 1);
 		printf("%d\n", counter++);
