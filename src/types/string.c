@@ -19,33 +19,38 @@
 
 #include "types/string.h"
 
-crs_String*
-crsS_new(crs_Thread* thread, char* str) {
-	size_t length   = strlen(str);
-	char*  contents = mem_snew(thread, length);
-
-	if (contents == NULL) {
-		return NULL;
-	}
-
-	crs_String* string = crsG_new(thread, CRS_TYPE_STRING, crs_String);
+static crs_String*
+newString(crs_Thread* thread, size_t length) {
+	size_t      size   = sizeof(crs_String) + length;
+	crs_String* string = mem_alloc(thread, size);
 
 	if (string == NULL) {
-		mem_sfree(thread, contents, length);
-
 		return NULL;
 	}
 
-	string->length   = length;
-	string->contents = strcpy(contents, str);
+	string->size = size;
 
 	return string;
 }
 
+crs_String*
+crsS_new(crs_Thread* thread, char* str) {
+	size_t      length = strlen(str);
+	crs_String* string = newString(thread, length + 1);
+
+	if (string == NULL) {
+		return NULL;
+	}
+
+	string->length   = length;
+	string->contents = strcpy((char*)(string + 1), str);
+
+	return crsG_add(thread, string, CRS_TYPE_STRING);
+}
+
 void
 crsS_free(crs_Thread* thread, crs_String* string) {
-	mem_sfree(thread, string->contents, string->length);
-	mem_free(thread, string);
+	mem_dealloc(thread, string, string->size);
 }
 
 int

@@ -414,9 +414,8 @@ crsG_freeAll(crs_State* state) {
 
 /* returning as void removes the need to cast the type */
 void*
-crsG_new_(crs_Thread* thread, crs_byte type, size_t size) {
-	crs_State*    state  = thread->state;
-	crs_GCHeader* header = mem_alloc(thread, size);
+crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
+	crs_State* state = thread->state;
 
 	linklist(header, state->gc.all);
 	setwhite(header);

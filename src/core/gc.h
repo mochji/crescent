@@ -76,9 +76,9 @@ extern void
 crsG_freeAll(crs_State* state);
 
 extern void*
-crsG_new_(crs_Thread* thread, crs_byte type, size_t size);
+crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type);
 
-#define crsG_new(t, b, o) crsG_new_((t), (b), sizeof(o))
+#define crsG_add(t, o, b) crsG_add_((t), obj_toheader(o), (b))
 
 extern void
 crsG_setImmune(crs_Thread* thread);

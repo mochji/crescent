@@ -26,7 +26,7 @@ crsA_new(crs_Thread* thread, size_t size) {
 		return NULL;
 	}
 
-	crs_Array* array = crsG_new(thread, CRS_TYPE_ARRAY, crs_Array);
+	crs_Array* array = mem_new(thread, crs_Array);
 
 	if (array == NULL) {
 		mem_vfree(thread, contents, size, crs_Object);
@@ -38,7 +38,7 @@ crsA_new(crs_Thread* thread, size_t size) {
 	array->length     = 0;
 	array->contents   = contents;
 
-	return array;
+	return crsG_add(thread, array, CRS_TYPE_ARRAY);
 }
 
 void

@@ -54,6 +54,7 @@ typedef struct crs_Object   crs_Object;
 struct
 crs_String {
 	struct crs_GCHeader header;
+	size_t              size;
 	size_t              length;
 	char*               contents;
 };
