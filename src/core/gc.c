@@ -241,7 +241,7 @@ sweep(crs_State* state) {
 
 static crs_mem
 step_restart(crs_State* state) {
-	state->gc.sweep = &state->gc.all; /* reset sweep */
+	state->gc.sweep = &state->gc.all;
 	setwhite(obj_toheader(state->thread)); /* not in all list; wasn't reset */
 	mark_object(state, state->thread);
 
@@ -329,7 +329,7 @@ incremental_until(crs_State* state, int phase) {
 static void
 incremental_full(crs_State* state) {
 	if (!keepinvariant(state)) {
-		/* finish sweep; reset everything back to white */
+		/* finish sweep and reset everything back to white */
 		incremental_until(state, CRS_GCPHASE_RESTART);
 	}
 
@@ -405,7 +405,6 @@ crsG_init(crs_State* state) {
 	return 0;
 }
 
-/* free every collectable object except the main thread */
 void
 crsG_freeAll(crs_State* state) {
 	/* the main thread is in neither of these lists; this is safe */
