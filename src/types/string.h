@@ -18,7 +18,10 @@
 #include "core/object.h"
 
 extern crs_String*
-crsS_new(crs_Thread* thread, char* contents);
+crsS_new(crs_Thread* thread, char* str);
+
+extern crs_String*
+crsS_external(crs_Thread* thread, char* str);
 
 extern void
 crsS_free(crs_Thread* thread, crs_String* string);

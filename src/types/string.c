@@ -48,6 +48,20 @@ crsS_new(crs_Thread* thread, char* str) {
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
+crs_String*
+crsS_external(crs_Thread* thread, char* str) {
+	crs_String* string = newString(thread, 0);
+
+	if (string == NULL) {
+		return NULL;
+	}
+
+	string->length   = strlen(str);
+	string->contents = str;
+
+	return crsG_add(thread, string, CRS_TYPE_STRING);
+}
+
 void
 crsS_free(crs_Thread* thread, crs_String* string) {
 	mem_dealloc(thread, string, string->size);
