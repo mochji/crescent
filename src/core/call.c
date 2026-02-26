@@ -206,6 +206,7 @@ checkResults(crs_Thread* thread, int results) {
 	crs_Frame* previous = frame->previous;
 	int        free     = previous->top - (frame->base - previous->base);
 
+	/* previous frame cannot hold results? */
 	if (results > CRS_MAX_TOP - free) {
 		crsC_error(thread, "stack overflow");
 	}
@@ -215,6 +216,7 @@ checkResults(crs_Thread* thread, int results) {
 	}
 }
 
+/* create and initialize a new stack frame */
 static void
 startCall(crs_Thread* thread, int top, int args) {
 	crsC_checkFree(thread, top - args, 1);
@@ -235,12 +237,14 @@ startCall(crs_Thread* thread, int top, int args) {
 	thread->stack.frame   = frame;
 }
 
+/* return 'results' elements and pop top stack frame */
 static int
 endCall(crs_Thread* thread, int results) {
 	crs_Frame* frame    = thread->stack.frame;
 	crs_Frame* previous = frame->previous;
 	int        top      = thread->stack.top - frame->base;
 
+	/* only return as much as the frame has */
 	results = results > top ? top : results;
 	checkResults(thread, results);
 
