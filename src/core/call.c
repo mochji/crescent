@@ -239,11 +239,13 @@ static int
 endCall(crs_Thread* thread, int results) {
 	crs_Frame* frame    = thread->stack.frame;
 	crs_Frame* previous = frame->previous;
+	int        top      = thread->stack.top - frame->base;
 
+	results = results > top ? top : results;
 	checkResults(thread, results);
 
 	/* top 'results' elements are return values; move them to previous */
-	if (results > 0) {
+	if (results > 0 && results < top) {
 		crs_Object* from = thread->stack.top - results;
 		crs_Object* to   = frame->base;
 
