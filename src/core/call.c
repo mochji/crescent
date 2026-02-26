@@ -221,7 +221,7 @@ static void
 startCall(crs_Thread* thread, int top, int args) {
 	crsC_checkFree(thread, top - args, 1);
 
-	crs_Frame* frame    = mem_new(thread, sizeof(crs_Frame));
+	crs_Frame* frame    = mem_new(thread, crs_Frame);
 	crs_Frame* previous = thread->stack.frame;
 
 	if (frame == NULL) {
@@ -260,7 +260,7 @@ endCall(crs_Thread* thread, int results) {
 		}
 	}
 
-	thread->stack.top    -= (thread->stack.top - frame->base) - results;
+	thread->stack.top    -= top - results;
 	thread->stack.calls  -= 1;
 	thread->stack.cCalls -= 1;
 	thread->stack.frame   = previous;
