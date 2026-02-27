@@ -73,11 +73,7 @@ crsV_pCall(crs_Thread* thread, crs_Object* object, int args, int maxResults, int
 	crs_Handler handler;
 	int         results;
 
-	handler.status   = CRS_STATUS_OK;
-	handler.level    = thread->stack.calls;
-	handler.previous = thread->handler;
-
-	thread->handler = &handler;
+	call_sethandler(thread, handler);
 
 	if (!setjmp(handler.buffer)) {
 		results = crsV_call(thread, object, args, maxResults);
