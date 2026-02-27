@@ -36,10 +36,20 @@
 
 void
 crsC_throw(crs_Thread* thread) {
-	crs_State* state = thread->state;
+	crs_Handler* handler = thread->handler;
+	crs_State*   state   = thread->state;
 
-	if (thread->handler != NULL) {
-		longjmp(*thread->handler, CRS_STATUS_ERROR);
+	while (handler != NULL) {
+		/* error in error handler? */
+		if (handler->status != CRS_STATUS_OK) {
+			handler         = handler->previous;
+			thread->handler = handler;
+
+			continue;
+		}
+
+		handler->status = CRS_STATUS_ERROR;
+		longjmp(handler->buffer, 1);
 	}
 
 	if (state->panic != NULL) {

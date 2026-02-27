@@ -70,31 +70,28 @@ pushError(crs_Thread* thread) {
 
 int
 crsV_pCall(crs_Thread* thread, crs_Object* object, int args, int maxResults, int* status) {
-	jmp_buf* previous = thread->handler;
-	short    calls    = thread->stack.calls;
-	jmp_buf  handler;
+	crs_Handler handler;
+	int         results;
+
+	handler.status   = CRS_STATUS_OK;
+	handler.level    = thread->stack.calls;
+	handler.previous = thread->handler;
 
 	thread->handler = &handler;
 
-	int results;
-	int code = setjmp(handler);
-
-	if (!code) {
+	if (!setjmp(handler.buffer)) {
 		results = crsV_call(thread, object, args, maxResults);
-		code    = CRS_STATUS_OK;
-
-		thread->handler = previous;
 	} else {
-		thread->handler = previous;
-
-		crsC_restoreStack(thread, calls);
+		crsC_restoreStack(thread, handler.level);
 		pushError(thread);
 
 		results = 0;
 	}
 
+	thread->handler = handler.previous;
+
 	if (status != NULL) {
-		*status = code;
+		*status = handler.status;
 	}
 
 	return results;

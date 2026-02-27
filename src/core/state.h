@@ -18,6 +18,14 @@
 #include "core/object.h"
 
 struct
+crs_Handler {
+	crs_byte            status;
+	short               level;
+	jmp_buf             buffer;
+	struct crs_Handler* previous;
+};
+
+struct
 crs_Frame {
 	struct crs_Object* base;
 	int                top;
@@ -34,10 +42,10 @@ crs_Thread {
 		short              calls;
 		short              cCalls;
 		struct crs_Frame*  frame;
-	}                 stack;
-	jmp_buf*          handler;
-	struct crs_Object error;
-	struct crs_State* state;
+	}                   stack;
+	struct crs_Handler* handler;
+	struct crs_Object   error;
+	struct crs_State*   state;
 };
 
 /*
@@ -99,8 +107,9 @@ crs_State {
 	crs_CFunction*     panic;
 };
 
-typedef struct crs_Frame  crs_Frame;
-typedef struct crs_State  crs_State;
+typedef struct crs_Handler crs_Handler;
+typedef struct crs_Frame   crs_Frame;
+typedef struct crs_State   crs_State;
 
 extern crs_Thread*
 crsE_open(void);
