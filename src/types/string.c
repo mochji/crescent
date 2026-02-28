@@ -25,7 +25,7 @@ newString(crs_Thread* thread, size_t length) {
 	crs_String* string = mem_alloc(thread, size);
 
 	if (string == NULL) {
-		return NULL;
+		crsM_error(thread);
 	}
 
 	string->size = size;
@@ -38,10 +38,6 @@ crsS_new(crs_Thread* thread, char* str) {
 	size_t      length = strlen(str);
 	crs_String* string = newString(thread, length + 1);
 
-	if (string == NULL) {
-		return NULL;
-	}
-
 	string->length   = length;
 	string->contents = strcpy((char*)(string + 1), str);
 
@@ -51,10 +47,6 @@ crsS_new(crs_Thread* thread, char* str) {
 crs_String*
 crsS_external(crs_Thread* thread, char* str) {
 	crs_String* string = newString(thread, 0);
-
-	if (string == NULL) {
-		return NULL;
-	}
 
 	string->length   = strlen(str);
 	string->contents = str;

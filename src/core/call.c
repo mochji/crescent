@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <setjmp.h>
 
 #include "conf.h"
 #include "limit.h"
@@ -62,10 +63,6 @@ crsC_throw(crs_Thread* thread) {
 void
 crsC_error(crs_Thread* thread, char* message) {
 	crs_String* error = crsS_new(thread, message);
-
-	if (error == NULL) {
-		crsM_error(thread);
-	}
 
 	obj_setgc(&thread->error, error);
 	crsC_throw(thread);

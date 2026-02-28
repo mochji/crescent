@@ -69,7 +69,7 @@
 #define CRS_GCPHASE_ATOMIC  2
 #define CRS_GCPHASE_SWEEP   3
 
-extern int
+extern void
 crsG_init(crs_State* state);
 
 extern void

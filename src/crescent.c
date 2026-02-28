@@ -233,6 +233,12 @@ int
 main(void) {
 	crs_Thread* thread = crs_open();
 
+	if (thread == NULL) {
+		fprintf(stderr, "failed to open state\n");
+
+		return 1;
+	}
+
 	printf("hi you wanna test stuff\n");
 
 	char option;

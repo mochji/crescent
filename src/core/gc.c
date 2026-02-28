@@ -79,7 +79,7 @@ applyParam(crs_mem value, unsigned short parameter) {
 
 static void
 freeObject(crs_State* state, crs_GCHeader* header) {
-	crs_Thread* thread = state->thread;
+	crs_Thread* thread = &state->thread;
 
 	switch (header->type) {
 		case CRS_TYPE_STRING:
@@ -102,18 +102,6 @@ setPause(crs_State* state, crs_mem pause) {
 	}
 
 	state->gc.last = usage;
-}
-
-static void
-freeList(crs_State* state, crs_GCHeader* list) {
-	crs_GCHeader* next = list;
-
-	while (next != NULL) {
-		list = next;
-		next = list->next;
-
-		freeObject(state, list);
-	}
 }
 
 /*
@@ -210,6 +198,18 @@ sweep(crs_State* state) {
 	return 1;
 }
 
+static void
+delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
+	crs_GCHeader* next = list;
+
+	while (next != stop) {
+		list = next;
+		next = next->next;
+
+		freeObject(state, list);
+	}
+}
+
 /*
  * ===========================
  *  steps
@@ -242,8 +242,7 @@ sweep(crs_State* state) {
 static crs_mem
 step_restart(crs_State* state) {
 	state->gc.sweep = &state->gc.all;
-	setwhite(obj_toheader(state->thread)); /* not in all list; wasn't reset */
-	mark_object(state, state->thread);
+	mark_object(state, &state->thread);
 
 	state->gc.phase = CRS_GCPHASE_MARK;
 
@@ -370,22 +369,8 @@ incremental_step(crs_State* state) {
  * ===========================
  */
 
-int
+void
 crsG_init(crs_State* state) {
-	/* after this, the state and thread should be set up fully */
-
-	crs_Thread* thread      = state->thread;
-	crs_String* memoryError = crsS_new(thread, "out of memory");
-
-	if (memoryError == NULL) {
-		return 1;
-	}
-
-	crsG_setImmune(thread);
-	state->memoryError = memoryError;
-
-	thread->header.type = CRS_TYPE_THREAD;
-
 	gc_setstatus(state, STOP, 0);
 	gc_setstatus(state, EMERGENCY, 0);
 	gc_setstatus(state, STOPEM, 0);
@@ -394,22 +379,20 @@ crsG_init(crs_State* state) {
 	gc_setparam(state, STEP, CRS_GCP_STEP);
 	gc_setparam(state, MULTIPLIER, CRS_GCP_MULTIPLIER);
 
-	crs_mem usage = sizeof(crs_State) + sizeof(crs_Thread) + sizeof(crs_Frame)
-		+ thread->stack.size * sizeof(crs_Object);
+	state->gc.usage     = sizeof(crs_State);
+	state->gc.phase     = CRS_GCPHASE_RESTART;
+	state->gc.all       = NULL;
+	state->gc.immune    = NULL;
+	state->gc.gray      = NULL;
+	state->gc.grayAgain = NULL;
 
-	state->gc.phase = CRS_GCPHASE_RESTART;
-	state->gc.usage = usage;
-
-	setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
-
-	return 0;
+	setPause(state, applyParam(state->gc.usage, CRS_GCP_PAUSE));
 }
 
 void
 crsG_freeAll(crs_State* state) {
-	/* the main thread is in neither of these lists; this is safe */
-	freeList(state, state->gc.all);
-	freeList(state, state->gc.immune);
+	delete(state, state->gc.all, obj_toheader(&state->thread));
+	delete(state, state->gc.immune, NULL);
 }
 
 /* returning as void removes the need to cast the type */

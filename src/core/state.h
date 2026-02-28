@@ -42,6 +42,7 @@ crs_Thread {
 		short              calls;
 		short              cCalls;
 		struct crs_Frame*  frame;
+		struct crs_Frame   baseFrame;
 	}                   stack;
 	struct crs_Handler* handler;
 	struct crs_Object   error;
@@ -103,7 +104,7 @@ crs_State {
 	}                  gc;
 	struct crs_String* memoryError;
 	struct crs_Object  nilValue;
-	struct crs_Thread* thread;
+	struct crs_Thread  thread;
 	crs_CFunction*     panic;
 };
 
@@ -115,9 +116,9 @@ extern crs_Thread*
 crsE_open(void);
 
 extern void
-crsE_freeThread(crs_Thread* thread);
+crsE_close(crs_State* state);
 
 extern void
-crsE_freeState(crs_State* state);
+crsE_freeThread(crs_Thread* thread);
 
 #endif

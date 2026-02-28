@@ -103,6 +103,11 @@ crs_typeName(int type) {
 crs_Thread*
 crs_open(void) {
 	crs_Thread* thread = crsE_open();
+
+	if (thread == NULL) {
+		return NULL;
+	}
+
 	thread->state->panic = &panic;
 
 	return thread;
@@ -110,7 +115,7 @@ crs_open(void) {
 
 void
 crs_close(crs_Thread* thread) {
-	crsE_freeState(thread->state);
+	crsE_close(thread->state);
 }
 
 void
@@ -455,12 +460,6 @@ void
 crs_pushString(crs_Thread* thread, const char* str) {
 	crs_Object* object = adjustTop(thread, 1);
 	crs_String* string = crsS_new(thread, (char*)str);
-
-	if (string == NULL) {
-		thread->stack.top -= 1;
-
-		crsM_error(thread);
-	}
 
 	obj_setgc(object, string);
 

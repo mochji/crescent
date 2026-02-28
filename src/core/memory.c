@@ -20,7 +20,15 @@
 
 void
 crsM_error(crs_Thread* thread) {
-	obj_setgc(&thread->error, thread->state->memoryError);
+	crs_String* error = thread->state->memoryError;
+
+	if (error == NULL) {
+		/* state isn't fully initialized: error object won't be used */
+		obj_setn(&thread->error);
+	} else {
+		obj_setgc(&thread->error, error);
+	}
+
 	crsC_throw(thread);
 }
 
