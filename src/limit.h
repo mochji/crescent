@@ -48,5 +48,6 @@ typedef size_t crs_mem;
 #define bit_set(x, m)       ((x) | (m))
 #define bit_reset(x, m)     ((x) & ~(m))
 #define bit_change(x, v, m) (((x) & ~(m)) | (v))
+#define bit_1mask(o, l)     ((bit_mask(l) - 1) << (o))
 
 #endif
