@@ -14,10 +14,16 @@
 
 #include "conf.h"
 
-#define CRS_MAX_SIZE           \
-	SIZE_MAX > CRS_INTEGER_MAX \
-		? CRS_INTEGER_MAX      \
-		: SIZE_MAX
+/*
+ * Maximum theoretical size for an object--i.e. the value returned by the
+ * length operator--which must fit within a size_t and crs_Integer. However,
+ * the actual maximum size for an object is limited by the specifics of that
+ * type.
+ */
+#define CRS_MAX_SIZE            \
+	(SIZE_MAX > CRS_INTEGER_MAX \
+		? CRS_INTEGER_MAX       \
+		: SIZE_MAX)
 
 /* global to entire stack */
 #define CRS_MIN_STACK 64
