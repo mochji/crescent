@@ -15,117 +15,80 @@
 /*
  * Crescent VM instruction formats
  *
- * An instruction can be anywhere from 8 to 32 bits wide, provided that it is
- * a multiple of 8. (8, 16, 24, 32)
+ * An instruction is 32 bits wide.
  *
  *       | AAAAAAAA | BBBBBBBB | CCCCCCCC | DDDDDDDD |
- * i     | OpCode   |                                  (8  bits)
- * iA    | OpCode   | Op. A    |                       (16 bits)
- * iAB   | OpCode   | Op. A    | Op. B    |            (24 bits)
- * iAxx  | OpCode   | Op. A                          | (32 bits)
- * iABx  | OpCode   | Op. A    | Op. B               | (32 bits)
- * iABC  | OpCode   | Op. A    | Op. B    | Op. C    | (32 bits)
+ * iABC  | OpCode   | Op. A    | Op. B    | Op. C    |
+ * iABx  | OpCode   | Op. A    | Op. B               |
+ * iAsBx | OpCode   | Op. A    | Op. B (signed)      |
+ * iAxx  | OpCode   | Op. A                          |
+ * isAxx | OpCode   | Op. A (signed)                 |
  *
  * - i: OpCode
  * - A: Operand A
  * - B: Operand B
  * - C: Operand C
  * - x: Extended (+8 bits)
- *
- * Why are there no signed operands?
- *
- * The instruction set doesn't need it, we can have 2 instructions that say
- * "load positive integer" and "load negative integer" which allows a greater
- * range of values and simplifies the instruction set. There also won't be an
- * issue where we run out of OpCodes, since an OpCode is 8 bits which allows
- * for 256 possible values, more than enough for the Crescent VM.
+ * - s: Signed
  */
 
 enum
 crs_OpMode {
 	iABC,
 	iABx,
+	iAsBx,
 	iAxx,
-	iAB,
-	iA,
-	i
+	isAxx
 };
 
 /*
- * S  = stack
- * G  = globals
- * C  = constants
- * CE = constants + 0xFFFF
+ * S = stack
+ * C = constants
  */
 
 enum
 crs_OpCode {
 /*  enum            operation                mode        notes */
-	OP_MOV,      /* S[A] = S[B]              iAB               */
+	OP_MOV,      /* S[A] = S[B]              iABC              */
 
-	OP_LODN,     /* S[A] = nil               iA                */
-	OP_LODT,     /* S[A] = true              iA                */
-	OP_LODF,     /* S[A] = false             iA                */
-	OP_MODM,     /* S[A] = maybe             iA                */
-	OP_LODPI,    /* S[A] = B                 iABx              */
-	OP_LODNI,    /* S[A] = -B                iABx              */
-	OP_LODS,     /* S[A] = "" (string)       iA                */
-	OP_LODA,     /* S[A] = [] (array)        iA                */
+	OP_LODN,     /* S[A] = nil               iABC              */
+	OP_LODT,     /* S[A] = true              iABC              */
+	OP_LODF,     /* S[A] = false             iABC              */
+	OP_LODI,     /* S[A] = sBx               iAsBx             */
 	OP_LODC,     /* S[A] = C[B]              iABx              */
-	OP_LODCX,    /* S[A] = CE[B]             iABx              */
-
-	OP_GETG,     /* S[A] = G[S[A]]           iAB               */
-	OP_SETG,     /* G[S[A]] = S[B]           iAB               */
 
 	OP_ADD,      /* S[A] = S[B] + S[C]       iABC              */
 	OP_SUB,      /* S[A] = S[B] - S[C]       iABC              */
 	OP_MUL,      /* S[A] = S[B] * S[C]       iABC              */
-	OP_POW,      /* S[A] = S[B] ^ S[C]       iABC              */
 	OP_DIV,      /* S[A] = S[B] / S[C]       iABC              */
+	OP_POW,      /* S[A] = S[B] ^ S[C]       iABC              */
 	OP_MOD,      /* S[A] = S[B] % S[C]       iABC              */
 
-	OP_INC,      /* S[A] += 1                iA                */
-	OP_DEC,      /* S[A] -= 1                iA                */
+	OP_NOT,      /* S[A] = not S[B]          iABC              */
+	OP_AND,      /* S[A] = S[B] and S[C]     iABC              */
+	OP_OR,       /* S[A] = S[B] or S[C]      iABC              */
 
-	OP_BNOT,     /* S[A] = !S[B]             iAB               */
+	OP_BNOT,     /* S[A] = ~S[B]             iABC              */
 	OP_BAND,     /* S[A] = S[B] & S[C]       iABC              */
-	OP_BNAND,    /* S[A] = !(S[B] & S[C])    iABC              */
 	OP_BOR,      /* S[A] = S[B] | S[C]       iABC              */
-	OP_BNOR,     /* S[A] = !(S[B] | S[C])    iABC              */
 	OP_BXOR,     /* S[A] = S[B] ^ S[C]       iABC              */
-	OP_BXNOR,    /* S[A] = !(S[B] ^ S[C])    iABC              */
-	OP_BSL,      /* S[A] = S[A] << S[C]      iABC              */
-	OP_BSR,      /* S[A] = S[A] >> S[C]      iABC              */
 
-	OP_EVAL,     /* S[A] = (boolean)S[B]     iAB               */
 	OP_EQ,       /* S[A] = S[B] == S[C]      iABC              */
-	OP_NE,       /* S[A] = S[B] != S[C]      iABC              */
-	OP_GT,       /* S[A] = S[B] > S[C]       iABC              */
-	OP_GE,       /* S[A] = S[B] >= S[C]      iABC              */
 	OP_LT,       /* S[A] = S[B] < S[C]       iABC              */
 	OP_LE,       /* S[A] = S[B] <= S[C]      iABC              */
 
 	OP_LENGTH,   /* S[A] = #S[B]             iABC              */
-	OP_CONCAT,   /* S[A] = S[A] .. S[B]      iAB               */
+	OP_CONCAT,   /* S[A] = S[B] .. S[C]      iABC              */
 	OP_GET,      /* S[A] = S[B][S[C]]        iABC              */
-	OP_SET,      /* S[A][S[B]] = S[C]        iABC              */
+	OP_SET,      /* S[B][S[C]] = S[A]        iABC              */
 
 	OP_CALL,     /* S[A] S[B]() (C args)     iABC              */
-	OP_TCALL,    /* S[A] S[B]() (C args)     iABC              */
-	OP_RETURN0,  /* return                   i                 */
-	OP_RETURN1,  /* return S[A]              iA                */
-	OP_RETURN,   /* return S[A] .. S[B]      iAB               */
+	OP_RETURN0,  /* return                   iABC              */
+	OP_RETURN1,  /* return S[A]              iABC              */
+	OP_RETURN,   /* return S[A] .. S[B]      iABC              */
 
-	OP_JMPF,     /* PC += A                  iAxx              */
-	OP_JMPB,     /* PC -= A                  iAxx              */
-
-	OP_JEVAL,    /* if (boolean)S[A] PC++    iA                */
-	OP_JE,       /* if S[A] == S[B] PC++     iAB               */
-	OP_JNE,      /* if S[A] != S[B] PC++     iAB               */
-	OP_JG,       /* if S[A] > S[B] PC++      iAB               */
-	OP_JGE,      /* if S[A] >= S[B] PC++     iAB               */
-	OP_JL,       /* if S[A] < S[B] PC++      iAB               */
-	OP_JLE       /* if S[A] <= S[B] PC++     iAB               */
+	OP_TEST,     /* if not S[A] then PC++    iABC              */
+	OP_JMP       /* PC += sAxx               isAxx             */
 };
 
 typedef enum crs_OpMode crs_OpMode;
