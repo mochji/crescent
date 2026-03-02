@@ -87,7 +87,7 @@ crs_OpCode {
 	OP_RETURN1,  /* return S[A]              iABC              */
 	OP_RETURN,   /* return S[A] .. S[B]      iABC              */
 
-	OP_TEST,     /* if not S[A] then PC++    iABC              */
+	OP_TEST,     /* if S[A] then PC++        iABC              */
 	OP_JMP       /* PC += sAxx               isAxx             */
 };
 
