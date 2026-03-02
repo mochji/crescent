@@ -64,7 +64,7 @@ crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
 		}
 
 		crsG_full(thread, 1);
-		block = malloc(size);
+		block = realloc(block, size);
 
 		if (block == NULL) {
 			return NULL;
