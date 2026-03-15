@@ -69,30 +69,30 @@
 #define CRS_GCPHASE_ATOMIC  2
 #define CRS_GCPHASE_SWEEP   3
 
-extern void
+void
 crsG_init(crs_State* state);
 
-extern void
+void
 crsG_freeAll(crs_State* state);
 
-extern void*
+void*
 crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type);
 
 #define crsG_add(t, o, b) crsG_add_((t), obj_toheader(o), (b))
 
-extern void
+void
 crsG_setImmune(crs_Thread* thread);
 
-extern void
+void
 crsG_barrierF(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
 
-extern void
+void
 crsG_barrierB(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
 
-extern int
+int
 crsG_step(crs_Thread* thread);
 
-extern void
+void
 crsG_full(crs_Thread* thread, int emergency);
 
 #define crsG_check(t) \

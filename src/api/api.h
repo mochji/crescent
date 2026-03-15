@@ -22,136 +22,136 @@
 #define CRS_GC_STEP       5
 #define CRS_GC_MULTIPLIER 6
 
-extern int
+int
 crs_version(void);
 
-extern int
+int
 crs_release(void);
 
-extern const char*
+const char*
 crs_typeName(int type);
 
-extern crs_Thread*
+crs_Thread*
 crs_open(void);
 
-extern void
+void
 crs_close(crs_Thread* thread);
 
-extern void
+void
 crs_setPanic(crs_Thread* thread, crs_CFunction* function);
 
-extern void
+void
 crs_error(crs_Thread* thread, int index);
 
-extern int
+int
 crs_gc(crs_Thread* thread, int option);
 
-extern int
+int
 crs_getGC(crs_Thread* thread, int option);
 
-extern void
+void
 crs_setGC(crs_Thread* thread, int option, unsigned short value);
 
-extern int
+int
 crs_getTop(crs_Thread* thread);
 
-extern int
+int
 crs_checkTop(crs_Thread* thread, int top);
 
-extern void
+void
 crs_setTop(crs_Thread* thread, int top);
 
-extern void
+void
 crs_pop(crs_Thread* thread, int amount);
 
-extern void
+void
 crs_remove(crs_Thread* thread, int index);
 
-extern int
+int
 crs_type(crs_Thread* thread, int index);
 
-extern size_t
+size_t
 crs_length(crs_Thread* thread, int index);
 
-extern void
+void
 crs_clone(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isNil(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isBoolean(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isInteger(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isFloat(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isNumber(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isCFunction(crs_Thread* thread, int index);
 
-extern int
+int
 crs_isString(crs_Thread* thread, int index);
 
-extern int
+int
 crs_toBooleanX(crs_Thread* thread, int index, int* match);
 
-extern crs_Integer
+crs_Integer
 crs_toIntegerX(crs_Thread* thread, int index, int* match);
 
-extern crs_Float
+crs_Float
 crs_toFloatX(crs_Thread* thread, int index, int* match);
 
-extern const char*
+const char*
 crs_toStringX(crs_Thread* thread, int index, int* match);
 
-extern int
+int
 crs_toBoolean(crs_Thread* thread, int index);
 
-extern crs_Integer
+crs_Integer
 crs_toInteger(crs_Thread* thread, int index);
 
-extern crs_Float
+crs_Float
 crs_toFloat(crs_Thread* thread, int index);
 
-extern crs_CFunction*
+crs_CFunction*
 crs_toCFunction(crs_Thread* thread, int index);
 
-extern const char*
+const char*
 crs_toString(crs_Thread* thread, int index);
 
-extern void
+void
 crs_pushNil(crs_Thread* thread);
 
-extern void
+void
 crs_pushBoolean(crs_Thread* thread, int value);
 
-extern void
+void
 crs_pushInteger(crs_Thread* thread, crs_Integer value);
 
-extern void
+void
 crs_pushFloat(crs_Thread* thread, crs_Float value);
 
-extern void
+void
 crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
 
-extern void
+void
 crs_pushString(crs_Thread* thread, const char* str);
 
-extern int
+int
 crs_call(crs_Thread* thread, int index, int args);
 
-extern int
+int
 crs_pCall(crs_Thread* thread, int index, int args, int* status);
 
-extern int
+int
 crs_callX(crs_Thread* thread, int index, int args, int maxResults);
 
-extern int
+int
 crs_pCallX(crs_Thread* thread, int index, int args, int maxResults, int* status);
 
 #endif

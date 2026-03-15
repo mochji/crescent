@@ -112,13 +112,13 @@ typedef struct crs_Handler crs_Handler;
 typedef struct crs_Frame   crs_Frame;
 typedef struct crs_State   crs_State;
 
-extern crs_Thread*
+crs_Thread*
 crsE_open(void);
 
-extern void
+void
 crsE_close(crs_State* state);
 
-extern void
+void
 crsE_freeThread(crs_Thread* thread);
 
 #endif

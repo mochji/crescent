@@ -16,13 +16,13 @@
 
 #include "core/object.h"
 
-extern size_t
+size_t
 crsV_length(crs_Thread* thread, crs_Object* object);
 
-extern int
+int
 crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults);
 
-extern int
+int
 crsV_pCall(crs_Thread* thread, crs_Object* object, int args, int maxResults, int* status);
 
 #endif

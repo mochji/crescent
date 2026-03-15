@@ -17,16 +17,16 @@
 
 #include "core/object.h"
 
-extern crs_String*
+crs_String*
 crsS_new(crs_Thread* thread, char* str);
 
-extern crs_String*
+crs_String*
 crsS_external(crs_Thread* thread, char* str);
 
-extern void
+void
 crsS_free(crs_Thread* thread, crs_String* string);
 
-extern int
+int
 crsS_compare(crs_String* stringA, crs_String* stringB);
 
 #endif

@@ -14,16 +14,16 @@
 #include "conf.h"
 #include "limit.h"
 
-extern void
+void
 crsM_error(crs_Thread* thread);
 
-extern void*
+void*
 crsM_malloc(crs_Thread* thread, size_t size);
 
-extern void*
+void*
 crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize);
 
-extern void
+void
 crsM_free(crs_Thread* thread, void* block, size_t size);
 
 #define mem_new(t, o)  (crsM_malloc((t), sizeof(o)));

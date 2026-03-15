@@ -16,13 +16,13 @@
 
 #include "core/object.h"
 
-extern crs_Array*
+crs_Array*
 crsA_new(crs_Thread* thread, size_t size);
 
-extern void
+void
 crsA_free(crs_Thread* thread, crs_Array* array);
 
-extern int
+int
 crsA_compare(crs_Array* arrayA, crs_Array* arrayB);
 
 #endif

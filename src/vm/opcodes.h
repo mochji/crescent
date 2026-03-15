@@ -94,10 +94,7 @@ crs_OpCode {
 typedef enum crs_OpMode crs_OpMode;
 typedef enum crs_OpCode crs_OpCode;
 
-extern crs_OpMode
-crsV_mode[];
-
-extern const char*
-crsV_name[];
+extern crs_OpMode  crsV_mode[];
+extern const char* crsV_name[];
 
 #endif

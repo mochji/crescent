@@ -12,10 +12,10 @@
 #include "conf.h"
 #include "limit.h"
 
-extern crs_Integer
+crs_Integer
 crsF_toInteger(char* str, int* success);
 
-extern crs_Float
+crs_Float
 crsF_toFloat(char* str, int* success);
 
 #endif

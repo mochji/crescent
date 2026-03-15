@@ -70,22 +70,22 @@ crs_Array {
 typedef struct crs_String crs_String;
 typedef struct crs_Array  crs_Array;
 
-extern int
+int
 crsO_compare(crs_Object* a, crs_Object* b);
 
-extern char*
+char*
 crsO_typeName(int type);
 
-extern int
+int
 crsO_toBoolean(crs_Object* object, int* match);
 
-extern crs_Integer
+crs_Integer
 crsO_toInteger(crs_Object* object, int* match);
 
-extern crs_Float
+crs_Float
 crsO_toFloat(crs_Object* object, int* match);
 
-extern char*
+char*
 crsO_toString(crs_Object* object, int* match);
 
 #define obj_isnumber(o)      ((o)->type & 1)
