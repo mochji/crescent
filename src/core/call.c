@@ -19,6 +19,8 @@
 
 #include "core/call.h"
 
+#define STACK_MAX (SIZE_MAX / sizeof(crs_Object))
+
 /*
  * Error throwing
  *
@@ -111,7 +113,7 @@ reallocStack(crs_Thread* thread, size_t newSize, int throw) {
 
 int
 crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
-	if (needed > CRS_MAX_STACK) {
+	if (needed > STACK_MAX) {
 		if (throw) {
 			crsC_error(thread, "stack overflow");
 		}
@@ -122,7 +124,7 @@ crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
 	size_t size    = thread->stack.size;
 	size_t newSize = needed + needed / 2;
 
-	if (newSize > CRS_MAX_STACK) {
+	if (newSize > STACK_MAX) {
 		newSize = needed;
 	} else if (newSize < CRS_MIN_STACK) {
 		newSize = CRS_MIN_STACK;

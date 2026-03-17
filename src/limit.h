@@ -20,14 +20,13 @@
  * the actual maximum size for an object is limited by the specifics of that
  * type.
  */
-#define CRS_MAX_SIZE            \
+#define CRS_MAX_LENGTH          \
 	(SIZE_MAX > CRS_INTEGER_MAX \
 		? CRS_INTEGER_MAX       \
 		: SIZE_MAX)
 
 /* global to entire stack */
 #define CRS_MIN_STACK 64
-#define CRS_MAX_STACK SIZE_MAX
 
 /* local to a stack frame */
 #define CRS_MIN_TOP 16

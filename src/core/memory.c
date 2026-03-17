@@ -29,18 +29,24 @@ crsM_error(crs_Thread* thread) {
 	crsC_throw(thread);
 }
 
+static void*
+tryAgain(crs_Thread* thread, size_t size, void* block) {
+	if (gc_getstatus(thread->state, STOPEM)) {
+		return NULL;
+	}
+
+	crsG_full(thread, 1);
+
+	return block == NULL ? malloc(size) : realloc(block, size);
+}
+
 void*
 crsM_malloc(crs_Thread* thread, size_t size) {
 	crs_State* state = thread->state;
 	void*      block = malloc(size);
 
 	if (block == NULL) {
-		if (gc_getstatus(state, STOPEM)) {
-			return NULL;
-		}
-
-		crsG_full(thread, 1);
-		block = malloc(size);
+		block = tryAgain(thread, size, NULL);
 
 		if (block == NULL) {
 			return NULL;
@@ -54,19 +60,13 @@ crsM_malloc(crs_Thread* thread, size_t size) {
 
 void*
 crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
-	crs_State* state = thread->state;
+	crs_State* state    = thread->state;
+	void*      newBlock = realloc(block, size);
 
-	block = realloc(block, size);
+	if (newBlock == NULL) {
+		newBlock = tryAgain(thread, size, block);
 
-	if (block == NULL) {
-		if (gc_getstatus(state, STOPEM)) {
-			return NULL;
-		}
-
-		crsG_full(thread, 1);
-		block = realloc(block, size);
-
-		if (block == NULL) {
+		if (newBlock == NULL) {
 			return NULL;
 		}
 	}
@@ -74,7 +74,7 @@ crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
 	state->gc.usage -= oldSize;
 	state->gc.usage += size;
 
-	return block;
+	return newBlock;
 }
 
 void

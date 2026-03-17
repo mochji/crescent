@@ -57,7 +57,7 @@ initState(crs_State* state, crs_Thread* thread) {
 	call_sethandler(thread, handler);
 
 	if (!setjmp(handler.buffer)) {
-		state->memoryError = crsS_external(thread, "out of memory");
+		state->memoryError = crsS_literal(thread, "out of memory");
 		crsG_setImmune(thread);
 
 		/* will need to add more later */

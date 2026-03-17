@@ -15,20 +15,28 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
+#include "core/call.h"
 #include "core/gc.h"
 
 #include "types/string.h"
 
+#define MAX_SIZE ((SIZE_MAX - sizeof(crs_String)) / sizeof(char))
+
 static crs_String*
-newString(crs_Thread* thread, size_t length) {
-	size_t      size   = sizeof(crs_String) + length;
+newString(crs_Thread* thread, size_t length, size_t after) {
+	if (length > CRS_MAX_LENGTH || after > MAX_SIZE) {
+		crsC_error(thread, "string too big");
+	}
+
+	size_t      size   = sizeof(crs_String) + after;
 	crs_String* string = mem_alloc(thread, size);
 
 	if (string == NULL) {
 		crsM_error(thread);
 	}
 
-	string->size = size;
+	string->size   = size;
+	string->length = length;
 
 	return string;
 }
@@ -36,20 +44,17 @@ newString(crs_Thread* thread, size_t length) {
 crs_String*
 crsS_new(crs_Thread* thread, char* str) {
 	size_t      length = strlen(str);
-	crs_String* string = newString(thread, length + 1);
+	crs_String* string = newString(thread, length, length + 1);
 
-	string->length   = length;
 	string->contents = strcpy((char*)(string + 1), str);
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
 crs_String*
-crsS_external(crs_Thread* thread, char* str) {
-	crs_String* string = newString(thread, 0);
-
-	string->length   = strlen(str);
-	string->contents = str;
+crsS_literal(crs_Thread* thread, char* str) {
+	crs_String* string = newString(thread, strlen(str), 0);
+	string->contents   = str;
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
