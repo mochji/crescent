@@ -29,7 +29,7 @@ crsA_new(crs_Thread* thread, size_t size) {
 	crs_Array* array = mem_new(thread, crs_Array);
 
 	if (array == NULL) {
-		mem_vfree(thread, contents, size, crs_Object);
+		mem_vfree(thread, contents, size);
 
 		crsM_error(thread);
 	}
@@ -43,7 +43,7 @@ crsA_new(crs_Thread* thread, size_t size) {
 
 void
 crsA_free(crs_Thread* thread, crs_Array* array) {
-	mem_vfree(thread, array->contents, array->size, crs_Object);
+	mem_vfree(thread, array->contents, array->size);
 	mem_free(thread, array);
 }
 

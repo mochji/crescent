@@ -86,7 +86,8 @@ crsC_restoreStack(crs_Thread* thread, short level) {
 
 static int
 reallocStack(crs_Thread* thread, size_t newSize, int throw) {
-	crs_Object* newStack = mem_vresize(thread, thread->stack.base, newSize, thread->stack.size, crs_Object);
+	crs_Object* newStack = mem_vresize(thread,
+		thread->stack.base, newSize, thread->stack.size);
 
 	if (newStack == NULL) {
 		if (throw) {

@@ -123,6 +123,6 @@ crsE_freeThread(crs_Thread* thread) {
 		frame = next;
 	}
 
-	mem_vfree(thread, thread->stack.base, thread->stack.size, crs_Object);
+	mem_vfree(thread, thread->stack.base, thread->stack.size);
 	mem_free(thread, thread);
 }
