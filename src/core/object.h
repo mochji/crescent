@@ -21,7 +21,7 @@
  * that it has an offset of zero bytes and the same pointer points to both the
  * header and type.
  *
- * (see obj_to* macros after the function definitions)
+ * (see obj_to* macros after the function prototypes)
  */
 
 struct
@@ -32,23 +32,19 @@ crs_GCHeader {
 	crs_byte             type;
 };
 
-union
-crs_Value {
-	int                  b;
-	crs_Integer          i;
-	crs_Float            f;
-	crs_CFunction*       c;
-	struct crs_GCHeader* gc;
-};
-
 struct
 crs_Object {
-	crs_byte        type;
-	union crs_Value value;
+	union {
+		int                  b;
+		crs_Integer          i;
+		crs_Float            f;
+		crs_CFunction*       c;
+		struct crs_GCHeader* gc;
+	}        value;
+	crs_byte type;
 };
 
 typedef struct crs_GCHeader crs_GCHeader;
-typedef union  crs_Value    crs_Value;
 typedef struct crs_Object   crs_Object;
 
 struct
