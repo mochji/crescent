@@ -12,8 +12,7 @@ CFLAGS       =         \
 	-Wshadow           \
 	-Wundef            \
 	-Wdouble-promotion \
-	-Wnull-dereference \
-	-Wfatal-errors
+	-Wnull-dereference
 
 CC       = gcc
 AR       = ar rcs
