@@ -15,58 +15,17 @@
 #include "types/array.h"
 #include "core/format.h"
 
-int
-crsO_compare(crs_Object* a, crs_Object* b) {
-	crs_byte aType = a->type;
-	crs_byte bType = b->type;
-
-	if (aType != bType) {
-		if (aType == CRS_TYPE_INTEGER && bType == CRS_TYPE_FLOAT) {
-			return (crs_Float)obj_geti(a) == obj_getf(b);
-		}
-
-		if (aType == CRS_TYPE_FLOAT && bType == CRS_TYPE_INTEGER) {
-			return obj_getf(a) == (crs_Float)obj_geti(b);
-		}
-
-		return 0;
-	}
-
-	switch (aType) {
-		case CRS_TYPE_BOOLEAN:
-			return obj_getb(a) == obj_getb(b);
-		case CRS_TYPE_INTEGER:
-			return obj_geti(a) == obj_geti(b);
-		case CRS_TYPE_FLOAT:
-			return obj_getf(a) == obj_getf(b);
-		case CRS_TYPE_CFUNCTION:
-			return obj_getc(a) == obj_getc(b);
-		case CRS_TYPE_STRING:
-			return crsS_compare(obj_gets(a), obj_gets(b));
-		case CRS_TYPE_ARRAY:
-			return crsA_compare(obj_geta(a), obj_geta(b));
-	}
-
-	return 0;
-}
-
 char*
-crsO_typeName(int type) {
-	switch (type) {
-		case CRS_TYPE_NIL:
-			return "nil";
-		case CRS_TYPE_BOOLEAN:
-			return "boolean";
-		case CRS_TYPE_INTEGER:
-			return "number";
-		case CRS_TYPE_FLOAT:
-			return "number";
-		case CRS_TYPE_STRING:
-			return "string";
-		case CRS_TYPE_ARRAY:
-			return "array";
-		case CRS_TYPE_CFUNCTION:
-			return "function";
+crsO_name(crs_Object* object) {
+	switch (object->type) {
+		case CRS_TYPE_NIL:       return "nil";
+		case CRS_TYPE_BOOLEAN:   return "boolean";
+		case CRS_TYPE_INTEGER:   return "number";
+		case CRS_TYPE_FLOAT:     return "number";
+		case CRS_TYPE_CFUNCTION: return "function";
+		case CRS_TYPE_STRING:    return "string";
+		case CRS_TYPE_ARRAY:     return "array";
+		case CRS_TYPE_THREAD:    return "thread";
 	}
 
 	return NULL;
@@ -74,7 +33,7 @@ crsO_typeName(int type) {
 
 int
 crsO_toBoolean(crs_Object* object, int* match) {
-	int type = object->type;
+	crs_byte type = object->type;
 
 	if (match != NULL) {
 		*match = type == CRS_TYPE_BOOLEAN;
@@ -86,24 +45,29 @@ crsO_toBoolean(crs_Object* object, int* match) {
 		return obj_getb(object);
 	}
 
-	return 1;
+	return 1; /* object exists */
 }
 
 crs_Integer
 crsO_toInteger(crs_Object* object, int* match) {
-	int type = object->type;
+	crs_byte    type = object->type;
+	crs_Integer value;
+	int         dummy;
 
-	if (match != NULL) {
-		*match = type == CRS_TYPE_INTEGER;
-	}
+	match = match == NULL ? &dummy : match;
 
 	switch (type) {
 		case CRS_TYPE_INTEGER:
+			*match = 1;
+
 			return obj_geti(object);
 		case CRS_TYPE_FLOAT:
-			return (crs_Integer)obj_getf(object);
+			value  = (crs_Integer)obj_getf(object);
+			*match = value == obj_getf(object);
+
+			return value;
 		case CRS_TYPE_STRING:
-			return crsF_toInteger(obj_gets(object)->contents, NULL);
+			return crsF_toInteger(obj_gets(object)->contents, match);
 	}
 
 	return 0;
@@ -111,19 +75,24 @@ crsO_toInteger(crs_Object* object, int* match) {
 
 crs_Float
 crsO_toFloat(crs_Object* object, int* match) {
-	int type = object->type;
+	crs_byte  type = object->type;
+	crs_Float value;
+	int       dummy;
 
-	if (match != NULL) {
-		*match = type == CRS_TYPE_FLOAT;
-	}
+	match = match == NULL ? &dummy : match;
 
 	switch (type) {
 		case CRS_TYPE_INTEGER:
-			return (crs_Float)obj_geti(object);
+			value  = (crs_Float)obj_geti(object);
+			*match = 1;
+
+			return value;
 		case CRS_TYPE_FLOAT:
+			*match = 1;
+
 			return obj_getf(object);
 		case CRS_TYPE_STRING:
-			return crsF_toFloat(obj_gets(object)->contents, NULL);
+			return crsF_toFloat(obj_gets(object)->contents, match);
 	}
 
 	return 0;
@@ -131,7 +100,7 @@ crsO_toFloat(crs_Object* object, int* match) {
 
 char*
 crsO_toString(crs_Object* object, int* match) {
-	int type = object->type;
+	crs_byte type = object->type;
 
 	if (match != NULL) {
 		*match = type == CRS_TYPE_STRING;
@@ -146,5 +115,5 @@ crsO_toString(crs_Object* object, int* match) {
 			return obj_gets(object)->contents;
 	}
 
-	return "";
+	return NULL;
 }

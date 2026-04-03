@@ -66,11 +66,8 @@ crs_Array {
 typedef struct crs_String crs_String;
 typedef struct crs_Array  crs_Array;
 
-int
-crsO_compare(crs_Object* a, crs_Object* b);
-
 char*
-crsO_typeName(int type);
+crsO_name(crs_Object* object);
 
 int
 crsO_toBoolean(crs_Object* object, int* match);

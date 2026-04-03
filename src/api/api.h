@@ -28,9 +28,6 @@ crs_version(void);
 int
 crs_release(void);
 
-const char*
-crs_typeName(int type);
-
 crs_Thread*
 crs_open(void);
 
@@ -69,6 +66,9 @@ crs_remove(crs_Thread* thread, int index);
 
 int
 crs_type(crs_Thread* thread, int index);
+
+const char*
+crs_name(crs_Thread* thread, int index);
 
 size_t
 crs_length(crs_Thread* thread, int index);

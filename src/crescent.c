@@ -51,7 +51,7 @@ stack(crs_Thread* thread) {
 	crs_setTop(thread, 10);
 
 	for (int a = 0; a < crs_getTop(thread); a++) {
-		printf("%s\n", crs_typeName(crs_type(thread, a)));
+		printf("%s\n", crs_name(thread, a));
 	}
 	crs_setTop(thread, 0);
 
@@ -90,7 +90,7 @@ types(crs_Thread* thread) {
 	for (int a = 1; a <= crs_getTop(thread); a++) {
 		int type = crs_type(thread, a);
 
-		printf("- %s", crs_typeName(type));
+		printf("- %s", crs_name(thread, a));
 
 		switch (type) {
 			case CRS_TYPE_BOOLEAN:
@@ -113,7 +113,7 @@ int
 test(crs_Thread* thread) {
 	printf("passed args: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
-		printf("- %s\n", crs_typeName(crs_type(thread, a)));
+		printf("- %s\n", crs_name(thread, a));
 	}
 
 	crs_pushInteger(thread, 413);
@@ -132,14 +132,14 @@ calling(crs_Thread* thread) {
 
 	printf("expected args: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
-		printf("- %s\n", crs_typeName(crs_type(thread, a)));
+		printf("- %s\n", crs_name(thread, a));
 	}
 
 	crs_call(thread, -1, 2);
 
 	printf("returned: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
-		printf("- %s\n", crs_typeName(crs_type(thread, a)));
+		printf("- %s\n", crs_name(thread, a));
 	}
 
 	crs_setTop(thread, 0);
@@ -162,7 +162,7 @@ handling(crs_Thread* thread) {
 
 	printf("top: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
-		printf("- %s\n", crs_typeName(crs_type(thread, a)));
+		printf("- %s\n", crs_name(thread, a));
 	}
 
 	if (status != CRS_STATUS_OK) {

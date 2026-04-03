@@ -90,11 +90,6 @@ crs_release(void) {
 	return CRS_RELEASE;
 }
 
-const char*
-crs_typeName(int type) {
-	return crsO_typeName(type);
-}
-
 /*
  * ===========================
  *  state manipulation
@@ -303,6 +298,11 @@ crs_remove(crs_Thread* thread, int index) {
 int
 crs_type(crs_Thread* thread, int index) {
 	return getIndex(thread, index)->type;
+}
+
+const char*
+crs_name(crs_Thread* thread, int index) {
+	return crsO_name(getIndex(thread, index));
 }
 
 size_t
