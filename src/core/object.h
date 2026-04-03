@@ -49,18 +49,18 @@ typedef struct crs_Object   crs_Object;
 
 struct
 crs_String {
-	struct crs_GCHeader header;
-	size_t              size;
-	size_t              length;
-	char*               contents;
+	crs_GCHeader header;
+	size_t       size;
+	size_t       length;
+	char*        contents;
 };
 
 struct
 crs_Array {
-	struct crs_GCHeader header;
-	size_t              size;
-	size_t              length;
-	struct crs_Object*  contents;
+	crs_GCHeader       header;
+	size_t             size;
+	size_t             length;
+	struct crs_Object* contents;
 };
 
 typedef struct crs_String crs_String;

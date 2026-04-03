@@ -34,7 +34,7 @@ crs_Frame {
 
 struct
 crs_Thread {
-	struct crs_GCHeader header;
+	crs_GCHeader header;
 	struct {
 		size_t             size;
 		struct crs_Object* base;
