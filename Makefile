@@ -88,13 +88,13 @@ rmobj:
 	rm -f $(BUILD)/*.o
 
 todo:
-	grep -rnH --color=auto --include "*.c" --include "*.h" "TODO:"
+	grep -rnH --color=auto --include "*.c" --include "*.h" "TODO"
 
 fixme:
-	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME:"
+	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME"
 
 notes:
-	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME:\|TODO:"
+	grep -rnH --color=auto --include "*.c" --include "*.h" "FIXME\|TODO"
 
 echo:
 	@echo "STD          = $(STD)"
