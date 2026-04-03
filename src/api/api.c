@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <stddef.h>
 #include <limits.h>
 
 #include "conf.h"
@@ -17,8 +18,8 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
-#include "core/gc.h"
 #include "core/call.h"
+#include "core/gc.h"
 #include "vm/vm.h"
 
 #include "api/api.h"

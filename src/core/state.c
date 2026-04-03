@@ -16,8 +16,8 @@
 #include "types/string.h"
 #include "core/object.h"
 #include "core/memory.h"
-#include "core/gc.h"
 #include "core/call.h"
+#include "core/gc.h"
 
 #include "core/state.h"
 

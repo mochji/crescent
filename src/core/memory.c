@@ -13,8 +13,8 @@
 #include "limit.h"
 
 #include "core/state.h"
-#include "core/gc.h"
 #include "core/call.h"
+#include "core/gc.h"
 
 #include "core/memory.h"
 

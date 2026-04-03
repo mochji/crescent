@@ -6,6 +6,8 @@
  * MIT License
  */
 
+#include <stddef.h>
+
 #include "conf.h"
 #include "limit.h"
 
