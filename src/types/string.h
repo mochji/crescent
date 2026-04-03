@@ -21,7 +21,7 @@ crs_String*
 crsS_new(crs_Thread* thread, char* str);
 
 crs_String*
-crsS_literal(crs_Thread* thread, char* str);
+crsS_external(crs_Thread* thread, char* str, size_t size);
 
 void
 crsS_free(crs_Thread* thread, crs_String* string);
