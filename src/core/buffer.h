@@ -34,6 +34,9 @@ void
 crsB_free(crs_Buffer* buffer);
 
 void
+crsB_addChar(crs_Buffer* buffer, char c);
+
+void
 crsB_addString(crs_Buffer* buffer, char* str, size_t length);
 
 #endif

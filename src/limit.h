@@ -47,6 +47,9 @@ typedef size_t crs_mem;
 #define CRS_MAX_MEM SIZE_MAX
 #endif
 
+/* minimum buffer size needed to format a number */
+#define CRS_MAX_FMTNUM 64
+
 /* useful bit macros */
 #define bit_mask(b)         (1 << (b))
 #define bit_get(x, m)       ((x) & (m))

@@ -50,7 +50,6 @@ typedef struct crs_Object   crs_Object;
 struct
 crs_String {
 	crs_GCHeader header;
-	size_t       size; /* see types/string.c */
 	size_t       length;
 	char*        contents;
 };

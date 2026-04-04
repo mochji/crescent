@@ -76,6 +76,12 @@ crsB_free(crs_Buffer* buffer) {
 }
 
 void
+crsB_addChar(crs_Buffer* buffer, char c) {
+	checkBuffer(buffer, 1);
+	buffer->buffer[buffer->length++] = c;
+}
+
+void
 crsB_addString(crs_Buffer* buffer, char* str, size_t length) {
 	checkBuffer(buffer, length);
 
