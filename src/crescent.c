@@ -147,8 +147,7 @@ calling(crs_Thread* thread) {
 
 int
 mischievous(crs_Thread* thread) {
-	crs_pushString(thread, "error message");
-	crs_error(thread, 2);
+	crs_length(thread, 1);
 
 	return 0;
 }

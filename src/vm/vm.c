@@ -29,15 +29,13 @@ crsV_length(crs_Thread* thread, crs_Object* object) {
 			return obj_geta(object)->length;
 	}
 
-	/* TODO: proper error message */
-	crsC_error(thread, "cannot get length");
+	crsC_errorf(thread, "attempt to get length of a %s value", crsO_name(object));
 }
 
 int
 crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults) {
 	if (object->type != CRS_TYPE_CFUNCTION) {
-		/* TODO: proper error message */
-		crsC_error(thread, "cannot call");
+		crsC_errorf(thread, "attempt to call a %s value", crsO_name(object));
 	}
 
 	if (thread->stack.calls >= CRS_MAX_CALLS) {

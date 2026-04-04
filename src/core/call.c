@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <setjmp.h>
 
 #include "conf.h"
@@ -16,6 +17,7 @@
 #include "types/string.h"
 #include "core/state.h"
 #include "core/memory.h"
+#include "core/format.h"
 
 #include "core/call.h"
 
@@ -65,6 +67,19 @@ crsC_throw(crs_Thread* thread) {
 void
 crsC_error(crs_Thread* thread, char* message) {
 	crs_String* error = crsS_new(thread, message);
+
+	obj_setgc(&thread->error, error);
+	crsC_throw(thread);
+}
+
+void
+crsC_errorf(crs_Thread* thread, char* format, ...) {
+	crs_String* error;
+	va_list     args;
+
+	va_start(args, format);
+	error = crsF_vformat(thread, format, args);
+	va_end(args);
 
 	obj_setgc(&thread->error, error);
 	crsC_throw(thread);

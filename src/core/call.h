@@ -20,6 +20,9 @@ crsC_throw(crs_Thread* thread);
 void __attribute__((noreturn))
 crsC_error(crs_Thread* thread, char* message);
 
+void __attribute__((noreturn))
+crsC_errorf(crs_Thread* thread, char* format, ...);
+
 void
 crsC_restoreStack(crs_Thread* thread, short level);
 
