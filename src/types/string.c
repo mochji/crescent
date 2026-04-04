@@ -59,7 +59,7 @@ crsS_new(crs_Thread* thread, char* str) {
 	string->size     = 0;
 	string->contents = strcpy((char*)(string + 1), str);
 
-	return string;
+	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
 crs_String*
@@ -69,7 +69,7 @@ crsS_external(crs_Thread* thread, char* str, size_t size) {
 	string->size       = size;
 	string->contents   = str;
 
-	return string;
+	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
 void
