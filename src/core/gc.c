@@ -12,7 +12,7 @@
 #include "limit.h"
 
 #include "types/string.h"
-#include "types/array.h"
+#include "types/table.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
@@ -84,8 +84,8 @@ freeObject(crs_State* state, crs_GCHeader* header) {
 	switch (header->type) {
 		case CRS_TYPE_STRING:
 			crsS_free(thread, obj_tostring(header)); break;
-		case CRS_TYPE_ARRAY:
-			crsA_free(thread, obj_toarray(header)); break;
+		case CRS_TYPE_TABLE:
+			crsT_free(thread, obj_totable(header)); break;
 		case CRS_TYPE_THREAD:
 			crsE_freeThread(obj_tothread(header)); break;
 	}
@@ -134,15 +134,36 @@ mark_header(crs_State* state, crs_GCHeader* header) {
  */
 
 static crs_mem
-traverse_array(crs_State* state, crs_Array* array) {
-	crs_Object* object = array->contents;
+traverse_table(crs_State* state, crs_Table* table) {
+	crs_mem work = 1;
 
-	for (size_t a = 0; a < array->length; a++) {
-		mark_value(state, object);
-		object++;
+	if (table->array != NULL) {
+		crs_Object* object = table->array;
+		crs_Object* stop   = object + table->length;
+		work              += stop - object;
+
+		while (object < stop) {
+			mark_value(state, object);
+			object++;
+		}
 	}
 
-	return 1 + array->length;
+	if (table->table != NULL) {
+		crs_TNode* node = table->table;
+		crs_TNode* stop = node + table_nodes(table);
+		work           += stop - node;
+
+		while (node < stop) {
+			if (node->value.type != CRS_TYPE_NIL) {
+				mark_value(state, &node->value);
+				mark_object(state, node->key);
+			}
+
+			node++;
+		}
+	}
+
+	return work;
 }
 
 static crs_mem
@@ -174,8 +195,8 @@ traverse(crs_State* state, int atomic) {
 	}
 
 	switch (header->type) {
-		case CRS_TYPE_ARRAY:
-			return traverse_array(state, obj_toarray(header));
+		case CRS_TYPE_TABLE:
+			return traverse_table(state, obj_totable(header));
 		case CRS_TYPE_THREAD:
 			return traverse_thread(state, obj_tothread(header));
 	}
@@ -241,10 +262,11 @@ delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
 
 static crs_mem
 step_restart(crs_State* state) {
-	state->gc.sweep = &state->gc.all;
+	/* root set */
 	mark_object(state, &state->thread);
 
 	state->gc.phase = CRS_GCPHASE_MARK;
+	state->gc.sweep = &state->gc.all;
 
 	return CRS_MAX_MEM;
 }
@@ -440,7 +462,7 @@ crsG_setImmune(crs_Thread* thread) {
 #define dobarrier(s, b, w) ((isblack(b) && iswhite(w)) && keepinvariant(s))
 
 void
-crsG_barrierF(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
 	crs_State* state = thread->state;
 
 	if (dobarrier(state, black, white)) {
@@ -449,7 +471,7 @@ crsG_barrierF(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
 }
 
 void
-crsG_barrierB(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
 	crs_State* state = thread->state;
 
 	if (dobarrier(state, black, white)) {
@@ -474,6 +496,12 @@ crsG_step(crs_Thread* thread) {
 void
 crsG_full(crs_Thread* thread, int emergency) {
 	crs_State* state = thread->state;
+
+	if (gc_getstatus(state, STOP)) {
+		setPause(state, 20000);
+
+		return;
+	}
 
 	gc_setstatus(state, EMERGENCY, emergency);
 	incremental_full(state);

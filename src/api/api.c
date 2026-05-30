@@ -14,7 +14,7 @@
 #include "limit.h"
 
 #include "types/string.h"
-#include "types/array.h"
+#include "types/table.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
@@ -305,13 +305,32 @@ crs_name(crs_Thread* thread, int index) {
 	return crsO_name(getIndex(thread, index));
 }
 
-size_t
+crs_Integer
 crs_length(crs_Thread* thread, int index) {
 	return crsV_length(thread, getIndex(thread, index));
 }
 
 void
-crs_clone(crs_Thread* thread, int index) {
+crs_get(crs_Thread* thread, int index, int keyIndex) {
+	crs_Object* key    = getIndex(thread, keyIndex);
+	crs_Object* value  = crsV_get(thread, getIndex(thread, index), key);
+	crs_Object* object = adjustTop(thread, 1);
+
+	obj_seto(object, value);
+	crsG_check(thread);
+}
+
+void
+crs_set(crs_Thread* thread, int index, int keyIndex, int valueIndex) {
+	crs_Object* key    = getIndex(thread, keyIndex);
+	crs_Object* value  = getIndex(thread, valueIndex);
+
+	crsV_set(thread, getIndex(thread, index), key, value);
+	crsG_check(thread);
+}
+
+void
+crs_copy(crs_Thread* thread, int index) {
 	crs_Object* from = getIndex(thread, index);
 	crs_Object* to   = adjustTop(thread, 1);
 
@@ -357,6 +376,11 @@ crs_isCFunction(crs_Thread* thread, int index) {
 int
 crs_isString(crs_Thread* thread, int index) {
 	return getIndex(thread, index)->type == CRS_TYPE_STRING;
+}
+
+int
+crs_isTable(crs_Thread* thread, int index) {
+	return getIndex(thread, index)->type == CRS_TYPE_TABLE;
 }
 
 /*
@@ -463,6 +487,16 @@ crs_pushString(crs_Thread* thread, const char* str) {
 	crs_String* string = crsS_new(thread, (char*)str);
 
 	obj_setgc(object, string);
+
+	crsG_check(thread);
+}
+
+void
+crs_pushTable(crs_Thread* thread) {
+	crs_Object* object = adjustTop(thread, 1);
+	crs_Table*  table  = crsT_new(thread);
+
+	obj_setgc(object, table);
 
 	crsG_check(thread);
 }

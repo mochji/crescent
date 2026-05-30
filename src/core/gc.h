@@ -84,10 +84,16 @@ void
 crsG_setImmune(crs_Thread* thread);
 
 void
-crsG_barrierF(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
+crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
 
 void
-crsG_barrierB(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
+crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
+
+#define crsG_barrierF(t, b, w) \
+	{if (obj_iscollectable(w)) crsG_barrierF_((t), obj_toheader(b), obj_geth(w));}
+
+#define crsG_barrierB(t, b, w) \
+	{if (obj_iscollectable(w)) crsG_barrierB_((t), obj_toheader(b), obj_geth(w));}
 
 int
 crsG_step(crs_Thread* thread);

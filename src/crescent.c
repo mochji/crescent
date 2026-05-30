@@ -78,12 +78,14 @@ types(crs_Thread* thread) {
 	printf("- number, -5\n");
 	printf("- number, 20.913\n");
 	printf("- string, startrix is best\n");
+	printf("- table\n");
 
 	crs_pushNil(thread);
 	crs_pushBoolean(thread, 1);
 	crs_pushInteger(thread, -5);
 	crs_pushFloat(thread, 20.913);
 	crs_pushString(thread, "startrix is best");
+	crs_pushTable(thread);
 
 	printf("actual types and values:\n");
 
@@ -147,7 +149,7 @@ calling(crs_Thread* thread) {
 
 int
 mischievous(crs_Thread* thread) {
-	crs_length(thread, 1);
+	crs_call(thread, 2, 0);
 
 	return 0;
 }
@@ -157,7 +159,8 @@ handling(crs_Thread* thread) {
 	int status;
 
 	crs_pushCFunction(thread, &mischievous);
-	crs_pCall(thread, 1, 1, &status);
+	crs_pushTable(thread);
+	crs_pCall(thread, 1, 2, &status);
 
 	printf("top: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
@@ -176,7 +179,8 @@ handling(crs_Thread* thread) {
 void
 panicking(crs_Thread* thread) {
 	crs_pushCFunction(thread, &mischievous);
-	crs_call(thread, 1, 1);
+	crs_pushTable(thread);
+	crs_call(thread, 1, 2);
 }
 
 void
@@ -188,6 +192,162 @@ garbage(crs_Thread* thread) {
 		crs_pop(thread, 1);
 		printf("%d\n", counter++);
 	}
+}
+
+void
+tables(crs_Thread* thread) {
+	crs_pushTable(thread);
+
+	printf("set \"key_a\" to 0\n");
+	crs_pushString(thread, "key_a");
+	crs_pushInteger(thread, 0);
+	crs_set(thread, 1, 2, 3);
+	crs_get(thread, 1, 2);
+	printf("key_a: " CRS_INTEGER_FMT "\n", crs_toInteger(thread, -1));
+	crs_pop(thread, 3);
+
+	printf("set \"key_b\" to 1\n");
+	crs_pushString(thread, "key_b");
+	crs_pushInteger(thread, 1);
+	crs_set(thread, 1, 2, 3);
+	crs_get(thread, 1, 2);
+	printf("key_b: " CRS_INTEGER_FMT "\n", crs_toInteger(thread, -1));
+	crs_pop(thread, 3);
+
+	printf("set \"key_c\" to 2\n");
+	crs_pushString(thread, "key_c");
+	crs_pushInteger(thread, 2);
+	crs_set(thread, 1, 2, 3);
+	crs_get(thread, 1, 2);
+	printf("key_c: " CRS_INTEGER_FMT "\n", crs_toInteger(thread, -1));
+	crs_pop(thread, 3);
+
+	printf("set \"key_a\" to \"hello everypony my name is markiplier\"\n");
+	crs_pushString(thread, "key_a");
+	crs_pushString(thread, "hello everypony my name is markiplier");
+	crs_set(thread, 1, 2, 3);
+	crs_get(thread, 1, 2);
+	printf("key_a: %s\n", crs_toString(thread, -1));
+	crs_pop(thread, 3);
+
+	crs_pushInteger(thread, 0);
+	crs_pushInteger(thread, 0);
+	crs_set(thread, 1, 2, 3);
+	crs_pop(thread, 2);
+
+	crs_pushInteger(thread, 1);
+	crs_pushInteger(thread, 1);
+	crs_set(thread, 1, 2, 3);
+	crs_pop(thread, 2);
+
+	crs_pushInteger(thread, 2);
+	crs_pushInteger(thread, 2);
+	crs_set(thread, 1, 2, 3);
+	crs_pop(thread, 2);
+
+	crs_pushInteger(thread, 3);
+	crs_pushString(thread, "non-sequitur");
+	crs_set(thread, 1, 2, 3);
+	crs_pop(thread, 2);
+
+	for (int a = 1; a <= crs_length(thread, 1); a++) {
+		crs_pushInteger(thread, -a);
+		crs_get(thread, 1, 2);
+		int type = crs_type(thread, -1);
+
+		printf("- %s", crs_name(thread, -1));
+
+		switch (type) {
+			case CRS_TYPE_BOOLEAN:
+				printf(", %d", crs_toBoolean(thread, -1)); break;
+			case CRS_TYPE_INTEGER:
+				printf(", " CRS_INTEGER_FMT, crs_toInteger(thread, -1)); break;
+			case CRS_TYPE_FLOAT:
+				printf(", " CRS_FLOAT_FMT, crs_toFloat(thread, -1)); break;
+			case CRS_TYPE_STRING:
+				printf(", %s", crs_toString(thread, -1)); break;
+		}
+
+		printf("\n");
+		crs_pop(thread, 2);
+	}
+
+	printf("====\n");
+
+	crs_pushInteger(thread, 1);
+	crs_pushNil(thread);
+	crs_set(thread, 1, -2, -1);
+	crs_pop(thread, 2);
+
+	for (unsigned int a = 0; a < crs_length(thread, 1); a++) {
+		crs_pushInteger(thread, (crs_Integer)a);
+		crs_get(thread, 1, 2);
+		int type = crs_type(thread, -1);
+
+		printf("- %s", crs_name(thread, -1));
+
+		switch (type) {
+			case CRS_TYPE_BOOLEAN:
+				printf(", %d", crs_toBoolean(thread, -1)); break;
+			case CRS_TYPE_INTEGER:
+				printf(", " CRS_INTEGER_FMT, crs_toInteger(thread, -1)); break;
+			case CRS_TYPE_FLOAT:
+				printf(", " CRS_FLOAT_FMT, crs_toFloat(thread, -1)); break;
+			case CRS_TYPE_STRING:
+				printf(", %s", crs_toString(thread, -1)); break;
+		}
+
+		printf("\n");
+		crs_pop(thread, 2);
+	}
+
+	crs_pushString(thread, "key_b");
+	crs_pushNil(thread);
+	crs_set(thread, 1, -2, -1);
+	crs_get(thread, 1, -2);
+	printf("%s\n", crs_toString(thread, -1));
+
+	crs_setTop(thread, 0);
+	printf("%d\n", crs_getTop(thread));
+}
+
+void
+setHash(crs_Thread* thread, int index, char* key, int value) {
+	index -= index < 0;
+	value -= value < 0;
+
+	crs_pushString(thread, key);
+	crs_set(thread, index, -1, value);
+	crs_pop(thread, 1);
+}
+
+void
+great_and_powerful_trixie(crs_Thread* thread) {
+	crs_pushTable(thread);
+	crs_pushTable(thread);
+	setHash(thread, 1, "a", 2);
+	setHash(thread, 2, "a", 1);
+	crs_pushString(thread, "let's delve deeper into rainbow philosophy");
+	crs_pushString(thread, "far beyong that of cloudsdale's mythology");
+	crs_pushString(thread, "it's easy to misjudge that floating city");
+	crs_pushString(thread, "with its luring decor and social psychology");
+	setHash(thread, 2, "im running out of ideas here", -4);
+	setHash(thread, 2, "john egbert rose lalonde ascend descend rise up abscond", -3);
+	setHash(thread, 2, "jade harley dave strider they all play sburb and end the world", -2);
+	setHash(thread, 2, "harlequin nanna bro mom dad youth roll grandpa pesterchum hella jeff and sweet bro", -1);
+	crs_pop(thread, 5);
+	/* now all those objects are referenced by the first table */
+
+	printf("usage before: %dKiB\n", crs_gc(thread, CRS_GC_USAGE));
+	crs_gc(thread, CRS_GC_FULL);
+	printf("usage after: %dKiB\n", crs_gc(thread, CRS_GC_USAGE));
+	crs_pop(thread, 1);
+	printf("popped table\n");
+	printf("usage before: %dKiB\n", crs_gc(thread, CRS_GC_USAGE));
+	crs_gc(thread, CRS_GC_FULL);
+	printf("usage after: %dKiB\n", crs_gc(thread, CRS_GC_USAGE));
+
+	crs_setTop(thread, 0);
 }
 
 void
@@ -215,8 +375,16 @@ choose(crs_Thread* thread, char option) {
 			panicking(thread);
 
 			break;
-		case 'g':
+		case 'o':
 			garbage(thread);
+
+			break;
+		case 'j':
+			tables(thread);
+
+			break;
+		case 'g':
+			great_and_powerful_trixie(thread);
 
 			break;
 		case 'q':
@@ -248,8 +416,10 @@ main(void) {
 		printf("c: calling\n");
 		printf("h: handling\n");
 		printf("p: panicking\n");
-		printf("g: garbage\n");
+		printf("o: garbage stress\n");
 		printf("q: quit\n");
+		printf("j: tables\n");
+		printf("g: garbage\n");
 		printf("> ");
 
 		do {

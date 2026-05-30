@@ -70,6 +70,10 @@ crsB_init(crs_Thread* thread, crs_Buffer* buffer) {
 
 void
 crsB_free(crs_Buffer* buffer) {
+	if (buffer == NULL) {
+		return;
+	}
+
 	if (buffer->buffer != buffer->initial) {
 		mem_vfree(buffer->thread, buffer->buffer, buffer->size);
 	}

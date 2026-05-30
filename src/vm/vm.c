@@ -14,22 +14,41 @@
 #include "conf.h"
 #include "limit.h"
 
+#include "types/table.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
 
 #include "vm/vm.h"
 
-size_t
+crs_Integer
 crsV_length(crs_Thread* thread, crs_Object* object) {
 	switch (object->type) {
 		case CRS_TYPE_STRING:
 			return obj_gets(object)->length;
-		case CRS_TYPE_ARRAY:
-			return obj_geta(object)->length;
+		case CRS_TYPE_TABLE:
+			return obj_gett(object)->length;
 	}
 
 	crsC_errorf(thread, "attempt to get length of a %s value", crsO_name(object));
+}
+
+crs_Object*
+crsV_get(crs_Thread* thread, crs_Object* object, crs_Object* key) {
+	if (object->type != CRS_TYPE_TABLE) {
+		crsC_errorf(thread, "attempt to index a %s value", crsO_name(object));
+	}
+
+	return crsT_get(thread, obj_gett(object), key);
+}
+
+void
+crsV_set(crs_Thread* thread, crs_Object* object, crs_Object* key, crs_Object* value) {
+	if (object->type != CRS_TYPE_TABLE) {
+		crsC_errorf(thread, "attempt to index a %s value", crsO_name(object));
+	}
+
+	crsT_set(thread, obj_gett(object), key, value);
 }
 
 int

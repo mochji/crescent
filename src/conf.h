@@ -123,7 +123,7 @@
 #define CRS_TYPE_FLOAT     17 /* 0001 0001 */
 #define CRS_TYPE_CFUNCTION 32 /* 0010 0000 */
 #define CRS_TYPE_STRING    2  /* 0000 0010 */
-#define CRS_TYPE_ARRAY     6  /* 0000 0110 */
+#define CRS_TYPE_TABLE     6  /* 0000 0110 */
 #define CRS_TYPE_THREAD    14 /* 0000 1110 */
 
 #define CRS_STATUS_OK    0

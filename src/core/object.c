@@ -12,7 +12,7 @@
 #include "limit.h"
 
 #include "types/string.h"
-#include "types/array.h"
+#include "types/table.h"
 #include "core/format.h"
 
 char*
@@ -24,7 +24,7 @@ crsO_name(crs_Object* object) {
 		case CRS_TYPE_FLOAT:     return "number";
 		case CRS_TYPE_CFUNCTION: return "function";
 		case CRS_TYPE_STRING:    return "string";
-		case CRS_TYPE_ARRAY:     return "array";
+		case CRS_TYPE_TABLE:     return "table";
 		case CRS_TYPE_THREAD:    return "thread";
 	}
 

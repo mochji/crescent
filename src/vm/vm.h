@@ -16,8 +16,14 @@
 
 #include "core/object.h"
 
-size_t
+crs_Integer
 crsV_length(crs_Thread* thread, crs_Object* object);
+
+crs_Object*
+crsV_get(crs_Thread* thread, crs_Object* object, crs_Object* key);
+
+void
+crsV_set(crs_Thread* thread, crs_Object* object, crs_Object* key, crs_Object* value);
 
 int
 crsV_call(crs_Thread* thread, crs_Object* object, int args, int maxResults);

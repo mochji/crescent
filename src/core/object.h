@@ -50,20 +50,35 @@ typedef struct crs_Object   crs_Object;
 struct
 crs_String {
 	crs_GCHeader header;
+	size_t       hash;
 	size_t       length;
-	char*        contents;
+	char         contents[];
 };
 
 struct
-crs_Array {
+crs_TNode {
+	struct crs_String* key;
+	struct crs_Object  value;
+	struct crs_TNode*  next;
+	struct crs_TNode*  previous;
+};
+
+struct
+crs_Table {
 	crs_GCHeader       header;
+	/* array */
 	size_t             size;
 	size_t             length;
-	struct crs_Object* contents;
+	struct crs_Object* array;
+	/* hashtable */
+	crs_byte           nodes; /* log2 size of table  */
+	struct crs_TNode*  free;  /* chain of free nodes */
+	struct crs_TNode*  table;
 };
 
 typedef struct crs_String crs_String;
-typedef struct crs_Array  crs_Array;
+typedef struct crs_TNode  crs_TNode;
+typedef struct crs_Table  crs_Table;
 
 char*
 crsO_name(crs_Object* object);
@@ -85,7 +100,7 @@ crsO_toString(crs_Object* object, int* match);
 
 #define obj_toheader(o) ((crs_GCHeader*)o)
 #define obj_tostring(h) ((crs_String*)h)
-#define obj_toarray(h)  ((crs_Array*)h)
+#define obj_totable(h)  ((crs_Table*)h)
 #define obj_tothread(h) ((crs_Thread*)h)
 
 /* object */
@@ -116,7 +131,8 @@ crsO_toString(crs_Object* object, int* match);
 
 /* gc object */
 #define obj_gets(o)     obj_tostring(obj_geth(o))
-#define obj_geta(o)     obj_toarray(obj_geth(o))
+#define obj_gett(o)     obj_totable(obj_geth(o))
+#define obj_getx(o)     obj_tothread(obj_geth(o))
 #define obj_setgc(o, v) obj_seth((o), obj_toheader(v))
 
 #endif

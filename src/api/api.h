@@ -70,11 +70,17 @@ crs_type(crs_Thread* thread, int index);
 const char*
 crs_name(crs_Thread* thread, int index);
 
-size_t
+crs_Integer
 crs_length(crs_Thread* thread, int index);
 
 void
-crs_clone(crs_Thread* thread, int index);
+crs_get(crs_Thread* thread, int index, int keyIndex);
+
+void
+crs_set(crs_Thread* thread, int index, int keyIndex, int valueIndex);
+
+void
+crs_copy(crs_Thread* thread, int index);
 
 int
 crs_isNil(crs_Thread* thread, int index);
@@ -141,6 +147,9 @@ crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
 
 void
 crs_pushString(crs_Thread* thread, const char* str);
+
+void
+crs_pushTable(crs_Thread* thread);
 
 int
 crs_call(crs_Thread* thread, int index, int args);

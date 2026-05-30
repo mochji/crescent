@@ -26,10 +26,7 @@
 static crs_String*
 newString(crs_Thread* thread, size_t length, crs_Buffer* buffer) {
 	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
-		if (buffer != NULL) {
-			crsB_free(buffer);
-		}
-
+		crsB_free(buffer);
 		crsC_error(thread, "string too big");
 	}
 
@@ -37,10 +34,7 @@ newString(crs_Thread* thread, size_t length, crs_Buffer* buffer) {
 		sizeof(crs_String) + (length + 1) * sizeof(char));
 
 	if (string == NULL) {
-		if (buffer != NULL) {
-			crsB_free(buffer);
-		}
-
+		crsB_free(buffer);
 		crsM_error(thread);
 	}
 
@@ -49,24 +43,40 @@ newString(crs_Thread* thread, size_t length, crs_Buffer* buffer) {
 	return string;
 }
 
+/* djb2 hash */
+static void
+copyString(crs_String* string, char* source, size_t length) {
+	char*  destination = string->contents;
+	size_t hash        = 5381;
+
+	while (length--) {
+		char c         = *source++;
+		*destination++ = c;
+		hash           = ((hash << 5) + hash) + c;
+	}
+
+	*destination = '\0';
+	string->hash = hash;
+}
+
 crs_String*
 crsS_new(crs_Thread* thread, char* str) {
-	crs_String* string = newString(thread, strlen(str), NULL);
-	string->contents   = strcpy((char*)(string + 1), str);
+	size_t      length = strlen(str);
+	crs_String* string = newString(thread, length, NULL);
+
+	copyString(string, str, length);
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
 crs_String*
 crsS_fromBuffer(crs_Buffer* buffer) {
-	crs_Thread* thread = buffer->thread;
 	size_t      length = buffer->length;
-	crs_String* string = newString(thread, length, buffer);
+	crs_String* string = newString(buffer->thread, length, buffer);
 
-	string->contents         = memcpy(string + 1, buffer->buffer, length);
-	string->contents[length] = '\0';
+	copyString(string, buffer->buffer, length);
 
-	return crsG_add(thread, string, CRS_TYPE_STRING);
+	return crsG_add(buffer->thread, string, CRS_TYPE_STRING);
 }
 
 void
