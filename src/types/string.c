@@ -24,9 +24,8 @@
 #define MAX_LENGTH ((SIZE_MAX - sizeof(crs_String)) / sizeof(char) - 1)
 
 static crs_String*
-newString(crs_Thread* thread, size_t length, crs_Buffer* buffer) {
+newString(crs_Thread* thread, size_t length) {
 	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
-		crsB_free(buffer);
 		crsC_error(thread, "string too big");
 	}
 
@@ -34,7 +33,6 @@ newString(crs_Thread* thread, size_t length, crs_Buffer* buffer) {
 		sizeof(crs_String) + (length + 1) * sizeof(char));
 
 	if (string == NULL) {
-		crsB_free(buffer);
 		crsM_error(thread);
 	}
 
@@ -60,23 +58,16 @@ copyString(crs_String* string, char* source, size_t length) {
 }
 
 crs_String*
-crsS_new(crs_Thread* thread, char* str) {
-	size_t      length = strlen(str);
-	crs_String* string = newString(thread, length, NULL);
-
+crsS_newl(crs_Thread* thread, char* str, size_t length) {
+	crs_String* string = newString(thread, length);
 	copyString(string, str, length);
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
 crs_String*
-crsS_fromBuffer(crs_Buffer* buffer) {
-	size_t      length = buffer->length;
-	crs_String* string = newString(buffer->thread, length, buffer);
-
-	copyString(string, buffer->buffer, length);
-
-	return crsG_add(buffer->thread, string, CRS_TYPE_STRING);
+crsS_new(crs_Thread* thread, char* str) {
+	return crsS_newl(thread, str, strlen(str));
 }
 
 void

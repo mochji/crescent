@@ -14,7 +14,7 @@
 
 #include "core/object.h"
 
-typedef void (crs_PFunction)(crs_Thread*, void*);
+typedef void* (crs_PFunction)(crs_Thread*, void*);
 
 void __attribute__((noreturn))
 crsC_throw(crs_Thread* thread);
@@ -38,7 +38,7 @@ int
 crsC_checkFree(crs_Thread* thread, int free, int throw);
 
 int
-crsC_try(crs_Thread* thread, crs_PFunction* function, void* data);
+crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result);
 
 int
 crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int maxResults);

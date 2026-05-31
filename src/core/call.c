@@ -296,12 +296,18 @@ endCall(crs_Thread* thread, int results) {
 }
 
 int
-crsC_try(crs_Thread* thread, crs_PFunction* function, void* data) {
+crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result) {
 	crs_Handler handler;
+	void*       returned = NULL;
+
 	call_sethandler(thread, handler);
 
 	if (!setjmp(handler.buffer)) {
-		function(thread, data);
+		returned = function(thread, data);
+	}
+
+	if (result != NULL) {
+		*result = returned;
 	}
 
 	thread->handler = handler.previous;

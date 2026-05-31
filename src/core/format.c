@@ -14,6 +14,7 @@
 #include "limit.h"
 
 #include "types/string.h"
+#include "core/call.h"
 #include "core/buffer.h"
 
 #include "core/format.h"
@@ -30,6 +31,13 @@ crsF_format(crs_Thread* thread, char* format, ...) {
 	va_end(args);
 
 	return string;
+}
+
+static void*
+createString(crs_Thread* thread, void* data) {
+	crs_Buffer* buffer = data;
+
+	return crsS_newl(thread, buffer->buffer, buffer->length);
 }
 
 crs_String*
@@ -72,9 +80,17 @@ crsF_vformat(crs_Thread* thread, char* format, va_list args) {
 		format = next + 2;
 	}
 
+	crs_String* string;
+	int         status;
+
 	crsB_addString(&buffer, format, strlen(format));
-	crs_String* string = crsS_fromBuffer(&buffer);
+	status = crsC_try(thread, &createString, &buffer, (void**)&string);
 	crsB_free(&buffer);
+
+	if (status != CRS_STATUS_OK) {
+		/* error is already in error register */
+		crsC_throw(thread);
+	}
 
 	return string;
 }

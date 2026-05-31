@@ -50,7 +50,7 @@ initThread(crs_State* state, crs_Thread* thread) {
 	return 0;
 }
 
-static void
+static void*
 initState(crs_Thread* thread, void* data) {
 	crs_State* state = (crs_State*)data;
 
@@ -58,6 +58,8 @@ initState(crs_Thread* thread, void* data) {
 	crsG_setImmune(thread);
 
 	/* will need to add more later */
+
+	return NULL;
 }
 
 crs_Thread*
@@ -86,7 +88,7 @@ crsE_open(void) {
 
 	/* special objects */
 
-	if (crsC_try(thread, &initState, state) != CRS_STATUS_OK) {
+	if (crsC_try(thread, &initState, state, NULL) != CRS_STATUS_OK) {
 		crsE_close(state);
 
 		return NULL;
