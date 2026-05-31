@@ -296,6 +296,20 @@ endCall(crs_Thread* thread, int results) {
 }
 
 int
+crsC_try(crs_Thread* thread, crs_PFunction* function, void* data) {
+	crs_Handler handler;
+	call_sethandler(thread, handler);
+
+	if (!setjmp(handler.buffer)) {
+		function(thread, data);
+	}
+
+	thread->handler = handler.previous;
+
+	return handler.status;
+}
+
+int
 crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int maxResults) {
 	startCall(
 		thread,

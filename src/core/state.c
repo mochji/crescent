@@ -50,24 +50,14 @@ initThread(crs_State* state, crs_Thread* thread) {
 	return 0;
 }
 
-static int
-initState(crs_State* state, crs_Thread* thread) {
-	crs_Handler handler;
+static void
+initState(crs_Thread* thread, void* data) {
+	crs_State* state = (crs_State*)data;
 
-	call_sethandler(thread, handler);
+	state->memoryError = crsS_new(thread, "out of memory");
+	crsG_setImmune(thread);
 
-	if (!setjmp(handler.buffer)) {
-		state->memoryError = crsS_new(thread, "out of memory");
-		crsG_setImmune(thread);
-
-		/* will need to add more later */
-	} else {
-		return 1;
-	}
-
-	thread->handler = NULL;
-
-	return 0;
+	/* will need to add more later */
 }
 
 crs_Thread*
@@ -96,7 +86,7 @@ crsE_open(void) {
 
 	/* special objects */
 
-	if (initState(state, thread)) {
+	if (crsC_try(thread, &initState, state) != CRS_STATUS_OK) {
 		crsE_close(state);
 
 		return NULL;
