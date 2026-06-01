@@ -17,12 +17,12 @@
  *
  * An instruction is 32 bits wide.
  *
- *       | AAAAAAAA | BBBBBBBB | CCCCCCCC | DDDDDDDD |
- * iABC  | OpCode   | Op. A    | Op. B    | Op. C    |
- * iABx  | OpCode   | Op. A    | Op. B               |
- * iAsBx | OpCode   | Op. A    | Op. B (signed)      |
- * iAxx  | OpCode   | Op. A                          |
- * isAxx | OpCode   | Op. A (signed)                 |
+ *       | DDDDDDDD | CCCCCCCC | BBBBBBBB | AAAAAAAA |
+ * iABC  | Op. C    | Op. B    | Op. A    | OpCode   |
+ * iABx  | Op. B               | Op. A    | OpCode   |
+ * iAsBx | Op. B (signed)      | Op. A    | OpCode   |
+ * iAxx  | Op. A                          | OpCode   |
+ * isAxx | Op. A (signed)                 | OpCode   |
  *
  * - i: OpCode
  * - A: Operand A
