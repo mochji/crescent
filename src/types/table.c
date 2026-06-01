@@ -541,5 +541,6 @@ crsT_set(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_Object* valu
 			crsC_errorf(thread, "attempt to index table with %s", crsO_name(key));
 	}
 
+	crsG_barrierB(thread, table, key);
 	crsG_barrierB(thread, table, value);
 }
