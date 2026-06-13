@@ -100,7 +100,7 @@ crsS_free(crs_Thread* thread, crs_String* string) {
 }
 
 int
-crsS_compare(crs_String* stringA, crs_String* stringB) {
+crsS_equal(crs_String* stringA, crs_String* stringB) {
 	if (stringA == stringB) {
 		return 1;
 	}
@@ -110,6 +110,20 @@ crsS_compare(crs_String* stringA, crs_String* stringB) {
 	}
 
 	return strcmp(stringA->contents, stringB->contents) == 0;
+}
+
+unsigned
+crsS_hash(crs_String* string) {
+	if (!string->hashed) {
+		unsigned hash = hashString(string->contents, string->length);
+
+		string->hashed = 1;
+		string->hash   = hash;
+
+		return hash;
+	} else {
+		return string->hash;
+	}
 }
 
 void

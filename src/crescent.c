@@ -197,118 +197,126 @@ garbage(crs_Thread* thread) {
 void
 tables(crs_Thread* thread) {
 	crs_pushTable(thread);
+	crs_checkTop(thread, 32);
+	printf("note: 1 == 1.0\n");
 
-	printf("set \"key_a\" to 0\n");
-	crs_pushString(thread, "key_a");
-	crs_pushInteger(thread, 0);
-	crs_set(thread, 1, 2, 3);
-	crs_get(thread, 1, 2);
-	printf("key_a: " CRS_INTEGER_FMT "\n", crs_toInteger(thread, -1));
-	crs_pop(thread, 3);
+	printf("predicted:\n");
+	printf("1.0          -> \"b\"\n");
+	printf("1            -> \"a\"\n");
+	printf("2.3          -> \"hello\"\n");
+	printf("2.31         -> \"world\"\n");
+	printf("\"str\"        -> \"c\"\n");
+	printf("&mischievous -> \"d\"\n");
+	printf("{}           -> \"e\"\n");
+	printf("true         -> \"f\"\n");
 
-	printf("set \"key_b\" to 1\n");
-	crs_pushString(thread, "key_b");
+	crs_pushFloat(thread, 1);
 	crs_pushInteger(thread, 1);
-	crs_set(thread, 1, 2, 3);
+	crs_pushFloat(thread, 2.3);
+	crs_pushFloat(thread, 2.31);
+	crs_pushString(thread, "str");
+	crs_pushCFunction(thread, &mischievous);
+	crs_pushTable(thread);
+	crs_pushBoolean(thread, 1);
+
+	crs_pushString(thread, "b");
+	crs_pushString(thread, "a");
+	crs_pushString(thread, "hello");
+	crs_pushString(thread, "world");
+	crs_pushString(thread, "c");
+	crs_pushString(thread, "d");
+	crs_pushString(thread, "e");
+	crs_pushString(thread, "f");
+
+	crs_set(thread, 1, 2, 10);
+	crs_set(thread, 1, 3, 11);
+	crs_set(thread, 1, 4, 12);
+	crs_set(thread, 1, 5, 13);
+	crs_set(thread, 1, 6, 14);
+	crs_set(thread, 1, 7, 15);
+	crs_set(thread, 1, 8, 16);
+	crs_set(thread, 1, 9, 17);
+
+	crs_pop(thread, 8);
+
+	printf("\nactual:\n");
+
 	crs_get(thread, 1, 2);
-	printf("key_b: " CRS_INTEGER_FMT "\n", crs_toInteger(thread, -1));
-	crs_pop(thread, 3);
+	crs_get(thread, 1, 3);
+	crs_get(thread, 1, 4);
+	crs_get(thread, 1, 5);
+	crs_get(thread, 1, 6);
+	crs_get(thread, 1, 7);
+	crs_get(thread, 1, 8);
+	crs_get(thread, 1, 9);
 
-	printf("set \"key_c\" to 2\n");
-	crs_pushString(thread, "key_c");
-	crs_pushInteger(thread, 2);
-	crs_set(thread, 1, 2, 3);
+	printf("1.0          -> \"%s\"\n", crs_toString(thread, 11));
+	printf("1            -> \"%s\"\n", crs_toString(thread, 10));
+	printf("2.3          -> \"%s\"\n", crs_toString(thread, 12));
+	printf("2.31         -> \"%s\"\n", crs_toString(thread, 13));
+	printf("\"str\"        -> \"%s\"\n", crs_toString(thread, 14));
+	printf("&mischevious -> \"%s\"\n", crs_toString(thread, 15));
+	printf("{}           -> \"%s\"\n", crs_toString(thread, 16));
+	printf("true         -> \"%s\"\n", crs_toString(thread, 17));
+
+	printf("\nupdate 1 to true:\n");
+	crs_pop(thread, 8);
+	crs_pushBoolean(thread, 1);
+	crs_set(thread, 1, 3, -1);
+	crs_pop(thread, 1);
+
 	crs_get(thread, 1, 2);
-	printf("key_c: " CRS_INTEGER_FMT "\n", crs_toInteger(thread, -1));
-	crs_pop(thread, 3);
+	crs_get(thread, 1, 3);
+	crs_get(thread, 1, 4);
+	crs_get(thread, 1, 5);
+	crs_get(thread, 1, 6);
+	crs_get(thread, 1, 7);
+	crs_get(thread, 1, 8);
+	crs_get(thread, 1, 9);
 
-	printf("set \"key_a\" to \"hello everypony my name is markiplier\"\n");
-	crs_pushString(thread, "key_a");
-	crs_pushString(thread, "hello everypony my name is markiplier");
-	crs_set(thread, 1, 2, 3);
-	crs_get(thread, 1, 2);
-	printf("key_a: %s\n", crs_toString(thread, -1));
-	crs_pop(thread, 3);
+	printf("1.0          -> \"%s\"\n", crs_toString(thread, 11));
+	printf("1            -> \"%s\"\n", crs_toString(thread, 10));
+	printf("2.3          -> \"%s\"\n", crs_toString(thread, 12));
+	printf("2.31         -> \"%s\"\n", crs_toString(thread, 13));
+	printf("\"str\"        -> \"%s\"\n", crs_toString(thread, 14));
+	printf("&mischevious -> \"%s\"\n", crs_toString(thread, 15));
+	printf("{}           -> \"%s\"\n", crs_toString(thread, 16));
+	printf("true         -> \"%s\"\n", crs_toString(thread, 17));
 
-	crs_pushInteger(thread, 0);
-	crs_pushInteger(thread, 0);
-	crs_set(thread, 1, 2, 3);
-	crs_pop(thread, 2);
+	crs_pop(thread, 8);
 
-	crs_pushInteger(thread, 1);
-	crs_pushInteger(thread, 1);
-	crs_set(thread, 1, 2, 3);
-	crs_pop(thread, 2);
+	printf("\nset all to nil:\n");
 
-	crs_pushInteger(thread, 2);
-	crs_pushInteger(thread, 2);
-	crs_set(thread, 1, 2, 3);
-	crs_pop(thread, 2);
-
-	crs_pushInteger(thread, 3);
-	crs_pushString(thread, "non-sequitur");
-	crs_set(thread, 1, 2, 3);
-	crs_pop(thread, 2);
-
-	for (int a = 1; a <= crs_length(thread, 1); a++) {
-		crs_pushInteger(thread, -a);
-		crs_get(thread, 1, 2);
-		int type = crs_type(thread, -1);
-
-		printf("- %s", crs_name(thread, -1));
-
-		switch (type) {
-			case CRS_TYPE_BOOLEAN:
-				printf(", %d", crs_toBoolean(thread, -1)); break;
-			case CRS_TYPE_INTEGER:
-				printf(", " CRS_INTEGER_FMT, crs_toInteger(thread, -1)); break;
-			case CRS_TYPE_FLOAT:
-				printf(", " CRS_FLOAT_FMT, crs_toFloat(thread, -1)); break;
-			case CRS_TYPE_STRING:
-				printf(", %s", crs_toString(thread, -1)); break;
-		}
-
-		printf("\n");
-		crs_pop(thread, 2);
-	}
-
-	printf("====\n");
-
-	crs_pushInteger(thread, 1);
 	crs_pushNil(thread);
-	crs_set(thread, 1, -2, -1);
-	crs_pop(thread, 2);
+	crs_set(thread, 1, 2, -1);
+	crs_set(thread, 1, 3, -1);
+	crs_set(thread, 1, 4, -1);
+	crs_set(thread, 1, 5, -1);
+	crs_set(thread, 1, 6, -1);
+	crs_set(thread, 1, 7, -1);
+	crs_set(thread, 1, 8, -1);
+	crs_set(thread, 1, 9, -1);
 
-	for (unsigned int a = 0; a < crs_length(thread, 1); a++) {
-		crs_pushInteger(thread, (crs_Integer)a);
-		crs_get(thread, 1, 2);
-		int type = crs_type(thread, -1);
+	crs_get(thread, 1, 2);
+	crs_get(thread, 1, 3);
+	crs_get(thread, 1, 4);
+	crs_get(thread, 1, 5);
+	crs_get(thread, 1, 6);
+	crs_get(thread, 1, 7);
+	crs_get(thread, 1, 8);
+	crs_get(thread, 1, 9);
 
-		printf("- %s", crs_name(thread, -1));
+	printf("1.0          -> \"%s\"\n", crs_toString(thread, 11));
+	printf("1            -> \"%s\"\n", crs_toString(thread, 10));
+	printf("2.3          -> \"%s\"\n", crs_toString(thread, 12));
+	printf("2.31         -> \"%s\"\n", crs_toString(thread, 13));
+	printf("\"str\"        -> \"%s\"\n", crs_toString(thread, 14));
+	printf("&mischevious -> \"%s\"\n", crs_toString(thread, 15));
+	printf("{}           -> \"%s\"\n", crs_toString(thread, 16));
+	printf("true         -> \"%s\"\n", crs_toString(thread, 17));
 
-		switch (type) {
-			case CRS_TYPE_BOOLEAN:
-				printf(", %d", crs_toBoolean(thread, -1)); break;
-			case CRS_TYPE_INTEGER:
-				printf(", " CRS_INTEGER_FMT, crs_toInteger(thread, -1)); break;
-			case CRS_TYPE_FLOAT:
-				printf(", " CRS_FLOAT_FMT, crs_toFloat(thread, -1)); break;
-			case CRS_TYPE_STRING:
-				printf(", %s", crs_toString(thread, -1)); break;
-		}
-
-		printf("\n");
-		crs_pop(thread, 2);
-	}
-
-	crs_pushString(thread, "key_b");
-	crs_pushNil(thread);
-	crs_set(thread, 1, -2, -1);
-	crs_get(thread, 1, -2);
-	printf("%s\n", crs_toString(thread, -1));
-
+	crs_checkTop(thread, 16);
 	crs_setTop(thread, 0);
-	printf("%d\n", crs_getTop(thread));
 }
 
 void
@@ -327,14 +335,14 @@ great_and_powerful_trixie(crs_Thread* thread) {
 	crs_pushTable(thread);
 	setHash(thread, 1, "a", 2);
 	setHash(thread, 2, "a", 1);
-	crs_pushString(thread, "let's delve deeper into rainbow philosophy");
-	crs_pushString(thread, "far beyong that of cloudsdale's mythology");
-	crs_pushString(thread, "it's easy to misjudge that floating city");
-	crs_pushString(thread, "with its luring decor and social psychology");
-	setHash(thread, 2, "im running out of ideas here", -4);
-	setHash(thread, 2, "john egbert rose lalonde ascend descend rise up abscond", -3);
-	setHash(thread, 2, "jade harley dave strider they all play sburb and end the world", -2);
-	setHash(thread, 2, "harlequin nanna bro mom dad youth roll grandpa pesterchum hella jeff and sweet bro", -1);
+	crs_pushString(thread, "let's delve deeper into rainbow philosophy -9uj4itu3809p4tjwerift9psdfuisdfsdfsdfsdfsedfhousdghoiusrgohjiudsfghuoidfghuoidfghuodfghuodfghuojidfg");
+	crs_pushString(thread, "far beyong that of cloudsdale's mythology -u9iit9ui08j4r5tu809io4er38u09ij98ouiyw34ert4t5rwet4w5r9o8uijetw45r9o8u0ite543r9u8o0jteg980uoet");
+	crs_pushString(thread, "it's easy to misjudge that floating city 80io4tujoiedtgjlidfegsjhiklodgfjhiuoihoujuihojhiuhiujiuhjhuijhuijhuijdwfiuhjerfwihuferhuiferwhuiefriuhjerf");
+	crs_pushString(thread, "with its luring decor and social psychology jpo0i4w3rjoiwefiojwefdiowefoijwfeojioijwfeoijwfeiojwfeoijwerfoijwefoijfweiojwfeoijfweoijoijwfeiojwfeiojwfe");
+	setHash(thread, 2, "im running out of ideas here sdfoisdfijoojisfdjoifewiojf234wiojfewoijwefoijfweoijwfeoijwfeoijwofije", -4);
+	setHash(thread, 2, "john egbert rose lalonde ascend descend rise up abscond 0oij23trjiowdfjiowfdsiojwfedijowfedoijwfeoijwfoiejoiwjfeiojwfeoijwfeoijwefoijwfe", -3);
+	setHash(thread, 2, "jade harley dave strider they all play sburb and end the world jpierpijowfdjiowfedijwfeoijwefoijwefoijwoefijoijwefoijwfeoijwfe", -2);
+	setHash(thread, 2, "harlequin nanna bro mom dad youth roll grandpa pesterchum hella jeff and sweet bro joip2efojifewroijfwediowfeoijwefoijoijwfeoijwefoijwfe", -1);
 	crs_pop(thread, 5);
 	/* now all those objects are referenced by the first table */
 

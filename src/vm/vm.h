@@ -16,6 +16,9 @@
 
 #include "core/object.h"
 
+int
+crsV_equal(crs_Thread* thread, crs_Object* a, crs_Object* b);
+
 crs_Integer
 crsV_length(crs_Thread* thread, crs_Object* object);
 

@@ -111,35 +111,19 @@ mark_header(crs_State* state, crs_GCHeader* header) {
 
 static crs_mem
 traverse_table(crs_State* state, crs_Table* table) {
-	crs_mem work = 1;
+	crs_TNode* node = table->table;
+	crs_TNode* stop = node + table_nodes(table);
 
-	if (table->array != NULL) {
-		crs_Object* object = table->array;
-		crs_Object* stop   = object + table->length;
-		work              += stop - object;
-
-		while (object < stop) {
-			mark_value(state, object);
-			object++;
+	while (node < stop) {
+		if (node->value.type != CRS_TYPE_NIL) {
+			mark_value(state, &node->key);
+			mark_value(state, &node->value);
 		}
+
+		node++;
 	}
 
-	if (table->table != NULL) {
-		crs_TNode* node = table->table;
-		crs_TNode* stop = node + table_nodes(table);
-		work           += stop - node;
-
-		while (node < stop) {
-			if (node->value.type != CRS_TYPE_NIL) {
-				mark_value(state, &node->value);
-				mark_object(state, node->key);
-			}
-
-			node++;
-		}
-	}
-
-	return work;
+	return 1 + table_nodes(table);
 }
 
 static crs_mem

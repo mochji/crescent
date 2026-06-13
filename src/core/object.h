@@ -58,23 +58,18 @@ crs_String {
 
 struct
 crs_TNode {
-	struct crs_String* key;
-	struct crs_Object  value;
-	struct crs_TNode*  next;
-	struct crs_TNode*  previous;
+	struct crs_Object key;
+	struct crs_Object value;
+	struct crs_TNode* next;
+	struct crs_TNode* previous;
 };
 
 struct
 crs_Table {
-	crs_GCHeader       header;
-	/* array */
-	size_t             size;
-	size_t             length;
-	struct crs_Object* array;
-	/* hashtable */
-	crs_byte           nodes; /* log2 size of table  */
-	struct crs_TNode*  free;  /* chain of free nodes */
-	struct crs_TNode*  table;
+	crs_GCHeader      header;
+	crs_byte          nodes; /* log2 size of table  */
+	struct crs_TNode* free;  /* chain of free nodes */
+	struct crs_TNode* table;
 };
 
 typedef struct crs_String crs_String;

@@ -14,6 +14,7 @@
 #include "conf.h"
 #include "limit.h"
 
+#include "types/string.h"
 #include "types/table.h"
 #include "core/object.h"
 #include "core/state.h"
@@ -21,13 +22,51 @@
 
 #include "vm/vm.h"
 
+int
+crsV_equal(crs_Thread* thread, crs_Object* a, crs_Object* b) {
+	(void)thread;
+
+	int aType = a->type, bType = b->type;
+
+	if (aType != bType) {
+		if (aType == CRS_TYPE_INTEGER && bType == CRS_TYPE_FLOAT) {
+			return (crs_Float)obj_geti(a) == obj_getf(b);
+		}
+
+		if (aType == CRS_TYPE_FLOAT && bType == CRS_TYPE_INTEGER) {
+			return obj_getf(a) == (crs_Float)obj_geti(b);
+		}
+
+		return 0;
+	}
+
+	switch (aType) {
+		case CRS_TYPE_NIL:
+			return 1;
+		case CRS_TYPE_BOOLEAN:
+			return obj_getb(a) == obj_getb(b);
+		case CRS_TYPE_INTEGER:
+			return obj_geti(a) == obj_geti(b);
+		case CRS_TYPE_FLOAT:
+			return obj_getf(a) == obj_getf(b);
+		case CRS_TYPE_CFUNCTION:
+			return obj_getc(a) == obj_getc(b);
+		case CRS_TYPE_STRING:
+			return crsS_equal(obj_gets(a), obj_gets(b));
+		case CRS_TYPE_TABLE:
+			return obj_gett(a) == obj_gett(b);
+		case CRS_TYPE_THREAD:
+			return obj_getx(a) == obj_getx(b);
+	}
+
+	return 0;
+}
+
 crs_Integer
 crsV_length(crs_Thread* thread, crs_Object* object) {
 	switch (object->type) {
 		case CRS_TYPE_STRING:
 			return obj_gets(object)->length;
-		case CRS_TYPE_TABLE:
-			return obj_gett(object)->length;
 	}
 
 	crsC_errorf(thread, "attempt to get length of a %s value", crsO_name(object));
