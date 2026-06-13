@@ -15,7 +15,6 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
-#include "core/buffer.h"
 #include "core/call.h"
 #include "core/gc.h"
 
@@ -23,8 +22,20 @@
 
 #define MAX_LENGTH ((SIZE_MAX - sizeof(crs_String)) / sizeof(char) - 1)
 
-static crs_String*
-newString(crs_Thread* thread, size_t length) {
+/* djb2 */
+static unsigned
+hashString(char* str, size_t length) {
+	unsigned hash = 5381;
+
+	while (length--) {
+		hash = ((hash << 5) + hash) ^ *str++;
+	}
+
+	return hash;
+}
+
+crs_String*
+crsS_newl(crs_Thread* thread, char* str, size_t length) {
 	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
 		crsC_error(thread, "string too big");
 	}
@@ -37,37 +48,49 @@ newString(crs_Thread* thread, size_t length) {
 	}
 
 	string->length = length;
-
-	return string;
-}
-
-/* djb2 hash */
-static void
-copyString(crs_String* string, char* source, size_t length) {
-	char*  destination = string->contents;
-	size_t hash        = 5381;
-
-	while (length--) {
-		char c         = *source++;
-		*destination++ = c;
-		hash           = ((hash << 5) + hash) + c;
-	}
-
-	*destination = '\0';
-	string->hash = hash;
-}
-
-crs_String*
-crsS_newl(crs_Thread* thread, char* str, size_t length) {
-	crs_String* string = newString(thread, length);
-	copyString(string, str, length);
+	string->hashed = 0;
+	string->hash   = 0;
+	memcpy(string->contents, str, length * sizeof(char));
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
 crs_String*
 crsS_new(crs_Thread* thread, char* str) {
-	return crsS_newl(thread, str, strlen(str));
+	size_t length = strlen(str);
+
+	if (length > 64) {
+		return crsS_newl(thread, str, length);
+	}
+
+	crs_State* state = thread->state;
+	unsigned   hash  = hashString(str, length);
+	unsigned   key   = hash % CRS_STRCACHE_SIZE;
+
+	/* search string cache */
+	for (int i = 0; i < CRS_STRCACHE_BUCKETS; i++) {
+		crs_String* string = state->strings[i][key];
+
+		if (string == NULL) {
+			break; /* end of list */
+		} else if (!strcmp(str, string->contents)) {
+			return string;
+		}
+	}
+
+	/* string wasn't found in cache */
+	crs_String* string = crsS_newl(thread, str, length);
+	string->hashed     = 1;
+	string->hash       = hash;
+
+	/* add to string cache */
+	for (int i = 0; i < CRS_STRCACHE_BUCKETS - 1; i++) {
+		state->strings[i + 1][key] = state->strings[i][key];
+	}
+
+	state->strings[0][key] = string;
+
+	return string;
 }
 
 void
@@ -87,4 +110,28 @@ crsS_compare(crs_String* stringA, crs_String* stringB) {
 	}
 
 	return strcmp(stringA->contents, stringB->contents) == 0;
+}
+
+void
+crsS_clearCache(crs_State* state) {
+	crs_String* alive[CRS_STRCACHE_BUCKETS];
+
+	for (int j = 0; j < CRS_STRCACHE_SIZE; j++) {
+		int count = 0;
+
+		for (int i = 0; i < CRS_STRCACHE_BUCKETS; i++) {
+			crs_String* string   = state->strings[i][j];
+			state->strings[i][j] = NULL;
+
+			if (string == NULL) {
+				break; /* end of list */
+			} else if (gc_isblack(obj_toheader(string))) {
+				alive[count++] = string;
+			}
+		}
+
+		for (int i = 0; i < count; i++) {
+			state->strings[i][j] = alive[i];
+		}
+	}
 }

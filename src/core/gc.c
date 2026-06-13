@@ -19,30 +19,6 @@
 
 #include "core/gc.h"
 
-/*
- * Header mark byte
- *
- * - bit 0:    is white
- * - bit 1:    is black
- * - bits 2-7: unused and reserved
- *
- * An object is gray if it is neither white nor black. However, an object
- * cannot be both white and black.
- */
-
-#define CRS_MASK_WHITE bit_mask(0)
-#define CRS_MASK_BLACK bit_mask(1)
-#define CRS_MASK_SET   (CRS_MASK_WHITE | CRS_MASK_BLACK)
-
-#define iswhite(h) bit_get((h)->mark, CRS_MASK_WHITE)
-#define isblack(h) bit_get((h)->mark, CRS_MASK_BLACK)
-#define isgray(h)  (!bit_get((h)->mark, CRS_MASK_SET))
-
-/* reset all set bits, then set the correct one */
-#define setwhite(h) ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_WHITE)
-#define setblack(h) ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
-#define setgray(h)  ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET))
-
 /* see type enums in conf.h */
 #define istraversable(h) ((h)->type & 4)
 #define isgrayagain(h)   ((h)->type & 8)
@@ -112,15 +88,15 @@ setPause(crs_State* state, crs_mem pause) {
 
 static void
 mark_header(crs_State* state, crs_GCHeader* header) {
-	if (!iswhite(header)) {
+	if (!gc_iswhite(header)) {
 		return;
 	}
 
 	if (istraversable(header)) {
 		linkset(header, state->gc.gray);
-		setgray(header);
+		gc_setgray(header);
 	} else {
-		setblack(header);
+		gc_setblack(header);
 	}
 }
 
@@ -191,7 +167,7 @@ traverse(crs_State* state, int atomic) {
 	if (isgrayagain(header) && !atomic) {
 		linkset(header, state->gc.grayAgain);
 	} else {
-		setblack(header);
+		gc_setblack(header);
 	}
 
 	switch (header->type) {
@@ -208,12 +184,12 @@ static crs_mem
 sweep(crs_State* state) {
 	crs_GCHeader* header = *state->gc.sweep;
 
-	if (iswhite(header)) {
+	if (gc_iswhite(header)) {
 		*state->gc.sweep = header->next; /* remove from list */
 		freeObject(state, header);
 	} else {
 		state->gc.sweep = &header->next; /* advance sweep */
-		setwhite(header);
+		gc_setwhite(header);
 	}
 
 	return 1;
@@ -294,6 +270,8 @@ step_atomic(crs_State* state) {
 	while (state->gc.gray != NULL) {
 		traverse(state, 1);
 	}
+
+	crsS_clearCache(state);
 
 	state->gc.phase = CRS_GCPHASE_SWEEP;
 
@@ -423,7 +401,7 @@ crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
 	crs_State* state = thread->state;
 
 	linklist(header, state->gc.all);
-	setwhite(header);
+	gc_setwhite(header);
 	header->set  = NULL;
 	header->type = type;
 
@@ -456,10 +434,10 @@ crsG_setImmune(crs_Thread* thread) {
 	 */
 
 	linklist(header, state->gc.immune);
-	setgray(header);
+	gc_setgray(header);
 }
 
-#define dobarrier(s, b, w) ((isblack(b) && iswhite(w)) && keepinvariant(s))
+#define dobarrier(s, b, w) ((gc_isblack(b) && gc_iswhite(w)) && keepinvariant(s))
 
 void
 crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
@@ -476,7 +454,7 @@ crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
 
 	if (dobarrier(state, black, white)) {
 		linkset(black, state->gc.grayAgain);
-		setgray(black);
+		gc_setgray(black);
 	}
 }
 

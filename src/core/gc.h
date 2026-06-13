@@ -32,6 +32,30 @@
 #define gc_setstatus(s, n, v) ((s)->gc.status = bit_change((s)->gc.status, (v) << CRS_BIT_GC##n, bit_mask(CRS_BIT_GC##n)))
 
 /*
+ * Header mark byte
+ *
+ * - bit 0:    is white
+ * - bit 1:    is black
+ * - bits 2-7: unused and reserved
+ *
+ * An object is gray if it is neither white nor black. However, an object
+ * cannot be both white and black.
+ */
+
+#define CRS_MASK_WHITE bit_mask(0)
+#define CRS_MASK_BLACK bit_mask(1)
+#define CRS_MASK_SET   (CRS_MASK_WHITE | CRS_MASK_BLACK)
+
+#define gc_iswhite(h) bit_get((h)->mark, CRS_MASK_WHITE)
+#define gc_isblack(h) bit_get((h)->mark, CRS_MASK_BLACK)
+#define gc_isgray(h)  (!bit_get((h)->mark, CRS_MASK_SET))
+
+/* reset all set bits, then set the correct one */
+#define gc_setwhite(h) ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_WHITE)
+#define gc_setblack(h) ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
+#define gc_setgray(h)  ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET))
+
+/*
  * GC parameters
  *
  * pause:

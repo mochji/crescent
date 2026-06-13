@@ -16,7 +16,7 @@
 #include "limit.h"
 
 #include "core/object.h"
-#include "core/buffer.h"
+#include "core/state.h"
 
 crs_String*
 crsS_newl(crs_Thread* thread, char* str, size_t length);
@@ -29,5 +29,8 @@ crsS_free(crs_Thread* thread, crs_String* string);
 
 int
 crsS_compare(crs_String* stringA, crs_String* stringB);
+
+void
+crsS_clearCache(crs_State* state);
 
 #endif

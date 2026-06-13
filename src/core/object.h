@@ -50,8 +50,9 @@ typedef struct crs_Object   crs_Object;
 struct
 crs_String {
 	crs_GCHeader header;
-	size_t       hash;
-	size_t       length;
+	crs_Integer  length;
+	crs_byte     hashed;
+	unsigned     hash;
 	char         contents[];
 };
 

@@ -351,6 +351,29 @@ great_and_powerful_trixie(crs_Thread* thread) {
 }
 
 void
+interning(crs_Thread* thread) {
+	crs_gc(thread, CRS_GC_FULL);
+	printf("usage before: %dKiB\n", crs_gc(thread, CRS_GC_USAGE));
+	crs_setGC(thread, CRS_GC_STOP, 1);
+
+	char* ptr = NULL;
+
+	for (int a = 0; a < 5000000; a++) {
+		crs_pushString(thread, "it's time you see that this great marquee is the only place you'");
+		char* pushed = (char*)crs_toString(thread, -1);
+		if (ptr != NULL && ptr != pushed) {
+			printf("hahaha, bad!\n");
+			break;
+		}
+		ptr = pushed;
+		crs_pop(thread, 1);
+	}
+
+	printf("usage after: %dKiB\n", crs_gc(thread, CRS_GC_USAGE));
+	crs_setGC(thread, CRS_GC_STOP, 0);
+}
+
+void
 choose(crs_Thread* thread, char option) {
 	printf("========\n");
 
@@ -387,6 +410,10 @@ choose(crs_Thread* thread, char option) {
 			great_and_powerful_trixie(thread);
 
 			break;
+		case 'i':
+			interning(thread);
+
+			break;
 		case 'q':
 			printf("bye :(\n");
 
@@ -420,6 +447,7 @@ main(void) {
 		printf("q: quit\n");
 		printf("j: tables\n");
 		printf("g: garbage\n");
+		printf("i: interning\n");
 		printf("> ");
 
 		do {

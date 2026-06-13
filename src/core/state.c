@@ -86,6 +86,12 @@ crsE_open(void) {
 		return NULL;
 	}
 
+	for (int i = 0; i < CRS_STRCACHE_BUCKETS; i++) {
+		for (int j = 0; j < CRS_STRCACHE_SIZE; j++) {
+			state->strings[i][j] = NULL;
+		}
+	}
+
 	/* special objects */
 
 	if (crsC_try(thread, &initState, state, NULL) != CRS_STATUS_OK) {
