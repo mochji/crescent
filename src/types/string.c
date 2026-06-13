@@ -51,6 +51,7 @@ crsS_newl(crs_Thread* thread, char* str, size_t length) {
 	string->hashed = 0;
 	string->hash   = 0;
 	memcpy(string->contents, str, length * sizeof(char));
+	string->contents[length] = '\0';
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
 }
