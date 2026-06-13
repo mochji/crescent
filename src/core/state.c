@@ -86,8 +86,8 @@ crsE_open(void) {
 		return NULL;
 	}
 
-	for (int i = 0; i < CRS_STRCACHE_BUCKETS; i++) {
-		for (int j = 0; j < CRS_STRCACHE_SIZE; j++) {
+	for (int i = 0; i < CRS_STRCACHE_SIZE; i++) {
+		for (int j = 0; j < CRS_STRCACHE_BUCKETS; j++) {
 			state->strings[i][j] = NULL;
 		}
 	}

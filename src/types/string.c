@@ -70,7 +70,7 @@ crsS_new(crs_Thread* thread, char* str) {
 
 	/* search string cache */
 	for (int i = 0; i < CRS_STRCACHE_BUCKETS; i++) {
-		crs_String* string = state->strings[i][key];
+		crs_String* string = state->strings[key][i];
 
 		if (string == NULL) {
 			break; /* end of list */
@@ -85,11 +85,11 @@ crsS_new(crs_Thread* thread, char* str) {
 	string->hash       = hash;
 
 	/* add to string cache */
-	for (int i = 0; i < CRS_STRCACHE_BUCKETS - 1; i++) {
-		state->strings[i + 1][key] = state->strings[i][key];
+	for (int i = CRS_STRCACHE_BUCKETS - 1; i > 0; i--) {
+		state->strings[key][i] = state->strings[key][i - 1];
 	}
 
-	state->strings[0][key] = string;
+	state->strings[key][0] = string;
 
 	return string;
 }
@@ -131,22 +131,22 @@ void
 crsS_clearCache(crs_State* state) {
 	crs_String* alive[CRS_STRCACHE_BUCKETS];
 
-	for (int j = 0; j < CRS_STRCACHE_SIZE; j++) {
+	for (int i = 0; i < CRS_STRCACHE_SIZE; i++) {
 		int count = 0;
 
-		for (int i = 0; i < CRS_STRCACHE_BUCKETS; i++) {
+		for (int j = 0; j < CRS_STRCACHE_BUCKETS; j++) {
 			crs_String* string   = state->strings[i][j];
 			state->strings[i][j] = NULL;
 
 			if (string == NULL) {
 				break; /* end of list */
-			} else if (gc_isblack(obj_toheader(string))) {
+			} else if (!gc_iswhite(obj_toheader(string))) {
 				alive[count++] = string;
 			}
 		}
 
-		for (int i = 0; i < count; i++) {
-			state->strings[i][j] = alive[i];
+		for (int j = 0; j < count; j++) {
+			state->strings[i][j] = alive[j];
 		}
 	}
 }

@@ -17,8 +17,8 @@
 
 #include "core/object.h"
 
-#define CRS_STRCACHE_BUCKETS 4
 #define CRS_STRCACHE_SIZE    32
+#define CRS_STRCACHE_BUCKETS 4
 
 struct
 crs_Handler {
@@ -105,7 +105,7 @@ crs_State {
 		struct crs_GCHeader*  grayAgain;
 		struct crs_GCHeader** sweep;
 	}                  gc;
-	struct crs_String* strings[CRS_STRCACHE_BUCKETS][CRS_STRCACHE_SIZE];
+	struct crs_String* strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
 	struct crs_String* memoryError;
 	struct crs_Object  nilValue;
 	struct crs_Thread  thread;
