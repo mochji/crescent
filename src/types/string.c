@@ -37,7 +37,7 @@ hashString(char* str, size_t length) {
 crs_String*
 crsS_newl(crs_Thread* thread, char* str, size_t length) {
 	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
-		crsC_error(thread, "string too big");
+		crsC_error(thread, "string overflow");
 	}
 
 	crs_String* string = mem_alloc(thread,

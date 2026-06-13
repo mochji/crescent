@@ -94,7 +94,7 @@ hash_resize(crs_Thread* thread, crs_Table* table, crs_byte nodes) {
 	size_t     size = 1 << nodes;
 
 	if (size > CRS_MAX_LENGTH || size > MAX_HSIZE) {
-		crsC_error(thread, "hashtable too big");
+		crsC_error(thread, "table overflow");
 	}
 
 	vector = mem_vnew(thread, size, crs_TNode);
