@@ -9,6 +9,7 @@
 #ifndef CRS_LIMIT_H
 #define CRS_LIMIT_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <limits.h>
 
@@ -40,11 +41,11 @@
 typedef unsigned char crs_byte;
 
 #if CRS_32INT
-typedef unsigned long crs_mem;
-#define CRS_MAX_MEM ULONG_MAX
-#else
 typedef size_t crs_mem;
 #define CRS_MAX_MEM SIZE_MAX
+#else
+typedef unsigned long crs_mem;
+#define CRS_MAX_MEM ULONG_MAX
 #endif
 
 /* minimum buffer size needed to format a number */
