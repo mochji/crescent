@@ -96,3 +96,32 @@ crsB_addString(crs_Buffer* buffer, char* str, size_t length) {
 		*vector++ = *str++;
 	}
 }
+
+void
+crsB_clear(crs_Buffer* buffer) {
+	buffer->length = 0;
+}
+
+void
+crsD_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data) {
+	stream->thread = thread;
+	stream->reader = reader;
+	stream->data   = data;
+	stream->length = 0;
+	stream->read   = 0;
+}
+
+char
+crsD_next(crs_Stream* stream) {
+	int read = stream->reader(stream->thread,
+		stream->data, stream->buffer, CRS_BUF_STREAM);
+
+	if (read < CRS_BUF_STREAM) {
+		stream->buffer[read++] = EOF;
+	}
+
+	stream->length = read;
+	stream->read   = 1;
+
+	return stream->buffer[0];
+}

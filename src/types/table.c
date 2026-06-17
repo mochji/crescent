@@ -105,6 +105,7 @@ hash_resize(crs_Thread* thread, crs_Table* table, crs_byte nodes) {
 
 	temp.nodes = nodes;
 	temp.table = vector;
+	temp.free  = vector;
 	hash_setNil(vector, vector + size);
 	hash_rehash(table, &temp);
 
@@ -136,15 +137,16 @@ hash_findFree(crs_Thread* thread, crs_Table* table) {
 static void
 hash_removeFree(crs_Table* table, crs_TNode* node) {
 	crs_TNode* previous = node->previous;
+	crs_TNode* next     = node->next;
 
 	if (previous == NULL) {
-		table->free = node->next;
+		table->free = next;
 	} else {
-		node->previous->next = node->next;
+		previous->next = next;
 	}
 
-	if (node->next != NULL) {
-		node->next->previous = previous;
+	if (next != NULL) {
+		next->previous = previous;
 	}
 }
 

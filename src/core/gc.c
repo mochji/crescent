@@ -134,7 +134,9 @@ traverse_thread(crs_State* state, crs_Thread* thread) {
 		mark_value(state, object);
 	}
 
-	return 1 + (object - thread->stack.base);
+	mark_value(state, &thread->error);
+
+	return 2 + (object - thread->stack.base);
 }
 
 /*

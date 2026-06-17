@@ -160,6 +160,7 @@
 
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;
+typedef int (crs_Reader)(crs_Thread*, void*, char*, int);
 
 typedef CRS_INTEGER crs_Integer;
 typedef CRS_FLOAT   crs_Float;
