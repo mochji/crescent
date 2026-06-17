@@ -17,7 +17,7 @@
 typedef void* (crs_PFunction)(crs_Thread*, void*);
 
 void __attribute__((noreturn))
-crsC_throw(crs_Thread* thread);
+crsC_throw(crs_Thread* thread, int status);
 
 void __attribute__((noreturn))
 crsC_error(crs_Thread* thread, char* message);

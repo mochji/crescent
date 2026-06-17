@@ -89,7 +89,7 @@ crsF_vformat(crs_Thread* thread, char* format, va_list args) {
 
 	if (status != CRS_STATUS_OK) {
 		/* error is already in error register */
-		crsC_throw(thread);
+		crsC_throw(thread, status);
 	}
 
 	return string;

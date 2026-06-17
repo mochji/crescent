@@ -126,9 +126,9 @@
 #define CRS_TYPE_TABLE     6  /* 0000 0110 */
 #define CRS_TYPE_THREAD    14 /* 0000 1110 */
 
-#define CRS_STATUS_OK    0
-#define CRS_STATUS_ERROR 1
-#define CRS_STATUS_NOMEM 2
+#define CRS_STATUS_OK      0
+#define CRS_STATUS_ERROR   1 /* general error     */
+#define CRS_STATUS_CODEERR 2 /* compilation error */
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
 #	define CRS_INTEGER     int

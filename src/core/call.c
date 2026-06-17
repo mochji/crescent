@@ -40,7 +40,7 @@
  */
 
 void
-crsC_throw(crs_Thread* thread) {
+crsC_throw(crs_Thread* thread, int status) {
 	crs_Handler* handler = thread->handler;
 	crs_State*   state   = thread->state;
 
@@ -53,7 +53,7 @@ crsC_throw(crs_Thread* thread) {
 			continue;
 		}
 
-		handler->status = CRS_STATUS_ERROR;
+		handler->status = status;
 		longjmp(handler->buffer, 1);
 	}
 
@@ -69,7 +69,7 @@ crsC_error(crs_Thread* thread, char* message) {
 	crs_String* error = crsS_new(thread, message);
 
 	obj_setgc(&thread->error, error);
-	crsC_throw(thread);
+	crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
 void
@@ -82,7 +82,7 @@ crsC_errorf(crs_Thread* thread, char* format, ...) {
 	va_end(args);
 
 	obj_setgc(&thread->error, error);
-	crsC_throw(thread);
+	crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
 void

@@ -124,7 +124,7 @@ crs_error(crs_Thread* thread, int index) {
 	crs_Object* object = getIndex(thread, index);
 
 	obj_seto(&thread->error, object);
-	crsC_throw(thread);
+	crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
 /*
