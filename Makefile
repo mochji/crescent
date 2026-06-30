@@ -21,12 +21,12 @@ VALGRIND = valgrind
 # End of configurable options
 # =============================================================================
 
-SRC    = src
-BUILD  = build
-TYPES  = $(SRC)/types
-CORE   = $(SRC)/core
-VM     = $(SRC)/vm
-API    = $(SRC)/api
+SRC   = src
+BUILD = build
+TYPES = $(SRC)/types
+CORE  = $(SRC)/core
+VM    = $(SRC)/vm
+API   = $(SRC)/api
 
 MAIN   = $(SRC)/crescent.c
 TARGET = $(BUILD)/crescent

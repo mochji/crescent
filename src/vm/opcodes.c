@@ -11,14 +11,15 @@
 
 #include "vm/opcodes.h"
 
-crs_OpMode
-crsV_mode[] = {
+/* order OPCODE */
+crs_OpMode crsV_mode[] = {
 	iABC,  /* OP_MOV     */
 	iABC,  /* OP_LODN    */
 	iABC,  /* OP_LODT    */
 	iABC,  /* OP_LODF    */
 	iAsBx, /* OP_LODI    */
 	iABC,  /* OP_LODC    */
+	iABC,  /* OP_UNM     */
 	iABC,  /* OP_ADD     */
 	iABC,  /* OP_SUB     */
 	iABC,  /* OP_MUL     */
@@ -40,45 +41,42 @@ crsV_mode[] = {
 	iABC,  /* OP_GET     */
 	iABC,  /* OP_SET     */
 	iABC,  /* OP_CALL    */
-	iABC,  /* OP_RETURN0 */
-	iABC,  /* OP_RETURN1 */
 	iABC,  /* OP_RETURN  */
 	iABC,  /* OP_TEST    */
 	isAxx  /* OP_JMP     */
 };
 
-const char*
-crsV_name[] = {
-	"OP_MOV",
-	"OP_LODN",
-	"OP_LODT",
-	"OP_LODF",
-	"OP_LODI",
-	"OP_LODC",
-	"OP_ADD",
-	"OP_SUB",
-	"OP_MUL",
-	"OP_DIV",
-	"OP_POW",
-	"OP_MOD",
-	"OP_NOT",
-	"OP_AND",
-	"OP_OR",
-	"OP_BNOT",
-	"OP_BAND",
-	"OP_BOR",
-	"OP_BXOR",
-	"OP_EQ",
-	"OP_LE",
-	"OP_LT",
-	"OP_LENGTH",
-	"OP_CONCAT",
-	"OP_GET",
-	"OP_SET",
-	"OP_CALL",
-	"OP_RETURN0",
-	"OP_RETURN1",
-	"OP_RETURN",
-	"OP_TEST",
-	"OP_JMP"
+/* order OPCODE */
+const char* crsV_name[] = {
+	"MOV",
+	"LODN",
+	"LODT",
+	"LODF",
+	"LODI",
+	"LODC",
+	"UNM",
+	"ADD",
+	"SUB",
+	"MUL",
+	"DIV",
+	"POW",
+	"MOD",
+	"NOT",
+	"AND",
+	"OR",
+	"BNOT",
+	"BAND",
+	"BOR",
+	"BXOR",
+	"EQ",
+	"LE",
+	"LT",
+	"LENGTH",
+	"CONCAT",
+	"GET",
+	"SET",
+	"CALL",
+	"RETURN",
+	"TEST",
+	"JMP"
 };

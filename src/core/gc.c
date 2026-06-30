@@ -214,8 +214,9 @@ delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
  *   traversal.
  *
  * atomic (atomic):
- *   Traverse the entire grayAgain set. By now, all reachable objects should be
- *   marked as black, so we can begin sweeping.
+ *   Traverse the entire grayAgain set. By now, all reachable objects are marked
+ *   as black. No sweeping has begun yet, so it is safe to inspect structures:
+ *   - Dead entries are removed from the string cache.
  *
  * sweep:
  *   Sweep an item in the all list; if it's dead, remove it from the list and

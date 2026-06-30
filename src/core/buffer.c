@@ -76,6 +76,7 @@ crsB_free(crs_Buffer* buffer) {
 
 	if (buffer->buffer != buffer->initial) {
 		mem_vfree(buffer->thread, buffer->buffer, buffer->size);
+		buffer->buffer = NULL;
 	}
 }
 
@@ -89,12 +90,8 @@ void
 crsB_addString(crs_Buffer* buffer, char* str, size_t length) {
 	checkBuffer(buffer, length);
 
-	char* vector    = buffer->buffer + buffer->length;
+	memcpy(buffer->buffer + buffer->length, str, length);
 	buffer->length += length;
-
-	while (length--) {
-		*vector++ = *str++;
-	}
 }
 
 void

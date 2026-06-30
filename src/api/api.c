@@ -16,6 +16,7 @@
 #include "types/string.h"
 #include "types/table.h"
 #include "core/object.h"
+#include "core/format.h"
 #include "core/state.h"
 #include "core/memory.h"
 #include "core/call.h"
@@ -344,43 +345,8 @@ crs_copy(crs_Thread* thread, int index) {
  */
 
 int
-crs_isNil(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_NIL;
-}
-
-int
-crs_isBoolean(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_BOOLEAN;
-}
-
-int
-crs_isInteger(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_INTEGER;
-}
-
-int
-crs_isFloat(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_FLOAT;
-}
-
-int
 crs_isNumber(crs_Thread* thread, int index) {
 	return obj_isnumber(getIndex(thread, index));
-}
-
-int
-crs_isCFunction(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_CFUNCTION;
-}
-
-int
-crs_isString(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_STRING;
-}
-
-int
-crs_isTable(crs_Thread* thread, int index) {
-	return getIndex(thread, index)->type == CRS_TYPE_TABLE;
 }
 
 /*
@@ -390,54 +356,43 @@ crs_isTable(crs_Thread* thread, int index) {
  */
 
 int
-crs_toBooleanX(crs_Thread* thread, int index, int* match) {
-	return crsO_toBoolean(getIndex(thread, index), match);
-}
-
-crs_Integer
-crs_toIntegerX(crs_Thread* thread, int index, int* match) {
-	return crsO_toInteger(getIndex(thread, index), match);
-}
-
-crs_Float
-crs_toFloatX(crs_Thread* thread, int index, int* match) {
-	return crsO_toFloat(getIndex(thread, index), match);
-}
-
-const char*
-crs_toStringX(crs_Thread* thread, int index, int* match) {
-	return crsO_toString(getIndex(thread, index), match);
-}
-
-int
-crs_toBoolean(crs_Thread* thread, int index) {
-	return crsO_toBoolean(getIndex(thread, index), NULL);
-}
-
-crs_Integer
-crs_toInteger(crs_Thread* thread, int index) {
-	return crsO_toInteger(getIndex(thread, index), NULL);
-}
-
-crs_Float
-crs_toFloat(crs_Thread* thread, int index) {
-	return crsO_toFloat(getIndex(thread, index), NULL);
-}
-
-crs_CFunction*
-crs_toCFunction(crs_Thread* thread, int index) {
+crs_toBooleanX(crs_Thread* thread, int index, int* equal) {
 	crs_Object* object = getIndex(thread, index);
 
-	if (object->type == CRS_TYPE_CFUNCTION) {
-		return obj_getc(object);
+	if (equal != NULL) {
+		*equal = object->type == CRS_TYPE_BOOLEAN;
 	}
 
-	return NULL;
+	return crsO_test(object);
+}
+
+crs_Integer
+crs_toIntegerX(crs_Thread* thread, int index, int* equal) {
+	crs_Integer value;
+	int         match = crsO_toInteger(getIndex(thread, index), &value);
+
+	if (equal != NULL) {
+		*equal = match;
+	}
+
+	return value;
+}
+
+crs_Float
+crs_toFloatX(crs_Thread* thread, int index, int* equal) {
+	crs_Float value;
+	int       match = crsO_toFloat(getIndex(thread, index), &value);
+
+	if (equal != NULL) {
+		*equal = match;
+	}
+
+	return value;
 }
 
 const char*
-crs_toString(crs_Thread* thread, int index) {
-	return crsO_toString(getIndex(thread, index), NULL);
+crs_toStringX(crs_Thread* thread, int index, int* equal) {
+	return crsO_toString(getIndex(thread, index), equal);
 }
 
 /*
@@ -449,35 +404,30 @@ crs_toString(crs_Thread* thread, int index) {
 void
 crs_pushNil(crs_Thread* thread) {
 	crs_Object* object = adjustTop(thread, 1);
-
 	obj_setn(object);
 }
 
 void
 crs_pushBoolean(crs_Thread* thread, int value) {
 	crs_Object* object = adjustTop(thread, 1);
-
-	obj_setb(object, value);
+	obj_setb(object, value != 0);
 }
 
 void
 crs_pushInteger(crs_Thread* thread, crs_Integer value) {
 	crs_Object* object = adjustTop(thread, 1);
-
 	obj_seti(object, value);
 }
 
 void
 crs_pushFloat(crs_Thread* thread, crs_Float value) {
 	crs_Object* object = adjustTop(thread, 1);
-
 	obj_setf(object, value);
 }
 
 void
 crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
 	crs_Object* object = adjustTop(thread, 1);
-
 	obj_setc(object, function);
 }
 
@@ -487,7 +437,6 @@ crs_pushString(crs_Thread* thread, const char* str) {
 	crs_String* string = crsS_new(thread, (char*)str);
 
 	obj_setgc(object, string);
-
 	crsG_check(thread);
 }
 
@@ -497,7 +446,24 @@ crs_pushTable(crs_Thread* thread) {
 	crs_Table*  table  = crsT_new(thread);
 
 	obj_setgc(object, table);
+	crsG_check(thread);
+}
 
+void
+crs_format(crs_Thread* thread, char* format, ...) {
+	va_list args;
+
+	va_start(args, format);
+	crs_vformat(thread, format, args);
+	va_end(args);
+}
+
+void
+crs_vformat(crs_Thread* thread, char* format, va_list args) {
+	crs_Object* object = adjustTop(thread, 1);
+	crs_String* string = crsF_vformat(thread, format, args);
+
+	obj_setgc(object, string);
 	crsG_check(thread);
 }
 
@@ -508,32 +474,16 @@ crs_pushTable(crs_Thread* thread) {
  */
 
 int
-crs_call(crs_Thread* thread, int index, int args) {
-	int results = crsV_call(thread, getIndex(thread, index), args, INT_MAX);
+crs_call(crs_Thread* thread, int index, int args, int wanted) {
+	int results = crsV_call(thread, getIndex(thread, index), args, wanted);
 	crsG_check(thread);
 
 	return results;
 }
 
 int
-crs_pCall(crs_Thread* thread, int index, int args, int* status) {
-	int results = crsV_pCall(thread, getIndex(thread, index), args, INT_MAX, status);
-	crsG_check(thread);
-
-	return results;
-}
-
-int
-crs_callX(crs_Thread* thread, int index, int args, int maxResults) {
-	int results = crsV_call(thread, getIndex(thread, index), args, maxResults);
-	crsG_check(thread);
-
-	return results;
-}
-
-int
-crs_pCallX(crs_Thread* thread, int index, int args, int maxResults, int* status) {
-	int results = crsV_pCall(thread, getIndex(thread, index), args, maxResults, status);
+crs_pCall(crs_Thread* thread, int index, int args, int wanted, int* status) {
+	int results = crsV_pCall(thread, getIndex(thread, index), args, wanted, status);
 	crsG_check(thread);
 
 	return results;

@@ -30,10 +30,10 @@
  * error message) is saved in the thread.
  *
  * If there exists a handler (jmp_buf, created by pcall):
- *   - longjmp back; pcall will handle the error.
- * If not:
- *   - Call the state's panic function. This is the last chance to jump out.
- *   - If it returns, call abort.
+ * - longjmp back; pcall will handle the error.
+ * Otherwise:
+ * - Call the state's panic function. This is the last chance to jump out.
+ * - If it returns, call abort.
  *
  * WARNING: As a pcall might catch and handle any error, be careful to ensure
  * the state of the thread when you throw one.
@@ -226,18 +226,24 @@ crsC_checkFree(crs_Thread* thread, int free, int throw) {
  */
 
 static void
-checkResults(crs_Thread* thread, int results) {
+checkResults(crs_Thread* thread, int wanted) {
 	crs_Frame* frame    = thread->stack.frame;
 	crs_Frame* previous = frame->previous;
+	size_t     needed   = (frame->base - thread->stack.base) + wanted - 1;
 	int        free     = previous->top - (frame->base - previous->base);
 
 	/* previous frame cannot hold results? */
-	if (results > CRS_MAX_TOP - free) {
+	if (wanted > CRS_MAX_TOP - free) {
 		crsC_error(thread, "stack overflow");
 	}
 
-	if (results > free) {
-		previous->top += results - free;
+	/* need to grow stack? (only when wanted > results) */
+	if (needed > thread->stack.size) {
+		crsC_resizeStack(thread, needed, 1);
+	}
+
+	if (wanted > free) {
+		previous->top += wanted - free;
 	}
 }
 
@@ -262,37 +268,43 @@ startCall(crs_Thread* thread, int top, int args) {
 	thread->stack.frame   = frame;
 }
 
-/* return 'results' elements and pop top stack frame */
+/* return 'wanted' elements and pop the top stack frame */
 static int
-endCall(crs_Thread* thread, int results) {
+endCall(crs_Thread* thread, int results, int wanted) {
 	crs_Frame* frame    = thread->stack.frame;
 	crs_Frame* previous = frame->previous;
 	int        top      = thread->stack.top - frame->base;
 
 	/* only return as much as the frame has */
 	results = results > top ? top : results;
-	checkResults(thread, results);
+	checkResults(thread, wanted);
 
-	/* top 'results' elements are return values; move them to previous */
-	if (results > 0 && results < top) {
-		crs_Object* from = thread->stack.top - results;
-		crs_Object* to   = frame->base;
+	crs_Object* from = thread->stack.top - results;
+	crs_Object* to   = frame->base;
 
-		for (int a = 0; a < results; a++) {
+	/* move top 'results' elements down to previous frame */
+	if (results < top) {
+		for (int i = 0; i < results; i++) {
 			obj_seto(to, from);
 			to++;
 			from++;
 		}
 	}
 
-	thread->stack.top    -= top - results;
+	/* return nil for missing elements */
+	for (int i = results; i < wanted; i++) {
+		obj_setn(to);
+		to++;
+	}
+
+	thread->stack.top    -= top - wanted;
 	thread->stack.calls  -= 1;
 	thread->stack.cCalls -= 1;
 	thread->stack.frame   = previous;
 
 	mem_free(thread, frame);
 
-	return results;
+	return wanted;
 }
 
 int
@@ -316,7 +328,7 @@ crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result)
 }
 
 int
-crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int maxResults) {
+crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted) {
 	startCall(
 		thread,
 		args < CRS_MIN_TOP
@@ -325,7 +337,5 @@ crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int maxResults
 		args
 	);
 
-	int results = function(thread);
-
-	return endCall(thread, results > maxResults ? maxResults : results);
+	return endCall(thread, function(thread), wanted);
 }

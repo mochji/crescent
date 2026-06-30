@@ -13,7 +13,6 @@
 
 #include "types/string.h"
 #include "types/table.h"
-#include "core/format.h"
 
 char*
 crsO_name(crs_Object* object) {
@@ -32,70 +31,56 @@ crsO_name(crs_Object* object) {
 }
 
 int
-crsO_toBoolean(crs_Object* object, int* match) {
-	crs_byte type = object->type;
-
-	if (match != NULL) {
-		*match = type == CRS_TYPE_BOOLEAN;
-	}
-
-	if (type == CRS_TYPE_NIL) {
-		return 0;
-	} else if (type == CRS_TYPE_BOOLEAN) {
+crsO_test(crs_Object* object) {
+	if (object->type == CRS_TYPE_BOOLEAN) {
 		return obj_getb(object);
 	}
 
-	return 1; /* object exists */
+	return object->type != CRS_TYPE_NIL;
 }
 
-crs_Integer
-crsO_toInteger(crs_Object* object, int* match) {
-	crs_byte    type = object->type;
-	crs_Integer value;
-	int         dummy;
+int
+crsO_toInteger(crs_Object* object, crs_Integer* result) {
+	crs_Integer value   = 0;
+	int         success = 0;
 
-	match = match == NULL ? &dummy : match;
-
-	switch (type) {
+	switch (object->type) {
 		case CRS_TYPE_INTEGER:
-			*match = 1;
+			value   = obj_geti(object);
+			success = 1;
 
-			return obj_geti(object);
+			break;
 		case CRS_TYPE_FLOAT:
-			value  = (crs_Integer)obj_getf(object);
-			*match = value == obj_getf(object);
+			value   = (crs_Integer)obj_getf(object);
+			success = value == obj_getf(object);
 
-			return value;
-		case CRS_TYPE_STRING:
-			return crsF_toInteger(obj_gets(object)->contents, match);
+			break;
 	}
 
-	return 0;
+	*result = value;
+	return success;
 }
 
-crs_Float
-crsO_toFloat(crs_Object* object, int* match) {
-	crs_byte  type = object->type;
-	crs_Float value;
-	int       dummy;
+int
+crsO_toFloat(crs_Object* object, crs_Float* result) {
+	crs_Float value   = 0;
+	int       success = 0;
 
-	match = match == NULL ? &dummy : match;
-
-	switch (type) {
+	switch (object->type) {
 		case CRS_TYPE_INTEGER:
-			value  = (crs_Float)obj_geti(object);
-			*match = 1;
+			value   = (crs_Integer)obj_getf(object);
+			success = value == obj_getf(object);
 
-			return value;
+			break;
 		case CRS_TYPE_FLOAT:
-			*match = 1;
+			value   = obj_getf(object);
+			success = 1;
 
-			return obj_getf(object);
-		case CRS_TYPE_STRING:
-			return crsF_toFloat(obj_gets(object)->contents, match);
+			break;
 	}
 
-	return 0;
+	*result = value;
+	return success;
 }
 
 char*

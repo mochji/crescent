@@ -80,13 +80,13 @@ char*
 crsO_name(crs_Object* object);
 
 int
-crsO_toBoolean(crs_Object* object, int* match);
+crsO_test(crs_Object* object);
 
-crs_Integer
-crsO_toInteger(crs_Object* object, int* match);
+int
+crsO_toInteger(crs_Object* object, crs_Integer* result);
 
-crs_Float
-crsO_toFloat(crs_Object* object, int* match);
+int
+crsO_toFloat(crs_Object* object, crs_Float* result);
 
 char*
 crsO_toString(crs_Object* object, int* match);

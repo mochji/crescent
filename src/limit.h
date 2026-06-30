@@ -36,17 +36,20 @@
 #define CRS_MAX_CALLS  4096
 #define CRS_MAX_CCALLS 200
 
-#define CRS_MAX_LOCALS 200
-
-typedef unsigned char crs_byte;
-
 #if CRS_32INT
-typedef size_t crs_mem;
+typedef int      crs_s32;
+typedef unsigned crs_u32;
+typedef size_t   crs_mem;
 #define CRS_MAX_MEM SIZE_MAX
 #else
+typedef long          crs_s32;
+typedef unsigned long crs_u32;
 typedef unsigned long crs_mem;
 #define CRS_MAX_MEM ULONG_MAX
 #endif
+
+typedef unsigned char crs_byte;
+typedef crs_u32       crs_instr;
 
 /* minimum buffer size needed to format a number */
 #define CRS_MAX_FMTNUM 64
@@ -57,6 +60,6 @@ typedef unsigned long crs_mem;
 #define bit_set(x, m)       ((x) | (m))
 #define bit_reset(x, m)     ((x) & ~(m))
 #define bit_change(x, v, m) (((x) & ~(m)) | (v))
-#define bit_1mask(o, l)     ((bit_mask(l) - 1) << (o))
+#define bit_1mask(o, l)     (((1 << (l)) - 1) << (o))
 
 #endif

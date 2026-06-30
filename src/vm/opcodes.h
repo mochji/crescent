@@ -32,22 +32,21 @@
  * - s: Signed
  */
 
-enum
-crs_OpMode {
+typedef enum {
 	iABC,
 	iABx,
 	iAsBx,
 	iAxx,
 	isAxx
-};
+} crs_OpMode;
 
 /*
  * S = stack
  * C = constants
  */
 
-enum
-crs_OpCode {
+/* order OPCODE */
+typedef enum {
 /*  enum            operation                mode        notes */
 	OP_MOV,      /* S[A] = S[B]              iABC              */
 
@@ -57,6 +56,7 @@ crs_OpCode {
 	OP_LODI,     /* S[A] = sBx               iAsBx             */
 	OP_LODC,     /* S[A] = C[B]              iABx              */
 
+	OP_UNM,      /* S[A] = -S[B]             iABC              */
 	OP_ADD,      /* S[A] = S[B] + S[C]       iABC              */
 	OP_SUB,      /* S[A] = S[B] - S[C]       iABC              */
 	OP_MUL,      /* S[A] = S[B] * S[C]       iABC              */
@@ -64,14 +64,12 @@ crs_OpCode {
 	OP_POW,      /* S[A] = S[B] ^ S[C]       iABC              */
 	OP_MOD,      /* S[A] = S[B] % S[C]       iABC              */
 
-	OP_NOT,      /* S[A] = not S[B]          iABC              */
-	OP_AND,      /* S[A] = S[B] and S[C]     iABC              */
-	OP_OR,       /* S[A] = S[B] or S[C]      iABC              */
+	OP_NOT,      /* S[A] = !S[B]             iABC              */
 
 	OP_BNOT,     /* S[A] = ~S[B]             iABC              */
 	OP_BAND,     /* S[A] = S[B] & S[C]       iABC              */
 	OP_BOR,      /* S[A] = S[B] | S[C]       iABC              */
-	OP_BXOR,     /* S[A] = S[B] ^ S[C]       iABC              */
+	OP_BXOR,     /* S[A] = S[B] ~ S[C]       iABC              */
 
 	OP_EQ,       /* S[A] = S[B] == S[C]      iABC              */
 	OP_LT,       /* S[A] = S[B] < S[C]       iABC              */
@@ -82,17 +80,12 @@ crs_OpCode {
 	OP_GET,      /* S[A] = S[B][S[C]]        iABC              */
 	OP_SET,      /* S[B][S[C]] = S[A]        iABC              */
 
-	OP_CALL,     /* S[A] S[B]() (C args)     iABC              */
-	OP_RETURN0,  /* return                   iABC              */
-	OP_RETURN1,  /* return S[A]              iABC              */
-	OP_RETURN,   /* return S[A] .. S[B]      iABC              */
+	OP_CALL,     /* S[A] S[B](S[B + 1]) (#C) iABC              */
+	OP_RETURN,   /* return S[B-A+1] .. S[B]  iABC              */
 
 	OP_TEST,     /* if S[A] then PC++        iABC              */
 	OP_JMP       /* PC += sAxx               isAxx             */
-};
-
-typedef enum crs_OpMode crs_OpMode;
-typedef enum crs_OpCode crs_OpCode;
+} crs_OpCode;
 
 extern crs_OpMode  crsV_mode[];
 extern const char* crsV_name[];

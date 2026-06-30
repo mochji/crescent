@@ -122,7 +122,7 @@ test(crs_Thread* thread) {
 	crs_pushInteger(thread, 612);
 
 	printf("expected returned:\n");
-	printf("- function\n- number\n- number\n");
+	printf("- function\n- number\n- number\n- nil\n");
 
 	return 3;
 }
@@ -137,7 +137,7 @@ calling(crs_Thread* thread) {
 		printf("- %s\n", crs_name(thread, a));
 	}
 
-	crs_call(thread, -1, 2);
+	crs_call(thread, -1, 2, 4);
 
 	printf("returned: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
@@ -149,7 +149,7 @@ calling(crs_Thread* thread) {
 
 int
 mischievous(crs_Thread* thread) {
-	crs_call(thread, 2, 0);
+	crs_call(thread, 2, 0, 0);
 
 	return 0;
 }
@@ -160,7 +160,7 @@ handling(crs_Thread* thread) {
 
 	crs_pushCFunction(thread, &mischievous);
 	crs_pushTable(thread);
-	crs_pCall(thread, 1, 2, &status);
+	crs_pCall(thread, 1, 2, 0, &status);
 
 	printf("top: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {
@@ -180,7 +180,7 @@ void
 panicking(crs_Thread* thread) {
 	crs_pushCFunction(thread, &mischievous);
 	crs_pushTable(thread);
-	crs_call(thread, 1, 2);
+	crs_call(thread, 1, 2, 0);
 }
 
 void
@@ -382,6 +382,16 @@ interning(crs_Thread* thread) {
 }
 
 void
+format(crs_Thread* thread) {
+	printf("expected output: %c %s %d %p " CRS_INTEGER_FMT " " CRS_FLOAT_FMT " %%\n", 'a', "hello world", 80085, (void*)thread, (crs_Integer)20, -19.2);
+
+	crs_format(thread, "%c %s %d %p %I %F %% %\0s %s", 'a', "hello world", 80085, thread, (crs_Integer)20, -19.2, "if you're seeing this, crsF_vformat is reading past the string when % is followed by the null terminator. have fun!\n");
+	printf("actual output:   %s\n", crs_toString(thread, -1));
+	printf("\n");
+	crs_setTop(thread, 0);
+}
+
+void
 choose(crs_Thread* thread, char option) {
 	printf("========\n");
 
@@ -422,6 +432,10 @@ choose(crs_Thread* thread, char option) {
 			interning(thread);
 
 			break;
+		case 'f':
+			format(thread);
+
+			break;
 		case 'q':
 			printf("bye :(\n");
 
@@ -452,10 +466,11 @@ main(void) {
 		printf("h: handling\n");
 		printf("p: panicking\n");
 		printf("o: garbage stress\n");
-		printf("q: quit\n");
 		printf("j: tables\n");
 		printf("g: garbage\n");
 		printf("i: interning\n");
+		printf("f: format\n");
+		printf("q: quit\n");
 		printf("> ");
 
 		do {
