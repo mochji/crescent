@@ -40,10 +40,7 @@ crsC_checkFree(crs_Thread* thread, int free, int throw);
 int
 crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result);
 
-int
+void
 crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted);
-
-#define call_sethandler(t, h) \
-	{(h).status = CRS_STATUS_OK; (h).level = (t)->stack.calls; (h).previous = (t)->handler; (t)->handler = &(h);}
 
 #endif

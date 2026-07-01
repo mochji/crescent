@@ -11,7 +11,8 @@ CFLAGS       =         \
 	-Werror            \
 	-Wshadow           \
 	-Wundef            \
-	-Wdouble-promotion
+	-Wdouble-promotion \
+	-lm
 
 CC       = gcc
 AR       = ar rcs

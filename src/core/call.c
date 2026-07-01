@@ -87,13 +87,11 @@ crsC_errorf(crs_Thread* thread, char* format, ...) {
 
 void
 crsC_restoreStack(crs_Thread* thread, short level) {
-	while (thread->stack.calls > level) {
-		crs_Frame* frame = thread->stack.frame;
-
-		thread->stack.top     = frame->base;
-		thread->stack.calls  -= 1;
-		thread->stack.cCalls -= 1;
-		thread->stack.frame   = frame->previous;
+	while (thread->stack.level > level) {
+		crs_Frame* frame    = thread->stack.frame;
+		thread->stack.top   = frame->base;
+		thread->stack.frame = frame->previous;
+		thread->stack.level--;
 
 		mem_free(thread, frame);
 	}
@@ -225,6 +223,28 @@ crsC_checkFree(crs_Thread* thread, int free, int throw) {
  * objects.
  */
 
+int
+crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result) {
+	crs_Handler handler;
+	void*       returned = NULL;
+
+	handler.status   = CRS_STATUS_OK;
+	handler.previous = thread->handler;
+	thread->handler  = &handler;
+
+	if (!setjmp(handler.buffer)) {
+		returned = function(thread, data);
+	}
+
+	if (result != NULL) {
+		*result = returned;
+	}
+
+	thread->handler = handler.previous;
+
+	return handler.status;
+}
+
 static void
 checkResults(crs_Thread* thread, int wanted) {
 	crs_Frame* frame    = thread->stack.frame;
@@ -250,6 +270,10 @@ checkResults(crs_Thread* thread, int wanted) {
 /* create and initialize a new stack frame */
 static void
 startCall(crs_Thread* thread, int top, int args) {
+	if (thread->stack.level >= CRS_MAX_LEVEL) {
+		crsC_error(thread, "stack overflow");
+	}
+
 	crsC_checkFree(thread, top - args, 1);
 
 	crs_Frame* frame    = mem_new(thread, crs_Frame);
@@ -263,13 +287,12 @@ startCall(crs_Thread* thread, int top, int args) {
 	frame->top      = top;
 	frame->previous = previous;
 
-	thread->stack.calls  += 1;
-	thread->stack.cCalls += 1;
-	thread->stack.frame   = frame;
+	thread->stack.frame = frame;
+	thread->stack.level++;
 }
 
 /* return 'wanted' elements and pop the top stack frame */
-static int
+static void
 endCall(crs_Thread* thread, int results, int wanted) {
 	crs_Frame* frame    = thread->stack.frame;
 	crs_Frame* previous = frame->previous;
@@ -297,37 +320,14 @@ endCall(crs_Thread* thread, int results, int wanted) {
 		to++;
 	}
 
-	thread->stack.top    -= top - wanted;
-	thread->stack.calls  -= 1;
-	thread->stack.cCalls -= 1;
-	thread->stack.frame   = previous;
+	thread->stack.top  -= top - wanted;
+	thread->stack.frame = previous;
+	thread->stack.level--;
 
 	mem_free(thread, frame);
-
-	return wanted;
 }
 
-int
-crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result) {
-	crs_Handler handler;
-	void*       returned = NULL;
-
-	call_sethandler(thread, handler);
-
-	if (!setjmp(handler.buffer)) {
-		returned = function(thread, data);
-	}
-
-	if (result != NULL) {
-		*result = returned;
-	}
-
-	thread->handler = handler.previous;
-
-	return handler.status;
-}
-
-int
+void
 crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted) {
 	startCall(
 		thread,
@@ -337,5 +337,5 @@ crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted) {
 		args
 	);
 
-	return endCall(thread, function(thread), wanted);
+	endCall(thread, function(thread), wanted);
 }

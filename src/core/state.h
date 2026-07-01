@@ -23,7 +23,6 @@
 struct
 crs_Handler {
 	crs_byte            status;
-	short               level;
 	jmp_buf             buffer;
 	struct crs_Handler* previous;
 };
@@ -42,8 +41,7 @@ crs_Thread {
 		size_t             size;
 		struct crs_Object* base;
 		struct crs_Object* top;
-		short              calls;
-		short              cCalls;
+		short              level;
 		struct crs_Frame*  frame;
 		struct crs_Frame   baseFrame;
 	}                   stack;

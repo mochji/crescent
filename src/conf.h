@@ -100,6 +100,22 @@
 #	error Crescent is not yet supported for C++.
 #endif
 
+enum {
+	CRS_OP_UNM,
+	CRS_OP_ADD,
+	CRS_OP_SUB,
+	CRS_OP_MUL,
+	CRS_OP_DIV,
+	CRS_OP_POW,
+	CRS_OP_MOD,
+	CRS_OP_NOT,
+	CRS_OP_AND,
+	CRS_OP_OR,
+	CRS_OP_XOR,
+	CRS_OP_SHL,
+	CRS_OP_SHR
+};
+
 /*
  * The lower 4 bits within a type tag encode some properties of the type, most
  * of which are for the garbage collector.

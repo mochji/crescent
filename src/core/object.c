@@ -68,8 +68,8 @@ crsO_toFloat(crs_Object* object, crs_Float* result) {
 
 	switch (object->type) {
 		case CRS_TYPE_INTEGER:
-			value   = (crs_Integer)obj_getf(object);
-			success = value == obj_getf(object);
+			value   = (crs_Float)obj_geti(object);
+			success = 1;
 
 			break;
 		case CRS_TYPE_FLOAT:

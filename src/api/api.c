@@ -473,18 +473,22 @@ crs_vformat(crs_Thread* thread, char* format, va_list args) {
  * ===========================
  */
 
-int
+void
 crs_call(crs_Thread* thread, int index, int args, int wanted) {
-	int results = crsV_call(thread, getIndex(thread, index), args, wanted);
+	crsV_call(thread, getIndex(thread, index), args, wanted);
 	crsG_check(thread);
-
-	return results;
 }
 
 int
-crs_pCall(crs_Thread* thread, int index, int args, int wanted, int* status) {
-	int results = crsV_pCall(thread, getIndex(thread, index), args, wanted, status);
-	crsG_check(thread);
+crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
+	int status = crsV_pcall(thread, getIndex(thread, index), args, wanted);
 
-	return results;
+	if (status != CRS_STATUS_OK) {
+		crs_Object* object = adjustTop(thread, 1);
+		obj_seto(object, &thread->error);
+		obj_setn(&thread->error);
+	}
+
+	crsG_check(thread);
+	return status;
 }

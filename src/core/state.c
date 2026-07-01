@@ -33,8 +33,7 @@ initThread(crs_State* state, crs_Thread* thread) {
 	thread->stack.size   = CRS_MIN_STACK;
 	thread->stack.base   = stack;
 	thread->stack.top    = stack;
-	thread->stack.calls  = 0;
-	thread->stack.cCalls = 0;
+	thread->stack.level  = 0;
 	thread->stack.frame  = frame;
 
 	frame->base     = stack;

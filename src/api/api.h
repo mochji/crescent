@@ -185,10 +185,10 @@ crs_vformat(crs_Thread* thread, char* format, va_list args);
  * ===========================
  */
 
-int
+void
 crs_call(crs_Thread* thread, int index, int args, int wanted);
 
 int
-crs_pCall(crs_Thread* thread, int index, int args, int wanted, int* status);
+crs_pcall(crs_Thread* thread, int index, int args, int wanted);
 
 #endif

@@ -156,11 +156,9 @@ mischievous(crs_Thread* thread) {
 
 void
 handling(crs_Thread* thread) {
-	int status;
-
 	crs_pushCFunction(thread, &mischievous);
 	crs_pushTable(thread);
-	crs_pCall(thread, 1, 2, 0, &status);
+	int status = crs_pcall(thread, 1, 2, 0);
 
 	printf("top: %d\n", crs_getTop(thread));
 	for (int a = 1; a <= crs_getTop(thread); a++) {

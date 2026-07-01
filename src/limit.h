@@ -33,8 +33,7 @@
 #define CRS_MIN_TOP 16
 #define CRS_MAX_TOP INT_MAX
 
-#define CRS_MAX_CALLS  4096
-#define CRS_MAX_CCALLS 200
+#define CRS_MAX_LEVEL 4096
 
 #if CRS_32INT
 typedef int      crs_s32;
