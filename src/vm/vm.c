@@ -18,19 +18,22 @@
 #include "types/table.h"
 #include "core/object.h"
 #include "core/state.h"
+#include "core/format.h"
 #include "core/call.h"
+#include "core/gc.h"
+#include "vm/opcodes.h"
 
 #include "vm/vm.h"
 
 static void __attribute__((noreturn))
 error_unary(crs_Thread* thread, crs_Object* r, char* op) {
-	crsC_errorf(thread, "attempt to perform unary '%s' on a %s",
+	crsC_errorf(thread, "attempt to perform unary '%s' on a %s value",
 		op, crsO_name(r));
 }
 
 static void __attribute__((noreturn))
 error_binary(crs_Thread* thread, crs_Object* l, crs_Object* r, char* op) {
-	crsC_errorf(thread, "attempt to perform '%s' on a %s and %s",
+	crsC_errorf(thread, "attempt to perform '%s' on %s and %s values",
 		op, crsO_name(l), crsO_name(r));
 }
 
@@ -43,7 +46,7 @@ error_int(crs_Thread* thread, crs_Object* l, crs_Object* r) {
 
 static void __attribute__((noreturn))
 error_op(crs_Thread* thread, crs_Object* o, char* op) {
-	crsC_errorf(thread, "attempt to %s a %s", op, crsO_name(o));
+	crsC_errorf(thread, "attempt to %s a %s value", op, crsO_name(o));
 }
 
 /*
@@ -261,7 +264,7 @@ arith_float(crs_Float l, crs_Float r, int op) {
 		case CRS_OP_POW:
 			return float_pow(l, r);
 		case CRS_OP_MOD:
-			return float_mod(l, r);
+			return r == 0 ? 0 : float_mod(l, r);
 	}
 
 	return 0;
@@ -365,9 +368,13 @@ pcall(crs_Thread* thread, void* data) {
 
 void
 crsV_call(crs_Thread* thread, crs_Object* object, int args, int wanted) {
-	if (object->type == CRS_TYPE_CFUNCTION) {
-		crsC_callC(thread, obj_getc(object), args, wanted);
-		return;
+	switch (object->type) {
+		case CRS_TYPE_FUNCTION:
+			crsC_call(thread, obj_getk(object), args, wanted);
+			return;
+		case CRS_TYPE_CFUNCTION:
+			crsC_callC(thread, obj_getc(object), args, wanted);
+			return;
 	}
 
 	error_op(thread, object, "call");
@@ -388,4 +395,204 @@ crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
 	}
 
 	return status;
+}
+
+/*
+ * ===========================
+ *  vm
+ * ===========================
+ */
+
+#define reg_A(i) (stack + instr_A(i))
+#define reg_B(i) (stack + instr_B(i))
+#define reg_C(i) (stack + instr_C(i))
+
+int
+crsV_execute(crs_Thread* thread, crs_Function* function) {
+	crs_Frame*  frame = thread->stack.frame;
+	crs_Object* stack = frame->base;
+	crs_instr*  pc    = function->code;
+
+	for (;;) {
+		crs_instr i = *pc++;
+
+		switch (instr_opcode(i)) {
+			case OP_MOV: {
+				crs_Object* a = reg_A(i);
+				crs_Object* b = reg_B(i);
+				obj_seto(a, b);
+
+				break;
+			}
+			case OP_LODN: {
+				crs_Object* a = reg_A(i);
+				obj_setn(a);
+
+				break;
+			}
+			case OP_LODT: {
+				crs_Object* a = reg_A(i);
+				obj_setb(a, 1);
+
+				break;
+			}
+			case OP_LODF: {
+				crs_Object* a = reg_A(i);
+				obj_setb(a, 0);
+
+				break;
+			}
+			case OP_LODI: {
+				crs_Object* a = reg_A(i);
+				crs_Integer b = instr_sBx(i);
+				obj_seti(a, b);
+
+				break;
+			}
+			case OP_LODC: {
+				crs_Object* a = reg_A(i);
+				crs_Object* b = &function->constants[instr_Bx(i)];
+				obj_seto(a, b);
+
+				break;
+			}
+			case OP_UNM: {
+				crs_Object* b = reg_B(i);
+				crsV_arith(thread, reg_A(i), b, b, CRS_OP_UNM);
+				break;
+			}
+			case OP_ADD: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_ADD);
+				break;
+			}
+			case OP_SUB: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SUB);
+				break;
+			}
+			case OP_MUL: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_MUL);
+				break;
+			}
+			case OP_DIV: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_DIV);
+				break;
+			}
+			case OP_POW: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_POW);
+				break;
+			}
+			case OP_MOD: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_MOD);
+				break;
+			}
+			case OP_NOT: {
+				crs_Object* a = reg_A(i);
+				int         v = !crsO_test(reg_B(i));
+				obj_setb(a, v);
+
+				break;
+			}
+			case OP_BNOT: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_NOT);
+				break;
+			}
+			case OP_BAND: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_AND);
+				break;
+			}
+			case OP_BOR: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_OR);
+				break;
+			}
+			case OP_BXOR: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_XOR);
+				break;
+			}
+			case OP_SHL: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SHL);
+				break;
+			}
+			case OP_SHR: {
+				crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SHR);
+				break;
+			}
+			case OP_EQ: {
+				crs_Object* a = reg_A(i);
+				int         v = crsV_equal(thread, reg_B(i), reg_C(i));
+				obj_setb(a, v);
+
+				break;
+			}
+			case OP_LT: {
+				crs_Object* a = reg_A(i);
+				int         v = crsV_less(thread, reg_B(i), reg_C(i));
+				obj_setb(a, v);
+
+				break;
+			}
+			case OP_LE: {
+				crs_Object* a = reg_A(i);
+				int         v = crsV_lessEqual(thread, reg_B(i), reg_C(i));
+				obj_setb(a, v);
+
+				break;
+			}
+			case OP_LENGTH: {
+				crs_Object* a = reg_A(i);
+				crs_Integer v = crsV_length(thread, reg_B(i));
+				obj_seti(a, v);
+
+				break;
+			}
+			case OP_CONCAT: { /* TODO */
+				break;
+			}
+			case OP_GET: {
+				crs_Object* a = reg_A(i);
+				crs_Object* v = crsV_get(thread, reg_B(i), reg_C(i));
+				obj_seto(a, v);
+
+				break;
+			}
+			case OP_SET: {
+				crsV_set(thread, reg_B(i), reg_C(i), reg_A(i));
+
+				break;
+			}
+			case OP_CALL: {
+				crs_Object* a = reg_A(i);
+				crs_byte    b = instr_B(i);
+
+				thread->stack.top = 1 + (a + b);
+				crsV_call(thread, a, b, instr_C(i));
+
+				/* stack may have been resized */
+				stack             = frame->base;
+				thread->stack.top = 1 + (stack + function->top);
+
+				break;
+			}
+			case OP_RETURN: {
+				if (!instr_A(i)) {
+					return 0;
+				}
+
+				thread->stack.top = 1 + reg_B(i);
+				return instr_A(i);
+			}
+			case OP_TEST: {
+				pc += crsO_test(reg_A(i));
+				break;
+			}
+			case OP_JMP: {
+				pc += instr_sAxx(i);
+				pc--;
+				break;
+			}
+		}
+
+		crsG_check(thread);
+	}
+
+	return 0;
 }

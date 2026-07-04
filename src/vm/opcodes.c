@@ -33,6 +33,8 @@ crs_OpMode crsV_mode[] = {
 	iABC,  /* OP_BAND    */
 	iABC,  /* OP_BOR     */
 	iABC,  /* OP_BXOR    */
+	iABC,  /* OP_SHL     */
+	iABC,  /* OP_SHR     */
 	iABC,  /* OP_EQ      */
 	iABC,  /* OP_LE      */
 	iABC,  /* OP_LT      */
@@ -68,6 +70,8 @@ const char* crsV_name[] = {
 	"BAND",
 	"BOR",
 	"BXOR",
+	"SHL",
+	"SHR",
 	"EQ",
 	"LE",
 	"LT",

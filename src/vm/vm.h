@@ -25,11 +25,11 @@ crsV_less(crs_Thread* thread, crs_Object* l, crs_Object* r);
 int
 crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r);
 
-void
-crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l, crs_Object* r, int op);
-
 crs_Integer
 crsV_length(crs_Thread* thread, crs_Object* object);
+
+void
+crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l, crs_Object* r, int op);
 
 crs_Object*
 crsV_get(crs_Thread* thread, crs_Object* object, crs_Object* key);
@@ -42,5 +42,8 @@ crsV_call(crs_Thread* thread, crs_Object* object, int args, int wanted);
 
 int
 crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted);
+
+int
+crsV_execute(crs_Thread* thread, crs_Function* function);
 
 #endif

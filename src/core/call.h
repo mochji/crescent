@@ -41,6 +41,9 @@ int
 crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result);
 
 void
+crsC_call(crs_Thread* thread, crs_Function* function, int args, int wanted);
+
+void
 crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted);
 
 #endif

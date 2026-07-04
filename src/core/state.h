@@ -104,6 +104,7 @@ crs_State {
 		struct crs_GCHeader** sweep;
 	}                  gc;
 	struct crs_String* strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
+	struct crs_Table*  globals;
 	struct crs_String* memoryError;
 	struct crs_Object  nilValue;
 	struct crs_Thread  thread;

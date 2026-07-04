@@ -24,6 +24,7 @@ crsO_name(crs_Object* object) {
 		case CRS_TYPE_CFUNCTION: return "function";
 		case CRS_TYPE_STRING:    return "string";
 		case CRS_TYPE_TABLE:     return "table";
+		case CRS_TYPE_FUNCTION:  return "function";
 		case CRS_TYPE_THREAD:    return "thread";
 	}
 
@@ -33,7 +34,7 @@ crsO_name(crs_Object* object) {
 int
 crsO_test(crs_Object* object) {
 	if (object->type == CRS_TYPE_BOOLEAN) {
-		return obj_getb(object);
+		return obj_getb(object) != 0;
 	}
 
 	return object->type != CRS_TYPE_NIL;

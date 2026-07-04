@@ -4,15 +4,15 @@
 
 STD          = c99
 OPTIMIZATION = 2
-CFLAGS       =         \
-	-Wall              \
-	-Wextra            \
-	-Wpedantic         \
-	-Werror            \
-	-Wshadow           \
-	-Wundef            \
-	-Wdouble-promotion \
-	-lm
+CFLAGS       = \
+	-Wall      \
+	-Wextra    \
+	-Wpedantic \
+	-Werror    \
+	-Wshadow   \
+	-Wundef    \
+	-Wdouble-promotion
+LDFLAGS = -lm
 
 CC       = gcc
 AR       = ar rcs
@@ -60,6 +60,7 @@ build:
 	mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/string.o $(TYPES)/string.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/table.o $(TYPES)/table.c
+	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/function.o $(TYPES)/function.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/object.o $(CORE)/object.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/memory.o $(CORE)/memory.c
 	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/gc.o $(CORE)/gc.c
@@ -72,7 +73,7 @@ build:
 	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
 	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/libcrescent.so $(OBJECTS)
 	$(AR) $(BUILD)/libcrescent.a $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
 
 run: build
 	./$(TARGET)

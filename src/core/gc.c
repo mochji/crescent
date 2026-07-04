@@ -13,6 +13,7 @@
 
 #include "types/string.h"
 #include "types/table.h"
+#include "types/function.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
@@ -62,6 +63,8 @@ freeObject(crs_State* state, crs_GCHeader* header) {
 			crsS_free(thread, obj_tostring(header)); break;
 		case CRS_TYPE_TABLE:
 			crsT_free(thread, obj_totable(header)); break;
+		case CRS_TYPE_FUNCTION:
+			crsK_free(thread, obj_tofunc(header)); break;
 		case CRS_TYPE_THREAD:
 			crsE_freeThread(obj_tothread(header)); break;
 	}
@@ -127,6 +130,15 @@ traverse_table(crs_State* state, crs_Table* table) {
 }
 
 static crs_mem
+traverse_func(crs_State* state, crs_Function* func) {
+	for (unsigned i = 0; i < func->nConstants; i++) {
+		mark_value(state, &func->constants[i]);
+	}
+
+	return 1 + func->nConstants;
+}
+
+static crs_mem
 traverse_thread(crs_State* state, crs_Thread* thread) {
 	crs_Object* object = thread->stack.base;
 
@@ -159,6 +171,8 @@ traverse(crs_State* state, int atomic) {
 	switch (header->type) {
 		case CRS_TYPE_TABLE:
 			return traverse_table(state, obj_totable(header));
+		case CRS_TYPE_FUNCTION:
+			return traverse_func(state, obj_tofunc(header));
 		case CRS_TYPE_THREAD:
 			return traverse_thread(state, obj_tothread(header));
 	}
@@ -203,9 +217,9 @@ delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
  * GC phases
  *
  * restart (atomic):
- *   Reset the sweep pointer and mark the root objects (main thread). There is
- *   no need to reset the gray and grayAgain sets as it becomes NULL once the
- *   last element is removed.
+ *   Reset the sweep pointer and mark the root objects (main thread and global
+ *   table). There is no need to reset the gray and grayAgain sets as it becomes
+ *   NULL once the last element is removed.
  *
  * mark:
  *   Traverse an object in the gray set, marking white objects it references as
@@ -227,6 +241,7 @@ static crs_mem
 step_restart(crs_State* state) {
 	/* root set */
 	mark_object(state, &state->thread);
+	mark_object(state, state->globals);
 
 	state->gc.phase = CRS_GCPHASE_MARK;
 	state->gc.sweep = &state->gc.all;

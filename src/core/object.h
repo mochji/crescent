@@ -72,9 +72,23 @@ crs_Table {
 	struct crs_TNode* table;
 };
 
-typedef struct crs_String crs_String;
-typedef struct crs_TNode  crs_TNode;
-typedef struct crs_Table  crs_Table;
+struct
+crs_Function {
+	crs_GCHeader header;
+	crs_byte     flags;
+	crs_byte     args;
+	crs_byte     top;
+	unsigned     nCode;
+	unsigned     nConstants;
+
+	crs_instr*  code;
+	crs_Object* constants;
+};
+
+typedef struct crs_String   crs_String;
+typedef struct crs_TNode    crs_TNode;
+typedef struct crs_Table    crs_Table;
+typedef struct crs_Function crs_Function;
 
 char*
 crsO_name(crs_Object* object);
@@ -97,6 +111,7 @@ crsO_toString(crs_Object* object, int* match);
 #define obj_toheader(o) ((crs_GCHeader*)o)
 #define obj_tostring(h) ((crs_String*)h)
 #define obj_totable(h)  ((crs_Table*)h)
+#define obj_tofunc(h)   ((crs_Function*)h)
 #define obj_tothread(h) ((crs_Thread*)h)
 
 /* object */
@@ -128,6 +143,7 @@ crsO_toString(crs_Object* object, int* match);
 /* gc object */
 #define obj_gets(o)     obj_tostring(obj_geth(o))
 #define obj_gett(o)     obj_totable(obj_geth(o))
+#define obj_getk(o)     obj_tofunc(obj_geth(o))
 #define obj_getx(o)     obj_tothread(obj_geth(o))
 #define obj_setgc(o, v) obj_seth((o), obj_toheader(v))
 

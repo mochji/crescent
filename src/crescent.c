@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 
 #include "api/api.h"
 
@@ -182,14 +183,26 @@ panicking(crs_Thread* thread) {
 }
 
 void
-garbage(crs_Thread* thread) {
-	int counter = 0;
+ugh(crs_Thread* thread) {
+	clock_t c = clock();
 
-	for (int a = 0; a < 900000; a++) {
+	for (int a = 0; a < 9000000; a++) {
 		crs_pushString(thread, "sdujrfiouwieruiowu4h5rt3w-9485iu8oi3e4ertui8e984oi5thuj345t0-9i34095tuj90o834uj5t9803uj459i0uj390i8o5ujt4iodjfgioujewi4otjdfg");
 		crs_pop(thread, 1);
-		printf("%d\n", counter++);
 	}
+
+	printf("%lf\n", (double)(clock() - c) / CLOCKS_PER_SEC);
+}
+
+void
+garbage(crs_Thread* thread) {
+	printf("gc enabled: ");
+	ugh(thread);
+
+	printf("gc disabled: ");
+	crs_setGC(thread, CRS_GC_STOP, 1);
+	ugh(thread);
+	crs_setGC(thread, CRS_GC_STOP, 0);
 }
 
 void
@@ -463,7 +476,7 @@ main(void) {
 		printf("c: calling\n");
 		printf("h: handling\n");
 		printf("p: panicking\n");
-		printf("o: garbage stress\n");
+		printf("o: gc speed\n");
 		printf("j: tables\n");
 		printf("g: garbage\n");
 		printf("i: interning\n");

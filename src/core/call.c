@@ -18,6 +18,7 @@
 #include "core/state.h"
 #include "core/memory.h"
 #include "core/format.h"
+#include "vm/vm.h"
 
 #include "core/call.h"
 
@@ -325,6 +326,25 @@ endCall(crs_Thread* thread, int results, int wanted) {
 	thread->stack.level--;
 
 	mem_free(thread, frame);
+}
+
+void
+crsC_call(crs_Thread* thread, crs_Function* function, int args, int wanted) {
+	startCall(
+		thread,
+		function->top,
+		args > function->args
+			? function->args
+			: args
+	);
+
+	/* fill missing args with nil */
+	for (int i = args; i < function->args; i++) {
+		obj_setn(thread->stack.top);
+		thread->stack.top++;
+	}
+
+	endCall(thread, crsV_execute(thread, function), wanted);
 }
 
 void

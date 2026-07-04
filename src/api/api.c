@@ -306,9 +306,40 @@ crs_name(crs_Thread* thread, int index) {
 	return crsO_name(getIndex(thread, index));
 }
 
+/*
+ * ===========================
+ *  operations
+ * ===========================
+ */
+
 crs_Integer
 crs_length(crs_Thread* thread, int index) {
 	return crsV_length(thread, getIndex(thread, index));
+}
+
+int
+crs_compare(crs_Thread* thread, int leftIndex, int rightIndex, int op) {
+	crs_Object* left  = getIndex(thread, leftIndex);
+	crs_Object* right = getIndex(thread, rightIndex);
+
+	switch (op) {
+		case CRS_OP_EQ:
+			return crsV_equal(thread, left, right);
+		case CRS_OP_LT:
+			return crsV_less(thread, left, right);
+		case CRS_OP_LE:
+			return crsV_lessEqual(thread, left, right);
+	}
+
+	return 0;
+}
+
+void
+crs_arith(crs_Thread* thread, int leftIndex, int rightIndex, int op) {
+	crs_Object* left  = getIndex(thread, leftIndex);
+	crs_Object* right = getIndex(thread, rightIndex);
+
+	crsV_arith(thread, adjustTop(thread, 1), left, right, op);
 }
 
 void

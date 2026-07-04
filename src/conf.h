@@ -113,7 +113,10 @@ enum {
 	CRS_OP_OR,
 	CRS_OP_XOR,
 	CRS_OP_SHL,
-	CRS_OP_SHR
+	CRS_OP_SHR,
+	CRS_OP_EQ,
+	CRS_OP_LT,
+	CRS_OP_LE
 };
 
 /*
@@ -133,13 +136,14 @@ enum {
  * b: For types without write barriers: they should be traversed atomically.
  */
 
-#define CRS_TYPE_NIL       0  /* 0000 0000 */
+#define CRS_TYPE_NIL        0 /* 0000 0000 */
 #define CRS_TYPE_BOOLEAN   16 /* 0001 0000 */
-#define CRS_TYPE_INTEGER   1  /* 0000 0001 */
+#define CRS_TYPE_INTEGER    1 /* 0000 0001 */
 #define CRS_TYPE_FLOAT     17 /* 0001 0001 */
 #define CRS_TYPE_CFUNCTION 32 /* 0010 0000 */
-#define CRS_TYPE_STRING    2  /* 0000 0010 */
-#define CRS_TYPE_TABLE     6  /* 0000 0110 */
+#define CRS_TYPE_STRING     2 /* 0000 0010 */
+#define CRS_TYPE_TABLE      6 /* 0000 0110 */
+#define CRS_TYPE_FUNCTION  22 /* 0001 0110 */
 #define CRS_TYPE_THREAD    14 /* 0000 1110 */
 
 #define CRS_STATUS_OK      0
@@ -148,16 +152,19 @@ enum {
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
 #	define CRS_INTEGER     int
+#	define CRS_UNSIGNED    unsigned
 #	define CRS_INTEGER_FMT "%d"
 #	define CRS_INTEGER_MAX INT_MAX
 #	define CRS_INTEGER_MIN INT_MIN
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LONG
 #	define CRS_INTEGER     long
+#	define CRS_UNSIGNED    unsigned long
 #	define CRS_INTEGER_FMT "%ld"
 #	define CRS_INTEGER_MAX LONG_MAX
 #	define CRS_INTEGER_MIN LONG_MIN
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LLONG
 #	define CRS_INTEGER     long long
+#	define CRS_UNSIGNED    unsigned long long
 #	define CRS_INTEGER_FMT "%lld"
 #	define CRS_INTEGER_MAX LLONG_MAX
 #	define CRS_INTEGER_MIN LLONG_MIN
@@ -176,10 +183,12 @@ enum {
 
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;
-typedef int (crs_Reader)(crs_Thread*, void*, char*, int);
+typedef int  (crs_Reader)(crs_Thread*, void*, char*, int);
+typedef void (crs_Writer)(crs_Thread*, void*, char*, int);
 
-typedef CRS_INTEGER crs_Integer;
-typedef CRS_FLOAT   crs_Float;
-typedef int        (crs_CFunction)(struct crs_Thread*);
+typedef CRS_INTEGER  crs_Integer;
+typedef CRS_UNSIGNED crs_Unsigned;
+typedef CRS_FLOAT    crs_Float;
+typedef int         (crs_CFunction)(struct crs_Thread*);
 
 #endif

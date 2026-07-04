@@ -14,6 +14,7 @@
 #include "limit.h"
 
 #include "types/string.h"
+#include "types/table.h"
 #include "core/object.h"
 #include "core/memory.h"
 #include "core/call.h"
@@ -42,6 +43,7 @@ initThread(crs_State* state, crs_Thread* thread) {
 
 	thread->handler = NULL;
 	thread->state   = state;
+	obj_setn(&thread->error);
 
 	state->gc.usage += CRS_MIN_STACK * sizeof(crs_Object);
 	crsG_add(thread, thread, CRS_TYPE_THREAD);
@@ -56,7 +58,7 @@ initState(crs_Thread* thread, void* data) {
 	state->memoryError = crsS_new(thread, "out of memory");
 	crsG_setImmune(thread);
 
-	/* will need to add more later */
+	state->globals = crsT_new(thread);
 
 	return NULL;
 }

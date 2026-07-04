@@ -51,12 +51,29 @@ typedef struct {
 } crs_Stream;
 
 void
-crsD_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data);
+crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data);
 
 char
-crsD_next(crs_Stream* stream);
+crsR_next(crs_Stream* stream);
 
 #define stream_next(s) \
-	((s)->read == (s)->length ? crsD_next(s) : (s)->buffer[(s)->read++])
+	((s)->read == (s)->length ? crsR_next(s) : (s)->buffer[(s)->read++])
+
+typedef struct {
+	crs_Thread* thread;
+	crs_Writer* writer;
+	void*       data;
+	char        buffer[CRS_BUF_STREAM];
+	int         written;
+} crs_Dump;
+
+void
+crsW_init(crs_Thread* thread, crs_Dump* dump, crs_Writer* writer, void* data);
+
+void
+crsW_flush(crs_Dump* dump);
+
+void
+crsW_write(crs_Dump* dump, char* buffer, int length);
 
 #endif

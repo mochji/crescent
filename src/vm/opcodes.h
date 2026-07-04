@@ -32,6 +32,30 @@
  * - s: Signed
  */
 
+#define instr_get(i, o, l) ((crs_u32)(bit_get((i), bit_1mask(o, l)) >> (o)))
+#define instr_set(x, o, l) (bit_get((crs_instr)(x), bit_1mask(0, l)) << (o))
+#define instr_sext(x, w) \
+	((crs_Integer)(((crs_Unsigned)(x) ^ (1 << ((w) - 1))) - (1 << ((w) - 1))))
+#define instr_sred(x, w) \
+	(((crs_Unsigned)(x) + (1 << ((w) - 1))) ^ (1 << ((w) - 1)))
+
+#define instr_opcode(i) instr_get(i, 0, 8)
+#define instr_A(i)      instr_get(i, 8, 8)
+#define instr_B(i)      instr_get(i, 16, 8)
+#define instr_C(i)      instr_get(i, 24, 8)
+#define instr_Bx(i)     instr_get(i, 16, 16)
+#define instr_sBx(i)    instr_sext(instr_get(i, 16, 16), 16)
+#define instr_Axx(i)    instr_get(i, 8, 24)
+#define instr_sAxx(i)   instr_sext(instr_get(i, 8, 24), 24)
+
+#define instr_setA(x)    instr_set(x, 8, 8)
+#define instr_setB(x)    instr_set(x, 16, 8)
+#define instr_setC(x)    instr_set(x, 24, 8)
+#define instr_setBx(x)   instr_set(x, 16, 16)
+#define instr_setsBx(x)  instr_set(instr_sred(x, 16), 16, 16)
+#define instr_setAxx(x)  instr_set(x, 8, 24)
+#define instr_setsAxx(x) instr_set(instr_sred(x, 24), 8, 24)
+
 typedef enum {
 	iABC,
 	iABx,
@@ -70,6 +94,8 @@ typedef enum {
 	OP_BAND,     /* S[A] = S[B] & S[C]       iABC              */
 	OP_BOR,      /* S[A] = S[B] | S[C]       iABC              */
 	OP_BXOR,     /* S[A] = S[B] ~ S[C]       iABC              */
+	OP_SHL,      /* S[A] = S[B] << S[C]      iABC              */
+	OP_SHR,      /* S[A] = S[B] >> S[C]      iABC              */
 
 	OP_EQ,       /* S[A] = S[B] == S[C]      iABC              */
 	OP_LT,       /* S[A] = S[B] < S[C]       iABC              */
@@ -80,8 +106,8 @@ typedef enum {
 	OP_GET,      /* S[A] = S[B][S[C]]        iABC              */
 	OP_SET,      /* S[B][S[C]] = S[A]        iABC              */
 
-	OP_CALL,     /* S[A] S[B](S[B + 1]) (#C) iABC              */
-	OP_RETURN,   /* return S[B-A+1] .. S[B]  iABC              */
+	OP_CALL,     /* S[A](S[A+1 .. A+B]) (#C) iABC              */
+	OP_RETURN,   /* return S[B-A+1..B] (#A)  iABC              */
 
 	OP_TEST,     /* if S[A] then PC++        iABC              */
 	OP_JMP       /* PC += sAxx               isAxx             */
