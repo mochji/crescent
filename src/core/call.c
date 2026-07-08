@@ -98,6 +98,28 @@ crsC_restoreStack(crs_Thread* thread, short level) {
 	}
 }
 
+int
+crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result) {
+	crs_Handler handler;
+	void*       returned = NULL;
+
+	handler.status   = CRS_STATUS_OK;
+	handler.previous = thread->handler;
+	thread->handler  = &handler;
+
+	if (!setjmp(handler.buffer)) {
+		returned = function(thread, data);
+	}
+
+	if (result != NULL) {
+		*result = returned;
+	}
+
+	thread->handler = handler.previous;
+
+	return handler.status;
+}
+
 static int
 reallocStack(crs_Thread* thread, size_t newSize, int throw) {
 	crs_Object* newStack = mem_vresize(thread,
@@ -223,28 +245,6 @@ crsC_checkFree(crs_Thread* thread, int free, int throw) {
  * previous frame's top might need to be adjusted to accommodate the returned
  * objects.
  */
-
-int
-crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result) {
-	crs_Handler handler;
-	void*       returned = NULL;
-
-	handler.status   = CRS_STATUS_OK;
-	handler.previous = thread->handler;
-	thread->handler  = &handler;
-
-	if (!setjmp(handler.buffer)) {
-		returned = function(thread, data);
-	}
-
-	if (result != NULL) {
-		*result = returned;
-	}
-
-	thread->handler = handler.previous;
-
-	return handler.status;
-}
 
 static void
 checkResults(crs_Thread* thread, int wanted) {

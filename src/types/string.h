@@ -19,6 +19,9 @@
 #include "core/state.h"
 
 crs_String*
+crsS_newo(crs_Thread* thread, size_t length);
+
+crs_String*
 crsS_newl(crs_Thread* thread, char* str, size_t length);
 
 crs_String*

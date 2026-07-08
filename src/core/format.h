@@ -16,25 +16,26 @@
 #include "conf.h"
 #include "limit.h"
 
-#define fmt_int(b, s, v)     snprintf((b), (s), "%d", (v))
-#define fmt_pointer(b, s, v) snprintf((b), (s), "%p", (v))
-#define fmt_integer(b, s, v) snprintf((b), (s), CRS_INTEGER_FMT, (v))
-#define fmt_float(b, s, v)   snprintf((b), (s), "%g", (v))
+#define fmt_int(b, s, v)      snprintf((b), (s), "%d", (v))
+#define fmt_unsigned(b, s, v) snprintf((b), (s), "%u", (v))
+#define fmt_pointer(b, s, v)  snprintf((b), (s), "%p", (v))
+#define fmt_integer(b, s, v)  snprintf((b), (s), CRS_INTEGER_FMT, (v))
+#define fmt_float(b, s, v)    snprintf((b), (s), "%g", (v))
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
-#	define fmt_tointeger(s, e) ((crs_Integer)strtol((s), (e), 0))
+#define fmt_tointeger(s, e) ((crs_Integer)strtol((s), (e), 0))
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LONG
-#	define fmt_tointeger(s, e) ((crs_Integer)strtol((s), (e), 0))
+#define fmt_tointeger(s, e) ((crs_Integer)strtol((s), (e), 0))
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LLONG
-#	define fmt_tointeger(s, e) ((crs_Integer)strtoll((s), (e), 0))
+#define fmt_tointeger(s, e) ((crs_Integer)strtoll((s), (e), 0))
 #endif
 
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
-#	define fmt_tofloat(s, e) strtof((s), (e))
+#define fmt_tofloat(s, e) strtof((s), (e))
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_DOUBLE
-#	define fmt_tofloat(s, e) strtod((s), (e))
+#define fmt_tofloat(s, e) strtod((s), (e))
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_LDOUBLE
-#	define fmt_tofloat(s, e) strtold((s), (e))
+#define fmt_tofloat(s, e) strtold((s), (e))
 #endif
 
 crs_String*

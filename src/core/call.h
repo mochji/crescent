@@ -29,6 +29,9 @@ void
 crsC_restoreStack(crs_Thread* thread, short level);
 
 int
+crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result);
+
+int
 crsC_resizeStack(crs_Thread* thread, size_t needed, int throw);
 
 int
@@ -36,9 +39,6 @@ crsC_checkTop(crs_Thread* thread, int top, int throw);
 
 int
 crsC_checkFree(crs_Thread* thread, int free, int throw);
-
-int
-crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result);
 
 void
 crsC_call(crs_Thread* thread, crs_Function* function, int args, int wanted);

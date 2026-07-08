@@ -34,8 +34,8 @@
  *
  * A key's root index is given by its hash modulo the size of the table. A node
  * with a different key may already exist at this postion. If it is a root node
- * (i.e. it it has the same root index and is located there), then the new node
- * is appended to the end of the chain, occupying a free spot somewhere in the
+ * (i.e. it has the same root index and is located there), then the new node is
+ * appended to the end of the chain, occupying a free spot somewhere in the
  * table.
  *
  * If the colliding node is not a root node (is therefore part of another chain

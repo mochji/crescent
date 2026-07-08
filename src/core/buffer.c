@@ -108,19 +108,45 @@ crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data
 	stream->read   = 0;
 }
 
-char
-crsR_next(crs_Stream* stream) {
+int
+crsR_fill(crs_Stream* stream) {
 	int read = stream->reader(stream->thread,
 		stream->data, stream->buffer, CRS_BUF_STREAM);
 
-	if (read < CRS_BUF_STREAM) {
-		stream->buffer[read++] = EOF;
+	stream->length = read;
+	stream->read   = 0;
+
+	return read;
+}
+
+size_t
+crsR_read(crs_Stream* stream, char* buffer, size_t count) {
+	size_t read = 0;
+
+	while (count) {
+		if (stream->read == stream->length && !crsR_fill(stream)) {
+			break; /* nothing more to read */
+		}
+
+		size_t left = stream->length - stream->read;
+		int    copy = count > left ? left : count;
+
+		memcpy(buffer, stream->buffer, copy);
+		count        -= copy;
+		buffer       += copy;
+		stream->read += copy;
 	}
 
-	stream->length = read;
-	stream->read   = 1;
+	return read;
+}
 
-	return stream->buffer[0];
+int
+crsR_next(crs_Stream* stream) {
+	if (stream->read == stream->length && !crsR_fill(stream)) {
+		return CRS_EOS;
+	}
+
+	return stream->buffer[stream->read++];
 }
 
 void
@@ -142,14 +168,14 @@ crsW_flush(crs_Dump* dump) {
 }
 
 void
-crsW_write(crs_Dump* dump, char* buffer, int length) {
+crsW_write(crs_Dump* dump, char* buffer, size_t length) {
 	while (length) {
 		if (dump->written == CRS_BUF_STREAM) {
 			crsW_flush(dump);
 		}
 
-		int space = CRS_BUF_STREAM - dump->written;
-		int copy  = length > space ? space : length;
+		size_t space = CRS_BUF_STREAM - dump->written;
+		int    copy  = length > space ? space : length;
 
 		memcpy(dump->buffer + dump->written, buffer, copy);
 		buffer        += copy;

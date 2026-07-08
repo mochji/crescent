@@ -135,7 +135,11 @@ traverse_func(crs_State* state, crs_Function* func) {
 		mark_value(state, &func->constants[i]);
 	}
 
-	return 1 + func->nConstants;
+	for (unsigned i = 0; i < func->nNested; i++) {
+		mark_object(state, func->nested[i]);
+	}
+
+	return 1 + func->nConstants + func->nNested;
 }
 
 static crs_mem

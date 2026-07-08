@@ -78,11 +78,13 @@ crs_Function {
 	crs_byte     flags;
 	crs_byte     args;
 	crs_byte     top;
-	unsigned     nCode;
-	unsigned     nConstants;
+	crs_u32      nCode;
+	crs_u32      nConstants;
+	crs_u32      nNested;
 
-	crs_instr*  code;
-	crs_Object* constants;
+	crs_instr*            code;
+	crs_Object*           constants;
+	struct crs_Function** nested;
 };
 
 typedef struct crs_String   crs_String;

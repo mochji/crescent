@@ -36,7 +36,6 @@ crsF_format(crs_Thread* thread, char* format, ...) {
 static void*
 createString(crs_Thread* thread, void* data) {
 	crs_Buffer* buffer = data;
-
 	return crsS_newl(thread, buffer->buffer, buffer->length);
 }
 
@@ -65,6 +64,11 @@ crsF_vformat(crs_Thread* thread, char* format, va_list args) {
 			case 'd':
 				crsB_addString(&buffer, numBuffer, fmt_int(
 					numBuffer, CRS_MAX_FMTNUM, va_arg(args, int)));
+
+				break;
+			case 'u':
+				crsB_addString(&buffer, numBuffer, fmt_unsigned(
+					numBuffer, CRS_MAX_FMTNUM, va_arg(args, unsigned)));
 
 				break;
 			case 'p':

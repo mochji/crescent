@@ -11,8 +11,8 @@
  *
  * Search '@' for all configurable definitions.
  *
- * You should change the definitions here, rather than through -D, as other
- * code connected to Crescent must (mostly) use the same configuration.
+ * All definitions should be changed through this file, as all code connected to
+ * Crescent must (mostly) use the same configuration.
  */
 
 #ifndef CRS_CONF_H
@@ -21,12 +21,12 @@
 #include <limits.h>
 
 /*
- * ============================================================================
+ * =============================================================================
  * Version and license configuration
  *
  * These definitions contain stuff such as Crescent version, license
  * information, etc. These do not need to be changed.
- * ============================================================================
+ * =============================================================================
  */
 
 #define CRS_VERSION_MAJOR 0
@@ -38,20 +38,20 @@
 #define CRS_AUTHORS "mochji"
 
 /*
- * ============================================================================
+ * =============================================================================
  * Platform configuration
  *
  * Change these definitions, if needed, to compile Crescent for a specific
  * platform.
- * ============================================================================
+ * =============================================================================
  */
 
 #define CRS_32INT (UINT_MAX >> 31)
 
 /*
- * ============================================================================
+ * =============================================================================
  * Type configuration
- * ============================================================================
+ * =============================================================================
  */
 
 #define CRS_INTEGER_INT   0
@@ -79,26 +79,22 @@
  */
 
 #if CRS_32BIT
-#	if CRS_32INT
-#		define CRS_INTEGER_TYPE CRS_INTEGER_INT
-#	else
-#		define CRS_INTEGER_TYPE CRS_INTEGER_LONG
-#	endif
-#	define CRS_FLOAT_TYPE       CRS_FLOAT_FLOAT
+#if CRS_32INT
+#define CRS_INTEGER_TYPE CRS_INTEGER_INT
 #else
-#	define CRS_INTEGER_TYPE CRS_INTEGER_LLONG
-#	define CRS_FLOAT_TYPE   CRS_FLOAT_DOUBLE
+#define CRS_INTEGER_TYPE CRS_INTEGER_LONG
+#endif
+#define CRS_FLOAT_TYPE       CRS_FLOAT_FLOAT
+#else
+#define CRS_INTEGER_TYPE CRS_INTEGER_LLONG
+#define CRS_FLOAT_TYPE   CRS_FLOAT_DOUBLE
 #endif
 
 /*
- * ============================================================================
+ * =============================================================================
  * End of configurable options
- * ============================================================================
+ * =============================================================================
  */
-
-#ifdef __cplusplus
-#	error Crescent is not yet supported for C++.
-#endif
 
 enum {
 	CRS_OP_UNM,
@@ -147,38 +143,38 @@ enum {
 #define CRS_TYPE_THREAD    14 /* 0000 1110 */
 
 #define CRS_STATUS_OK      0
-#define CRS_STATUS_ERROR   1 /* general error     */
-#define CRS_STATUS_CODEERR 2 /* compilation error */
+#define CRS_STATUS_ERROR   1
+#define CRS_STATUS_CODEERR 2
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
-#	define CRS_INTEGER     int
-#	define CRS_UNSIGNED    unsigned
-#	define CRS_INTEGER_FMT "%d"
-#	define CRS_INTEGER_MAX INT_MAX
-#	define CRS_INTEGER_MIN INT_MIN
+#define CRS_INTEGER     int
+#define CRS_UNSIGNED    unsigned
+#define CRS_INTEGER_FMT "%d"
+#define CRS_INTEGER_MAX INT_MAX
+#define CRS_INTEGER_MIN INT_MIN
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LONG
-#	define CRS_INTEGER     long
-#	define CRS_UNSIGNED    unsigned long
-#	define CRS_INTEGER_FMT "%ld"
-#	define CRS_INTEGER_MAX LONG_MAX
-#	define CRS_INTEGER_MIN LONG_MIN
+#define CRS_INTEGER     long
+#define CRS_UNSIGNED    unsigned long
+#define CRS_INTEGER_FMT "%ld"
+#define CRS_INTEGER_MAX LONG_MAX
+#define CRS_INTEGER_MIN LONG_MIN
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LLONG
-#	define CRS_INTEGER     long long
-#	define CRS_UNSIGNED    unsigned long long
-#	define CRS_INTEGER_FMT "%lld"
-#	define CRS_INTEGER_MAX LLONG_MAX
-#	define CRS_INTEGER_MIN LLONG_MIN
+#define CRS_INTEGER     long long
+#define CRS_UNSIGNED    unsigned long long
+#define CRS_INTEGER_FMT "%lld"
+#define CRS_INTEGER_MAX LLONG_MAX
+#define CRS_INTEGER_MIN LLONG_MIN
 #endif
 
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
-#	define CRS_FLOAT     float
-#	define CRS_FLOAT_FMT "%f"
+#define CRS_FLOAT     float
+#define CRS_FLOAT_FMT "%f"
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_DOUBLE
-#	define CRS_FLOAT     double
-#	define CRS_FLOAT_FMT "%lf"
+#define CRS_FLOAT     double
+#define CRS_FLOAT_FMT "%lf"
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_LDOUBLE
-#	define CRS_FLOAT     long double
-#	define CRS_FLOAT_FMT "%llf"
+#define CRS_FLOAT     long double
+#define CRS_FLOAT_FMT "%llf"
 #endif
 
 struct crs_Thread;

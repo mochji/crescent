@@ -14,11 +14,14 @@
 /* order OPCODE */
 crs_OpMode crsV_mode[] = {
 	iABC,  /* OP_MOV     */
+	iABx,  /* OP_GETG    */
+	iABx,  /* OP_SETG    */
 	iABC,  /* OP_LODN    */
 	iABC,  /* OP_LODT    */
 	iABC,  /* OP_LODF    */
 	iAsBx, /* OP_LODI    */
-	iABC,  /* OP_LODC    */
+	iABx,  /* OP_LODC    */
+	iABx,  /* OP_LODK    */
 	iABC,  /* OP_UNM     */
 	iABC,  /* OP_ADD     */
 	iABC,  /* OP_SUB     */
@@ -27,8 +30,6 @@ crs_OpMode crsV_mode[] = {
 	iABC,  /* OP_POW     */
 	iABC,  /* OP_MOD     */
 	iABC,  /* OP_NOT     */
-	iABC,  /* OP_AND     */
-	iABC,  /* OP_OR      */
 	iABC,  /* OP_BNOT    */
 	iABC,  /* OP_BAND    */
 	iABC,  /* OP_BOR     */
@@ -51,11 +52,14 @@ crs_OpMode crsV_mode[] = {
 /* order OPCODE */
 const char* crsV_name[] = {
 	"MOV",
+	"GETG",
+	"SETG",
 	"LODN",
 	"LODT",
 	"LODF",
 	"LODI",
 	"LODC",
+	"LODK",
 	"UNM",
 	"ADD",
 	"SUB",
@@ -64,8 +68,6 @@ const char* crsV_name[] = {
 	"POW",
 	"MOD",
 	"NOT",
-	"AND",
-	"OR",
 	"BNOT",
 	"BAND",
 	"BOR",

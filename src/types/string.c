@@ -35,7 +35,7 @@ hashString(char* str, size_t length) {
 }
 
 crs_String*
-crsS_newl(crs_Thread* thread, char* str, size_t length) {
+crsS_newo(crs_Thread* thread, size_t length) {
 	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
 		crsC_error(thread, "string overflow");
 	}
@@ -50,10 +50,17 @@ crsS_newl(crs_Thread* thread, char* str, size_t length) {
 	string->length = length;
 	string->hashed = 0;
 	string->hash   = 0;
-	memcpy(string->contents, str, length * sizeof(char));
 	string->contents[length] = '\0';
 
 	return crsG_add(thread, string, CRS_TYPE_STRING);
+}
+
+crs_String*
+crsS_newl(crs_Thread* thread, char* str, size_t length) {
+	crs_String* string = crsS_newo(thread, length);
+	memcpy(string->contents, str, length * sizeof(char));
+
+	return string;
 }
 
 crs_String*

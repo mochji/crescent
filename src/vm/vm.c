@@ -49,12 +49,6 @@ error_op(crs_Thread* thread, crs_Object* o, char* op) {
 	crsC_errorf(thread, "attempt to %s a %s value", op, crsO_name(o));
 }
 
-/*
- * ===========================
- *  comparisons
- * ===========================
- */
-
 static int
 num_equal(crs_Object* l, crs_Object* r) {
 	crs_Float fL, fR;
@@ -153,12 +147,6 @@ crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r) {
 
 	error_binary(thread, l, r, "<=");
 }
-
-/*
- * ===========================
- *  operations
- * ===========================
- */
 
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
 #	define float_pow(l, r) powf(l, r)
@@ -346,12 +334,6 @@ crsV_set(crs_Thread* thread, crs_Object* object, crs_Object* key, crs_Object* va
 	error_op(thread, object, "index");
 }
 
-/*
- * ===========================
- *  calling
- * ===========================
- */
-
 typedef struct {
 	crs_Object* object;
 	int         args;
@@ -397,12 +379,6 @@ crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
 	return status;
 }
 
-/*
- * ===========================
- *  vm
- * ===========================
- */
-
 #define reg_A(i) (stack + instr_A(i))
 #define reg_B(i) (stack + instr_B(i))
 #define reg_C(i) (stack + instr_C(i))
@@ -421,6 +397,21 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 				crs_Object* a = reg_A(i);
 				crs_Object* b = reg_B(i);
 				obj_seto(a, b);
+
+				break;
+			}
+			case OP_GETG: {
+				crs_Object* a = reg_A(i);
+				crs_Object* b = &function->constants[instr_Bx(i)];
+				crs_Object* v = crsT_get(thread, thread->state->globals, b);
+				obj_seto(a, v);
+
+				break;
+			}
+			case OP_SETG: {
+				crs_Object* a = reg_A(i);
+				crs_Object* b = &function->constants[instr_Bx(i)];
+				crsT_set(thread, thread->state->globals, b, a);
 
 				break;
 			}
@@ -453,6 +444,13 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 				crs_Object* a = reg_A(i);
 				crs_Object* b = &function->constants[instr_Bx(i)];
 				obj_seto(a, b);
+
+				break;
+			}
+			case OP_LODK: {
+				crs_Object*   a = reg_A(i);
+				crs_Function* b = function->nested[instr_Bx(i)];
+				obj_setgc(a, b);
 
 				break;
 			}

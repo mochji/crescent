@@ -41,6 +41,8 @@ crsB_addString(crs_Buffer* buffer, char* str, size_t length);
 void
 crsB_clear(crs_Buffer* buffer);
 
+#define CRS_EOS 0x100 /* end of stream */
+
 typedef struct {
 	crs_Thread* thread;
 	crs_Reader* reader;
@@ -53,11 +55,14 @@ typedef struct {
 void
 crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data);
 
-char
-crsR_next(crs_Stream* stream);
+int
+crsR_fill(crs_Stream* stream);
 
-#define stream_next(s) \
-	((s)->read == (s)->length ? crsR_next(s) : (s)->buffer[(s)->read++])
+size_t
+crsR_read(crs_Stream* stream, char* buffer, size_t count);
+
+int
+crsR_next(crs_Stream* stream);
 
 typedef struct {
 	crs_Thread* thread;
@@ -74,6 +79,6 @@ void
 crsW_flush(crs_Dump* dump);
 
 void
-crsW_write(crs_Dump* dump, char* buffer, int length);
+crsW_write(crs_Dump* dump, char* buffer, size_t length);
 
 #endif
