@@ -45,9 +45,9 @@ crs_String*
 crsF_vformat(crs_Thread* thread, char* format, va_list args);
 
 int
-crsF_toInteger(char* str, crs_Integer* value);
+crsF_toInteger(char* str, crs_Integer* value, size_t length);
 
 int
-crsF_toFloat(char* str, crs_Float* value);
+crsF_toFloat(char* str, crs_Float* value, size_t length);
 
 #endif

@@ -46,8 +46,8 @@
  * for this root index yet). A chain (and thus nodes with the same root index)
  * exists iff a root node is located at its root index.
  *
- * Even as the load factor approaches 100%, retrieval maintains good (only
- * probing as much as direct chaining). Inserting a key doesn't slow
+ * Even as the load factor approaches 100%, retrieval maintains good performance
+ * (only probing as much as direct chaining). Inserting a key doesn't slow
  * significantly, either, as all free nodes are linked together in a chain of
  * their own. (although, the heavy use of pointers likely results in quite a bit
  * of pointer chasing. but it shouldn't be *too* bad, as all nodes are allocated
@@ -58,6 +58,9 @@
 #define isabsent(n)    ((n)->value.type == CRS_TYPE_NIL)
 #define isroot(n)      ((n)->previous == NULL)
 #define istail(n)      ((n)->next == NULL)
+
+/* see 'crsT_find' */
+crs_TNode nilKVP = {.value = {.type = CRS_TYPE_NIL}};
 
 static int
 set(crs_Table* table, crs_Object* key, crs_Object* value);
@@ -379,7 +382,13 @@ crsT_find(crs_Table* table, crs_Object* key) {
 
 	return search(table, key, &node) == SEARCH_EXISTS
 		? node
-		: NULL;
+		: &nilKVP;
+
+	/*
+	 * 'nilKVP' is used just to report to the lexer that no string exists in the
+	 * string table. as with an actual node in the table, it should not be
+	 * assigned to--only read.
+	 */
 }
 
 crs_Object*

@@ -22,23 +22,25 @@ VALGRIND = valgrind
 # End of configurable options
 # =============================================================================
 
-SRC   = src
-BUILD = build
-TYPES = $(SRC)/types
-CORE  = $(SRC)/core
-VM    = $(SRC)/vm
-API   = $(SRC)/api
+SRC      = src
+BUILD    = build
+TYPES    = $(SRC)/types
+CORE     = $(SRC)/core
+COMPILER = $(SRC)/compiler
+VM       = $(SRC)/vm
+API      = $(SRC)/api
 
 MAIN    = $(SRC)/crescent.c
 TARGET  = $(BUILD)/crescent
 SHARED  = $(BUILD)/libcrescent.so
 ARCHIVE = $(BUILD)/libcrescent.a
 
-TYPESSRC = $(wildcard $(TYPES)/*.c)
-CORESRC  = $(wildcard $(CORE)/*.c)
-VMSRC    = $(wildcard $(VM)/*.c)
-APISRC   = $(wildcard $(API)/*.c)
-OBJECTS  = $(foreach source,$(TYPESSRC) $(CORESRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
+TYPESSRC    = $(wildcard $(TYPES)/*.c)
+CORESRC     = $(wildcard $(CORE)/*.c)
+COMPILERSRC = $(wildcard $(COMPILER)/*.c)
+VMSRC       = $(wildcard $(VM)/*.c)
+APISRC      = $(wildcard $(API)/*.c)
+OBJECTS     = $(foreach source,$(TYPESSRC) $(CORESRC) $(COMPILERSRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
 CFLAGS := $(CFLAGS) -I$(SRC)
 
@@ -55,7 +57,6 @@ ifdef DEBUG
 endif
 
 .DEFAULT_GOAL = build
-
 .PHONY: build run valgrind clean rmobj todo fixme notes echo
 
 build:
@@ -70,6 +71,7 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/format.o $(CORE)/format.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/state.o $(CORE)/state.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/call.o $(CORE)/call.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/lexer.o $(COMPILER)/lexer.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/vm.o $(VM)/vm.c
 	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c

@@ -112,7 +112,7 @@ crsF_vformat(crs_Thread* thread, char* format, va_list args) {
 }
 
 int
-crsF_toInteger(char* str, crs_Integer* value) {
+crsF_toInteger(char* str, crs_Integer* value, size_t length) {
 	char*       end;
 	crs_Integer result = fmt_tointeger(str, &end);
 
@@ -120,11 +120,11 @@ crsF_toInteger(char* str, crs_Integer* value) {
 		*value = result;
 	}
 
-	return end != str;
+	return (size_t)(end - str) == length - 1;
 }
 
 int
-crsF_toFloat(char* str, crs_Float* value) {
+crsF_toFloat(char* str, crs_Float* value, size_t length) {
 	char*     end;
 	crs_Float result = fmt_tofloat(str, &end);
 
@@ -132,5 +132,5 @@ crsF_toFloat(char* str, crs_Float* value) {
 		*value = result;
 	}
 
-	return end != str;
+	return (size_t)(end - str) == length - 1;
 }

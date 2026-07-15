@@ -46,4 +46,10 @@ crsC_call(crs_Thread* thread, crs_Function* function, int args, int wanted);
 void
 crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted);
 
+crs_Object*
+crsC_anchor(crs_Thread* thread, crs_GCHeader* header);
+
+void
+crsC_unanchor(crs_Thread* thread);
+
 #endif
