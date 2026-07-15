@@ -31,7 +31,7 @@ void
 crsS_free(crs_Thread* thread, crs_String* string);
 
 int
-crsS_equal(crs_String* stringA, crs_String* stringB);
+crsS_equal(crs_String* a, crs_String* b);
 
 unsigned
 crsS_hash(crs_String* string);

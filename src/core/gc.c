@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "conf.h"
 #include "limit.h"
@@ -136,7 +137,9 @@ traverse_func(crs_State* state, crs_Function* func) {
 	}
 
 	for (unsigned i = 0; i < func->nNested; i++) {
-		mark_object(state, func->nested[i]);
+		if (func->nested != NULL) {
+			mark_object(state, func->nested[i]);
+		}
 	}
 
 	return 1 + func->nConstants + func->nNested;
@@ -401,7 +404,6 @@ crsG_freeAll(crs_State* state) {
 	delete(state, state->gc.immune, NULL);
 }
 
-/* returning as void removes the need to cast the type */
 void*
 crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
 	crs_State* state = thread->state;

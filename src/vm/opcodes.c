@@ -22,6 +22,7 @@ crs_OpMode crsV_mode[] = {
 	iAsBx, /* OP_LODI    */
 	iABx,  /* OP_LODC    */
 	iABx,  /* OP_LODK    */
+	iABC,  /* OP_NEWT    */
 	iABC,  /* OP_UNM     */
 	iABC,  /* OP_ADD     */
 	iABC,  /* OP_SUB     */
@@ -60,6 +61,7 @@ const char* crsV_name[] = {
 	"LODI",
 	"LODC",
 	"LODK",
+	"NEWT",
 	"UNM",
 	"ADD",
 	"SUB",

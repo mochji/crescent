@@ -12,7 +12,8 @@
  * Search '@' for all configurable definitions.
  *
  * All definitions should be changed through this file, as all code connected to
- * Crescent must (mostly) use the same configuration.
+ * Crescent must (mostly) use the same configuration. The default configuration
+ * should work fine, though.
  */
 
 #ifndef CRS_CONF_H
@@ -84,10 +85,10 @@
 #else
 #define CRS_INTEGER_TYPE CRS_INTEGER_LONG
 #endif
-#define CRS_FLOAT_TYPE       CRS_FLOAT_FLOAT
+#define CRS_FLOAT_TYPE CRS_FLOAT_FLOAT
 #else
 #define CRS_INTEGER_TYPE CRS_INTEGER_LLONG
-#define CRS_FLOAT_TYPE   CRS_FLOAT_DOUBLE
+#define CRS_FLOAT_TYPE CRS_FLOAT_DOUBLE
 #endif
 
 /*
@@ -148,19 +149,16 @@ enum {
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
 #define CRS_INTEGER     int
-#define CRS_UNSIGNED    unsigned
 #define CRS_INTEGER_FMT "%d"
 #define CRS_INTEGER_MAX INT_MAX
 #define CRS_INTEGER_MIN INT_MIN
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LONG
 #define CRS_INTEGER     long
-#define CRS_UNSIGNED    unsigned long
 #define CRS_INTEGER_FMT "%ld"
 #define CRS_INTEGER_MAX LONG_MAX
 #define CRS_INTEGER_MIN LONG_MIN
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LLONG
 #define CRS_INTEGER     long long
-#define CRS_UNSIGNED    unsigned long long
 #define CRS_INTEGER_FMT "%lld"
 #define CRS_INTEGER_MAX LLONG_MAX
 #define CRS_INTEGER_MIN LLONG_MIN
@@ -182,9 +180,8 @@ typedef struct crs_Thread crs_Thread;
 typedef int  (crs_Reader)(crs_Thread*, void*, char*, int);
 typedef void (crs_Writer)(crs_Thread*, void*, char*, int);
 
-typedef CRS_INTEGER  crs_Integer;
-typedef CRS_UNSIGNED crs_Unsigned;
-typedef CRS_FLOAT    crs_Float;
-typedef int         (crs_CFunction)(struct crs_Thread*);
+typedef CRS_INTEGER crs_Integer;
+typedef CRS_FLOAT   crs_Float;
+typedef int        (crs_CFunction)(struct crs_Thread*);
 
 #endif

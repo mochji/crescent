@@ -24,10 +24,10 @@
 
 /* djb2 */
 static unsigned
-hashString(char* str, size_t length) {
+hashString(char* str) {
 	unsigned hash = 5381;
 
-	while (length--) {
+	while (*str) {
 		hash = ((hash << 5) + hash) ^ *str++;
 	}
 
@@ -36,7 +36,7 @@ hashString(char* str, size_t length) {
 
 crs_String*
 crsS_newo(crs_Thread* thread, size_t length) {
-	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
+	if (length > CRS_INTEGER_MAX || length > MAX_LENGTH) {
 		crsC_error(thread, "string overflow");
 	}
 
@@ -72,7 +72,7 @@ crsS_new(crs_Thread* thread, char* str) {
 	}
 
 	crs_State* state = thread->state;
-	unsigned   hash  = hashString(str, length);
+	unsigned   hash  = hashString(str);
 	unsigned   key   = hash % CRS_STRCACHE_SIZE;
 
 	/* search string cache */
@@ -108,22 +108,22 @@ crsS_free(crs_Thread* thread, crs_String* string) {
 }
 
 int
-crsS_equal(crs_String* stringA, crs_String* stringB) {
-	if (stringA == stringB) {
+crsS_equal(crs_String* a, crs_String* b) {
+	if (a == b) {
 		return 1;
 	}
 
-	if (stringA->length != stringB->length) {
+	if (a->length != b->length) {
 		return 0;
 	}
 
-	return strcmp(stringA->contents, stringB->contents) == 0;
+	return !strcmp(a->contents, b->contents);
 }
 
 unsigned
 crsS_hash(crs_String* string) {
 	if (!string->hashed) {
-		unsigned hash = hashString(string->contents, string->length);
+		unsigned hash = hashString(string->contents);
 
 		string->hashed = 1;
 		string->hash   = hash;

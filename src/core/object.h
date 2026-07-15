@@ -15,66 +15,53 @@
 #include "limit.h"
 
 /*
- * All collectable objects start with crs_GCHeader, which is how they are
- * referenced in the collector. To convert a header to an object (and vice
- * versa), you can just cast it. The header is always at the beginning, meaning
- * that it has an offset of zero bytes and the same pointer points to both the
- * header and type.
+ * The collector references objects via crs_GCHeader, which is located at the
+ * beginning of every collectable object.
  *
  * (see obj_to* macros after the function prototypes)
  */
-
-struct
-crs_GCHeader {
+typedef struct crs_GCHeader {
 	struct crs_GCHeader* next;
 	struct crs_GCHeader* set;
 	crs_byte             mark;
 	crs_byte             type;
-};
+} crs_GCHeader;
 
-struct
-crs_Object {
+typedef struct crs_Object {
 	union {
-		int                  b;
-		crs_Integer          i;
-		crs_Float            f;
-		crs_CFunction*       c;
-		struct crs_GCHeader* gc;
+		int            b;
+		crs_Integer    i;
+		crs_Float      f;
+		crs_CFunction* c;
+		crs_GCHeader*  gc;
 	}        value;
 	crs_byte type;
-};
+} crs_Object;
 
-typedef struct crs_GCHeader crs_GCHeader;
-typedef struct crs_Object   crs_Object;
-
-struct
-crs_String {
-	crs_GCHeader header;
+typedef struct crs_String {
+	crs_GCHeader gc;
 	crs_Integer  length;
 	crs_byte     hashed;
 	unsigned     hash;
 	char         contents[];
-};
+} crs_String;
 
-struct
-crs_TNode {
-	struct crs_Object key;
-	struct crs_Object value;
+typedef struct crs_TNode {
+	crs_Object        key;
+	crs_Object        value;
 	struct crs_TNode* next;
 	struct crs_TNode* previous;
-};
+} crs_TNode;
 
-struct
-crs_Table {
-	crs_GCHeader      header;
-	crs_byte          nodes; /* log2 size of table  */
-	struct crs_TNode* free;  /* chain of free nodes */
-	struct crs_TNode* table;
-};
+typedef struct crs_Table {
+	crs_GCHeader gc;
+	crs_byte     nodes; /* log2 size of table  */
+	crs_TNode*   free;  /* chain of free nodes */
+	crs_TNode*   table;
+} crs_Table;
 
-struct
-crs_Function {
-	crs_GCHeader header;
+typedef struct crs_Function {
+	crs_GCHeader gc;
 	crs_byte     flags;
 	crs_byte     args;
 	crs_byte     top;
@@ -85,12 +72,7 @@ crs_Function {
 	crs_instr*            code;
 	crs_Object*           constants;
 	struct crs_Function** nested;
-};
-
-typedef struct crs_String   crs_String;
-typedef struct crs_TNode    crs_TNode;
-typedef struct crs_Table    crs_Table;
-typedef struct crs_Function crs_Function;
+} crs_Function;
 
 char*
 crsO_name(crs_Object* object);

@@ -32,39 +32,59 @@
 /*
  * Hashtables utilize a mix of open addressing and chaining.
  *
- * A key's root index is given by its hash modulo the size of the table. A node
- * with a different key may already exist at this postion. If it is a root node
- * (i.e. it has the same root index and is located there), then the new node is
- * appended to the end of the chain, occupying a free spot somewhere in the
- * table.
+ * For any given key, its root index is given by its hash, modulo the size of
+ * the table. Keys with the same root index are linked together in a doubly-
+ * linked list (a "chain"). When a key is inserted into the table, it is first
+ * tried at its root index. If this position is free, then a new chain is
+ * created, with this key occupying the root node. If the root index is occupied
+ * by a root node, then (assuming it is not found in the chain itself) it is
+ * appended to the end of the chain, occupying a free spot in the table.
  *
- * If the colliding node is not a root node (is therefore part of another chain
- * whose root is located elsewhere), then it must be relocated before the new
- * node can become a root node (as no root for this index exists yet).
- * Therefore, a chain exists (and thus keys with the same root index) iff a root
- * node is located at its root index.
+ * If the colliding node is not a root node (it is therefore part of another
+ * chain whose root is located elsewhere), then it must be relocated before the
+ * new key can be set as the root node (as no root node and thus chain exists
+ * for this root index yet). A chain (and thus nodes with the same root index)
+ * exists iff a root node is located at its root index.
  *
- * Even as the load factor approaches 100%, retrieving a key maintains good
- * performance (only probing as much as direct chaining). Inserting a key
- * doesn't slow significantly, either, as all free nodes are linked together in
- * a chain of their own.
+ * Even as the load factor approaches 100%, retrieval maintains good (only
+ * probing as much as direct chaining). Inserting a key doesn't slow
+ * significantly, either, as all free nodes are linked together in a chain of
+ * their own. (although, the heavy use of pointers likely results in quite a bit
+ * of pointer chasing. but it shouldn't be *too* bad, as all nodes are allocated
+ * in one contiguous block)
  */
 
-#define rootnode(t, k) ((t)->table + (hash_key(k) & table_mask(t)))
+#define rootnode(t, h) ((t)->table + ((h) & table_mask(t)))
 #define isabsent(n)    ((n)->value.type == CRS_TYPE_NIL)
 #define isroot(n)      ((n)->previous == NULL)
+#define istail(n)      ((n)->next == NULL)
+
+static int
+set(crs_Table* table, crs_Object* key, crs_Object* value);
 
 static void
-hash_set(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_Object* value);
+setNil(crs_TNode* node, crs_TNode* stop) {
+	crs_TNode* previous = NULL;
+
+	while (node < stop) {
+		obj_setn(&node->value);
+		node->next     = node + 1;
+		node->previous = previous;
+
+		previous = node++;
+	}
+
+	previous->next = NULL;
+}
 
 static void
-hash_rehash(crs_Table* old, crs_Table* new) {
+rehash(crs_Table* old, crs_Table* new) {
 	crs_TNode* node = old->table;
 	crs_TNode* stop = node + table_nodes(old);
 
 	while (node < stop) {
 		if (!isabsent(node)) {
-			hash_set(NULL, new, &node->key, &node->value);
+			set(new, &node->key, &node->value);
 		}
 
 		node++;
@@ -72,77 +92,38 @@ hash_rehash(crs_Table* old, crs_Table* new) {
 }
 
 static void
-hash_setNil(crs_TNode* node, crs_TNode* stop) {
-	crs_TNode* previous = NULL;
-
-	while (node < stop) {
-		obj_setn(&node->value);
-		node->previous = previous;
-		node->next     = node + 1;
-
-		previous = node;
-		node++;
-	}
-
-	previous->next = NULL;
-}
-
-static void
-hash_resize(crs_Thread* thread, crs_Table* table, crs_byte nodes) {
+resize(crs_Thread* thread, crs_Table* table, crs_byte nodes) {
 	crs_Table  temp;
-	crs_TNode* vector;
-	size_t     size = 1 << nodes;
+	crs_TNode* hash;
+	size_t     size = (size_t)1 << nodes;
 
-	if (size > CRS_MAX_LENGTH || size > MAX_HSIZE) {
+	if (size > CRS_INTEGER_MAX || size > MAX_HSIZE) {
 		crsC_error(thread, "table overflow");
-	}
-
-	vector = mem_vnew(thread, size, crs_TNode);
-
-	if (vector == NULL) {
+	} else if ((hash = mem_vnew(thread, size, crs_TNode)) == NULL) {
 		crsM_error(thread);
 	}
 
 	temp.nodes = nodes;
-	temp.table = vector;
-	temp.free  = vector;
-	hash_setNil(vector, vector + size);
-	hash_rehash(table, &temp);
+	temp.free  = hash;
+	temp.table = hash;
+	setNil(hash, hash + size);
+	rehash(table, &temp);
 
 	mem_vfree(thread, table->table, table_nodes(table));
 	table->nodes = nodes;
-	table->table = vector;
-	table->free  = vector;
-}
-
-static crs_TNode*
-hash_findFree(crs_Thread* thread, crs_Table* table) {
-	crs_TNode* free = table->free;
-
-	if (free == NULL) {
-		hash_resize(thread, table, table->nodes + 1);
-
-		return NULL;
-	}
-
-	table->free = free->next;
-
-	if (free->next != NULL) {
-		free->next->previous = NULL;
-	}
-
-	return free;
+	table->free  = temp.free;
+	table->table = hash;
 }
 
 static void
-hash_removeFree(crs_Table* table, crs_TNode* node) {
-	crs_TNode* previous = node->previous;
+free_remove(crs_Table* table, crs_TNode* node) {
 	crs_TNode* next     = node->next;
+	crs_TNode* previous = node->previous;
 
 	if (previous == NULL) {
 		table->free = next;
 	} else {
-		previous->next = next;
+		node->previous->next = next;
 	}
 
 	if (next != NULL) {
@@ -150,26 +131,38 @@ hash_removeFree(crs_Table* table, crs_TNode* node) {
 	}
 }
 
+static void
+free_add(crs_Table* table, crs_TNode* node) {
+	crs_TNode* next = table->free;
+	node->next      = next;
+	node->previous  = NULL;
+	table->free     = node;
+
+	if (next != NULL) {
+		next->previous = node;
+	}
+}
+
 #define hash_bool(x)    ((unsigned)(x))
 #define hash_int(x)     ((unsigned)(x) * 2654435761)
-#define hash_float(x)   ((unsigned)(x) * 2654435761) /* FIXME */
+#define hash_float(x)   ((unsigned)(x) * 2654435761)
 #define hash_pointer(x) ((unsigned)((size_t)(x) & ULONG_MAX))
 
 static unsigned
-hash_key(crs_Object* key) {
+hash_obj(crs_Object* key) {
 	switch (key->type) {
 		case CRS_TYPE_BOOLEAN:
 			return hash_bool(obj_getb(key));
 		case CRS_TYPE_INTEGER:
 			return hash_int(obj_geti(key));
 		case CRS_TYPE_FLOAT:
-			/* i'll allow it, but i'm curious about the use case of this */
 			return hash_float(obj_getf(key));
 		case CRS_TYPE_CFUNCTION:
 			return hash_pointer(obj_getc(key));
 		case CRS_TYPE_STRING:
 			return crsS_hash(obj_gets(key));
 		case CRS_TYPE_TABLE:
+		case CRS_TYPE_FUNCTION:
 		case CRS_TYPE_THREAD:
 			return hash_pointer(obj_geth(key));
 	}
@@ -183,8 +176,8 @@ hash_key(crs_Object* key) {
 #define SEARCH_CHAIN    3 /* chain was found for index, but the key wasn't */
 
 static int
-hash_search(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_TNode** location) {
-	crs_TNode* node = rootnode(table, key);
+search(crs_Table* table, crs_Object* key, crs_TNode** location) {
+	crs_TNode* node = rootnode(table, hash_obj(key));
 	crs_TNode* next = node;
 	*location       = node;
 
@@ -193,7 +186,6 @@ hash_search(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_TNode** l
 	 * the hash index given by the key exists, and therefore, neither does the
 	 * key.
 	 */
-
 	if (isabsent(node)) {
 		return SEARCH_FREE;
 	} else if (!isroot(node)) {
@@ -204,150 +196,155 @@ hash_search(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_TNode** l
 		node = next;
 		next = node->next;
 
-		if (crsV_equal(thread, key, &node->key)) {
+		if (crsV_equal(key, &node->key)) {
 			*location = node;
 			return SEARCH_EXISTS;
 		}
-	} while (next != NULL);
+	} while (!istail(node));
 
 	*location = node;
 	return SEARCH_CHAIN;
 }
 
+static void
+promote(crs_TNode* root, crs_TNode* next) {
+	if (!istail(next)) {
+		next->next->previous = root;
+	}
+
+	obj_seto(&root->key, &next->key);
+	obj_seto(&root->value, &next->value);
+	root->next = next->next;
+}
+
+static void
+removeNode(crs_TNode* node) {
+	node->previous->next = node->next;
+
+	if (!istail(node)) {
+		node->next->previous = node->previous;
+	}
+}
+
+static void
+relocate(crs_TNode* old, crs_TNode* new) {
+	/* root nodes are never relocated */
+	old->previous->next = new;
+	*new                = *old;
+
+	if (!istail(old)) {
+		old->next->previous = new;
+	}
+}
+
 static crs_Object*
-hash_get(crs_Thread* thread, crs_Table* table, crs_Object* key) {
+get(crs_Table* table, crs_Object* key) {
 	crs_TNode* node;
 
-	return hash_search(thread, table, key, &node) == SEARCH_EXISTS
+	return search(table, key, &node) == SEARCH_EXISTS
 		? &node->value
 		: NULL;
 }
 
 static void
-hash_delete(crs_Thread* thread, crs_Table* table, crs_Object* key) {
+delete(crs_Table* table, crs_Object* key) {
 	crs_TNode* node;
 
-	if (hash_search(thread, table, key, &node) != SEARCH_EXISTS) {
-		return;
+	if (search(table, key, &node) != SEARCH_EXISTS) {
+		return; /* nothing to delete */
 	}
 
 	if (isroot(node)) {
 		crs_TNode* next = node->next;
 
 		if (next != NULL) {
-			/* promote second node to root */
-			if (next->next != NULL) {
-				next->next->previous = node;
-			}
-
-			node->key   = next->key;
-			node->value = next->value;
-			node->next  = next->next;
-			node        = next;
-		}
+			promote(node, next);
+			node = next; /* now next is to be freed */
+		} /* otherwise, no remaining nodes; chain is deleted */
 	} else {
-		node->previous->next = node->next;
-
-		if (node->next != NULL) {
-			node->next->previous = node->previous;
-		}
-	}
-
-	crs_TNode* free = table->free;
-
-	node->next     = free;
-	node->previous = NULL;
-	table->free    = node;
-
-	if (free != NULL) {
-		free->previous = node;
+		removeNode(node);
 	}
 
 	obj_setn(&node->value);
+	free_add(table, node);
 }
 
-static void
-hash_set(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_Object* value) {
+static int
+set(crs_Table* table, crs_Object* key, crs_Object* value) {
 	if (value->type == CRS_TYPE_NIL) {
-		hash_delete(thread, table, key);
-
-		return;
+		delete(table, key);
+		return 1;
 	}
 
-	crs_TNode* node;
-	crs_TNode* free;
+	/* new nodes are always tail nodes */
+	crs_TNode* node; /* to be previous node */
+	crs_TNode* free; /* to be new node      */
 
-	retry:
-
-	switch (hash_search(thread, table, key, &node)) {
+	switch (search(table, key, &node)) {
 		case SEARCH_EXISTS:
 			obj_seto(&node->value, value);
-
-			return;
+			return 1;
 		case SEARCH_CHAIN:
-			if ((free = hash_findFree(thread, table)) == NULL) {
-				goto retry;
+			if ((free = table->free) == NULL) {
+				return 0;
 			}
 
-			node->next = free;
+			free_remove(table, free);
 
+			/* tail node */
+			node->next = free;
 			break;
 		case SEARCH_OCCUPIED:
-			if ((free = hash_findFree(thread, table)) == NULL) {
-				goto retry;
+			if ((free = table->free) == NULL) {
+				return 0;
 			}
 
-			node->previous->next = free;
-			*free                = *node;
+			free_remove(table, free);
+			relocate(node, free);
 
-			if (node->next != NULL) {
-				node->next->previous = free;
-			}
-
+			/* root node */
 			free = node;
 			node = NULL;
-
 			break;
 		case SEARCH_FREE:
-			hash_removeFree(table, node);
+			free_remove(table, node);
 
+			/* root node */
 			free = node;
 			node = NULL;
-
 			break;
 	}
 
-	free->key      = *key;
-	free->next     = NULL;
-	free->previous = node;
+	obj_seto(&free->key, key);
 	obj_seto(&free->value, value);
+	free->previous = node;
+	free->next     = NULL;
+
+	return 1;
 }
 
 static crs_Object*
-hash_index(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_Object* value) {
+index(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_Object* value) {
 	switch (key->type) {
 		case CRS_TYPE_NIL:
-			crsC_error(thread, "attempt to index table with nil");
+			crsC_error(thread, "table index is nil");
 		case CRS_TYPE_FLOAT:
 			if (obj_getf(key) != obj_getf(key)) {
-				crsC_error(thread, "attempt to index table with NaN");
+				crsC_error(thread, "table index is nan");
 			}
 	}
 
 	if (value == NULL) {
-		return hash_get(thread, table, key);
+		return get(table, key);
 	} else {
-		hash_set(thread, table, key, value);
+		if (!set(table, key, value)) {
+			resize(thread, table, table->nodes + 1);
+			set(table, key, value); /* should always succeed */
+		}
 
 		return NULL;
 	}
 }
-
-/*
- * ===========================
- *  tables
- * ===========================
- */
 
 crs_Table*
 crsT_new(crs_Thread* thread) {
@@ -364,7 +361,7 @@ crsT_new(crs_Thread* thread) {
 	table->nodes = 4;
 	table->free  = hash;
 	table->table = hash;
-	hash_setNil(hash, hash + 16);
+	setNil(hash, hash + 16);
 
 	return crsG_add(thread, table, CRS_TYPE_TABLE);
 }
@@ -375,9 +372,19 @@ crsT_free(crs_Thread* thread, crs_Table* table) {
 	mem_free(thread, table);
 }
 
+/* used for lexer string table */
+crs_TNode*
+crsT_find(crs_Table* table, crs_Object* key) {
+	crs_TNode* node;
+
+	return search(table, key, &node) == SEARCH_EXISTS
+		? node
+		: NULL;
+}
+
 crs_Object*
 crsT_get(crs_Thread* thread, crs_Table* table, crs_Object* key) {
-	crs_Object* object = hash_index(thread, table, key, NULL);
+	crs_Object* object = index(thread, table, key, NULL);
 
 	return object == NULL
 		? &thread->state->nilValue
@@ -386,7 +393,7 @@ crsT_get(crs_Thread* thread, crs_Table* table, crs_Object* key) {
 
 void
 crsT_set(crs_Thread* thread, crs_Table* table, crs_Object* key, crs_Object* value) {
-	hash_index(thread, table, key, value);
+	index(thread, table, key, value);
 	crsG_barrierB(thread, table, key);
 	crsG_barrierB(thread, table, value);
 }

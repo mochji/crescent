@@ -20,42 +20,39 @@
 #define CRS_STRCACHE_SIZE    32
 #define CRS_STRCACHE_BUCKETS 4
 
-struct
-crs_Handler {
+typedef struct crs_Handler {
 	crs_byte            status;
 	jmp_buf             buffer;
 	struct crs_Handler* previous;
-};
+} crs_Handler;
 
-struct
-crs_Frame {
-	struct crs_Object* base;
-	int                top;
-	struct crs_Frame*  previous;
-};
+typedef struct crs_Frame {
+	crs_Object*       base;
+	int               top;
+	struct crs_Frame* previous;
+} crs_Frame;
 
-struct
-crs_Thread {
+struct crs_Thread {
 	crs_GCHeader header;
 	struct {
-		size_t             size;
-		struct crs_Object* base;
-		struct crs_Object* top;
-		short              level;
-		struct crs_Frame*  frame;
-		struct crs_Frame   baseFrame;
+		size_t      size;
+		crs_Object* base;
+		crs_Object* top;
+		short       level;
+		crs_Frame*  frame;
+		crs_Frame   baseFrame;
 	}                   stack;
-	struct crs_Handler* handler;
-	struct crs_Object   error;
-	struct crs_State*   state;
+	crs_Handler*      handler;
+	crs_Object        error;
+	struct crs_State* state;
 };
 
 /*
  * GC usage, next, and last
  *
  * When a block is allocated/freed, the size of it is added to/subtracted from
- * the usage. Once the usage exceeds next, the GC is triggered, and how much
- * the usage has grown between now and the last step (usage - last), determines
+ * the usage. Once the usage exceeds next, the GC is triggered, and the
+ * difference in usage between now and the last step (usage - last) determines
  * how much work will be done in this step.
  */
 
@@ -88,32 +85,27 @@ crs_Thread {
  *   back to gray by a write barrier or do not have write barriers (threads).
  */
 
-struct
-crs_State {
+typedef struct crs_State {
 	struct {
-		crs_byte              status;
-		crs_byte              phase;
-		crs_mem               usage;
-		crs_mem               next;
-		crs_mem               last;
-		unsigned short        params[3];
-		struct crs_GCHeader*  all;
-		struct crs_GCHeader*  immune;
-		struct crs_GCHeader*  gray;
-		struct crs_GCHeader*  grayAgain;
-		struct crs_GCHeader** sweep;
+		crs_byte       status;
+		crs_byte       phase;
+		crs_mem        usage;
+		crs_mem        next;
+		crs_mem        last;
+		unsigned short params[3];
+		crs_GCHeader*  all;
+		crs_GCHeader*  immune;
+		crs_GCHeader*  gray;
+		crs_GCHeader*  grayAgain;
+		crs_GCHeader** sweep;
 	}                  gc;
-	struct crs_String* strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
-	struct crs_Table*  globals;
-	struct crs_String* memoryError;
-	struct crs_Object  nilValue;
-	struct crs_Thread  thread;
-	crs_CFunction*     panic;
-};
-
-typedef struct crs_Handler crs_Handler;
-typedef struct crs_Frame   crs_Frame;
-typedef struct crs_State   crs_State;
+	crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
+	crs_Table*     globals;
+	crs_String*    memoryError;
+	crs_Object     nilValue;
+	crs_Thread     thread;
+	crs_CFunction* panic;
+} crs_State;
 
 crs_Thread*
 crsE_open(void);

@@ -8,7 +8,6 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "conf.h"
 #include "limit.h"
@@ -18,8 +17,6 @@
 #include "core/buffer.h"
 
 #include "core/format.h"
-
-#define hexdigit(c) (isdigit(c) ? c - '0' : (tolower(c) - 'a') + 10)
 
 crs_String*
 crsF_format(crs_Thread* thread, char* format, ...) {

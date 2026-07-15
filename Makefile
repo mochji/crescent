@@ -4,14 +4,14 @@
 
 STD          = c99
 OPTIMIZATION = 2
-CFLAGS       = \
-	-Wall      \
-	-Wextra    \
-	-Wpedantic \
-	-Werror    \
-	-Wshadow   \
-	-Wundef    \
-	-Wdouble-promotion
+CFLAGS       =         \
+	-Wall              \
+	-Wextra            \
+	-Wpedantic         \
+	-Wshadow           \
+	-Wundef            \
+	-Wdouble-promotion \
+	-fvisibility=hidden
 LDFLAGS = -lm
 
 CC       = gcc
@@ -29,8 +29,10 @@ CORE  = $(SRC)/core
 VM    = $(SRC)/vm
 API   = $(SRC)/api
 
-MAIN   = $(SRC)/crescent.c
-TARGET = $(BUILD)/crescent
+MAIN    = $(SRC)/crescent.c
+TARGET  = $(BUILD)/crescent
+SHARED  = $(BUILD)/libcrescent.so
+ARCHIVE = $(BUILD)/libcrescent.a
 
 TYPESSRC = $(wildcard $(TYPES)/*.c)
 CORESRC  = $(wildcard $(CORE)/*.c)
@@ -58,22 +60,22 @@ endif
 
 build:
 	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/string.o $(TYPES)/string.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/table.o $(TYPES)/table.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/function.o $(TYPES)/function.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/object.o $(CORE)/object.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/memory.o $(CORE)/memory.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/gc.o $(CORE)/gc.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/buffer.o $(CORE)/buffer.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/format.o $(CORE)/format.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/state.o $(CORE)/state.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/call.o $(CORE)/call.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
-	$(CC) $(CFLAGS) -fvisibility=hidden -c -o $(BUILD)/vm.o $(VM)/vm.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/string.o $(TYPES)/string.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/table.o $(TYPES)/table.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/function.o $(TYPES)/function.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/object.o $(CORE)/object.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/memory.o $(CORE)/memory.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/gc.o $(CORE)/gc.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/buffer.o $(CORE)/buffer.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/format.o $(CORE)/format.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/state.o $(CORE)/state.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/call.o $(CORE)/call.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/vm.o $(VM)/vm.c
 	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
-	$(CC) $(CFLAGS) -fPIC -shared -o $(BUILD)/libcrescent.so $(OBJECTS)
-	$(AR) $(BUILD)/libcrescent.a $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(OBJECTS)
+	$(CC) $(CFLAGS) -fPIC -shared -o $(SHARED) $(OBJECTS)
+	$(AR) $(ARCHIVE) $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(ARCHIVE)
 
 run: build
 	./$(TARGET)

@@ -40,7 +40,7 @@
  * the state of the thread when you throw one.
  */
 
-void
+noret
 crsC_throw(crs_Thread* thread, int status) {
 	crs_Handler* handler = thread->handler;
 	crs_State*   state   = thread->state;
@@ -65,7 +65,7 @@ crsC_throw(crs_Thread* thread, int status) {
 	abort();
 }
 
-void
+noret
 crsC_error(crs_Thread* thread, char* message) {
 	crs_String* error = crsS_new(thread, message);
 
@@ -73,7 +73,7 @@ crsC_error(crs_Thread* thread, char* message) {
 	crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
-void
+noret
 crsC_errorf(crs_Thread* thread, char* format, ...) {
 	crs_String* error;
 	va_list     args;

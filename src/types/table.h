@@ -23,6 +23,9 @@ crsT_new(crs_Thread* thread);
 void
 crsT_free(crs_Thread* thread, crs_Table* table);
 
+crs_TNode*
+crsT_find(crs_Table* table, crs_Object* key);
+
 crs_Object*
 crsT_get(crs_Thread* thread, crs_Table* table, crs_Object* key);
 

@@ -6,6 +6,7 @@
  * MIT License
  */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <limits.h>
@@ -16,15 +17,50 @@
 #include "core/object.h"
 #include "core/memory.h"
 #include "core/buffer.h"
+#include "core/gc.h"
 
 #include "types/function.h"
 
+crs_Function*
+crsK_new(crs_Thread* thread, crs_u32 nCode, crs_u32 nConstants, crs_u32 nNested) {
+	crs_Function* func = mem_new(thread, crs_Function);
+
+	if (func == NULL) {
+		crsM_error(thread);
+	}
+
+	crs_instr*     code      = mem_vnew(thread, nCode, crs_instr);
+	crs_Object*    constants = mem_vnew(thread, nConstants, crs_Object);
+	crs_Function** nested    = mem_vnew(thread, nNested, crs_Function*);
+
+	if (code == NULL || constants == NULL || nested == NULL) {
+		mem_vfree(thread, code, nCode);
+		mem_vfree(thread, constants, nConstants);
+		mem_vfree(thread, nested, nNested);
+		crsM_error(thread);
+	}
+
+	func->nCode      = nCode;
+	func->nConstants = nConstants;
+	func->nNested    = nNested;
+
+	for (crs_u32 i = 0; i < nConstants; i++) {
+		obj_setn(&constants[i]);
+	}
+
+	for (crs_u32 i = 0; i < nNested; i++) {
+		nested[i] = NULL;
+	}
+
+	return crsG_add(thread, func, CRS_TYPE_FUNCTION);
+}
+
 void
-crsK_free(crs_Thread* thread, crs_Function* function) {
-	mem_vfree(thread, function->code, function->nCode);
-	mem_vfree(thread, function->constants, function->nConstants);
-	mem_vfree(thread, function->nested, function->nNested);
-	mem_free(thread, function);
+crsK_free(crs_Thread* thread, crs_Function* func) {
+	mem_vfree(thread, func->code, func->nCode);
+	mem_vfree(thread, func->constants, func->nConstants);
+	mem_vfree(thread, func->nested, func->nNested);
+	mem_free(thread, func);
 }
 
 /*

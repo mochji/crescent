@@ -25,13 +25,13 @@
 
 #include "vm/vm.h"
 
-static void __attribute__((noreturn))
+static noret
 error_unary(crs_Thread* thread, crs_Object* r, char* op) {
 	crsC_errorf(thread, "attempt to perform unary '%s' on a %s value",
 		op, crsO_name(r));
 }
 
-static void __attribute__((noreturn))
+static noret
 error_binary(crs_Thread* thread, crs_Object* l, crs_Object* r, char* op) {
 	crsC_errorf(thread, "attempt to perform '%s' on %s and %s values",
 		op, crsO_name(l), crsO_name(r));
@@ -44,7 +44,7 @@ error_int(crs_Thread* thread, crs_Object* l, crs_Object* r) {
 	}
 }
 
-static void __attribute__((noreturn))
+static noret
 error_op(crs_Thread* thread, crs_Object* o, char* op) {
 	crsC_errorf(thread, "attempt to %s a %s value", op, crsO_name(o));
 }
@@ -77,7 +77,7 @@ num_lessEqual(crs_Object* l, crs_Object* r) {
 }
 
 int
-crsV_equal(crs_Thread* thread, crs_Object* l, crs_Object* r) {
+crsV_equal(crs_Object* l, crs_Object* r) {
 	if (l->type != r->type) {
 		if (obj_isnumber(l) && obj_isnumber(r)) {
 			return num_equal(l, r);
@@ -104,8 +104,6 @@ crsV_equal(crs_Thread* thread, crs_Object* l, crs_Object* r) {
 		case CRS_TYPE_THREAD:
 			return obj_getx(l) == obj_getx(r);
 	}
-
-	(void)thread;
 
 	return 0;
 }
@@ -454,6 +452,13 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 
 				break;
 			}
+			case OP_NEWT: {
+				crs_Object* a = reg_A(i);
+				crs_Table*  v = crsT_new(thread);
+				obj_setgc(a, v);
+
+				break;
+			}
 			case OP_UNM: {
 				crs_Object* b = reg_B(i);
 				crsV_arith(thread, reg_A(i), b, b, CRS_OP_UNM);
@@ -516,7 +521,7 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 			}
 			case OP_EQ: {
 				crs_Object* a = reg_A(i);
-				int         v = crsV_equal(thread, reg_B(i), reg_C(i));
+				int         v = crsV_equal(reg_B(i), reg_C(i));
 				obj_setb(a, v);
 
 				break;

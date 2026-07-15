@@ -15,17 +15,6 @@
 
 #include "conf.h"
 
-/*
- * Maximum theoretical size for an object--i.e. the value returned by the
- * length operator--which must fit within a size_t and crs_Integer. However,
- * the actual maximum size for an object is limited by the specifics of that
- * type.
- */
-#define CRS_MAX_LENGTH          \
-	(SIZE_MAX > CRS_INTEGER_MAX \
-		? CRS_INTEGER_MAX       \
-		: SIZE_MAX)
-
 /* global to entire stack */
 #define CRS_MIN_STACK 64
 
@@ -62,5 +51,8 @@ typedef crs_u32       crs_instr;
 #define bit_reset(x, m)     ((x) & ~(m))
 #define bit_change(x, v, m) (((x) & ~(m)) | (v))
 #define bit_1mask(o, l)     (((1 << (l)) - 1) << (o))
+
+#define noret  __attribute__((noreturn)) void
+#define export __attribute__((visibility("default")))
 
 #endif

@@ -16,13 +16,13 @@
 
 typedef void* (crs_PFunction)(crs_Thread*, void*);
 
-void __attribute__((noreturn))
+noret
 crsC_throw(crs_Thread* thread, int status);
 
-void __attribute__((noreturn))
+noret
 crsC_error(crs_Thread* thread, char* message);
 
-void __attribute__((noreturn))
+noret
 crsC_errorf(crs_Thread* thread, char* format, ...);
 
 void

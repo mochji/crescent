@@ -35,6 +35,11 @@
  * instruction. Negative values are stored simply, without two's complement.
  */
 
+#define MAX_Bx   bit_1mask(0, 16)
+#define MAX_sBx  bit_1mask(0, 15)
+#define MAX_Axx  bit_1mask(0, 24)
+#define MAX_sAxx bit_1mask(0, 23)
+
 #define instr_get(i, o, l) ((crs_u32)(bit_get((i), bit_1mask(o, l)) >> (o)))
 #define instr_set(x, o, l) (bit_get((crs_instr)(x), bit_1mask(0, l)) << (o))
 #define instr_signed(x, s) (((s) * -2 + 1) * ((crs_s32)(x)))
@@ -75,55 +80,56 @@ typedef enum {
 /*
  * G = globals
  * S = stack
- * C = constants
+ * K = constants
  * F = nested functions
  */
 
 /* order OPCODE */
 typedef enum {
-/*  enum            operation                mode        notes */
-	OP_MOV,      /* S[A] = S[B]              iABC              */
-	OP_GETG,     /* S[A] = G[C[Bx]]          iABx              */
-	OP_SETG,     /* G[C[Bx]] = S[A]          iABx              */
+/*  enum            operation                         operands */
+	OP_MOV,      /* S[A] = S[B]                       AB       */
+	OP_GETG,     /* S[A] = G[K[Bx]]                   ABx      */
+	OP_SETG,     /* G[K[Bx]] = S[A]                   ABx      */
 
-	OP_LODN,     /* S[A] = nil               iABC              */
-	OP_LODT,     /* S[A] = true              iABC              */
-	OP_LODF,     /* S[A] = false             iABC              */
-	OP_LODI,     /* S[A] = sBx               iAsBx             */
-	OP_LODC,     /* S[A] = C[Bx]             iABx              */
-	OP_LODK,     /* S[A] = F[Bx]             iABx              */
+	OP_LODN,     /* S[A] = nil                        A        */
+	OP_LODT,     /* S[A] = true                       A        */
+	OP_LODF,     /* S[A] = false                      A        */
+	OP_LODI,     /* S[A] = sBx                        AsBx     */
+	OP_LODC,     /* S[A] = K[Bx]                      ABx      */
+	OP_LODK,     /* S[A] = F[Bx]                      ABx      */
+	OP_NEWT,     /* S[A] = {}                         A        */
 
-	OP_UNM,      /* S[A] = -S[B]             iABC              */
-	OP_ADD,      /* S[A] = S[B] + S[C]       iABC              */
-	OP_SUB,      /* S[A] = S[B] - S[C]       iABC              */
-	OP_MUL,      /* S[A] = S[B] * S[C]       iABC              */
-	OP_DIV,      /* S[A] = S[B] / S[C]       iABC              */
-	OP_POW,      /* S[A] = S[B] ^ S[C]       iABC              */
-	OP_MOD,      /* S[A] = S[B] % S[C]       iABC              */
+	OP_UNM,      /* S[A] = -S[B]                      AB       */
+	OP_ADD,      /* S[A] = S[B] + S[C]                ABC      */
+	OP_SUB,      /* S[A] = S[B] - S[C]                ABC      */
+	OP_MUL,      /* S[A] = S[B] * S[C]                ABC      */
+	OP_DIV,      /* S[A] = S[B] / S[C]                ABC      */
+	OP_POW,      /* S[A] = S[B] ^ S[C]                ABC      */
+	OP_MOD,      /* S[A] = S[B] % S[C]                ABC      */
 
-	OP_NOT,      /* S[A] = !S[B]             iABC              */
+	OP_NOT,      /* S[A] = !S[B]                      AB       */
 
-	OP_BNOT,     /* S[A] = ~S[B]             iABC              */
-	OP_BAND,     /* S[A] = S[B] & S[C]       iABC              */
-	OP_BOR,      /* S[A] = S[B] | S[C]       iABC              */
-	OP_BXOR,     /* S[A] = S[B] ~ S[C]       iABC              */
-	OP_SHL,      /* S[A] = S[B] << S[C]      iABC              */
-	OP_SHR,      /* S[A] = S[B] >> S[C]      iABC              */
+	OP_BNOT,     /* S[A] = ~S[B]                      AB       */
+	OP_BAND,     /* S[A] = S[B] & S[C]                ABC      */
+	OP_BOR,      /* S[A] = S[B] | S[C]                ABC      */
+	OP_BXOR,     /* S[A] = S[B] ~ S[C]                ABC      */
+	OP_SHL,      /* S[A] = S[B] << S[C]               ABC      */
+	OP_SHR,      /* S[A] = S[B] >> S[C]               ABC      */
 
-	OP_EQ,       /* S[A] = S[B] == S[C]      iABC              */
-	OP_LT,       /* S[A] = S[B] < S[C]       iABC              */
-	OP_LE,       /* S[A] = S[B] <= S[C]      iABC              */
+	OP_EQ,       /* S[A] = S[B] == S[C]               ABC      */
+	OP_LT,       /* S[A] = S[B] < S[C]                ABC      */
+	OP_LE,       /* S[A] = S[B] <= S[C]               ABC      */
 
-	OP_LENGTH,   /* S[A] = #S[B]             iABC              */
-	OP_CONCAT,   /* S[A] = S[B] .. S[C]      iABC              */
-	OP_GET,      /* S[A] = S[B][S[C]]        iABC              */
-	OP_SET,      /* S[B][S[C]] = S[A]        iABC              */
+	OP_LENGTH,   /* S[A] = #S[B]                      AB       */
+	OP_CONCAT,   /* S[A] = S[B] .. S[C]               ABC      */
+	OP_GET,      /* S[A] = S[B][S[C]]                 ABC      */
+	OP_SET,      /* S[B][S[C]] = S[A]                 ABC      */
 
-	OP_CALL,     /* S[A](S[A+1 .. A+B]) (#C) iABC              */
-	OP_RETURN,   /* return S[B-A+1..B] (#A)  iABC              */
+	OP_CALL,     /* S[A](S[A+1 .. A+B])  (#C results) ABC      */
+	OP_RETURN,   /* return S[B-A+1 .. B] (#A results) AB       */
 
-	OP_TEST,     /* if S[A] then PC++        iABC              */
-	OP_JMP       /* PC += sAxx               isAxx             */
+	OP_TEST,     /* if S[A] then PC++ (skip next)     A        */
+	OP_JMP       /* PC += sAxx                        sAxx     */
 } crs_OpCode;
 
 extern crs_OpMode  crsV_mode[];
