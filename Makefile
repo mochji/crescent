@@ -23,6 +23,7 @@ VALGRIND = valgrind
 # ============================
 
 SRC      = src
+INCLUDE  = include
 BUILD    = build
 TYPES    = $(SRC)/types
 CORE     = $(SRC)/core
@@ -42,7 +43,7 @@ VMSRC       = $(wildcard $(VM)/*.c)
 APISRC      = $(wildcard $(API)/*.c)
 OBJECTS     = $(foreach source,$(TYPESSRC) $(CORESRC) $(COMPILERSRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
-CFLAGS := $(CFLAGS) -I$(SRC)
+CFLAGS := $(CFLAGS) -I$(SRC) -I$(INCLUDE) -I$(INCLUDE)/crescent
 
 ifdef STD
 	CFLAGS := $(CFLAGS) -std=$(STD)

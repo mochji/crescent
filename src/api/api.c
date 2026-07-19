@@ -23,7 +23,7 @@
 #include "core/gc.h"
 #include "vm/vm.h"
 
-#include "api/api.h"
+#include "api.h"
 
 static int
 panic(crs_Thread* thread) {
