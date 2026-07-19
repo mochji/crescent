@@ -1,6 +1,6 @@
 /*
  * https://github.com/mochji/crescent
- * conf.h
+ * crescent/conf.h
  *
  * Copyright (C) 2026 mochji
  * MIT License

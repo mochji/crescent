@@ -1,6 +1,6 @@
 /*
  * https://github.com/mochji/crescent
- * api/api.h
+ * crescent/api.h
  *
  * Copyright (C) 2026 mochji
  * MIT License
