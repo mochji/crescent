@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #define CRS_BUF_INITIAL 256

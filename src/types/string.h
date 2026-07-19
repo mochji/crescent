@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "core/object.h"

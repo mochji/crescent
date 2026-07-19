@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #define fmt_int(b, s, v)      snprintf((b), (s), "%d", (v))

@@ -9,7 +9,7 @@
 #ifndef CRS_COMPILER_LEXER_H
 #define CRS_COMPILER_LEXER_H
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "core/object.h"

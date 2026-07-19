@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <limits.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "types/string.h"
@@ -23,7 +23,7 @@
 #include "core/gc.h"
 #include "vm/vm.h"
 
-#include "api.h"
+#include "crescent/api.h"
 
 static int
 panic(crs_Thread* thread) {

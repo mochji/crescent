@@ -8,7 +8,8 @@
 
 #include <stdio.h>
 #include <time.h>
-#include <crescent/api.h>
+
+#include "crescent/api.h"
 
 void
 stack(crs_Thread* thread) {

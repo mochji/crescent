@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "core/object.h"
@@ -98,7 +98,7 @@ typedef struct crs_State {
 		crs_GCHeader*  gray;
 		crs_GCHeader*  grayAgain;
 		crs_GCHeader** sweep;
-	}                  gc;
+	}              gc;
 	crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
 	crs_Table*     globals;
 	crs_String*    memoryError;

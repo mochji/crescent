@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-#include <crescent/conf.h>
+#include "crescent/conf.h"
 
 int
 crs_version(void);

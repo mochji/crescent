@@ -9,7 +9,7 @@
 #ifndef CRS_CORE_GC_H
 #define CRS_CORE_GC_H
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "core/object.h"

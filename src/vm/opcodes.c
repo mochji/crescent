@@ -6,7 +6,7 @@
  * MIT License
  */
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "vm/opcodes.h"

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 #include "limit.h"
 
 #include "core/object.h"

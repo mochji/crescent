@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-#include "conf.h"
+#include "crescent/conf.h"
 
 /* global to entire stack */
 #define CRS_MIN_STACK 64
