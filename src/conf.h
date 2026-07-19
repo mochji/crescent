@@ -172,8 +172,12 @@ enum {
 #define CRS_FLOAT_FMT "%lf"
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_LDOUBLE
 #define CRS_FLOAT     long double
-#define CRS_FLOAT_FMT "%llf"
+#define CRS_FLOAT_FMT "%Lf"
 #endif
+
+/* default argument promotions */
+#define CRS_DAPF     double
+#define CRS_DAPF_FMT "%lf"
 
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;
@@ -182,6 +186,7 @@ typedef void (crs_Writer)(crs_Thread*, void*, char*, int);
 
 typedef CRS_INTEGER crs_Integer;
 typedef CRS_FLOAT   crs_Float;
+typedef CRS_DAPF    crs_DAPFloat;
 typedef int        (crs_CFunction)(struct crs_Thread*);
 
 #endif

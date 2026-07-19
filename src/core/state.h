@@ -41,7 +41,7 @@ struct crs_Thread {
 		short       level;
 		crs_Frame*  frame;
 		crs_Frame   baseFrame;
-	}                   stack;
+	}                 stack;
 	crs_Handler*      handler;
 	crs_Object        error;
 	struct crs_State* state;

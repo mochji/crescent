@@ -394,7 +394,7 @@ interning(crs_Thread* thread) {
 
 void
 format(crs_Thread* thread) {
-	printf("expected output: %c %s %d %p " CRS_INTEGER_FMT " " CRS_FLOAT_FMT " %%\n", 'a', "hello world", 80085, (void*)thread, (crs_Integer)20, -19.2);
+	printf("expected output: %c %s %d %p " CRS_INTEGER_FMT " " CRS_FLOAT_FMT " %%\n", 'a', "hello world", 80085, (void*)thread, (crs_Integer)20, (crs_Float)-19.2);
 
 	crs_format(thread, "%c %s %d %p %I %F %% %\0s %s", 'a', "hello world", 80085, thread, (crs_Integer)20, -19.2, "if you're seeing this, crsF_vformat is reading past the string when % is followed by the null terminator. have fun!\n");
 	printf("actual output:   %s\n", crs_toString(thread, -1));

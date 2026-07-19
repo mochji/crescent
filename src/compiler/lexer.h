@@ -31,8 +31,8 @@ typedef struct {
 		crs_Integer i;
 		crs_Float   f;
 		crs_String* s;
-	}        value;
-	int      type;
+	}   value;
+	int type;
 } Token;
 
 typedef struct {

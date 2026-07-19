@@ -20,12 +20,12 @@
 
 #include "compiler/lexer.h"
 
-#define c_islower(c)  ((c) >= 'a' && (c) <= 'z')
-#define c_isupper(c)  ((c) >= 'A' && (c) <= 'Z')
-#define c_isdigit(c)  ((c) >= '0' && (c) <= '9')
-#define c_isalpha(c)  (c_islower(c) || c_isupper(c) || (c) == '_')
-#define c_isalnum(c)  (c_isalpha(c) || c_isdigit(c))
-#define c_isnewl(c)   ((c) == '\n' || (c) == '\r')
+#define c_islower(c) ((c) >= 'a' && (c) <= 'z')
+#define c_isupper(c) ((c) >= 'A' && (c) <= 'Z')
+#define c_isdigit(c) ((c) >= '0' && (c) <= '9')
+#define c_isalpha(c) (c_islower(c) || c_isupper(c) || (c) == '_')
+#define c_isalnum(c) (c_isalpha(c) || c_isdigit(c))
+#define c_isnewl(c)  ((c) == '\n' || (c) == '\r')
 #define c_isxdigit(c) \
 	(c_isdigit(c) || ((c) >= 'A' && (c) <= 'F') || ((c) >= 'a' && (c) <= 'f'))
 
@@ -77,6 +77,10 @@ checkSequence(Lexer* lexer, char* str) {
 
 static void
 newline(Lexer* lexer, int previous) {
+	if (lexer->info.line == INT_MAX) {
+		crsL_error(lexer, "too many lines");
+	}
+
 	lexer->info.line++;
 
 	if (previous == '\n') {
@@ -110,6 +114,10 @@ comment(Lexer* lexer) {
 	}
 }
 
+/*
+ * add all reserved keywords to the string table. reserved keywords are
+ * identified by their integer value.
+ */
 static void
 string_reserve(Lexer* lexer) {
 	crs_Thread* thread  = lexer->thread;
@@ -136,6 +144,7 @@ string_new(Lexer* lexer) {
 	return string;
 }
 
+/* buffer -> TK_STRING */
 static crs_String*
 string_literal(Lexer* lexer) {
 	crs_Thread* thread = lexer->thread;
@@ -156,6 +165,7 @@ string_literal(Lexer* lexer) {
 	return string;
 }
 
+/* buffer -> TK_NAME or reserved keyword */
 static int
 string_token(Lexer* lexer, Token* token) {
 	crs_Thread* thread = lexer->thread;
@@ -215,17 +225,23 @@ escape(Lexer* lexer, crs_Buffer* buffer) {
 	}
 }
 
+/* 'c' is already consumed */
 static int
 read_number(Lexer* lexer, Token* token, int c) {
 	crs_Buffer* buffer   = &lexer->buffer;
 	char*       exp      = "eE";
 	int         afterExp = 0;
 
-	if (c == '0' && check(lexer, 'x')) {
-		exp = "pP";
-	}
-
 	crsB_addChar(buffer, c);
+
+	if (c == '0') {
+		c = lexer->next;
+
+		if (checkSet(lexer, "xX")) {
+			crsB_addChar(buffer, c);
+			exp = "pP";
+		}
+	}
 
 	for (;;) {
 		c = lexer->next;
@@ -237,28 +253,25 @@ read_number(Lexer* lexer, Token* token, int c) {
 
 			next(lexer);
 			crsB_addChar(buffer, c);
-			continue;
-		}
-
-		if (checkSet(lexer, exp)) {
+		} else if (checkSet(lexer, exp)) {
 			crsB_addChar(buffer, c);
+			c = lexer->next;
 
-			if (check(lexer, '-')) {
-				crsB_addChar(buffer, '-');
-			} else if (check(lexer, '+')) {
-				crsB_addChar(buffer, '+');
+			if (checkSet(lexer, "+-")) {
+				crsB_addChar(buffer, c);
 			}
 
 			afterExp = 1;
-			continue;
-		}
-
-		if (c_isxdigit(c) || c == '.') {
+		} else if (c_isxdigit(c) || c == '.') {
 			next(lexer);
 			crsB_addChar(buffer, c);
 		} else {
 			break;
 		}
+	}
+
+	if (c_isalpha(c)) {
+		crsB_addChar(buffer, c);
 	}
 
 	crsB_addChar(buffer, '\0');
@@ -274,6 +287,7 @@ read_number(Lexer* lexer, Token* token, int c) {
 	crsL_error(lexer, "malformed number '%s'", buffer->buffer);
 }
 
+/* 'c' is already consumed */
 static int
 read_name(Lexer* lexer, Token* token, int c) {
 	crs_Buffer* buffer = &lexer->buffer;
@@ -387,9 +401,12 @@ nextToken(Lexer* lexer, Token* token) {
 					do {
 						c = lexer->next;
 						next(lexer);
-					} while (!c_isnewl(c));
+					} while (!c_isnewl(c) && c != CRS_EOS);
 
-					newline(lexer, c);
+					if (c_isnewl(c)) {
+						newline(lexer, c);
+					}
+
 					break;
 				} else if (check(lexer, '*')) {
 					/* multi-line comment */
@@ -477,7 +494,8 @@ crsL_next(Lexer* lexer) {
 	if (lexer->peek.type == TK_EOF) {
 		lexer->token.type = nextToken(lexer, &lexer->token);
 	} else {
-		lexer->token = lexer->peek;
+		lexer->token     = lexer->peek;
+		lexer->peek.type = TK_EOF;
 	}
 }
 

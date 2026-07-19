@@ -36,9 +36,10 @@
  * the table. Keys with the same root index are linked together in a doubly-
  * linked list (a "chain"). When a key is inserted into the table, it is first
  * tried at its root index. If this position is free, then a new chain is
- * created, with this key occupying the root node. If the root index is occupied
- * by a root node, then (assuming it is not found in the chain itself) it is
- * appended to the end of the chain, occupying a free spot in the table.
+ * created, with this key occupying the root index. If the root index is
+ * occupied by a root node (a node located at its root index), then (assuming it
+ * is not found in the chain itself) it is appended to the end of the chain,
+ * occupying a free spot in the table.
  *
  * If the colliding node is not a root node (it is therefore part of another
  * chain whose root is located elsewhere), then it must be relocated before the
@@ -58,9 +59,6 @@
 #define isabsent(n)    ((n)->value.type == CRS_TYPE_NIL)
 #define isroot(n)      ((n)->previous == NULL)
 #define istail(n)      ((n)->next == NULL)
-
-/* see 'crsT_find' */
-crs_TNode nilKVP = {.value = {.type = CRS_TYPE_NIL}};
 
 static int
 set(crs_Table* table, crs_Object* key, crs_Object* value);
@@ -374,6 +372,8 @@ crsT_free(crs_Thread* thread, crs_Table* table) {
 	mem_vfree(thread, table->table, table_nodes(table));
 	mem_free(thread, table);
 }
+
+crs_TNode nilKVP = {.value = {.type = CRS_TYPE_NIL}};
 
 /* used for lexer string table */
 crs_TNode*

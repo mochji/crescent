@@ -1,6 +1,6 @@
-# =============================================================================
-# Crescent build configuration
-# =============================================================================
+# ============================
+#  build configuration
+# ============================
 
 STD          = c99
 OPTIMIZATION = 2
@@ -18,9 +18,9 @@ CC       = gcc
 AR       = ar rcs
 VALGRIND = valgrind
 
-# =============================================================================
-# End of configurable options
-# =============================================================================
+# ============================
+#  end of user configuration
+# ============================
 
 SRC      = src
 BUILD    = build
@@ -32,8 +32,8 @@ API      = $(SRC)/api
 
 MAIN    = $(SRC)/crescent.c
 TARGET  = $(BUILD)/crescent
-SHARED  = $(BUILD)/libcrescent.so
 ARCHIVE = $(BUILD)/libcrescent.a
+SHARED  = $(BUILD)/libcrescent.so
 
 TYPESSRC    = $(wildcard $(TYPES)/*.c)
 CORESRC     = $(wildcard $(CORE)/*.c)
@@ -74,8 +74,7 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/lexer.o $(COMPILER)/lexer.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/vm.o $(VM)/vm.c
-	$(CC) $(CFLAGS) -fPIC -c -o $(BUILD)/api.o $(API)/api.c
-	$(CC) $(CFLAGS) -fPIC -shared -o $(SHARED) $(OBJECTS)
+	$(CC) $(CFLAGS) -c -o $(BUILD)/api.o $(API)/api.c
 	$(AR) $(ARCHIVE) $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(ARCHIVE)
 
@@ -112,6 +111,7 @@ echo:
 	@echo "BUILD        = $(BUILD)"
 	@echo "TYPES        = $(TYPES)"
 	@echo "CORE         = $(CORE)"
+	@echo "COMPILER     = $(COMPILER)"
 	@echo "VM           = $(VM)"
 	@echo "API          = $(API)"
 	@echo "MAIN         = $(MAIN)"

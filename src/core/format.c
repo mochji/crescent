@@ -79,8 +79,8 @@ crsF_vformat(crs_Thread* thread, char* format, va_list args) {
 
 				break;
 			case 'F':
-				crsB_addString(&buffer, numBuffer, fmt_float(
-					numBuffer, CRS_MAX_FMTNUM, va_arg(args, crs_Float)));
+				crsB_addString(&buffer, numBuffer, fmt_dapfloat(
+					numBuffer, CRS_MAX_FMTNUM, va_arg(args, crs_DAPFloat)));
 
 				break;
 			case '%':

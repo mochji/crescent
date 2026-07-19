@@ -19,6 +19,6 @@ crs_Function*
 crsK_new(crs_Thread* thread, crs_u32 nCode, crs_u32 nConstants, crs_u32 nNested);
 
 void
-crsK_free(crs_Thread* thread, crs_Function* function);
+crsK_free(crs_Thread* thread, crs_Function* func);
 
 #endif
