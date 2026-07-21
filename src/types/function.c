@@ -341,8 +341,8 @@ load_func(crs_Stream* stream) {
 	crs_Function* func;
 
 	crs_u32 nI  = load_size(stream, sizeof(crs_instr), "instructions");
-	crs_u32 nC  = load_size(stream, sizeof(crs_instr), "constants");
-	crs_u32 nN  = load_size(stream, sizeof(crs_instr), "nested functions");
+	crs_u32 nC  = load_size(stream, sizeof(crs_Object), "constants");
+	crs_u32 nN  = load_size(stream, sizeof(crs_Function*), "nested functions");
 	func        = crsK_new(thread, nI, nC, nN);
 	func->flags = load_byte(stream);
 	func->args  = load_byte(stream);
