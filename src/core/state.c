@@ -58,7 +58,8 @@ initState(crs_Thread* thread, void* data) {
 	state->memoryError = crsS_new(thread, "out of memory");
 	crsG_setImmune(thread);
 
-	state->globals = crsT_new(thread);
+	crs_Table* globals = crsT_new(thread);
+	obj_setgc(&state->globals, globals);
 
 	return NULL;
 }

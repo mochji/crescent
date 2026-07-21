@@ -16,8 +16,8 @@
  * should work fine, though.
  */
 
-#ifndef CRS_CONF_H
-#define CRS_CONF_H
+#ifndef CRS_CRESCENT_CONF_H
+#define CRS_CRESCENT_CONF_H
 
 #include <limits.h>
 
@@ -143,25 +143,35 @@ enum {
 #define CRS_TYPE_FUNCTION  22 /* 0001 0110 */
 #define CRS_TYPE_THREAD    14 /* 0000 1110 */
 
-#define CRS_STATUS_OK      0
-#define CRS_STATUS_ERROR   1
-#define CRS_STATUS_CODEERR 2
+#define CRS_STATUS_OK      0 /* no error               */
+#define CRS_STATUS_ERROR   1 /* runtime error          */
+#define CRS_STATUS_CODEERR 2 /* load/compilation error */
+#define CRS_STATUS_MEMERR  3 /* out of memory          */
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
 #define CRS_INTEGER     int
 #define CRS_INTEGER_FMT "%d"
 #define CRS_INTEGER_MAX INT_MAX
 #define CRS_INTEGER_MIN INT_MIN
+#define CRS_UNSIGNED     unsigned
+#define CRS_UNSIGNED_FMT "%u"
+#define CRS_UNSIGNED_MAX UINT_MAX
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LONG
 #define CRS_INTEGER     long
 #define CRS_INTEGER_FMT "%ld"
 #define CRS_INTEGER_MAX LONG_MAX
 #define CRS_INTEGER_MIN LONG_MIN
+#define CRS_UNSIGNED     unsigned long
+#define CRS_UNSIGNED_FMT "%lu"
+#define CRS_UNSIGNED_MAX ULONG_MAX
 #elif CRS_INTEGER_TYPE == CRS_INTEGER_LLONG
 #define CRS_INTEGER     long long
 #define CRS_INTEGER_FMT "%lld"
 #define CRS_INTEGER_MAX LLONG_MAX
 #define CRS_INTEGER_MIN LLONG_MIN
+#define CRS_UNSIGNED     unsigned long long
+#define CRS_UNSIGNED_FMT "%llu"
+#define CRS_UNSIGNED_MAX ULLONG_MAX
 #endif
 
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
@@ -179,14 +189,19 @@ enum {
 #define CRS_DAPF     double
 #define CRS_DAPF_FMT "%lf"
 
+/* binary dump signatures */
+#define CRS_SIGNATURE "\x7F" "CRS"
+#define CRS_DUMPCHECK "\0\r\n\b\x7F\xFF\n\r"
+
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;
 typedef int  (crs_Reader)(crs_Thread*, void*, char*, int);
 typedef void (crs_Writer)(crs_Thread*, void*, char*, int);
 
-typedef CRS_INTEGER crs_Integer;
-typedef CRS_FLOAT   crs_Float;
-typedef CRS_DAPF    crs_DAPFloat;
-typedef int        (crs_CFunction)(struct crs_Thread*);
+typedef CRS_INTEGER  crs_Integer;
+typedef CRS_UNSIGNED crs_Unsigned;
+typedef CRS_FLOAT    crs_Float;
+typedef CRS_DAPF     crs_DAPFloat;
+typedef int         (crs_CFunction)(struct crs_Thread*);
 
 #endif

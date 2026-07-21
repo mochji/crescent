@@ -65,12 +65,12 @@ typedef struct crs_Function {
 	crs_byte     flags;
 	crs_byte     args;
 	crs_byte     top;
-	crs_u32      nCode;
-	crs_u32      nConstants;
-	crs_u32      nNested;
+	crs_u32      nI; /* # of instructions */
+	crs_u32      nC; /* # of constants    */
+	crs_u32      nN; /* # of nested funcs */
 
 	crs_instr*            code;
-	crs_Object*           constants;
+	crs_Object*           consts;
 	struct crs_Function** nested;
 } crs_Function;
 

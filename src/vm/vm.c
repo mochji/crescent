@@ -382,10 +382,10 @@ crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
 #define reg_C(i) (stack + instr_C(i))
 
 int
-crsV_execute(crs_Thread* thread, crs_Function* function) {
+crsV_execute(crs_Thread* thread, crs_Function* func) {
 	crs_Frame*  frame = thread->stack.frame;
 	crs_Object* stack = frame->base;
-	crs_instr*  pc    = function->code;
+	crs_instr*  pc    = func->code;
 
 	for (;;) {
 		crs_instr i = *pc++;
@@ -400,16 +400,17 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 			}
 			case OP_GETG: {
 				crs_Object* a = reg_A(i);
-				crs_Object* b = &function->constants[instr_Bx(i)];
-				crs_Object* v = crsT_get(thread, thread->state->globals, b);
+				crs_Object* b = &func->consts[instr_Bx(i)];
+				crs_Object* v = crsT_get(thread,
+					obj_gett(&thread->state->globals), b);
 				obj_seto(a, v);
 
 				break;
 			}
 			case OP_SETG: {
 				crs_Object* a = reg_A(i);
-				crs_Object* b = &function->constants[instr_Bx(i)];
-				crsT_set(thread, thread->state->globals, b, a);
+				crs_Object* b = &func->consts[instr_Bx(i)];
+				crsT_set(thread, obj_gett(&thread->state->globals), b, a);
 
 				break;
 			}
@@ -440,14 +441,14 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 			}
 			case OP_LODC: {
 				crs_Object* a = reg_A(i);
-				crs_Object* b = &function->constants[instr_Bx(i)];
+				crs_Object* b = &func->consts[instr_Bx(i)];
 				obj_seto(a, b);
 
 				break;
 			}
 			case OP_LODK: {
 				crs_Object*   a = reg_A(i);
-				crs_Function* b = function->nested[instr_Bx(i)];
+				crs_Function* b = func->nested[instr_Bx(i)];
 				obj_setgc(a, b);
 
 				break;
@@ -571,7 +572,7 @@ crsV_execute(crs_Thread* thread, crs_Function* function) {
 
 				/* stack may have been resized */
 				stack             = frame->base;
-				thread->stack.top = 1 + (stack + function->top);
+				thread->stack.top = 1 + (stack + func->top);
 
 				break;
 			}

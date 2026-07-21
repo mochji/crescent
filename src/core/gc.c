@@ -132,17 +132,17 @@ traverse_table(crs_State* state, crs_Table* table) {
 
 static crs_mem
 traverse_func(crs_State* state, crs_Function* func) {
-	for (unsigned i = 0; i < func->nConstants; i++) {
-		mark_value(state, &func->constants[i]);
+	for (unsigned i = 0; i < func->nC; i++) {
+		mark_value(state, &func->consts[i]);
 	}
 
-	for (unsigned i = 0; i < func->nNested; i++) {
+	for (unsigned i = 0; i < func->nN; i++) {
 		if (func->nested != NULL) {
 			mark_object(state, func->nested[i]);
 		}
 	}
 
-	return 1 + func->nConstants + func->nNested;
+	return (crs_mem)1 + func->nC + func->nN;
 }
 
 static crs_mem
@@ -236,8 +236,7 @@ delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
  *
  * atomic (atomic):
  *   Traverse the entire grayAgain set. By now, all reachable objects are marked
- *   as black. No sweeping has begun yet, so it is safe to inspect structures:
- *   - Dead entries are removed from the string cache.
+ *   as black. No sweeping has begun yet, so it is safe to inspect structures.
  *
  * sweep:
  *   Sweep an item in the all list; if it's dead, remove it from the list and
@@ -248,7 +247,7 @@ static crs_mem
 step_restart(crs_State* state) {
 	/* root set */
 	mark_object(state, &state->thread);
-	mark_object(state, state->globals);
+	mark_value(state, &state->globals);
 
 	state->gc.phase = CRS_GCPHASE_MARK;
 	state->gc.sweep = &state->gc.all;

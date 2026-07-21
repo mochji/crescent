@@ -100,7 +100,7 @@ typedef struct crs_State {
 		crs_GCHeader** sweep;
 	}              gc;
 	crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
-	crs_Table*     globals;
+	crs_Object     globals;
 	crs_String*    memoryError;
 	crs_Object     nilValue;
 	crs_Thread     thread;

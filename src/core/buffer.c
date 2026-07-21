@@ -131,10 +131,11 @@ crsR_read(crs_Stream* stream, char* buffer, size_t count) {
 		size_t left = stream->length - stream->read;
 		int    copy = count > left ? left : count;
 
-		memcpy(buffer, stream->buffer, copy);
+		memcpy(buffer, stream->buffer + stream->read, copy);
 		count        -= copy;
 		buffer       += copy;
 		stream->read += copy;
+		read         += copy;
 	}
 
 	return read;

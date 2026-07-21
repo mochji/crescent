@@ -6,13 +6,16 @@
  * MIT License
  */
 
-#ifndef CRS_API_API_H
-#define CRS_API_API_H
+#ifndef CRS_CRESCENT_API_H
+#define CRS_CRESCENT_API_H
 
 #include <stddef.h>
 #include <stdarg.h>
+#include <limits.h>
 
 #include "crescent/conf.h"
+
+#define CRS_GLOBALS INT_MAX
 
 int
 crs_version(void);
@@ -193,7 +196,7 @@ crs_vformat(crs_Thread* thread, char* format, va_list args);
 
 /*
  * ===========================
- *  calling
+ *  functions
  * ===========================
  */
 
@@ -202,5 +205,11 @@ crs_call(crs_Thread* thread, int index, int args, int wanted);
 
 int
 crs_pcall(crs_Thread* thread, int index, int args, int wanted);
+
+int
+crs_load(crs_Thread* thread, crs_Reader* reader, void* data);
+
+int
+crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
 
 #endif

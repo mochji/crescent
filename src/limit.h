@@ -15,12 +15,18 @@
 
 #include "crescent/conf.h"
 
+#if CRS_INTEGER_MAX > SIZE_MAX
+#define CRS_MAX_LENGTH SIZE_MAX
+#else
+#define CRS_MAX_LENGTH CRS_INTEGER_MAX
+#endif
+
 /* global to entire stack */
 #define CRS_MIN_STACK 64
 
 /* local to a stack frame */
 #define CRS_MIN_TOP 16
-#define CRS_MAX_TOP INT_MAX
+#define CRS_MAX_TOP (INT_MAX - 1)
 
 #define CRS_MAX_LEVEL 4096
 

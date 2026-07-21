@@ -26,7 +26,7 @@ crsM_error(crs_Thread* thread) {
 		obj_setgc(&thread->error, error);
 	}
 
-	crsC_throw(thread, CRS_STATUS_ERROR);
+	crsC_throw(thread, CRS_STATUS_MEMERR);
 }
 
 static void*

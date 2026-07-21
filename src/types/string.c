@@ -20,7 +20,7 @@
 
 #include "types/string.h"
 
-#define MAX_LENGTH ((SIZE_MAX - sizeof(crs_String)) / sizeof(char) - 1)
+#define MAX_LENGTH ((SIZE_MAX - sizeof(crs_String)) - 1)
 
 /* djb2 */
 static unsigned
@@ -36,12 +36,11 @@ hashString(char* str) {
 
 crs_String*
 crsS_newo(crs_Thread* thread, size_t length) {
-	if (length > CRS_INTEGER_MAX || length > MAX_LENGTH) {
+	if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
 		crsC_error(thread, "string overflow");
 	}
 
-	crs_String* string = mem_alloc(thread,
-		sizeof(crs_String) + (length + 1) * sizeof(char));
+	crs_String* string = mem_alloc(thread, sizeof(crs_String) + (length + 1));
 
 	if (string == NULL) {
 		crsM_error(thread);
@@ -58,7 +57,7 @@ crsS_newo(crs_Thread* thread, size_t length) {
 crs_String*
 crsS_newl(crs_Thread* thread, char* str, size_t length) {
 	crs_String* string = crsS_newo(thread, length);
-	memcpy(string->contents, str, length * sizeof(char));
+	memcpy(string->contents, str, length);
 
 	return string;
 }
@@ -103,8 +102,7 @@ crsS_new(crs_Thread* thread, char* str) {
 
 void
 crsS_free(crs_Thread* thread, crs_String* string) {
-	mem_dealloc(thread,
-		string, sizeof(crs_String) + (string->length + 1) * sizeof(char));
+	mem_dealloc(thread, string, sizeof(crs_String) + (string->length + 1));
 }
 
 int

@@ -360,11 +360,6 @@ crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted) {
 	endCall(thread, function(thread), wanted);
 }
 
-/*
- * the following two functions are used by the compiler to temporarily protect
- * objects from collection
- */
-
 crs_Object*
 crsC_anchor(crs_Thread* thread, crs_GCHeader* header) {
 	obj_seth(thread->stack.top, header);

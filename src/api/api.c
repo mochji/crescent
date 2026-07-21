@@ -15,7 +15,9 @@
 
 #include "types/string.h"
 #include "types/table.h"
+#include "types/function.h"
 #include "core/object.h"
+#include "core/buffer.h"
 #include "core/format.h"
 #include "core/state.h"
 #include "core/memory.h"
@@ -48,6 +50,8 @@ getIndex(crs_Thread* thread, int index) {
 
 	if (index == 0) {
 		return nil;
+	} else if (index == CRS_GLOBALS) {
+		return &thread->state->globals;
 	}
 
 	if (index < 0) {
@@ -521,5 +525,71 @@ crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
 	}
 
 	crsG_check(thread);
+	return status;
+}
+
+/*
+ * TODO: the state of these functions are temporary and for testing. when the
+ *       compiler is implemented, they will also compile code.
+ */
+
+typedef struct {
+	crs_Function* func;
+	crs_Dump*     dump;
+} DumpInfo;
+
+static void*
+try_load(crs_Thread* thread, void* data) {
+	(void)thread;
+	return crsK_load(data);
+}
+
+static void*
+try_dump(crs_Thread* thread, void* data) {
+	(void)thread;
+	DumpInfo* info = data;
+	crsK_dump(info->dump, info->func);
+	return NULL;
+}
+
+export int
+crs_load(crs_Thread* thread, crs_Reader* reader, void* data) {
+	crs_Object*   result = adjustTop(thread, 1);
+	crs_Function* func;
+	crs_Stream    stream;
+
+	crsR_init(thread, &stream, reader, data);
+	int status = crsC_try(thread, &try_load, &stream, (void**)&func);
+
+	if (status == CRS_STATUS_OK) {
+		obj_setgc(result, func);
+	} else {
+		obj_seto(result, &thread->error);
+		obj_setn(&thread->error);
+		/* objects may not have been unanchored */
+		thread->stack.top = result + 1;
+	}
+
+	crsG_check(thread);
+	return status;
+}
+
+export int
+crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data) {
+	crs_Object* object = getIndex(thread, index);
+	crs_Dump    dump;
+	DumpInfo    info;
+
+	crsW_init(thread, &dump, writer, data);
+	info.dump  = &dump;
+	info.func  = obj_getk(object);
+	int status = crsC_try(thread, &try_dump, &info, NULL);
+
+	if (status != CRS_STATUS_OK) {
+		crs_Object* result = adjustTop(thread, 1);
+		obj_seto(result, &thread->error);
+		obj_setn(&thread->error);
+	}
+
 	return status;
 }

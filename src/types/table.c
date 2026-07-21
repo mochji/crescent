@@ -98,7 +98,7 @@ resize(crs_Thread* thread, crs_Table* table, crs_byte nodes) {
 	crs_TNode* hash;
 	size_t     size = (size_t)1 << nodes;
 
-	if (size > CRS_INTEGER_MAX || size > MAX_HSIZE) {
+	if (size > CRS_MAX_LENGTH || size > MAX_HSIZE) {
 		crsC_error(thread, "table overflow");
 	} else if ((hash = mem_vnew(thread, size, crs_TNode)) == NULL) {
 		crsM_error(thread);
