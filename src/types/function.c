@@ -26,7 +26,7 @@
 #include "types/function.h"
 
 static void*
-tryBlock(crs_Thread* thread, crs_Function* func, crs_u32 count, size_t size) {
+tryBlock(crs_Thread* thread, crs_Function* func, unsigned count, size_t size) {
 	void* block;
 
 	if (!count) {
@@ -40,7 +40,7 @@ tryBlock(crs_Thread* thread, crs_Function* func, crs_u32 count, size_t size) {
 }
 
 crs_Function*
-crsK_new(crs_Thread* thread, crs_u32 nI, crs_u32 nC, crs_u32 nN) {
+crsK_new(crs_Thread* thread, unsigned nI, unsigned nC, unsigned nN) {
 	crs_Function* func = mem_new(thread, crs_Function);
 
 	if (func == NULL) {
@@ -58,11 +58,11 @@ crsK_new(crs_Thread* thread, crs_u32 nI, crs_u32 nC, crs_u32 nN) {
 	func->consts = tryBlock(thread, func, nC, sizeof(crs_Object));
 	func->nested = tryBlock(thread, func, nN, sizeof(crs_Function*));
 
-	for (crs_u32 i = 0; i < nC; i++) {
+	for (unsigned i = 0; i < nC; i++) {
 		obj_setn(&func->consts[i]);
 	}
 
-	for (crs_u32 i = 0; i < nN; i++) {
+	for (unsigned i = 0; i < nN; i++) {
 		func->nested[i] = NULL;
 	}
 
@@ -89,18 +89,19 @@ crsK_free(crs_Thread* thread, crs_Function* func) {
  *   char[8] | decoding check
  *   byte    | crescent version
  *   byte    | endianness (0 = big endian; 1 = little endian)
- *   byte    | sizeof(crs_u32)
+ *   byte    | sizeof(unsigned)
+ *   byte    | sizeof(crs_instr)
  *   byte    | sizeof(crs_Integer)
  *   byte    | sizeof(crs_Float)
  * }
  *
  * function {
- *   u32  | # of instructions
- *   u32  | # of constants
- *   u32  | # of nested functions
- *   byte | flags
- *   byte | args
- *   byte | top
+ *   unsigned | # of instructions
+ *   unsigned | # of constants
+ *   unsigned | # of nested functions
+ *   byte     | flags
+ *   byte     | args
+ *   byte     | top
  *
  *   crs_instr[# of instructions]
  *   constant[# of constants]
@@ -144,7 +145,8 @@ dump_header(crs_Dump* dump) {
 	crsW_write(dump, CRS_DUMPCHECK, 8);
 	dump_value(dump, CRS_VERSION, crs_byte);
 	dump_value(dump, endianness(), crs_byte);
-	dump_value(dump, sizeof(crs_u32), crs_byte);
+	dump_value(dump, sizeof(unsigned), crs_byte);
+	dump_value(dump, sizeof(crs_instr), crs_byte);
 	dump_value(dump, sizeof(crs_Integer), crs_byte);
 	dump_value(dump, sizeof(crs_Float), crs_byte);
 }
@@ -172,19 +174,19 @@ dump_const(crs_Dump* dump, crs_Object* object) {
 
 static void
 dump_func(crs_Dump* dump, crs_Function* func) {
-	dump_value(dump, func->nI, crs_u32);
-	dump_value(dump, func->nC, crs_u32);
-	dump_value(dump, func->nN, crs_u32);
+	dump_value(dump, func->nI, unsigned);
+	dump_value(dump, func->nC, unsigned);
+	dump_value(dump, func->nN, unsigned);
 	dump_value(dump, func->flags, crs_byte);
 	dump_value(dump, func->args, crs_byte);
 	dump_value(dump, func->top, crs_byte);
 	crsW_write(dump, (char*)func->code, func->nI * sizeof(crs_instr));
 
-	for (crs_u32 i = 0; i < func->nC; i++) {
+	for (unsigned i = 0; i < func->nC; i++) {
 		dump_const(dump, &func->consts[i]);
 	}
 
-	for (crs_u32 i = 0; i < func->nN; i++) {
+	for (unsigned i = 0; i < func->nN; i++) {
 		dump_func(dump, func->nested[i]);
 	}
 }
@@ -231,10 +233,10 @@ load_byte(crs_Stream* stream) {
 	return value;
 }
 
-static crs_u32
-load_u32(crs_Stream* stream) {
-	crs_u32 value;
-	load_block(stream, (char*)&value, sizeof(crs_u32));
+static unsigned
+load_unsigned(crs_Stream* stream) {
+	unsigned value;
+	load_block(stream, (char*)&value, sizeof(unsigned));
 
 	return value;
 }
@@ -275,9 +277,9 @@ load_checkString(crs_Stream* stream, char* str, int length, char* error) {
 	}
 }
 
-static crs_u32
+static unsigned
 load_size(crs_Stream* stream, size_t size, char* what) {
-	crs_u32 count = load_u32(stream);
+	unsigned count = load_unsigned(stream);
 
 	if (count > SIZE_MAX / size) {
 		load_error(stream, "too many %s", what);
@@ -305,7 +307,8 @@ load_checkHeader(crs_Stream* stream) {
 	load_checkString(stream, CRS_DUMPCHECK, 8, "corrupted dump");
 	load_checkByte(stream, CRS_VERSION, "version");
 	load_checkByte(stream, endianness(), "endianness");
-	load_checkByte(stream, sizeof(crs_u32), "u32 size");
+	load_checkByte(stream, sizeof(unsigned), "unsigned size");
+	load_checkByte(stream, sizeof(crs_instr), "instruction size");
 	load_checkByte(stream, sizeof(crs_Integer), "integer size");
 	load_checkByte(stream, sizeof(crs_Float), "float size");
 }
@@ -340,24 +343,24 @@ load_func(crs_Stream* stream) {
 	crs_Thread*   thread = stream->thread;
 	crs_Function* func;
 
-	crs_u32 nI  = load_size(stream, sizeof(crs_instr), "instructions");
-	crs_u32 nC  = load_size(stream, sizeof(crs_Object), "constants");
-	crs_u32 nN  = load_size(stream, sizeof(crs_Function*), "nested functions");
-	func        = crsK_new(thread, nI, nC, nN);
-	func->flags = load_byte(stream);
-	func->args  = load_byte(stream);
-	func->top   = load_byte(stream);
+	unsigned nI  = load_size(stream, sizeof(crs_instr), "instructions");
+	unsigned nC  = load_size(stream, sizeof(crs_Object), "constants");
+	unsigned nN  = load_size(stream, sizeof(crs_Function*), "nested functions");
+	func         = crsK_new(thread, nI, nC, nN);
+	func->flags  = load_byte(stream);
+	func->args   = load_byte(stream);
+	func->top    = load_byte(stream);
 
 	crsC_checkFree(thread, 1, 1);
 	crsC_anchor(thread, obj_toheader(func));
 
 	crsR_read(stream, (char*)func->code, nI * sizeof(crs_instr));
 
-	for (crs_u32 i = 0; i < nC; i++) {
+	for (unsigned i = 0; i < nC; i++) {
 		load_const(stream, &func->consts[i]);
 	}
 
-	for (crs_u32 i = 0; i < nN; i++) {
+	for (unsigned i = 0; i < nN; i++) {
 		func->nested[i] = load_func(stream);
 	}
 

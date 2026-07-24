@@ -16,7 +16,7 @@
 #include "core/buffer.h"
 
 crs_Function*
-crsK_new(crs_Thread* thread, crs_u32 nI, crs_u32 nC, crs_u32 nN);
+crsK_new(crs_Thread* thread, unsigned nI, unsigned nC, unsigned nN);
 
 void
 crsK_free(crs_Thread* thread, crs_Function* func);

@@ -276,10 +276,10 @@ read_number(Lexer* lexer, Token* token, int c) {
 
 	crsB_addChar(buffer, '\0');
 
-	if (crsF_toInteger(buffer->buffer, &token->value.i, buffer->length)) {
+	if (crsF_toInteger(buffer->buffer, &token->value.i)) {
 		crsB_clear(buffer);
 		return TK_INT;
-	} else if (crsF_toFloat(buffer->buffer, &token->value.f, buffer->length)) {
+	} else if (crsF_toFloat(buffer->buffer, &token->value.f)) {
 		crsB_clear(buffer);
 		return TK_FLOAT;
 	}

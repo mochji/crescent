@@ -21,7 +21,7 @@
 #define fmt_pointer(b, s, v)  snprintf((b), (s), "%p", (v))
 #define fmt_integer(b, s, v)  snprintf((b), (s), CRS_INTEGER_FMT, (v))
 #define fmt_float(b, s, v)    snprintf((b), (s), CRS_FLOAT_FMT, (v))
-#define fmt_dapfloat(b, s, v) snprintf((b), (s), CRS_DAPF_FMT, (v))
+#define fmt_dapfloat(b, s, v) snprintf((b), (s), CRS_DAPFLOAT_FMT, (v))
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
 #define fmt_tointeger(s, e) ((crs_Integer)strtol((s), (e), 0))
@@ -46,9 +46,9 @@ crs_String*
 crsF_vformat(crs_Thread* thread, char* format, va_list args);
 
 int
-crsF_toInteger(char* str, crs_Integer* value, size_t length);
+crsF_toInteger(char* str, crs_Integer* value);
 
 int
-crsF_toFloat(char* str, crs_Float* value, size_t length);
+crsF_toFloat(char* str, crs_Float* value);
 
 #endif

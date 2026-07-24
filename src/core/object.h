@@ -65,9 +65,9 @@ typedef struct crs_Function {
 	crs_byte     flags;
 	crs_byte     args;
 	crs_byte     top;
-	crs_u32      nI; /* # of instructions */
-	crs_u32      nC; /* # of constants    */
-	crs_u32      nN; /* # of nested funcs */
+	unsigned     nI; /* # of instructions */
+	unsigned     nC; /* # of constants    */
+	unsigned     nN; /* # of nested funcs */
 
 	crs_instr*            code;
 	crs_Object*           consts;

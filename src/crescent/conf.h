@@ -75,8 +75,10 @@
 /*
  * @ CRS_INTEGER_TYPE
  * @ CRS_FLOAT_TYPE
+ * @ CRS_DAPFLOAT_TYPE
  *
- * Type of Crescent integers and floats.
+ * Type of Crescent integers and floats. CRS_DAPFLOAT_TYPE specifies the default
+ * argument promotion for floats.
  */
 
 #if CRS_32BIT
@@ -90,6 +92,8 @@
 #define CRS_INTEGER_TYPE CRS_INTEGER_LLONG
 #define CRS_FLOAT_TYPE CRS_FLOAT_DOUBLE
 #endif
+
+#define CRS_DAPFLOAT_TYPE CRS_FLOAT_DOUBLE
 
 /*
  * =============================================================================
@@ -185,9 +189,16 @@ enum {
 #define CRS_FLOAT_FMT "%Lf"
 #endif
 
-/* default argument promotions */
-#define CRS_DAPF     double
-#define CRS_DAPF_FMT "%lf"
+#if CRS_DAPFLOAT_TYPE == CRS_FLOAT_FLOAT
+#define CRS_DAPFLOAT     float
+#define CRS_DAPFLOAT_FMT "%f"
+#elif CRS_DAPFLOAT_TYPE == CRS_FLOAT_DOUBLE
+#define CRS_DAPFLOAT     double
+#define CRS_DAPFLOAT_FMT "%lf"
+#elif CRS_DAPFLOAT_TYPE == CRS_FLOAT_LDOUBLE
+#define CRS_DAPFLOAT     long double
+#define CRS_DAPFLOAT_FMT "%Lf"
+#endif
 
 /* binary dump signatures */
 #define CRS_SIGNATURE "\x7F" "CRS"
@@ -201,7 +212,7 @@ typedef void (crs_Writer)(crs_Thread*, void*, char*, int);
 typedef CRS_INTEGER  crs_Integer;
 typedef CRS_UNSIGNED crs_Unsigned;
 typedef CRS_FLOAT    crs_Float;
-typedef CRS_DAPF     crs_DAPFloat;
+typedef CRS_DAPFLOAT crs_DAPFloat;
 typedef int         (crs_CFunction)(struct crs_Thread*);
 
 #endif
