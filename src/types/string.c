@@ -115,6 +115,10 @@ crsS_equal(crs_String* a, crs_String* b) {
 		return 0;
 	}
 
+	if ((a->hashed && b->hashed) && (a->hash != b->hash)) {
+		return 0;
+	}
+
 	return !strcmp(a->contents, b->contents);
 }
 

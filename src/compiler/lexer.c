@@ -28,6 +28,7 @@
 #define c_isnewl(c)  ((c) == '\n' || (c) == '\r')
 #define c_isxdigit(c) \
 	(c_isdigit(c) || ((c) >= 'A' && (c) <= 'F') || ((c) >= 'a' && (c) <= 'f'))
+#define c_isgraph(c) ((c) >= '!' && (c) <= '~')
 
 /* order TOKENS */
 static char* tokens[] = {
@@ -521,28 +522,33 @@ crsL_error(Lexer* lexer, char* format, ...) {
 }
 
 static char*
-tokenString(int token, char* temp) {
+tokenString(crs_Thread* thread, int token) {
 	if (token > KEYWORD_FIRST) {
 		return tokens[token - KEYWORD_FIRST];
 	}
 
-	/* single-character token */
-	temp[0] = (char)token;
-	temp[1] = '\0';
+	crs_String* string;
 
-	return temp;
+	if (c_isgraph(token)) {
+		string = crsF_format(thread, "%c", token);
+	} else {
+		string = crsF_format(thread, "<\\x%x>", token);
+	}
+
+	obj_setgc(&thread->error, string); /* anchor */
+	return string->contents;
 }
 
 noret
 crsL_unexpected(Lexer* lexer) {
-	char temp[2];
 	crsL_error(lexer, "unexpected '%s'",
-		tokenString(lexer->token.type, temp));
+		tokenString(lexer->thread, lexer->token.type));
 }
 
 noret
 crsL_expected(Lexer* lexer, int token) {
-	char temp[4];
 	crsL_error(lexer, "expected '%s'; got '%s'",
-		tokenString(token, temp), tokenString(lexer->token.type, temp + 2));
+		tokenString(lexer->thread, token),
+		tokenString(lexer->thread, lexer->token.type)
+	);
 }

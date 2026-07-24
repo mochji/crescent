@@ -16,6 +16,7 @@
 #include "crescent/conf.h"
 #include "limit.h"
 
+#define fmt_hex(b, s, v)      snprintf((b), (s), "%x", (v))
 #define fmt_int(b, s, v)      snprintf((b), (s), "%d", (v))
 #define fmt_unsigned(b, s, v) snprintf((b), (s), "%u", (v))
 #define fmt_pointer(b, s, v)  snprintf((b), (s), "%p", (v))

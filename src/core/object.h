@@ -89,6 +89,7 @@ crsO_toFloat(crs_Object* object, crs_Float* result);
 char*
 crsO_toString(crs_Object* object, int* match);
 
+/* see type enums in crescent/conf.h */
 #define obj_isnumber(o)      ((o)->type & 1)
 #define obj_iscollectable(o) ((o)->type & 2)
 

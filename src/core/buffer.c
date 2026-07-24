@@ -147,7 +147,7 @@ crsR_next(crs_Stream* stream) {
 		return CRS_EOS;
 	}
 
-	return stream->buffer[stream->read++];
+	return (unsigned char)stream->buffer[stream->read++];
 }
 
 void

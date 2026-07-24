@@ -21,7 +21,7 @@
 
 #include "core/gc.h"
 
-/* see type enums in conf.h */
+/* see type enums in crescent/conf.h */
 #define istraversable(h) ((h)->type & 4)
 #define isgrayagain(h)   ((h)->type & 8)
 

@@ -58,6 +58,11 @@ crsF_vformat(crs_Thread* thread, char* format, va_list args) {
 
 				break;
 			}
+			case 'x':
+				crsB_addString(&buffer, numBuffer, fmt_hex(
+					numBuffer, CRS_MAX_FMTNUM, va_arg(args, int)));
+
+				break;
 			case 'd':
 				crsB_addString(&buffer, numBuffer, fmt_int(
 					numBuffer, CRS_MAX_FMTNUM, va_arg(args, int)));
