@@ -19,11 +19,11 @@
 #define CRS_BUF_STREAM  BUFSIZ
 
 typedef struct {
-	crs_Thread* thread;
-	size_t      size;
-	size_t      length;
-	char*       buffer;
-	char        initial[CRS_BUF_INITIAL];
+    crs_Thread* thread;
+    size_t      size;
+    size_t      length;
+    char*       buffer;
+    char        initial[CRS_BUF_INITIAL];
 } crs_Buffer;
 
 void
@@ -44,12 +44,12 @@ crsB_clear(crs_Buffer* buffer);
 #define CRS_EOS 0x100 /* end of stream */
 
 typedef struct {
-	crs_Thread* thread;
-	crs_Reader* reader;
-	void*       data;
-	char        buffer[CRS_BUF_STREAM];
-	int         length;
-	int         read;
+    crs_Thread* thread;
+    crs_Reader* reader;
+    void*       data;
+    char        buffer[CRS_BUF_STREAM];
+    int         length;
+    int         read;
 } crs_Stream;
 
 void
@@ -65,11 +65,11 @@ int
 crsR_next(crs_Stream* stream);
 
 typedef struct {
-	crs_Thread* thread;
-	crs_Writer* writer;
-	void*       data;
-	char        buffer[CRS_BUF_STREAM];
-	int         written;
+    crs_Thread* thread;
+    crs_Writer* writer;
+    void*       data;
+    char        buffer[CRS_BUF_STREAM];
+    int         written;
 } crs_Dump;
 
 void

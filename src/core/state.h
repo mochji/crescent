@@ -21,30 +21,30 @@
 #define CRS_STRCACHE_BUCKETS 4
 
 typedef struct crs_Handler {
-	crs_byte            status;
-	jmp_buf             buffer;
-	struct crs_Handler* previous;
+    crs_byte            status;
+    jmp_buf             buffer;
+    struct crs_Handler* previous;
 } crs_Handler;
 
 typedef struct crs_Frame {
-	crs_Object*       base;
-	int               top;
-	struct crs_Frame* previous;
+    crs_Object*       base;
+    int               top;
+    struct crs_Frame* previous;
 } crs_Frame;
 
 struct crs_Thread {
-	crs_GCHeader header;
-	struct {
-		size_t      size;
-		crs_Object* base;
-		crs_Object* top;
-		short       level;
-		crs_Frame*  frame;
-		crs_Frame   baseFrame;
-	}                 stack;
-	crs_Handler*      handler;
-	crs_Object        error;
-	struct crs_State* state;
+    crs_GCHeader header;
+    struct {
+        size_t      size;
+        crs_Object* base;
+        crs_Object* top;
+        short       level;
+        crs_Frame*  frame;
+        crs_Frame   baseFrame;
+    }                 stack;
+    crs_Handler*      handler;
+    crs_Object        error;
+    struct crs_State* state;
 };
 
 /*
@@ -86,25 +86,25 @@ struct crs_Thread {
  */
 
 typedef struct crs_State {
-	struct {
-		crs_byte       status;
-		crs_byte       phase;
-		crs_mem        usage;
-		crs_mem        next;
-		crs_mem        last;
-		unsigned short params[3];
-		crs_GCHeader*  all;
-		crs_GCHeader*  immune;
-		crs_GCHeader*  gray;
-		crs_GCHeader*  grayAgain;
-		crs_GCHeader** sweep;
-	}              gc;
-	crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
-	crs_Object     globals;
-	crs_String*    memoryError;
-	crs_Object     nilValue;
-	crs_Thread     thread;
-	crs_CFunction* panic;
+    struct {
+        crs_byte       status;
+        crs_byte       phase;
+        crs_mem        usage;
+        crs_mem        next;
+        crs_mem        last;
+        unsigned short params[3];
+        crs_GCHeader*  all;
+        crs_GCHeader*  immune;
+        crs_GCHeader*  gray;
+        crs_GCHeader*  grayAgain;
+        crs_GCHeader** sweep;
+    }              gc;
+    crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
+    crs_Object     globals;
+    crs_String*    memoryError;
+    crs_Object     nilValue;
+    crs_Thread     thread;
+    crs_CFunction* panic;
 } crs_State;
 
 crs_Thread*

@@ -111,22 +111,22 @@
  */
 
 enum {
-	CRS_OP_UNM,
-	CRS_OP_ADD,
-	CRS_OP_SUB,
-	CRS_OP_MUL,
-	CRS_OP_DIV,
-	CRS_OP_POW,
-	CRS_OP_MOD,
-	CRS_OP_NOT,
-	CRS_OP_AND,
-	CRS_OP_OR,
-	CRS_OP_XOR,
-	CRS_OP_SHL,
-	CRS_OP_SHR,
-	CRS_OP_EQ,
-	CRS_OP_LT,
-	CRS_OP_LE
+    CRS_OP_UNM,
+    CRS_OP_ADD,
+    CRS_OP_SUB,
+    CRS_OP_MUL,
+    CRS_OP_DIV,
+    CRS_OP_POW,
+    CRS_OP_MOD,
+    CRS_OP_NOT,
+    CRS_OP_AND,
+    CRS_OP_OR,
+    CRS_OP_XOR,
+    CRS_OP_SHL,
+    CRS_OP_SHR,
+    CRS_OP_EQ,
+    CRS_OP_LT,
+    CRS_OP_LE
 };
 
 /*

@@ -21,57 +21,57 @@
  * (see obj_to* macros after the function prototypes)
  */
 typedef struct crs_GCHeader {
-	struct crs_GCHeader* next;
-	struct crs_GCHeader* set;
-	crs_byte             mark;
-	crs_byte             type;
+    struct crs_GCHeader* next;
+    struct crs_GCHeader* set;
+    crs_byte             mark;
+    crs_byte             type;
 } crs_GCHeader;
 
 typedef struct crs_Object {
-	union {
-		int            b;
-		crs_Integer    i;
-		crs_Float      f;
-		crs_CFunction* c;
-		crs_GCHeader*  gc;
-	}        value;
-	crs_byte type;
+    union {
+        int            b;
+        crs_Integer    i;
+        crs_Float      f;
+        crs_CFunction* c;
+        crs_GCHeader*  gc;
+    }        value;
+    crs_byte type;
 } crs_Object;
 
 typedef struct crs_String {
-	crs_GCHeader gc;
-	crs_Integer  length;
-	crs_byte     hashed;
-	unsigned     hash;
-	char         contents[];
+    crs_GCHeader gc;
+    crs_Integer  length;
+    crs_byte     hashed;
+    unsigned     hash;
+    char         contents[];
 } crs_String;
 
 typedef struct crs_TNode {
-	crs_Object        key;
-	crs_Object        value;
-	struct crs_TNode* next;
-	struct crs_TNode* previous;
+    crs_Object        key;
+    crs_Object        value;
+    struct crs_TNode* next;
+    struct crs_TNode* previous;
 } crs_TNode;
 
 typedef struct crs_Table {
-	crs_GCHeader gc;
-	crs_byte     nodes; /* log2 size of table  */
-	crs_TNode*   free;  /* chain of free nodes */
-	crs_TNode*   table;
+    crs_GCHeader gc;
+    crs_byte     nodes; /* log2 size of table  */
+    crs_TNode*   free;  /* chain of free nodes */
+    crs_TNode*   table;
 } crs_Table;
 
 typedef struct crs_Function {
-	crs_GCHeader gc;
-	crs_byte     flags;
-	crs_byte     args;
-	crs_byte     top;
-	unsigned     nI; /* # of instructions */
-	unsigned     nC; /* # of constants    */
-	unsigned     nN; /* # of nested funcs */
+    crs_GCHeader gc;
+    crs_byte     flags;
+    crs_byte     args;
+    crs_byte     top;
+    unsigned     nI; /* # of instructions */
+    unsigned     nC; /* # of constants    */
+    unsigned     nN; /* # of nested funcs */
 
-	crs_instr*            code;
-	crs_Object*           consts;
-	struct crs_Function** nested;
+    crs_instr*            code;
+    crs_Object*           consts;
+    struct crs_Function** nested;
 } crs_Function;
 
 char*

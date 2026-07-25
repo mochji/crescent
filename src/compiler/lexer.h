@@ -19,34 +19,34 @@
 
 /* order TOKENS */
 enum { /* tokens longer than one character */
-	TK_IF = KEYWORD_FIRST, TK_ELSE, TK_FOR, TK_WHILE, TK_DO, TK_CONT, TK_BREAK,
-	TK_RETURN, TK_LOCAL, TK_FUNC, TK_TRUE, TK_FALSE, TK_NIL, KEYWORD_LAST,
+    TK_IF = KEYWORD_FIRST, TK_ELSE, TK_FOR, TK_WHILE, TK_DO, TK_CONT, TK_BREAK,
+    TK_RETURN, TK_LOCAL, TK_FUNC, TK_TRUE, TK_FALSE, TK_NIL, KEYWORD_LAST,
 
-	TK_CONCAT, TK_SHL, TK_SHR, TK_AND, TK_OR, TK_EQ, TK_NE, TK_LE, TK_GE,
-	TK_EOF, TK_INT, TK_FLOAT, TK_NAME, TK_STRING
+    TK_CONCAT, TK_SHL, TK_SHR, TK_AND, TK_OR, TK_EQ, TK_NE, TK_LE, TK_GE,
+    TK_EOF, TK_INT, TK_FLOAT, TK_NAME, TK_STRING
 };
 
 typedef struct {
-	union {
-		crs_Integer i;
-		crs_Float   f;
-		crs_String* s;
-	}   value;
-	int type;
+    union {
+        crs_Integer i;
+        crs_Float   f;
+        crs_String* s;
+    }   value;
+    int type;
 } Token;
 
 typedef struct {
-	crs_Thread* thread;
-	crs_Stream* stream;
-	crs_Buffer  buffer;
-	crs_Table*  strings;
-	Token       token;
-	Token       peek;
-	int         next;
-	struct {
-		int   line;
-		char* source;
-	} info;
+    crs_Thread* thread;
+    crs_Stream* stream;
+    crs_Buffer  buffer;
+    crs_Table*  strings;
+    Token       token;
+    Token       peek;
+    int         next;
+    struct {
+        int   line;
+        char* source;
+    } info;
 } Lexer;
 
 void

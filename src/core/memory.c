@@ -20,69 +20,69 @@
 
 void
 crsM_error(crs_Thread* thread) {
-	crs_String* error = thread->state->memoryError;
+    crs_String* error = thread->state->memoryError;
 
-	if (error != NULL) {
-		obj_setgc(&thread->error, error);
-	}
+    if (error != NULL) {
+        obj_setgc(&thread->error, error);
+    }
 
-	crsC_throw(thread, CRS_STATUS_MEMERR);
+    crsC_throw(thread, CRS_STATUS_MEMERR);
 }
 
 static void*
 tryAgain(crs_Thread* thread, size_t size, void* block) {
-	if (gc_getstatus(thread->state, STOPEM)) {
-		return NULL;
-	}
+    if (gc_getstatus(thread->state, STOPEM)) {
+        return NULL;
+    }
 
-	crsG_full(thread, 1);
+    crsG_full(thread, 1);
 
-	return block == NULL ? malloc(size) : realloc(block, size);
+    return block == NULL ? malloc(size) : realloc(block, size);
 }
 
 void*
 crsM_malloc(crs_Thread* thread, size_t size) {
-	crs_State* state = thread->state;
-	void*      block = malloc(size);
+    crs_State* state = thread->state;
+    void*      block = malloc(size);
 
-	if (block == NULL) {
-		block = tryAgain(thread, size, NULL);
+    if (block == NULL) {
+        block = tryAgain(thread, size, NULL);
 
-		if (block == NULL) {
-			return NULL;
-		}
-	}
+        if (block == NULL) {
+            return NULL;
+        }
+    }
 
-	state->gc.usage += size;
+    state->gc.usage += size;
 
-	return block;
+    return block;
 }
 
 void*
 crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
-	crs_State* state    = thread->state;
-	void*      newBlock = realloc(block, size);
+    crs_State* state    = thread->state;
+    void*      newBlock = realloc(block, size);
 
-	if (newBlock == NULL) {
-		newBlock = tryAgain(thread, size, block);
+    if (newBlock == NULL) {
+        newBlock = tryAgain(thread, size, block);
 
-		if (newBlock == NULL) {
-			return NULL;
-		}
-	}
+        if (newBlock == NULL) {
+            return NULL;
+        }
+    }
 
-	state->gc.usage -= oldSize;
-	state->gc.usage += size;
+    state->gc.usage -= oldSize;
+    state->gc.usage += size;
 
-	return newBlock;
+    return newBlock;
 }
 
 void
 crsM_free(crs_Thread* thread, void* block, size_t size) {
-	if (block == NULL) {
-		return;
-	}
+    if (block == NULL) {
+        return;
+    }
 
-	free(block);
-	thread->state->gc.usage -= size;
+    free(block);
+    thread->state->gc.usage -= size;
 }

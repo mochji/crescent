@@ -114,10 +114,10 @@ void
 crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
 
 #define crsG_barrierF(t, b, w) \
-	{if (obj_iscollectable(w)) crsG_barrierF_((t), obj_toheader(b), obj_geth(w));}
+    {if (obj_iscollectable(w)) crsG_barrierF_((t), obj_toheader(b), obj_geth(w));}
 
 #define crsG_barrierB(t, b, w) \
-	{if (obj_iscollectable(w)) crsG_barrierB_((t), obj_toheader(b), obj_geth(w));}
+    {if (obj_iscollectable(w)) crsG_barrierB_((t), obj_toheader(b), obj_geth(w));}
 
 int
 crsG_step(crs_Thread* thread);
@@ -126,6 +126,6 @@ void
 crsG_full(crs_Thread* thread, int emergency);
 
 #define crsG_check(t) \
-	((t)->state->gc.usage >= (t)->state->gc.next ? crsG_step(t) : 0)
+    ((t)->state->gc.usage >= (t)->state->gc.next ? crsG_step(t) : 0)
 
 #endif
