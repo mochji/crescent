@@ -71,6 +71,7 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/format.o $(CORE)/format.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/state.o $(CORE)/state.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/call.o $(CORE)/call.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/chunk.o $(COMPILER)/chunk.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/lexer.o $(COMPILER)/lexer.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/vm.o $(VM)/vm.c

@@ -14,6 +14,7 @@
 
 #include "core/object.h"
 #include "core/buffer.h"
+#include "compiler/chunk.h"
 
 #define KEYWORD_FIRST 0x100
 
@@ -40,6 +41,7 @@ typedef struct {
     crs_Stream* stream;
     crs_Buffer  buffer;
     crs_Table*  strings;
+    Chunk*      chunk;
     Token       token;
     Token       peek;
     int         next;
@@ -61,8 +63,7 @@ crsL_next(Lexer* lexer);
 void
 crsL_peek(Lexer* lexer);
 
-noret
-crsL_error(Lexer* lexer, char* format, ...);
+#define crsL_error(l, ...) crsI_error((l)->chunk, __VA_ARGS__)
 
 noret
 crsL_unexpected(Lexer* lexer);

@@ -507,20 +507,6 @@ crsL_peek(Lexer* lexer) {
     }
 }
 
-noret
-crsL_error(Lexer* lexer, char* format, ...) {
-    crs_Thread* thread = lexer->thread;
-    crs_String* error;
-    va_list     args;
-
-    va_start(args, format);
-    error = crsF_vformat(thread, format, args);
-    va_end(args);
-
-    obj_setgc(&thread->error, error);
-    crsC_throw(thread, CRS_STATUS_CODEERR);
-}
-
 static char*
 tokenString(crs_Thread* thread, int token) {
     if (token > KEYWORD_FIRST) {
