@@ -265,7 +265,7 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
         /* integers only */
         case CRS_OP_NOT: case CRS_OP_AND: case CRS_OP_OR:
         case CRS_OP_XOR: case CRS_OP_SHL: case CRS_OP_SHR:
-            if (obj_toint(l, &iL) && obj_toint(r, &iR)) {
+            if (obj_cvtint(l, &iL) && obj_cvtint(r, &iR)) {
                 crs_Integer result = arith_int(iL, iR, op);
                 obj_seti(o, result);
 
@@ -275,7 +275,7 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
             break;
         /* floats only */
         case CRS_OP_DIV: case CRS_OP_POW:
-            if (obj_tofloat(l, &fL) && obj_tofloat(r, &fR)) {
+            if (obj_cvtfloat(l, &fL) && obj_cvtfloat(r, &fR)) {
                 crs_Float result = arith_float(fL, fR, op);
                 obj_setf(o, result);
 
@@ -286,12 +286,12 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
         /* integers and floats */
         case CRS_OP_UNM: case CRS_OP_ADD: case CRS_OP_SUB:
         case CRS_OP_MUL: case CRS_OP_MOD:
-            if (obj_toint(l, &iL) && obj_toint(r, &iR)) {
+            if (obj_cvtint(l, &iL) && obj_cvtint(r, &iR)) {
                 crs_Integer result = arith_int(iL, iR, op);
                 obj_seti(o, result);
 
                 return 1;
-            } else if (obj_tofloat(l, &fL) && obj_tofloat(r, &fR)) {
+            } else if (obj_cvtfloat(l, &fL) && obj_cvtfloat(r, &fR)) {
                 crs_Float result = arith_float(fL, fR, op);
                 obj_setf(o, result);
 

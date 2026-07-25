@@ -404,7 +404,7 @@ crs_toBooleanX(crs_Thread* thread, int index, int* equal) {
 export crs_Integer
 crs_toIntegerX(crs_Thread* thread, int index, int* equal) {
     crs_Integer value;
-    int         match = obj_toint(getIndex(thread, index), &value);
+    int         match = obj_cvtint(getIndex(thread, index), &value);
 
     if (equal != NULL) {
         *equal = match;
@@ -416,7 +416,7 @@ crs_toIntegerX(crs_Thread* thread, int index, int* equal) {
 export crs_Float
 crs_toFloatX(crs_Thread* thread, int index, int* equal) {
     crs_Float value;
-    int       match = obj_tofloat(getIndex(thread, index), &value);
+    int       match = obj_cvtfloat(getIndex(thread, index), &value);
 
     if (equal != NULL) {
         *equal = match;

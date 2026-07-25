@@ -91,11 +91,11 @@ crsO_toString(crs_Object* object, int* match);
 
 /* automatic type coercions (if enabled) */
 #ifdef CRS_STR2NUM
-#define obj_toint(o, v)   crsO_toInteger((o), (v), 1)
-#define obj_tofloat(o, v) crsO_toFloat((o), (v), 1)
+#define obj_cvtint(o, v)   crsO_toInteger((o), (v), 1)
+#define obj_cvtfloat(o, v) crsO_toFloat((o), (v), 1)
 #else
-#define obj_toint(o, v)   crsO_toInteger((o), (v), 0)
-#define obj_tofloat(o, v) crsO_toFloat((o), (v), 0)
+#define obj_cvtint(o, v)   crsO_toInteger((o), (v), 0)
+#define obj_cvtfloat(o, v) crsO_toFloat((o), (v), 0)
 #endif
 
 /* see type enums in crescent/conf.h */
