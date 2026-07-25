@@ -81,13 +81,22 @@ int
 crsO_test(crs_Object* object);
 
 int
-crsO_toInteger(crs_Object* object, crs_Integer* result);
+crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce);
 
 int
-crsO_toFloat(crs_Object* object, crs_Float* result);
+crsO_toFloat(crs_Object* object, crs_Float* result, int coerce);
 
 char*
 crsO_toString(crs_Object* object, int* match);
+
+/* automatic type coercions (if enabled) */
+#ifdef CRS_STR2NUM
+#define obj_toint(o, v)   crsO_toInteger((o), (v), 1)
+#define obj_tofloat(o, v) crsO_toFloat((o), (v), 1)
+#else
+#define obj_toint(o, v)   crsO_toInteger((o), (v), 0)
+#define obj_tofloat(o, v) crsO_toFloat((o), (v), 0)
+#endif
 
 /* see type enums in crescent/conf.h */
 #define obj_isnumber(o)      ((o)->type & 1)

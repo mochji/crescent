@@ -13,6 +13,7 @@
 
 #include "types/string.h"
 #include "types/table.h"
+#include "core/format.h"
 
 char*
 crsO_name(crs_Object* object) {
@@ -41,7 +42,7 @@ crsO_test(crs_Object* object) {
 }
 
 int
-crsO_toInteger(crs_Object* object, crs_Integer* result) {
+crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce) {
 	crs_Integer value   = 0;
 	int         success = 0;
 
@@ -56,6 +57,12 @@ crsO_toInteger(crs_Object* object, crs_Integer* result) {
 			success = value == obj_getf(object);
 
 			break;
+		case CRS_TYPE_STRING:
+			if (coerce) {
+				success = crsF_toInteger(obj_gets(object)->contents, &value);
+			}
+
+			break;
 	}
 
 	*result = value;
@@ -63,7 +70,7 @@ crsO_toInteger(crs_Object* object, crs_Integer* result) {
 }
 
 int
-crsO_toFloat(crs_Object* object, crs_Float* result) {
+crsO_toFloat(crs_Object* object, crs_Float* result, int coerce) {
 	crs_Float value   = 0;
 	int       success = 0;
 
@@ -76,6 +83,12 @@ crsO_toFloat(crs_Object* object, crs_Float* result) {
 		case CRS_TYPE_FLOAT:
 			value   = obj_getf(object);
 			success = 1;
+
+			break;
+		case CRS_TYPE_STRING:
+			if (coerce) {
+				success = crsF_toFloat(obj_gets(object)->contents, &value);
+			}
 
 			break;
 	}

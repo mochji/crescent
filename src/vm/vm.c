@@ -52,8 +52,8 @@ error_op(crs_Thread* thread, crs_Object* o, char* op) {
 static int
 num_equal(crs_Object* l, crs_Object* r) {
 	crs_Float fL, fR;
-	crsO_toFloat(l, &fL);
-	crsO_toFloat(r, &fR);
+	crsO_toFloat(l, &fL, 0);
+	crsO_toFloat(r, &fR, 0);
 
 	return fL == fR;
 }
@@ -61,8 +61,8 @@ num_equal(crs_Object* l, crs_Object* r) {
 static int
 num_less(crs_Object* l, crs_Object* r) {
 	crs_Float fL, fR;
-	crsO_toFloat(l, &fL);
-	crsO_toFloat(r, &fR);
+	crsO_toFloat(l, &fL, 0);
+	crsO_toFloat(r, &fR, 0);
 
 	return fL < fR;
 }
@@ -70,8 +70,8 @@ num_less(crs_Object* l, crs_Object* r) {
 static int
 num_lessEqual(crs_Object* l, crs_Object* r) {
 	crs_Float fL, fR;
-	crsO_toFloat(l, &fL);
-	crsO_toFloat(r, &fR);
+	crsO_toFloat(l, &fL, 0);
+	crsO_toFloat(r, &fR, 0);
 
 	return fL <= fR;
 }
@@ -147,14 +147,14 @@ crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r) {
 }
 
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
-#	define float_pow(l, r) powf(l, r)
-#	define float_mod(l, r) fmodf(l, r)
+#define float_pow(l, r) powf(l, r)
+#define float_mod(l, r) fmodf(l, r)
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_DOUBLE
-#	define float_pow(l, r) pow(l, r)
-#	define float_mod(l, r) fmod(l, r)
+#define float_pow(l, r) pow(l, r)
+#define float_mod(l, r) fmod(l, r)
 #elif CRS_FLOAT_TYPE == CRS_FLOAT_LDOUBLE
-#	define float_pow(l, r) powl(l, r)
-#	define float_mod(l, r) fmodl(l, r)
+#define float_pow(l, r) powl(l, r)
+#define float_mod(l, r) fmodl(l, r)
 #endif
 
 crs_Integer
@@ -265,7 +265,7 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 		/* integers only */
 		case CRS_OP_NOT: case CRS_OP_AND: case CRS_OP_OR:
 		case CRS_OP_XOR: case CRS_OP_SHL: case CRS_OP_SHR:
-			if (crsO_toInteger(l, &iL) && crsO_toInteger(r, &iR)) {
+			if (obj_toint(l, &iL) && obj_toint(r, &iR)) {
 				crs_Integer result = arith_int(iL, iR, op);
 				obj_seti(o, result);
 
@@ -275,7 +275,7 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 			break;
 		/* floats only */
 		case CRS_OP_DIV: case CRS_OP_POW:
-			if (crsO_toFloat(l, &fL) && crsO_toFloat(r, &fR)) {
+			if (obj_tofloat(l, &fL) && obj_tofloat(r, &fR)) {
 				crs_Float result = arith_float(fL, fR, op);
 				obj_setf(o, result);
 
@@ -286,12 +286,12 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 		/* integers and floats */
 		case CRS_OP_UNM: case CRS_OP_ADD: case CRS_OP_SUB:
 		case CRS_OP_MUL: case CRS_OP_MOD:
-			if (crsO_toInteger(l, &iL) && crsO_toInteger(r, &iR)) {
+			if (obj_toint(l, &iL) && obj_toint(r, &iR)) {
 				crs_Integer result = arith_int(iL, iR, op);
 				obj_seti(o, result);
 
 				return 1;
-			} else if (crsO_toFloat(l, &fL) && crsO_toFloat(r, &fR)) {
+			} else if (obj_tofloat(l, &fL) && obj_tofloat(r, &fR)) {
 				crs_Float result = arith_float(fL, fR, op);
 				obj_setf(o, result);
 

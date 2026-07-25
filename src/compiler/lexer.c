@@ -124,11 +124,11 @@ string_reserve(Lexer* lexer) {
 	crs_Thread* thread  = lexer->thread;
 	crs_Table*  strings = lexer->strings;
 
-	for (int a = KEYWORD_FIRST; a < KEYWORD_LAST; a++) {
-		crs_String* string = crsS_new(thread, tokens[a - KEYWORD_FIRST]);
+	for (int i = KEYWORD_FIRST; i < KEYWORD_LAST; i++) {
+		crs_String* string = crsS_new(thread, tokens[i - KEYWORD_FIRST]);
 		crs_Object* key    = crsC_anchor(thread, obj_toheader(string));
 		crs_Object  value;
-		obj_seti(&value, a);
+		obj_seti(&value, i);
 
 		crsT_set(thread, strings, key, &value);
 		crsC_unanchor(thread);

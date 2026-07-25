@@ -66,11 +66,11 @@
 /*
  * @ CRS_32BIT
  *
- * Change this definition to a non-zero value to restrict Crescent to 32-bit
- * number types, rather than the default 64-bit types.
+ * If defined, restrict Crescent to 32-bit number types, rather than the default
+ * 64-bit types.
  */
 
-#define CRS_32BIT 0
+/* #define CRS_32BIT */
 
 /*
  * @ CRS_INTEGER_TYPE
@@ -81,7 +81,7 @@
  * argument promotion for floats.
  */
 
-#if CRS_32BIT
+#ifdef CRS_32BIT
 #if CRS_32INT
 #define CRS_INTEGER_TYPE CRS_INTEGER_INT
 #else
@@ -94,6 +94,15 @@
 #endif
 
 #define CRS_DAPFLOAT_TYPE CRS_FLOAT_DOUBLE
+
+/*
+ * @ CRS_STR2NUM
+ *
+ * If defined, perform automatic type coercion from strings to numbers (equality
+ * doesn't perform type coercion).
+ */
+
+/* #define CRS_STR2NUM */
 
 /*
  * =============================================================================

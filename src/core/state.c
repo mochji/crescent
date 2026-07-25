@@ -84,7 +84,6 @@ crsE_open(void) {
 
 	if (initThread(state, thread)) {
 		free(state);
-
 		return NULL;
 	}
 
@@ -98,7 +97,6 @@ crsE_open(void) {
 
 	if (crsC_try(thread, &initState, state, NULL) != CRS_STATUS_OK) {
 		crsE_close(state);
-
 		return NULL;
 	}
 
