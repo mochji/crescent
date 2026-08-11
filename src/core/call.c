@@ -25,23 +25,11 @@
 #define STACK_MAX (SIZE_MAX / sizeof(crs_Object))
 
 /*
- * Error throwing
- *
- * When an error is thrown, the error object (usually a string containing the
- * error message) is saved in the thread.
- *
- * If there exists a handler (jmp_buf, created by pcall):
- * - longjmp back; pcall will handle the error.
- * Otherwise:
- * - Call the state's panic function. This is the last chance to jump out.
- * - If it returns, call abort.
- *
  * WARNING: As a pcall might catch and handle any error, be careful to ensure
- * the state of the thread when you throw one.
+ *          the state of the thread when you throw one.
  */
 
-noret
-crsC_throw(crs_Thread* thread, int status) {
+noret crsC_throw(crs_Thread* thread, int status) {
     crs_Handler* handler = thread->handler;
     crs_State*   state   = thread->state;
 
@@ -65,16 +53,14 @@ crsC_throw(crs_Thread* thread, int status) {
     abort();
 }
 
-noret
-crsC_error(crs_Thread* thread, char* message) {
+noret crsC_error(crs_Thread* thread, char* message) {
     crs_String* error = crsS_new(thread, message);
 
     obj_setgc(&thread->error, error);
     crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
-noret
-crsC_errorf(crs_Thread* thread, char* format, ...) {
+noret crsC_errorf(crs_Thread* thread, char* format, ...) {
     crs_String* error;
     va_list     args;
 
@@ -86,8 +72,7 @@ crsC_errorf(crs_Thread* thread, char* format, ...) {
     crsC_throw(thread, CRS_STATUS_ERROR);
 }
 
-void
-crsC_restoreStack(crs_Thread* thread, short level) {
+void crsC_restoreStack(crs_Thread* thread, short level) {
     while (thread->stack.level > level) {
         crs_Frame* frame    = thread->stack.frame;
         thread->stack.top   = frame->base;
@@ -98,8 +83,8 @@ crsC_restoreStack(crs_Thread* thread, short level) {
     }
 }
 
-int
-crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result) {
+int crsC_try(crs_Thread* thread, crs_PFunction* function,
+                                 void* data, void** result) {
     crs_Handler handler;
     void*       returned = NULL;
 
@@ -120,8 +105,7 @@ crsC_try(crs_Thread* thread, crs_PFunction* function, void* data, void** result)
     return handler.status;
 }
 
-static int
-reallocStack(crs_Thread* thread, size_t newSize, int throw) {
+static int reallocStack(crs_Thread* thread, size_t newSize, int throw) {
     crs_Object* newStack = mem_vresize(thread,
         thread->stack.base, newSize, thread->stack.size);
 
@@ -148,8 +132,7 @@ reallocStack(crs_Thread* thread, size_t newSize, int throw) {
     return 0;
 }
 
-int
-crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
+int crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
     if (needed > STACK_MAX) {
         if (throw) {
             crsC_error(thread, "stack overflow");
@@ -179,8 +162,7 @@ crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
 }
 
 /* resize the stack frame to have 'top' elements */
-int
-crsC_checkTop(crs_Thread* thread, int top, int throw) {
+int crsC_checkTop(crs_Thread* thread, int top, int throw) {
     if (top > CRS_MAX_TOP) {
         if (throw) {
             crsC_error(thread, "stack overflow");
@@ -217,8 +199,7 @@ crsC_checkTop(crs_Thread* thread, int top, int throw) {
 }
 
 /* ensure there is at least 'free' free elements on the stack */
-int
-crsC_checkFree(crs_Thread* thread, int free, int throw) {
+int crsC_checkFree(crs_Thread* thread, int free, int throw) {
     size_t needed = (thread->stack.top - thread->stack.base) + free;
 
     if (needed > thread->stack.size) {
@@ -228,26 +209,7 @@ crsC_checkFree(crs_Thread* thread, int free, int throw) {
     return 0;
 }
 
-/*
- * Calling and stack frames
- *
- * The stack is divided into frames. The base of a frame is where the first
- * object will go, and the top is how many stack spaces are reserved for the
- * frame.
- *
- * When a function is called and a new frame is added, the base is set
- * to the first empty element in the stack (top) offset by how many arguments
- * should be passed to it, such that those objects become part of the new
- * frame.
- *
- * When a function returns, the top 'results' elements are moved to the bottom
- * of the frame, placing them on top of the previous frame's elements. The
- * previous frame's top might need to be adjusted to accommodate the returned
- * objects.
- */
-
-static void
-checkResults(crs_Thread* thread, int wanted) {
+static void checkResults(crs_Thread* thread, int wanted) {
     crs_Frame* frame    = thread->stack.frame;
     crs_Frame* previous = frame->previous;
     size_t     needed   = (frame->base - thread->stack.base) + wanted - 1;
@@ -258,7 +220,7 @@ checkResults(crs_Thread* thread, int wanted) {
         crsC_error(thread, "stack overflow");
     }
 
-    /* need to grow stack? (only when wanted > results) */
+    /* need to grow stack? (only possible when wanted > results) */
     if (needed > thread->stack.size) {
         crsC_resizeStack(thread, needed, 1);
     }
@@ -269,8 +231,7 @@ checkResults(crs_Thread* thread, int wanted) {
 }
 
 /* create and initialize a new stack frame */
-static void
-startCall(crs_Thread* thread, int top, int args) {
+static void startCall(crs_Thread* thread, int top, int args) {
     if (thread->stack.level >= CRS_MAX_LEVEL) {
         crsC_error(thread, "stack overflow");
     }
@@ -293,8 +254,7 @@ startCall(crs_Thread* thread, int top, int args) {
 }
 
 /* return 'wanted' elements and pop the top stack frame */
-static void
-endCall(crs_Thread* thread, int results, int wanted) {
+static void endCall(crs_Thread* thread, int results, int wanted) {
     crs_Frame* frame    = thread->stack.frame;
     crs_Frame* previous = frame->previous;
     int        top      = thread->stack.top - frame->base;
@@ -328,8 +288,8 @@ endCall(crs_Thread* thread, int results, int wanted) {
     mem_free(thread, frame);
 }
 
-void
-crsC_call(crs_Thread* thread, crs_Function* function, int args, int wanted) {
+void crsC_call(crs_Thread* thread, crs_Function* function,
+                                   int args, int wanted) {
     startCall(
         thread,
         function->top,
@@ -347,8 +307,8 @@ crsC_call(crs_Thread* thread, crs_Function* function, int args, int wanted) {
     endCall(thread, crsV_execute(thread, function), wanted);
 }
 
-void
-crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted) {
+void crsC_callC(crs_Thread* thread, crs_CFunction* function,
+                                    int args, int wanted) {
     startCall(
         thread,
         args < CRS_MIN_TOP
@@ -360,13 +320,11 @@ crsC_callC(crs_Thread* thread, crs_CFunction* function, int args, int wanted) {
     endCall(thread, function(thread), wanted);
 }
 
-crs_Object*
-crsC_anchor(crs_Thread* thread, crs_GCHeader* header) {
+crs_Object* crsC_anchor(crs_Thread* thread, crs_GCHeader* header) {
     obj_seth(thread->stack.top, header);
     return thread->stack.top++;
 }
 
-void
-crsC_unanchor(crs_Thread* thread) {
+void crsC_unanchor(crs_Thread* thread) {
     thread->stack.top--;
 }

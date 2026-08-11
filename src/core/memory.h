@@ -14,17 +14,11 @@
 #include "crescent/conf.h"
 #include "limit.h"
 
-void
-crsM_error(crs_Thread* thread);
-
-void*
-crsM_malloc(crs_Thread* thread, size_t size);
-
-void*
-crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize);
-
-void
-crsM_free(crs_Thread* thread, void* block, size_t size);
+void  crsM_error(crs_Thread* thread);
+void* crsM_malloc(crs_Thread* thread, size_t size);
+void* crsM_realloc(crs_Thread* thread, void* block, size_t size,
+                                                    size_t oldSize);
+void  crsM_free(crs_Thread* thread, void* block, size_t size);
 
 #define mem_new(t, o)  (crsM_malloc((t), sizeof(o)))
 #define mem_free(t, o) (crsM_free((t), (o), sizeof(*(o))))

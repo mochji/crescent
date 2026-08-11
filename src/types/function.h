@@ -15,16 +15,10 @@
 #include "core/object.h"
 #include "core/buffer.h"
 
-crs_Function*
-crsK_new(crs_Thread* thread, unsigned nI, unsigned nC, unsigned nN);
-
-void
-crsK_free(crs_Thread* thread, crs_Function* func);
-
-void
-crsK_dump(crs_Dump* dump, crs_Function* func);
-
-crs_Function*
-crsK_load(crs_Stream* stream);
+crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
+                                           unsigned nN);
+void          crsK_free(crs_Thread* thread, crs_Function* func);
+void          crsK_dump(crs_Dump* dump, crs_Function* func);
+crs_Function* crsK_load(crs_Stream* stream);
 
 #endif

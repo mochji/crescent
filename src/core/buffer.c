@@ -18,8 +18,7 @@
 
 #include "core/buffer.h"
 
-static void
-growBuffer(crs_Buffer* buffer, size_t needed) {
+static void growBuffer(crs_Buffer* buffer, size_t needed) {
     char*  vector = buffer->buffer;
     size_t size   = buffer->size;
 
@@ -48,8 +47,7 @@ growBuffer(crs_Buffer* buffer, size_t needed) {
     buffer->buffer = vector;
 }
 
-static void
-checkBuffer(crs_Buffer* buffer, size_t length) {
+static void checkBuffer(crs_Buffer* buffer, size_t length) {
     if (length > SIZE_MAX - buffer->length) {
         crsB_free(buffer);
         crsC_error(buffer->thread, "buffer overflow");
@@ -60,16 +58,14 @@ checkBuffer(crs_Buffer* buffer, size_t length) {
     }
 }
 
-void
-crsB_init(crs_Thread* thread, crs_Buffer* buffer) {
+void crsB_init(crs_Thread* thread, crs_Buffer* buffer) {
     buffer->thread = thread;
     buffer->size   = CRS_BUF_INITIAL;
     buffer->length = 0;
     buffer->buffer = buffer->initial;
 }
 
-void
-crsB_free(crs_Buffer* buffer) {
+void crsB_free(crs_Buffer* buffer) {
     if (buffer == NULL) {
         return;
     }
@@ -80,27 +76,24 @@ crsB_free(crs_Buffer* buffer) {
     }
 }
 
-void
-crsB_addChar(crs_Buffer* buffer, char c) {
+void crsB_addChar(crs_Buffer* buffer, char c) {
     checkBuffer(buffer, 1);
     buffer->buffer[buffer->length++] = c;
 }
 
-void
-crsB_addString(crs_Buffer* buffer, char* str, size_t length) {
+void crsB_addString(crs_Buffer* buffer, char* str, size_t length) {
     checkBuffer(buffer, length);
 
     memcpy(buffer->buffer + buffer->length, str, length);
     buffer->length += length;
 }
 
-void
-crsB_clear(crs_Buffer* buffer) {
+void crsB_clear(crs_Buffer* buffer) {
     buffer->length = 0;
 }
 
-void
-crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data) {
+void crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader,
+                                   void* data) {
     stream->thread = thread;
     stream->reader = reader;
     stream->data   = data;
@@ -108,8 +101,7 @@ crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader, void* data
     stream->read   = 0;
 }
 
-int
-crsR_fill(crs_Stream* stream) {
+int crsR_fill(crs_Stream* stream) {
     int read = stream->reader(stream->thread,
         stream->data, stream->buffer, CRS_BUF_STREAM);
 
@@ -119,8 +111,7 @@ crsR_fill(crs_Stream* stream) {
     return read;
 }
 
-size_t
-crsR_read(crs_Stream* stream, char* buffer, size_t count) {
+size_t crsR_read(crs_Stream* stream, char* buffer, size_t count) {
     size_t read = 0;
 
     while (count) {
@@ -141,8 +132,7 @@ crsR_read(crs_Stream* stream, char* buffer, size_t count) {
     return read;
 }
 
-int
-crsR_next(crs_Stream* stream) {
+int crsR_next(crs_Stream* stream) {
     if (stream->read == stream->length && !crsR_fill(stream)) {
         return CRS_EOS;
     }
@@ -150,26 +140,22 @@ crsR_next(crs_Stream* stream) {
     return (unsigned char)stream->buffer[stream->read++];
 }
 
-void
-crsW_init(crs_Thread* thread, crs_Dump* dump, crs_Writer* writer, void* data) {
+void crsW_init(crs_Thread* thread, crs_Dump* dump, crs_Writer* writer,
+                                   void* data) {
     dump->thread  = thread;
     dump->writer  = writer;
     dump->data    = data;
     dump->written = 0;
 }
 
-void
-crsW_flush(crs_Dump* dump) {
-    if (!dump->written) {
-        return;
+void crsW_flush(crs_Dump* dump) {
+    if (dump->written) {
+        dump->writer(dump->thread, dump->data, dump->buffer, dump->written);
+        dump->written = 0;
     }
-
-    dump->writer(dump->thread, dump->data, dump->buffer, dump->written);
-    dump->written = 0;
 }
 
-void
-crsW_write(crs_Dump* dump, char* buffer, size_t length) {
+void crsW_write(crs_Dump* dump, char* buffer, size_t length) {
     while (length) {
         if (dump->written == CRS_BUF_STREAM) {
             crsW_flush(dump);

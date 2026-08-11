@@ -17,11 +17,8 @@
 
 #define CRS_GLOBALS INT_MAX
 
-int
-crs_version(void);
-
-int
-crs_release(void);
+int crs_version(void);
+int crs_release(void);
 
 /*
  * ===========================
@@ -29,17 +26,10 @@ crs_release(void);
  * ===========================
  */
 
-crs_Thread*
-crs_open(void);
-
-void
-crs_close(crs_Thread* thread);
-
-void
-crs_setPanic(crs_Thread* thread, crs_CFunction* function);
-
-void
-crs_error(crs_Thread* thread, int index);
+crs_Thread* crs_open(void);
+void        crs_close(crs_Thread* thread);
+void        crs_setPanic(crs_Thread* thread, crs_CFunction* function);
+void        crs_error(crs_Thread* thread, int index);
 
 /*
  * ===========================
@@ -56,14 +46,9 @@ crs_error(crs_Thread* thread, int index);
 #define CRS_GC_STEP       5
 #define CRS_GC_MULTIPLIER 6
 
-int
-crs_gc(crs_Thread* thread, int option);
-
-int
-crs_getGC(crs_Thread* thread, int option);
-
-void
-crs_setGC(crs_Thread* thread, int option, unsigned short value);
+int  crs_gc(crs_Thread* thread, int option);
+int  crs_getGC(crs_Thread* thread, int option);
+void crs_setGC(crs_Thread* thread, int option, unsigned short value);
 
 /*
  * ===========================
@@ -71,20 +56,11 @@ crs_setGC(crs_Thread* thread, int option, unsigned short value);
  * ===========================
  */
 
-int
-crs_getTop(crs_Thread* thread);
-
-int
-crs_checkTop(crs_Thread* thread, int top);
-
-void
-crs_setTop(crs_Thread* thread, int top);
-
-void
-crs_pop(crs_Thread* thread, int amount);
-
-void
-crs_remove(crs_Thread* thread, int index);
+int  crs_getTop(crs_Thread* thread);
+int  crs_checkTop(crs_Thread* thread, int top);
+void crs_setTop(crs_Thread* thread, int top);
+void crs_pop(crs_Thread* thread, int amount);
+void crs_remove(crs_Thread* thread, int index);
 
 /*
  * ===========================
@@ -92,14 +68,9 @@ crs_remove(crs_Thread* thread, int index);
  * ===========================
  */
 
-int
-crs_type(crs_Thread* thread, int index);
-
-const char*
-crs_name(crs_Thread* thread, int index);
-
-void
-crs_copy(crs_Thread* thread, int index);
+int         crs_type(crs_Thread* thread, int index);
+const char* crs_name(crs_Thread* thread, int index);
+void        crs_copy(crs_Thread* thread, int index);
 
 /*
  * ===========================
@@ -107,20 +78,12 @@ crs_copy(crs_Thread* thread, int index);
  * ===========================
  */
 
-crs_Integer
-crs_length(crs_Thread* thread, int index);
-
-int
-crs_compare(crs_Thread* thread, int left, int right, int op);
-
-void
-crs_arith(crs_Thread* thread, int left, int right, int op);
-
-void
-crs_get(crs_Thread* thread, int index, int keyIndex);
-
-void
-crs_set(crs_Thread* thread, int index, int keyIndex, int valueIndex);
+crs_Integer crs_length(crs_Thread* thread, int index);
+int         crs_compare(crs_Thread* thread, int left, int right, int op);
+void        crs_arith(crs_Thread* thread, int left, int right, int op);
+void        crs_get(crs_Thread* thread, int index, int keyIndex);
+void        crs_set(crs_Thread* thread, int index, int keyIndex,
+                                                   int valueIndex);
 
 /*
  * ===========================
@@ -135,8 +98,7 @@ crs_set(crs_Thread* thread, int index, int keyIndex, int valueIndex);
 #define crs_isCFunction(t, i) (crs_type(t, i) == CRS_TYPE_CFUNCTION)
 #define crs_isString(t, i)    (crs_type(t, i) == CRS_TYPE_STRING)
 
-int
-crs_isNumber(crs_Thread* thread, int index);
+int crs_isNumber(crs_Thread* thread, int index);
 
 /*
  * ===========================
@@ -144,17 +106,10 @@ crs_isNumber(crs_Thread* thread, int index);
  * ===========================
  */
 
-int
-crs_toBooleanX(crs_Thread* thread, int index, int* equal);
-
-crs_Integer
-crs_toIntegerX(crs_Thread* thread, int index, int* equal);
-
-crs_Float
-crs_toFloatX(crs_Thread* thread, int index, int* equal);
-
-const char*
-crs_toStringX(crs_Thread* thread, int index, int* match);
+int         crs_toBooleanX(crs_Thread* thread, int index, int* equal);
+crs_Integer crs_toIntegerX(crs_Thread* thread, int index, int* equal);
+crs_Float   crs_toFloatX(crs_Thread* thread, int index, int* equal);
+const char* crs_toStringX(crs_Thread* thread, int index, int* match);
 
 #define crs_toBoolean(t, i) crs_toBooleanX(t, i, NULL)
 #define crs_toInteger(t, i) crs_toIntegerX(t, i, NULL)
@@ -167,32 +122,15 @@ crs_toStringX(crs_Thread* thread, int index, int* match);
  * ===========================
  */
 
-void
-crs_pushNil(crs_Thread* thread);
-
-void
-crs_pushBoolean(crs_Thread* thread, int value);
-
-void
-crs_pushInteger(crs_Thread* thread, crs_Integer value);
-
-void
-crs_pushFloat(crs_Thread* thread, crs_Float value);
-
-void
-crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
-
-void
-crs_pushString(crs_Thread* thread, const char* str);
-
-void
-crs_pushTable(crs_Thread* thread);
-
-void
-crs_format(crs_Thread* thread, char* format, ...);
-
-void
-crs_vformat(crs_Thread* thread, char* format, va_list args);
+void crs_pushNil(crs_Thread* thread);
+void crs_pushBoolean(crs_Thread* thread, int value);
+void crs_pushInteger(crs_Thread* thread, crs_Integer value);
+void crs_pushFloat(crs_Thread* thread, crs_Float value);
+void crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
+void crs_pushString(crs_Thread* thread, const char* str);
+void crs_pushTable(crs_Thread* thread);
+void crs_format(crs_Thread* thread, char* format, ...);
+void crs_vformat(crs_Thread* thread, char* format, va_list args);
 
 /*
  * ===========================
@@ -200,16 +138,9 @@ crs_vformat(crs_Thread* thread, char* format, va_list args);
  * ===========================
  */
 
-void
-crs_call(crs_Thread* thread, int index, int args, int wanted);
-
-int
-crs_pcall(crs_Thread* thread, int index, int args, int wanted);
-
-int
-crs_load(crs_Thread* thread, crs_Reader* reader, void* data);
-
-int
-crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
+void crs_call(crs_Thread* thread, int index, int args, int wanted);
+int  crs_pcall(crs_Thread* thread, int index, int args, int wanted);
+int  crs_load(crs_Thread* thread, crs_Reader* reader, void* data);
+int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
 
 #endif

@@ -27,8 +27,7 @@
 
 #include "crescent/api.h"
 
-static int
-panic(crs_Thread* thread) {
+static int panic(crs_Thread* thread) {
     crs_Object* error = &thread->error;
     char*       message;
 
@@ -38,14 +37,14 @@ panic(crs_Thread* thread) {
         message = "error is not a string";
     }
 
-    fprintf(stderr, "PANIC: error within unprotected call to Crescent API (%s)\n", message);
+    fprintf(stderr,
+        "PANIC: error within unprotected call to Crescent API (%s)\n", message);
 
     return 0;
 }
 
-static crs_Object*
-getIndex(crs_Thread* thread, int index) {
-    crs_Object* nil = &thread->state->nilValue;
+static crs_Object* getIndex(crs_Thread* thread, int index) {
+    crs_Object* nil = &crsO_nilValue;
     crs_Object* object;
 
     if (index == 0) {
@@ -69,8 +68,7 @@ getIndex(crs_Thread* thread, int index) {
         : nil;
 }
 
-static crs_Object*
-adjustTop(crs_Thread* thread, int amount) {
+static crs_Object* adjustTop(crs_Thread* thread, int amount) {
     crs_Frame* frame = thread->stack.frame;
     int        items = thread->stack.top - frame->base;
 
@@ -85,13 +83,11 @@ adjustTop(crs_Thread* thread, int amount) {
     return thread->stack.top - 1;
 }
 
-export int
-crs_version(void) {
+export int crs_version(void) {
     return CRS_VERSION;
 }
 
-export int
-crs_release(void) {
+export int crs_release(void) {
     return CRS_RELEASE;
 }
 
@@ -101,8 +97,7 @@ crs_release(void) {
  * ===========================
  */
 
-export crs_Thread*
-crs_open(void) {
+export crs_Thread* crs_open(void) {
     crs_Thread* thread = crsE_open();
 
     if (thread == NULL) {
@@ -114,18 +109,15 @@ crs_open(void) {
     return thread;
 }
 
-export void
-crs_close(crs_Thread* thread) {
+export void crs_close(crs_Thread* thread) {
     crsE_close(thread->state);
 }
 
-export void
-crs_setPanic(crs_Thread* thread, crs_CFunction* function) {
+export void crs_setPanic(crs_Thread* thread, crs_CFunction* function) {
     thread->state->panic = function;
 }
 
-export void
-crs_error(crs_Thread* thread, int index) {
+export void crs_error(crs_Thread* thread, int index) {
     crs_Object* object = getIndex(thread, index);
 
     obj_seto(&thread->error, object);
@@ -138,8 +130,7 @@ crs_error(crs_Thread* thread, int index) {
  * ===========================
  */
 
-export int
-crs_gc(crs_Thread* thread, int option) {
+export int crs_gc(crs_Thread* thread, int option) {
     switch (option) {
         case CRS_GC_STEP:
             return crsG_step(thread);
@@ -152,8 +143,7 @@ crs_gc(crs_Thread* thread, int option) {
     return -1;
 }
 
-export int
-crs_getGC(crs_Thread* thread, int option) {
+export int crs_getGC(crs_Thread* thread, int option) {
     crs_State* state = thread->state;
 
     switch (option) {
@@ -172,8 +162,7 @@ crs_getGC(crs_Thread* thread, int option) {
     return -1;
 }
 
-export void
-crs_setGC(crs_Thread* thread, int option, unsigned short value) {
+export void crs_setGC(crs_Thread* thread, int option, unsigned short value) {
     crs_State* state = thread->state;
 
     switch (option) {
@@ -208,21 +197,18 @@ crs_setGC(crs_Thread* thread, int option, unsigned short value) {
  * ===========================
  */
 
-export int
-crs_getTop(crs_Thread* thread) {
+export int crs_getTop(crs_Thread* thread) {
     return thread->stack.top - thread->stack.frame->base;
 }
 
-export int
-crs_checkTop(crs_Thread* thread, int top) {
+export int crs_checkTop(crs_Thread* thread, int top) {
     int result = !crsC_checkTop(thread, top, 0);
     crsG_check(thread);
 
     return result;
 }
 
-export void
-crs_setTop(crs_Thread* thread, int top) {
+export void crs_setTop(crs_Thread* thread, int top) {
     if (top < 0) {
         top = 0;
     } else if (top > CRS_MAX_TOP) {
@@ -249,8 +235,7 @@ crs_setTop(crs_Thread* thread, int top) {
 }
 
 /* pop a max of 'amount' objects off of the stack */
-export void
-crs_pop(crs_Thread* thread, int amount) {
+export void crs_pop(crs_Thread* thread, int amount) {
     if (amount <= 0) {
         return;
     }
@@ -265,8 +250,7 @@ crs_pop(crs_Thread* thread, int amount) {
 }
 
 /* remove an element from the stack, shifting above elements down */
-export void
-crs_remove(crs_Thread* thread, int index) {
+export void crs_remove(crs_Thread* thread, int index) {
     if (index == 0) {
         return;
     }
@@ -300,13 +284,11 @@ crs_remove(crs_Thread* thread, int index) {
  * ===========================
  */
 
-export int
-crs_type(crs_Thread* thread, int index) {
+export int crs_type(crs_Thread* thread, int index) {
     return getIndex(thread, index)->type;
 }
 
-export const char*
-crs_name(crs_Thread* thread, int index) {
+export const char* crs_name(crs_Thread* thread, int index) {
     return crsO_name(getIndex(thread, index));
 }
 
@@ -316,13 +298,12 @@ crs_name(crs_Thread* thread, int index) {
  * ===========================
  */
 
-export crs_Integer
-crs_length(crs_Thread* thread, int index) {
+export crs_Integer crs_length(crs_Thread* thread, int index) {
     return crsV_length(thread, getIndex(thread, index));
 }
 
-export int
-crs_compare(crs_Thread* thread, int leftIndex, int rightIndex, int op) {
+export int crs_compare(crs_Thread* thread, int leftIndex, int rightIndex,
+                                           int op) {
     crs_Object* left  = getIndex(thread, leftIndex);
     crs_Object* right = getIndex(thread, rightIndex);
 
@@ -338,16 +319,15 @@ crs_compare(crs_Thread* thread, int leftIndex, int rightIndex, int op) {
     return 0;
 }
 
-export void
-crs_arith(crs_Thread* thread, int leftIndex, int rightIndex, int op) {
+export void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
+                                          int op) {
     crs_Object* left  = getIndex(thread, leftIndex);
     crs_Object* right = getIndex(thread, rightIndex);
 
     crsV_arith(thread, adjustTop(thread, 1), left, right, op);
 }
 
-export void
-crs_get(crs_Thread* thread, int index, int keyIndex) {
+export void crs_get(crs_Thread* thread, int index, int keyIndex) {
     crs_Object* key    = getIndex(thread, keyIndex);
     crs_Object* value  = crsV_get(thread, getIndex(thread, index), key);
     crs_Object* object = adjustTop(thread, 1);
@@ -356,8 +336,8 @@ crs_get(crs_Thread* thread, int index, int keyIndex) {
     crsG_check(thread);
 }
 
-export void
-crs_set(crs_Thread* thread, int index, int keyIndex, int valueIndex) {
+export void crs_set(crs_Thread* thread, int index, int keyIndex,
+                                        int valueIndex) {
     crs_Object* key    = getIndex(thread, keyIndex);
     crs_Object* value  = getIndex(thread, valueIndex);
 
@@ -365,8 +345,7 @@ crs_set(crs_Thread* thread, int index, int keyIndex, int valueIndex) {
     crsG_check(thread);
 }
 
-export void
-crs_copy(crs_Thread* thread, int index) {
+export void crs_copy(crs_Thread* thread, int index) {
     crs_Object* from = getIndex(thread, index);
     crs_Object* to   = adjustTop(thread, 1);
 
@@ -379,8 +358,7 @@ crs_copy(crs_Thread* thread, int index) {
  * ===========================
  */
 
-export int
-crs_isNumber(crs_Thread* thread, int index) {
+export int crs_isNumber(crs_Thread* thread, int index) {
     return obj_isnumber(getIndex(thread, index));
 }
 
@@ -390,8 +368,7 @@ crs_isNumber(crs_Thread* thread, int index) {
  * ===========================
  */
 
-export int
-crs_toBooleanX(crs_Thread* thread, int index, int* equal) {
+export int crs_toBooleanX(crs_Thread* thread, int index, int* equal) {
     crs_Object* object = getIndex(thread, index);
 
     if (equal != NULL) {
@@ -401,8 +378,7 @@ crs_toBooleanX(crs_Thread* thread, int index, int* equal) {
     return crsO_test(object);
 }
 
-export crs_Integer
-crs_toIntegerX(crs_Thread* thread, int index, int* equal) {
+export crs_Integer crs_toIntegerX(crs_Thread* thread, int index, int* equal) {
     crs_Integer value;
     int         match = obj_cvtint(getIndex(thread, index), &value);
 
@@ -413,8 +389,7 @@ crs_toIntegerX(crs_Thread* thread, int index, int* equal) {
     return value;
 }
 
-export crs_Float
-crs_toFloatX(crs_Thread* thread, int index, int* equal) {
+export crs_Float crs_toFloatX(crs_Thread* thread, int index, int* equal) {
     crs_Float value;
     int       match = obj_cvtfloat(getIndex(thread, index), &value);
 
@@ -425,8 +400,7 @@ crs_toFloatX(crs_Thread* thread, int index, int* equal) {
     return value;
 }
 
-export const char*
-crs_toStringX(crs_Thread* thread, int index, int* equal) {
+export const char* crs_toStringX(crs_Thread* thread, int index, int* equal) {
     return crsO_toString(getIndex(thread, index), equal);
 }
 
@@ -436,38 +410,32 @@ crs_toStringX(crs_Thread* thread, int index, int* equal) {
  * ===========================
  */
 
-export void
-crs_pushNil(crs_Thread* thread) {
+export void crs_pushNil(crs_Thread* thread) {
     crs_Object* object = adjustTop(thread, 1);
     obj_setn(object);
 }
 
-export void
-crs_pushBoolean(crs_Thread* thread, int value) {
+export void crs_pushBoolean(crs_Thread* thread, int value) {
     crs_Object* object = adjustTop(thread, 1);
     obj_setb(object, value != 0);
 }
 
-export void
-crs_pushInteger(crs_Thread* thread, crs_Integer value) {
+export void crs_pushInteger(crs_Thread* thread, crs_Integer value) {
     crs_Object* object = adjustTop(thread, 1);
     obj_seti(object, value);
 }
 
-export void
-crs_pushFloat(crs_Thread* thread, crs_Float value) {
+export void crs_pushFloat(crs_Thread* thread, crs_Float value) {
     crs_Object* object = adjustTop(thread, 1);
     obj_setf(object, value);
 }
 
-export void
-crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
+export void crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
     crs_Object* object = adjustTop(thread, 1);
     obj_setc(object, function);
 }
 
-export void
-crs_pushString(crs_Thread* thread, const char* str) {
+export void crs_pushString(crs_Thread* thread, const char* str) {
     crs_Object* object = adjustTop(thread, 1);
     crs_String* string = crsS_new(thread, (char*)str);
 
@@ -475,8 +443,7 @@ crs_pushString(crs_Thread* thread, const char* str) {
     crsG_check(thread);
 }
 
-export void
-crs_pushTable(crs_Thread* thread) {
+export void crs_pushTable(crs_Thread* thread) {
     crs_Object* object = adjustTop(thread, 1);
     crs_Table*  table  = crsT_new(thread);
 
@@ -484,8 +451,7 @@ crs_pushTable(crs_Thread* thread) {
     crsG_check(thread);
 }
 
-export void
-crs_format(crs_Thread* thread, char* format, ...) {
+export void crs_format(crs_Thread* thread, char* format, ...) {
     va_list args;
 
     va_start(args, format);
@@ -493,8 +459,7 @@ crs_format(crs_Thread* thread, char* format, ...) {
     va_end(args);
 }
 
-export void
-crs_vformat(crs_Thread* thread, char* format, va_list args) {
+export void crs_vformat(crs_Thread* thread, char* format, va_list args) {
     crs_Object* object = adjustTop(thread, 1);
     crs_String* string = crsF_vformat(thread, format, args);
 
@@ -508,14 +473,12 @@ crs_vformat(crs_Thread* thread, char* format, va_list args) {
  * ===========================
  */
 
-export void
-crs_call(crs_Thread* thread, int index, int args, int wanted) {
+export void crs_call(crs_Thread* thread, int index, int args, int wanted) {
     crsV_call(thread, getIndex(thread, index), args, wanted);
     crsG_check(thread);
 }
 
-export int
-crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
+export int crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
     int status = crsV_pcall(thread, getIndex(thread, index), args, wanted);
 
     if (status != CRS_STATUS_OK) {
@@ -538,22 +501,19 @@ typedef struct {
     crs_Dump*     dump;
 } DumpInfo;
 
-static void*
-try_load(crs_Thread* thread, void* data) {
+static void* try_load(crs_Thread* thread, void* data) {
     (void)thread;
     return crsK_load(data);
 }
 
-static void*
-try_dump(crs_Thread* thread, void* data) {
+static void* try_dump(crs_Thread* thread, void* data) {
     (void)thread;
     DumpInfo* info = data;
     crsK_dump(info->dump, info->func);
     return NULL;
 }
 
-export int
-crs_load(crs_Thread* thread, crs_Reader* reader, void* data) {
+export int crs_load(crs_Thread* thread, crs_Reader* reader, void* data) {
     crs_Object*   result = adjustTop(thread, 1);
     crs_Function* func;
     crs_Stream    stream;
@@ -574,8 +534,7 @@ crs_load(crs_Thread* thread, crs_Reader* reader, void* data) {
     return status;
 }
 
-export int
-crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data) {
+export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data) {
     crs_Object* object = getIndex(thread, index);
     crs_Dump    dump;
     DumpInfo    info;

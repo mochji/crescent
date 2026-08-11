@@ -93,38 +93,22 @@
 #define CRS_GCPHASE_ATOMIC  2
 #define CRS_GCPHASE_SWEEP   3
 
-void
-crsG_init(crs_State* state);
-
-void
-crsG_freeAll(crs_State* state);
-
-void*
-crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type);
+void  crsG_init(crs_State* state);
+void  crsG_freeAll(crs_State* state);
+void* crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type);
+void  crsG_setImmune(crs_Thread* thread);
+void  crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black,
+                                         crs_GCHeader* white);
+void  crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black,
+                                         crs_GCHeader* white);
+int   crsG_step(crs_Thread* thread);
+void  crsG_full(crs_Thread* thread, int emergency);
 
 #define crsG_add(t, o, b) crsG_add_((t), obj_toheader(o), (b))
-
-void
-crsG_setImmune(crs_Thread* thread);
-
-void
-crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
-
-void
-crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white);
-
 #define crsG_barrierF(t, b, w) \
     {if (obj_iscollectable(w)) crsG_barrierF_((t), obj_toheader(b), obj_geth(w));}
-
 #define crsG_barrierB(t, b, w) \
     {if (obj_iscollectable(w)) crsG_barrierB_((t), obj_toheader(b), obj_geth(w));}
-
-int
-crsG_step(crs_Thread* thread);
-
-void
-crsG_full(crs_Thread* thread, int emergency);
-
 #define crsG_check(t) \
     ((t)->state->gc.usage >= (t)->state->gc.next ? crsG_step(t) : 0)
 

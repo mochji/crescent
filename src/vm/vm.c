@@ -25,32 +25,28 @@
 
 #include "vm/vm.h"
 
-static noret
-error_unary(crs_Thread* thread, crs_Object* r, char* op) {
+static noret error_unary(crs_Thread* thread, crs_Object* r, char* op) {
     crsC_errorf(thread, "attempt to perform unary '%s' on a %s value",
         op, crsO_name(r));
 }
 
-static noret
-error_binary(crs_Thread* thread, crs_Object* l, crs_Object* r, char* op) {
+static noret error_binary(crs_Thread* thread, crs_Object* l, crs_Object* r,
+                                              char* op) {
     crsC_errorf(thread, "attempt to perform '%s' on %s and %s values",
         op, crsO_name(l), crsO_name(r));
 }
 
-static void
-error_int(crs_Thread* thread, crs_Object* l, crs_Object* r) {
+static void error_int(crs_Thread* thread, crs_Object* l, crs_Object* r) {
     if (obj_isnumber(l) && obj_isnumber(r)) {
         crsC_error(thread, "number has no integer representation");
     }
 }
 
-static noret
-error_op(crs_Thread* thread, crs_Object* o, char* op) {
+static noret error_op(crs_Thread* thread, crs_Object* o, char* op) {
     crsC_errorf(thread, "attempt to %s a %s value", op, crsO_name(o));
 }
 
-static int
-num_equal(crs_Object* l, crs_Object* r) {
+static int num_equal(crs_Object* l, crs_Object* r) {
     crs_Float fL, fR;
     crsO_toFloat(l, &fL, 0);
     crsO_toFloat(r, &fR, 0);
@@ -58,8 +54,7 @@ num_equal(crs_Object* l, crs_Object* r) {
     return fL == fR;
 }
 
-static int
-num_less(crs_Object* l, crs_Object* r) {
+static int num_less(crs_Object* l, crs_Object* r) {
     crs_Float fL, fR;
     crsO_toFloat(l, &fL, 0);
     crsO_toFloat(r, &fR, 0);
@@ -67,8 +62,7 @@ num_less(crs_Object* l, crs_Object* r) {
     return fL < fR;
 }
 
-static int
-num_lessEqual(crs_Object* l, crs_Object* r) {
+static int num_lessEqual(crs_Object* l, crs_Object* r) {
     crs_Float fL, fR;
     crsO_toFloat(l, &fL, 0);
     crsO_toFloat(r, &fR, 0);
@@ -76,8 +70,7 @@ num_lessEqual(crs_Object* l, crs_Object* r) {
     return fL <= fR;
 }
 
-int
-crsV_equal(crs_Object* l, crs_Object* r) {
+int crsV_equal(crs_Object* l, crs_Object* r) {
     if (l->type != r->type) {
         if (obj_isnumber(l) && obj_isnumber(r)) {
             return num_equal(l, r);
@@ -108,8 +101,7 @@ crsV_equal(crs_Object* l, crs_Object* r) {
     return 0;
 }
 
-int
-crsV_less(crs_Thread* thread, crs_Object* l, crs_Object* r) {
+int crsV_less(crs_Thread* thread, crs_Object* l, crs_Object* r) {
     if (l->type == CRS_TYPE_INTEGER) {
         if (r->type == CRS_TYPE_INTEGER) {
             return obj_geti(l) < obj_geti(r);
@@ -127,8 +119,7 @@ crsV_less(crs_Thread* thread, crs_Object* l, crs_Object* r) {
     error_binary(thread, l, r, "<");
 }
 
-int
-crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r) {
+int crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r) {
     if (l->type == CRS_TYPE_INTEGER) {
         if (r->type == CRS_TYPE_INTEGER) {
             return obj_geti(l) <= obj_geti(r);
@@ -157,8 +148,7 @@ crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r) {
 #define float_mod(l, r) fmodl(l, r)
 #endif
 
-crs_Integer
-crsV_length(crs_Thread* thread, crs_Object* object) {
+crs_Integer crsV_length(crs_Thread* thread, crs_Object* object) {
     if (object->type == CRS_TYPE_STRING) {
         return obj_gets(object)->length;
     }
@@ -166,8 +156,8 @@ crsV_length(crs_Thread* thread, crs_Object* object) {
     error_op(thread, object, "get length of");
 }
 
-static void
-error_arith(crs_Thread* thread, crs_Object* l, crs_Object* r, int op) {
+static void error_arith(crs_Thread* thread, crs_Object* l, crs_Object* r,
+                                            int op) {
     switch (op) {
         case CRS_OP_UNM:
             error_unary(thread, r, "-");
@@ -204,8 +194,7 @@ error_arith(crs_Thread* thread, crs_Object* l, crs_Object* r, int op) {
     }
 }
 
-static crs_Integer
-arith_int(crs_Integer l, crs_Integer r, int op) {
+static crs_Integer arith_int(crs_Integer l, crs_Integer r, int op) {
     switch (op) {
         case CRS_OP_UNM:
             return -r;
@@ -234,8 +223,7 @@ arith_int(crs_Integer l, crs_Integer r, int op) {
     return 0;
 }
 
-static crs_Float
-arith_float(crs_Float l, crs_Float r, int op) {
+static crs_Float arith_float(crs_Float l, crs_Float r, int op) {
     switch (op) {
         case CRS_OP_UNM:
             return -r;
@@ -256,8 +244,7 @@ arith_float(crs_Float l, crs_Float r, int op) {
     return 0;
 }
 
-static int
-arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
+static int arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
     crs_Integer iL, iR;
     crs_Float   fL, fR;
 
@@ -304,8 +291,8 @@ arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
     return 0;
 }
 
-void
-crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l, crs_Object* r, int op) {
+void crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l,
+                                    crs_Object* r, int op) {
     if (arith_raw(o, l, r, op)) {
         return;
     }
@@ -313,8 +300,7 @@ crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l, crs_Object* r, int 
     error_arith(thread, l, r, op);
 }
 
-crs_Object*
-crsV_get(crs_Thread* thread, crs_Object* object, crs_Object* key) {
+crs_Object* crsV_get(crs_Thread* thread, crs_Object* object, crs_Object* key) {
     if (object->type == CRS_TYPE_TABLE) {
         return crsT_get(thread, obj_gett(object), key);
     }
@@ -322,8 +308,8 @@ crsV_get(crs_Thread* thread, crs_Object* object, crs_Object* key) {
     error_op(thread, object, "index");
 }
 
-void
-crsV_set(crs_Thread* thread, crs_Object* object, crs_Object* key, crs_Object* value) {
+void crsV_set(crs_Thread* thread, crs_Object* object, crs_Object* key,
+                                  crs_Object* value) {
     if (object->type == CRS_TYPE_TABLE) {
         crsT_set(thread, obj_gett(object), key, value);
         return;
@@ -338,16 +324,14 @@ typedef struct {
     int         wanted;
 } PCallInfo;
 
-static void*
-pcall(crs_Thread* thread, void* data) {
+static void* pcall(crs_Thread* thread, void* data) {
     PCallInfo* info = data;
     crsV_call(thread, info->object, info->args, info->wanted);
 
     return NULL;
 }
 
-void
-crsV_call(crs_Thread* thread, crs_Object* object, int args, int wanted) {
+void crsV_call(crs_Thread* thread, crs_Object* object, int args, int wanted) {
     switch (object->type) {
         case CRS_TYPE_FUNCTION:
             crsC_call(thread, obj_getk(object), args, wanted);
@@ -360,12 +344,12 @@ crsV_call(crs_Thread* thread, crs_Object* object, int args, int wanted) {
     error_op(thread, object, "call");
 }
 
-int
-crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
-    PCallInfo info;
-    info.object = object;
-    info.args   = args;
-    info.wanted = wanted;
+int crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
+    PCallInfo info = {
+        .object = object,
+        .args   = args,
+        .wanted = wanted
+    };
 
     short level  = thread->stack.level;
     int   status = crsC_try(thread, pcall, &info, NULL);
@@ -381,8 +365,7 @@ crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
 #define reg_B(i) (stack + instr_B(i))
 #define reg_C(i) (stack + instr_C(i))
 
-int
-crsV_execute(crs_Thread* thread, crs_Function* func) {
+int crsV_execute(crs_Thread* thread, crs_Function* func) {
     crs_Frame*  frame = thread->stack.frame;
     crs_Object* stack = frame->base;
     crs_instr*  pc    = func->code;

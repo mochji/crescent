@@ -23,19 +23,21 @@
 #define MAX_LENGTH ((SIZE_MAX - sizeof(crs_String)) - 1)
 
 /* djb2 */
-static unsigned
-hashString(char* str) {
+static unsigned hashString(char* str) {
     unsigned hash = 5381;
 
     while (*str) {
-        hash = ((hash << 5) + hash) ^ *str++;
+        hash = ((hash << 5) + hash) ^ (unsigned char)*str++;
     }
 
     return hash;
 }
 
-crs_String*
-crsS_newo(crs_Thread* thread, size_t length) {
+/*
+ * (size_t)string->length < SIZE_MAX
+ * string->length <= CRS_INTEGER_MAX
+ */
+crs_String* crsS_newo(crs_Thread* thread, size_t length) {
     if (length > CRS_MAX_LENGTH || length > MAX_LENGTH) {
         crsC_error(thread, "string overflow");
     }
@@ -54,16 +56,14 @@ crsS_newo(crs_Thread* thread, size_t length) {
     return crsG_add(thread, string, CRS_TYPE_STRING);
 }
 
-crs_String*
-crsS_newl(crs_Thread* thread, char* str, size_t length) {
+crs_String* crsS_newl(crs_Thread* thread, char* str, size_t length) {
     crs_String* string = crsS_newo(thread, length);
     memcpy(string->contents, str, length);
 
     return string;
 }
 
-crs_String*
-crsS_new(crs_Thread* thread, char* str) {
+crs_String* crsS_new(crs_Thread* thread, char* str) {
     size_t length = strlen(str);
 
     if (length > 64) {
@@ -100,13 +100,12 @@ crsS_new(crs_Thread* thread, char* str) {
     return string;
 }
 
-void
-crsS_free(crs_Thread* thread, crs_String* string) {
-    mem_dealloc(thread, string, sizeof(crs_String) + (string->length + 1));
+void crsS_free(crs_Thread* thread, crs_String* string) {
+    mem_dealloc(thread, string,
+        sizeof(crs_String) + (size_t)string->length + 1);
 }
 
-int
-crsS_equal(crs_String* a, crs_String* b) {
+int crsS_equal(crs_String* a, crs_String* b) {
     if (a == b) {
         return 1;
     }
@@ -122,8 +121,7 @@ crsS_equal(crs_String* a, crs_String* b) {
     return !strcmp(a->contents, b->contents);
 }
 
-unsigned
-crsS_hash(crs_String* string) {
+unsigned crsS_hash(crs_String* string) {
     if (!string->hashed) {
         unsigned hash = hashString(string->contents);
 
@@ -136,8 +134,7 @@ crsS_hash(crs_String* string) {
     }
 }
 
-void
-crsS_clearCache(crs_State* state) {
+void crsS_clearCache(crs_State* state) {
     crs_String* alive[CRS_STRCACHE_BUCKETS];
 
     for (int i = 0; i < CRS_STRCACHE_SIZE; i++) {

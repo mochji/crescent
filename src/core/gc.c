@@ -42,8 +42,7 @@
  */
 
 /* return parameter% of value, accounting for overflows */
-static crs_mem
-applyParam(crs_mem value, unsigned short parameter) {
+static crs_mem applyParam(crs_mem value, unsigned short parameter) {
     if (value < 100) {
         return (value * parameter) / 100; /* shouldn't overflow */
     }
@@ -55,8 +54,7 @@ applyParam(crs_mem value, unsigned short parameter) {
     return ((value / 100) * parameter) + ((value % 100) * parameter) / 100;
 }
 
-static void
-freeObject(crs_State* state, crs_GCHeader* header) {
+static void freeObject(crs_State* state, crs_GCHeader* header) {
     crs_Thread* thread = &state->thread;
 
     switch (header->type) {
@@ -71,8 +69,7 @@ freeObject(crs_State* state, crs_GCHeader* header) {
     }
 }
 
-static void
-setPause(crs_State* state, crs_mem pause) {
+static void setPause(crs_State* state, crs_mem pause) {
     crs_mem usage = state->gc.usage;
 
     if (pause > CRS_MAX_MEM - usage) {
@@ -90,8 +87,7 @@ setPause(crs_State* state, crs_mem pause) {
  * ===========================
  */
 
-static void
-mark_header(crs_State* state, crs_GCHeader* header) {
+static void mark_header(crs_State* state, crs_GCHeader* header) {
     if (!gc_iswhite(header)) {
         return;
     }
@@ -113,8 +109,7 @@ mark_header(crs_State* state, crs_GCHeader* header) {
  * ===========================
  */
 
-static crs_mem
-traverse_table(crs_State* state, crs_Table* table) {
+static crs_mem traverse_table(crs_State* state, crs_Table* table) {
     crs_TNode* node = table->table;
     crs_TNode* stop = node + table_nodes(table);
 
@@ -130,8 +125,7 @@ traverse_table(crs_State* state, crs_Table* table) {
     return 1 + table_nodes(table);
 }
 
-static crs_mem
-traverse_func(crs_State* state, crs_Function* func) {
+static crs_mem traverse_func(crs_State* state, crs_Function* func) {
     for (unsigned i = 0; i < func->nC; i++) {
         mark_value(state, &func->consts[i]);
     }
@@ -145,8 +139,7 @@ traverse_func(crs_State* state, crs_Function* func) {
     return (crs_mem)1 + func->nC + func->nN;
 }
 
-static crs_mem
-traverse_thread(crs_State* state, crs_Thread* thread) {
+static crs_mem traverse_thread(crs_State* state, crs_Thread* thread) {
     crs_Object* object = thread->stack.base;
 
     for (; object < thread->stack.top; object++) {
@@ -155,7 +148,7 @@ traverse_thread(crs_State* state, crs_Thread* thread) {
 
     mark_value(state, &thread->error);
 
-    return 2 + (object - thread->stack.base);
+    return (crs_mem)2 + (object - thread->stack.base);
 }
 
 /*
@@ -164,8 +157,7 @@ traverse_thread(crs_State* state, crs_Thread* thread) {
  * ===========================
  */
 
-static crs_mem
-traverse(crs_State* state, int atomic) {
+static crs_mem traverse(crs_State* state, int atomic) {
     crs_GCHeader* header = state->gc.gray;
     state->gc.gray       = header->set;
 
@@ -187,8 +179,7 @@ traverse(crs_State* state, int atomic) {
     return 1;
 }
 
-static crs_mem
-sweep(crs_State* state) {
+static crs_mem sweep(crs_State* state) {
     crs_GCHeader* header = *state->gc.sweep;
 
     if (gc_iswhite(header)) {
@@ -202,8 +193,7 @@ sweep(crs_State* state) {
     return 1;
 }
 
-static void
-delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
+static void delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
     crs_GCHeader* next = list;
 
     while (next != stop) {
@@ -244,8 +234,7 @@ delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
  *   free its memory.
  */
 
-static crs_mem
-step_restart(crs_State* state) {
+static crs_mem step_restart(crs_State* state) {
     /* root set */
     mark_object(state, &state->thread);
     mark_value(state, &state->globals);
@@ -256,8 +245,7 @@ step_restart(crs_State* state) {
     return CRS_MAX_MEM;
 }
 
-static crs_mem
-step_mark(crs_State* state) {
+static crs_mem step_mark(crs_State* state) {
     if (state->gc.gray == NULL) {
         state->gc.phase = CRS_GCPHASE_ATOMIC;
 
@@ -267,8 +255,7 @@ step_mark(crs_State* state) {
     return traverse(state, 0);
 }
 
-static crs_mem
-step_atomic(crs_State* state) {
+static crs_mem step_atomic(crs_State* state) {
     while (state->gc.gray != NULL) {
         traverse(state, 1);
     }
@@ -287,8 +274,7 @@ step_atomic(crs_State* state) {
     return CRS_MAX_MEM;
 }
 
-static crs_mem
-step_sweep(crs_State* state) {
+static crs_mem step_sweep(crs_State* state) {
     if (*state->gc.sweep == NULL) {
         state->gc.phase = CRS_GCPHASE_RESTART;
 
@@ -298,8 +284,7 @@ step_sweep(crs_State* state) {
     return sweep(state);
 }
 
-static crs_mem
-step_single(crs_State* state) {
+static crs_mem step_single(crs_State* state) {
     switch (state->gc.phase) {
         case CRS_GCPHASE_RESTART:
             return step_restart(state);
@@ -327,15 +312,13 @@ step_single(crs_State* state) {
  * work unit is equal to one object processed (marked, traversed, or swept).
  */
 
-static void
-incremental_until(crs_State* state, int phase) {
+static void incremental_until(crs_State* state, int phase) {
     do {
         step_single(state);
     } while (state->gc.phase != phase);
 }
 
-static void
-incremental_full(crs_State* state) {
+static void incremental_full(crs_State* state) {
     if (!keepinvariant(state)) {
         /* finish sweep and reset everything back to white */
         incremental_until(state, CRS_GCPHASE_RESTART);
@@ -345,8 +328,7 @@ incremental_full(crs_State* state) {
     setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
 }
 
-static int
-incremental_step(crs_State* state) {
+static int incremental_step(crs_State* state) {
     unsigned short multiplier = gc_getparam(state, MULTIPLIER);
     crs_mem        work       = (state->gc.usage - state->gc.last) / 1024;
 
@@ -378,8 +360,7 @@ incremental_step(crs_State* state) {
  * ===========================
  */
 
-void
-crsG_init(crs_State* state) {
+void crsG_init(crs_State* state) {
     gc_setstatus(state, STOP, 0);
     gc_setstatus(state, EMERGENCY, 0);
     gc_setstatus(state, STOPEM, 0);
@@ -398,14 +379,12 @@ crsG_init(crs_State* state) {
     setPause(state, applyParam(state->gc.usage, CRS_GCP_PAUSE));
 }
 
-void
-crsG_freeAll(crs_State* state) {
+void crsG_freeAll(crs_State* state) {
     delete(state, state->gc.all, obj_toheader(&state->thread));
     delete(state, state->gc.immune, NULL);
 }
 
-void*
-crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
+void* crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
     crs_State* state = thread->state;
 
     linklist(header, state->gc.all);
@@ -424,8 +403,7 @@ crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
     return header;
 }
 
-void
-crsG_setImmune(crs_Thread* thread) {
+void crsG_setImmune(crs_Thread* thread) {
     crs_State*    state  = thread->state;
     crs_GCHeader* header = state->gc.all;
 
@@ -447,8 +425,7 @@ crsG_setImmune(crs_Thread* thread) {
 
 #define dobarrier(s, b, w) ((gc_isblack(b) && gc_iswhite(w)) && keepinvariant(s))
 
-void
-crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+void crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
     crs_State* state = thread->state;
 
     if (dobarrier(state, black, white)) {
@@ -456,8 +433,8 @@ crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
     }
 }
 
-void
-crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+void crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black,
+                                        crs_GCHeader* white) {
     crs_State* state = thread->state;
 
     if (dobarrier(state, black, white)) {
@@ -466,8 +443,7 @@ crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
     }
 }
 
-int
-crsG_step(crs_Thread* thread) {
+int crsG_step(crs_Thread* thread) {
     crs_State* state = thread->state;
 
     if (gc_getstatus(state, STOP)) {
@@ -479,8 +455,7 @@ crsG_step(crs_Thread* thread) {
     return incremental_step(state);
 }
 
-void
-crsG_full(crs_Thread* thread, int emergency) {
+void crsG_full(crs_Thread* thread, int emergency) {
     crs_State* state = thread->state;
 
     if (gc_getstatus(state, STOP)) {

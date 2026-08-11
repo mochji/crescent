@@ -51,24 +51,14 @@ typedef struct {
     } info;
 } Lexer;
 
-void
-crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream, char* source);
-
-void
-crsL_close(Lexer* lexer);
-
-void
-crsL_next(Lexer* lexer);
-
-void
-crsL_peek(Lexer* lexer);
+void  crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream,
+                                    char* source);
+void  crsL_close(Lexer* lexer);
+void  crsL_next(Lexer* lexer);
+void  crsL_peek(Lexer* lexer);
+noret crsL_unexpected(Lexer* lexer);
+noret crsL_expected(Lexer* lexer, int token);
 
 #define crsL_error(l, ...) crsI_error((l)->chunk, __VA_ARGS__)
-
-noret
-crsL_unexpected(Lexer* lexer);
-
-noret
-crsL_expected(Lexer* lexer, int token);
 
 #endif

@@ -34,12 +34,14 @@
 typedef int      crs_s32;
 typedef unsigned crs_u32;
 typedef size_t   crs_mem;
+typedef size_t   crs_uptr;
 #define CRS_MAX_U32 UINT_MAX
 #define CRS_MAX_MEM SIZE_MAX
 #else
 typedef long          crs_s32;
 typedef unsigned long crs_u32;
 typedef unsigned long crs_mem;
+typedef unsigned long crs_uptr; /* size_t may be smaller than a pointer */
 #define CRS_MAX_U32 ULONG_MAX
 #define CRS_MAX_MEM ULONG_MAX
 #endif

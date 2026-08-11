@@ -40,16 +40,9 @@
 #define fmt_tofloat(s, e) strtold((s), (e))
 #endif
 
-crs_String*
-crsF_format(crs_Thread* thread, char* format, ...);
-
-crs_String*
-crsF_vformat(crs_Thread* thread, char* format, va_list args);
-
-int
-crsF_toInteger(char* str, crs_Integer* value);
-
-int
-crsF_toFloat(char* str, crs_Float* value);
+crs_String* crsF_format(crs_Thread* thread, char* format, ...);
+crs_String* crsF_vformat(crs_Thread* thread, char* format, va_list args);
+int crsF_toInteger(char* str, crs_Integer* value);
+int crsF_toFloat(char* str, crs_Float* value);
 
 #endif

@@ -74,20 +74,13 @@ typedef struct crs_Function {
     struct crs_Function** nested;
 } crs_Function;
 
-char*
-crsO_name(crs_Object* object);
+extern crs_Object crsO_nilValue;
 
-int
-crsO_test(crs_Object* object);
-
-int
-crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce);
-
-int
-crsO_toFloat(crs_Object* object, crs_Float* result, int coerce);
-
-char*
-crsO_toString(crs_Object* object, int* match);
+char* crsO_name(crs_Object* object);
+int   crsO_test(crs_Object* object);
+int   crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce);
+int   crsO_toFloat(crs_Object* object, crs_Float* result, int coerce);
+char* crsO_toString(crs_Object* object, int* match);
 
 /* automatic type coercions (if enabled) */
 #ifdef CRS_STR2NUM

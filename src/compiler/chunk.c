@@ -23,8 +23,7 @@
 
 #include "compiler/chunk.h"
 
-noret
-crsI_error(Chunk* chunk, char* format, ...) {
+noret crsI_error(Chunk* chunk, char* format, ...) {
     crs_Thread* thread = chunk->thread;
     crs_String* error;
     va_list     args;
@@ -37,13 +36,11 @@ crsI_error(Chunk* chunk, char* format, ...) {
     crsC_throw(thread, CRS_STATUS_CODEERR);
 }
 
-static void
-limitError(Chunk* chunk, unsigned max, char* what) {
+static void limitError(Chunk* chunk, unsigned max, char* what) {
 	crsI_error(chunk, "too many %s (limit is %u)", what, max);
 }
 
-static void
-data_init(Data* data, void** vec, unsigned max, size_t type) {
+static void data_init(Data* data, void** vec, unsigned max, size_t type) {
 	max = max > SIZE_MAX / type
 		? SIZE_MAX / type
 		: max;
@@ -54,8 +51,7 @@ data_init(Data* data, void** vec, unsigned max, size_t type) {
 	data->type  = type;
 }
 
-static void
-data_resize(Chunk* chunk, Data* data, unsigned size) {
+static void data_resize(Chunk* chunk, Data* data, unsigned size) {
 	void* vec = mem_realloc(chunk->thread, *data->vec,
 		size * data->type, *data->size * data->type);
 
@@ -68,8 +64,7 @@ data_resize(Chunk* chunk, Data* data, unsigned size) {
 }
 
 /* ensure space for at least one more element */
-static unsigned
-data_check(Chunk* chunk, Data* data, char* what) {
+static unsigned data_check(Chunk* chunk, Data* data, char* what) {
 	unsigned size = *data->size;
 	unsigned max  = data->max;
 
@@ -90,8 +85,7 @@ data_check(Chunk* chunk, Data* data, char* what) {
 }
 
 /* finalize a function vector */
-static void
-data_shrink(Chunk* chunk, Data* data) {
+static void data_shrink(Chunk* chunk, Data* data) {
 	if (data->count) {
 		data_resize(chunk, data, data->count);
 	} else {
@@ -101,8 +95,7 @@ data_shrink(Chunk* chunk, Data* data) {
 	}
 }
 
-static void
-data_free(Chunk* chunk, Data* data) {
+static void data_free(Chunk* chunk, Data* data) {
     mem_dealloc(chunk->thread, *data->vec, *data->size * data->type);
 }
 
@@ -112,8 +105,7 @@ data_free(Chunk* chunk, Data* data) {
  * ===========================
  */
 
-crs_Function*
-crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
+crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
     crs_Table*    cTable = crsT_new(thread);
     crs_Function* func;
 
@@ -142,8 +134,7 @@ crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
 }
 
 /* finish compiling a function */
-crs_Function*
-crsI_finish(Chunk* chunk) {
+crs_Function* crsI_finish(Chunk* chunk) {
     data_shrink(chunk, &chunk->code);
     data_shrink(chunk, &chunk->consts);
     data_shrink(chunk, &chunk->nested);
@@ -151,8 +142,7 @@ crsI_finish(Chunk* chunk) {
     return chunk->func;
 }
 
-unsigned
-crsI_nested(Chunk* chunk, crs_Function* func) {
+unsigned crsI_nested(Chunk* chunk, crs_Function* func) {
     Data*    nested = &chunk->nested;
     unsigned index  = data_check(chunk, nested, "nested functions");
 
@@ -166,8 +156,7 @@ crsI_nested(Chunk* chunk, crs_Function* func) {
  * ===========================
  */
 
-unsigned
-crsI_emit(Chunk* chunk, crs_instr i) {
+unsigned crsI_emit(Chunk* chunk, crs_instr i) {
     Data*    code = &chunk->code;
     unsigned pc   = data_check(chunk, code, "instructions");
 
@@ -181,8 +170,7 @@ crsI_emit(Chunk* chunk, crs_instr i) {
  * ===========================
  */
 
-unsigned
-crsI_newConst(Chunk* chunk, crs_Object* value) {
+unsigned crsI_newConst(Chunk* chunk, crs_Object* value) {
     Data*    consts = &chunk->consts;
     unsigned index  = data_check(chunk, consts, "constants");
 

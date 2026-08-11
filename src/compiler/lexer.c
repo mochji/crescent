@@ -41,8 +41,7 @@ static char* tokens[] = {
 
 #define next(l) ((l)->next = crsR_next((l)->stream))
 
-static int
-check(Lexer* lexer, int c) {
+static int check(Lexer* lexer, int c) {
     if (lexer->next == c) {
         next(lexer);
         return 1;
@@ -51,8 +50,7 @@ check(Lexer* lexer, int c) {
     return 0;
 }
 
-static int
-checkSet(Lexer* lexer, char* set) {
+static int checkSet(Lexer* lexer, char* set) {
     while (*set) {
         if (lexer->next == *set++) {
             next(lexer);
@@ -63,8 +61,7 @@ checkSet(Lexer* lexer, char* set) {
     return 0;
 }
 
-static int
-checkSequence(Lexer* lexer, char* str) {
+static int checkSequence(Lexer* lexer, char* str) {
     while (*str) {
         if (lexer->next != *str++) {
             return 0;
@@ -76,8 +73,7 @@ checkSequence(Lexer* lexer, char* str) {
     return 1;
 }
 
-static void
-newline(Lexer* lexer, int previous) {
+static void newline(Lexer* lexer, int previous) {
     if (lexer->info.line == INT_MAX) {
         crsL_error(lexer, "too many lines");
     }
@@ -91,8 +87,7 @@ newline(Lexer* lexer, int previous) {
     }
 }
 
-static void
-comment(Lexer* lexer) {
+static void comment(Lexer* lexer) {
     int start = lexer->info.line;
     int c;
 
@@ -119,8 +114,7 @@ comment(Lexer* lexer) {
  * add all reserved keywords to the string table. reserved keywords are
  * identified by their integer value.
  */
-static void
-string_reserve(Lexer* lexer) {
+static void string_reserve(Lexer* lexer) {
     crs_Thread* thread  = lexer->thread;
     crs_Table*  strings = lexer->strings;
 
@@ -135,8 +129,7 @@ string_reserve(Lexer* lexer) {
     }
 }
 
-static crs_String*
-string_new(Lexer* lexer) {
+static crs_String* string_new(Lexer* lexer) {
     crs_Buffer* buffer = &lexer->buffer;
     crs_String* string = crsS_newl(lexer->thread,
         buffer->buffer, buffer->length);
@@ -146,8 +139,7 @@ string_new(Lexer* lexer) {
 }
 
 /* buffer -> TK_STRING */
-static crs_String*
-string_literal(Lexer* lexer) {
+static crs_String* string_literal(Lexer* lexer) {
     crs_Thread* thread = lexer->thread;
     crs_String* string = string_new(lexer);
     crs_Object* key    = crsC_anchor(thread, obj_toheader(string));
@@ -167,8 +159,7 @@ string_literal(Lexer* lexer) {
 }
 
 /* buffer -> TK_NAME or reserved keyword */
-static int
-string_token(Lexer* lexer, Token* token) {
+static int string_token(Lexer* lexer, Token* token) {
     crs_Thread* thread = lexer->thread;
     crs_String* string = string_new(lexer);
     crs_Object* key    = crsC_anchor(thread, obj_toheader(string));
@@ -200,8 +191,7 @@ string_token(Lexer* lexer, Token* token) {
     return type;
 }
 
-static void
-escape(Lexer* lexer, crs_Buffer* buffer) {
+static void escape(Lexer* lexer, crs_Buffer* buffer) {
     switch (lexer->next) {
         case 'a':
             crsB_addChar(buffer, '\a'); break;
@@ -227,8 +217,7 @@ escape(Lexer* lexer, crs_Buffer* buffer) {
 }
 
 /* 'c' is already consumed */
-static int
-read_number(Lexer* lexer, Token* token, int c) {
+static int read_number(Lexer* lexer, Token* token, int c) {
     crs_Buffer* buffer   = &lexer->buffer;
     char*       exp      = "eE";
     int         afterExp = 0;
@@ -289,8 +278,7 @@ read_number(Lexer* lexer, Token* token, int c) {
 }
 
 /* 'c' is already consumed */
-static int
-read_name(Lexer* lexer, Token* token, int c) {
+static int read_name(Lexer* lexer, Token* token, int c) {
     crs_Buffer* buffer = &lexer->buffer;
     crsB_addChar(buffer, c);
 
@@ -304,8 +292,7 @@ read_name(Lexer* lexer, Token* token, int c) {
     return string_token(lexer, token);
 }
 
-static int
-read_string(Lexer* lexer, Token* token, int delimiter) {
+static int read_string(Lexer* lexer, Token* token, int delimiter) {
     crs_Buffer* buffer = &lexer->buffer;
     int         c;
 
@@ -329,8 +316,8 @@ read_string(Lexer* lexer, Token* token, int delimiter) {
     return TK_STRING;
 }
 
-static int
-read_longString(Lexer* lexer, Token* token) {
+/* FIXME: if a long string contains a single ']', it won't be added */
+static int read_longString(Lexer* lexer, Token* token) {
     crs_Buffer* buffer = &lexer->buffer;
     int         start  = lexer->info.line;
     int         c      = lexer->next;
@@ -345,6 +332,7 @@ read_longString(Lexer* lexer, Token* token) {
         c = lexer->next;
         next(lexer);
 
+        /* BUG */
         if (checkSequence(lexer, "]]")) {
             break;
         }
@@ -367,8 +355,7 @@ read_longString(Lexer* lexer, Token* token) {
     return TK_STRING;
 }
 
-static int
-nextToken(Lexer* lexer, Token* token) {
+static int nextToken(Lexer* lexer, Token* token) {
     for (;;) {
         int c = lexer->next;
         next(lexer);
@@ -468,8 +455,8 @@ nextToken(Lexer* lexer, Token* token) {
     }
 }
 
-void
-crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream, char* source) {
+void crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream,
+                                   char* source) {
     lexer->thread      = thread;
     lexer->stream      = stream;
     lexer->strings     = crsT_new(thread);
@@ -484,14 +471,12 @@ crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream, char* source) {
     next(lexer);
 }
 
-void
-crsL_close(Lexer* lexer) {
+void crsL_close(Lexer* lexer) {
     crsB_free(&lexer->buffer);
     crsC_unanchor(lexer->thread);
 }
 
-void
-crsL_next(Lexer* lexer) {
+void crsL_next(Lexer* lexer) {
     if (lexer->peek.type == TK_EOF) {
         lexer->token.type = nextToken(lexer, &lexer->token);
     } else {
@@ -500,15 +485,13 @@ crsL_next(Lexer* lexer) {
     }
 }
 
-void
-crsL_peek(Lexer* lexer) {
+void crsL_peek(Lexer* lexer) {
     if (lexer->peek.type == TK_EOF) {
         lexer->peek.type = nextToken(lexer, &lexer->peek);
     }
 }
 
-static char*
-tokenString(crs_Thread* thread, int token) {
+static char* tokenString(crs_Thread* thread, int token) {
     if (token > KEYWORD_FIRST) {
         return tokens[token - KEYWORD_FIRST];
     }
@@ -525,14 +508,12 @@ tokenString(crs_Thread* thread, int token) {
     return string->contents;
 }
 
-noret
-crsL_unexpected(Lexer* lexer) {
+noret crsL_unexpected(Lexer* lexer) {
     crsL_error(lexer, "unexpected '%s'",
         tokenString(lexer->thread, lexer->token.type));
 }
 
-noret
-crsL_expected(Lexer* lexer, int token) {
+noret crsL_expected(Lexer* lexer, int token) {
     crsL_error(lexer, "expected '%s'; got '%s'",
         tokenString(lexer->thread, token),
         tokenString(lexer->thread, lexer->token.type)

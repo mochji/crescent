@@ -25,8 +25,8 @@
 
 #include "types/function.h"
 
-static void*
-tryBlock(crs_Thread* thread, crs_Function* func, unsigned count, size_t size) {
+static void* tryBlock(crs_Thread* thread, crs_Function* func,
+                                          unsigned count, size_t size) {
     void* block;
 
     if (!count) {
@@ -39,8 +39,8 @@ tryBlock(crs_Thread* thread, crs_Function* func, unsigned count, size_t size) {
     return block;
 }
 
-crs_Function*
-crsK_new(crs_Thread* thread, unsigned nI, unsigned nC, unsigned nN) {
+crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
+                                           unsigned nN) {
     crs_Function* func = mem_new(thread, crs_Function);
 
     if (func == NULL) {
@@ -69,8 +69,7 @@ crsK_new(crs_Thread* thread, unsigned nI, unsigned nC, unsigned nN) {
     return crsG_add(thread, func, CRS_TYPE_FUNCTION);
 }
 
-void
-crsK_free(crs_Thread* thread, crs_Function* func) {
+void crsK_free(crs_Thread* thread, crs_Function* func) {
     mem_vfree(thread, func->code, func->nI);
     mem_vfree(thread, func->consts, func->nC);
     mem_vfree(thread, func->nested, func->nN);
@@ -125,10 +124,9 @@ crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  */
 
-static char
-endianness() {
+static crs_byte endianness() {
     int dummy = 1;
-    return *((char*)&dummy);
+    return *((crs_byte*)&dummy);
 }
 
 /*
@@ -139,8 +137,7 @@ endianness() {
 
 #define dump_value(d, v, t) {t x = (t)(v); crsW_write(d, (char*)&x, sizeof(t));}
 
-static void
-dump_header(crs_Dump* dump) {
+static void dump_header(crs_Dump* dump) {
     crsW_write(dump, CRS_SIGNATURE, 4);
     crsW_write(dump, CRS_DUMPCHECK, 8);
     dump_value(dump, CRS_VERSION, crs_byte);
@@ -151,8 +148,7 @@ dump_header(crs_Dump* dump) {
     dump_value(dump, sizeof(crs_Float), crs_byte);
 }
 
-static void
-dump_const(crs_Dump* dump, crs_Object* object) {
+static void dump_const(crs_Dump* dump, crs_Object* object) {
     dump_value(dump, object->type, crs_byte);
 
     switch (object->type) {
@@ -172,8 +168,7 @@ dump_const(crs_Dump* dump, crs_Object* object) {
     }
 }
 
-static void
-dump_func(crs_Dump* dump, crs_Function* func) {
+static void dump_func(crs_Dump* dump, crs_Function* func) {
     dump_value(dump, func->nI, unsigned);
     dump_value(dump, func->nC, unsigned);
     dump_value(dump, func->nN, unsigned);
@@ -191,8 +186,7 @@ dump_func(crs_Dump* dump, crs_Function* func) {
     }
 }
 
-void
-crsK_dump(crs_Dump* dump, crs_Function* func) {
+void crsK_dump(crs_Dump* dump, crs_Function* func) {
     dump_header(dump);
     dump_func(dump, func);
     crsW_flush(dump);
@@ -204,8 +198,7 @@ crsK_dump(crs_Dump* dump, crs_Function* func) {
  * ===========================
  */
 
-static noret
-load_error(crs_Stream* stream, char* format, ...) {
+static noret load_error(crs_Stream* stream, char* format, ...) {
     crs_Thread* thread = stream->thread;
     crs_String* error;
     va_list     args;
@@ -218,54 +211,48 @@ load_error(crs_Stream* stream, char* format, ...) {
     crsC_throw(thread, CRS_STATUS_CODEERR);
 }
 
-static void
-load_block(crs_Stream* stream, char* buffer, size_t count) {
+static void load_block(crs_Stream* stream, char* buffer, size_t count) {
     if (count > crsR_read(stream, buffer, count)) {
         load_error(stream, "truncated dump");
     }
 }
 
-static crs_byte
-load_byte(crs_Stream* stream) {
+static crs_byte load_byte(crs_Stream* stream) {
     crs_byte value;
     load_block(stream, (char*)&value, sizeof(crs_byte));
 
     return value;
 }
 
-static unsigned
-load_unsigned(crs_Stream* stream) {
+static unsigned load_unsigned(crs_Stream* stream) {
     unsigned value;
     load_block(stream, (char*)&value, sizeof(unsigned));
 
     return value;
 }
 
-static crs_Integer
-load_int(crs_Stream* stream) {
+static crs_Integer load_int(crs_Stream* stream) {
     crs_Integer value;
     load_block(stream, (char*)&value, sizeof(crs_Integer));
 
     return value;
 }
 
-static crs_Float
-load_float(crs_Stream* stream) {
+static crs_Float load_float(crs_Stream* stream) {
     crs_Float value;
     load_block(stream, (char*)&value, sizeof(crs_Float));
 
     return value;
 }
 
-static void
-load_checkByte(crs_Stream* stream, crs_byte expected, char* what) {
+static void load_checkByte(crs_Stream* stream, crs_byte expected, char* what) {
     if (load_byte(stream) != expected) {
         load_error(stream, "%s mismatch", what);
     }
 }
 
-static void
-load_checkString(crs_Stream* stream, char* str, int length, char* error) {
+static void load_checkString(crs_Stream* stream, char* str, int length,
+                                                 char* error) {
     char c;
 
     while (length--) {
@@ -277,8 +264,7 @@ load_checkString(crs_Stream* stream, char* str, int length, char* error) {
     }
 }
 
-static unsigned
-load_size(crs_Stream* stream, size_t size, char* what) {
+static unsigned load_size(crs_Stream* stream, size_t size, char* what) {
     unsigned count = load_unsigned(stream);
 
     if (count > SIZE_MAX / size) {
@@ -288,8 +274,7 @@ load_size(crs_Stream* stream, size_t size, char* what) {
     return count;
 }
 
-static crs_Integer
-load_length(crs_Stream* stream) {
+static crs_Integer load_length(crs_Stream* stream) {
     crs_Integer length = load_int(stream);
 
     if (length < 0) {
@@ -301,8 +286,7 @@ load_length(crs_Stream* stream) {
     return length;
 }
 
-static void
-load_checkHeader(crs_Stream* stream) {
+static void load_checkHeader(crs_Stream* stream) {
     load_checkString(stream, CRS_SIGNATURE, 4, "not a binary dump");
     load_checkString(stream, CRS_DUMPCHECK, 8, "corrupted dump");
     load_checkByte(stream, CRS_VERSION, "version");
@@ -313,8 +297,7 @@ load_checkHeader(crs_Stream* stream) {
     load_checkByte(stream, sizeof(crs_Float), "float size");
 }
 
-static void
-load_const(crs_Stream* stream, crs_Object* object) {
+static void load_const(crs_Stream* stream, crs_Object* object) {
     switch (load_byte(stream)) {
         case CRS_TYPE_INTEGER: {
             crs_Integer value = load_int(stream);
@@ -338,8 +321,7 @@ load_const(crs_Stream* stream, crs_Object* object) {
     }
 }
 
-static crs_Function*
-load_func(crs_Stream* stream) {
+static crs_Function* load_func(crs_Stream* stream) {
     crs_Thread*   thread = stream->thread;
     crs_Function* func;
 
@@ -368,8 +350,7 @@ load_func(crs_Stream* stream) {
     return func;
 }
 
-crs_Function*
-crsK_load(crs_Stream* stream) {
+crs_Function* crsK_load(crs_Stream* stream) {
     load_checkHeader(stream);
     return load_func(stream);
 }

@@ -20,8 +20,7 @@
  * all that's provided is a basic global "print"
  */
 
-int
-print(crs_Thread* thread) {
+int print(crs_Thread* thread) {
     for (int i = 1; i <= crs_getTop(thread); i++) {
         if (i > 1) {
             printf("\t");
@@ -56,20 +55,17 @@ print(crs_Thread* thread) {
     return 0;
 }
 
-static int
-reader(crs_Thread* thread, void* data, char* buffer, int count) {
+static int reader(crs_Thread* thread, void* data, char* buffer, int count) {
     (void)thread;
     return fread(buffer, sizeof(char), count, data);
 }
 
-static void
-writer(crs_Thread* thread, void* data, char* buffer, int count) {
+static void writer(crs_Thread* thread, void* data, char* buffer, int count) {
     (void)thread;
     fwrite(buffer, sizeof(char), count, data);
 }
 
-int
-main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     if (argc != 2) {
         fprintf(stderr, "expected two arguments\n");
         return 1;

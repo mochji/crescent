@@ -18,8 +18,7 @@
 
 #include "core/memory.h"
 
-void
-crsM_error(crs_Thread* thread) {
+void crsM_error(crs_Thread* thread) {
     crs_String* error = thread->state->memoryError;
 
     if (error != NULL) {
@@ -29,8 +28,7 @@ crsM_error(crs_Thread* thread) {
     crsC_throw(thread, CRS_STATUS_MEMERR);
 }
 
-static void*
-tryAgain(crs_Thread* thread, size_t size, void* block) {
+static void* tryAgain(crs_Thread* thread, size_t size, void* block) {
     if (gc_getstatus(thread->state, STOPEM)) {
         return NULL;
     }
@@ -40,8 +38,7 @@ tryAgain(crs_Thread* thread, size_t size, void* block) {
     return block == NULL ? malloc(size) : realloc(block, size);
 }
 
-void*
-crsM_malloc(crs_Thread* thread, size_t size) {
+void* crsM_malloc(crs_Thread* thread, size_t size) {
     crs_State* state = thread->state;
     void*      block = malloc(size);
 
@@ -58,8 +55,7 @@ crsM_malloc(crs_Thread* thread, size_t size) {
     return block;
 }
 
-void*
-crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
+void* crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
     crs_State* state    = thread->state;
     void*      newBlock = realloc(block, size);
 
@@ -77,8 +73,7 @@ crsM_realloc(crs_Thread* thread, void* block, size_t size, size_t oldSize) {
     return newBlock;
 }
 
-void
-crsM_free(crs_Thread* thread, void* block, size_t size) {
+void crsM_free(crs_Thread* thread, void* block, size_t size) {
     if (block == NULL) {
         return;
     }

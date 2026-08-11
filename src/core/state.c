@@ -22,8 +22,7 @@
 
 #include "core/state.h"
 
-static int
-initThread(crs_State* state, crs_Thread* thread) {
+static int initThread(crs_State* state, crs_Thread* thread) {
     crs_Object* stack = malloc(CRS_MIN_STACK * sizeof(crs_Object));
     crs_Frame*  frame = &thread->stack.baseFrame;
 
@@ -51,8 +50,7 @@ initThread(crs_State* state, crs_Thread* thread) {
     return 0;
 }
 
-static void*
-initState(crs_Thread* thread, void* data) {
+static void* initState(crs_Thread* thread, void* data) {
     crs_State* state = (crs_State*)data;
 
     state->memoryError = crsS_new(thread, "out of memory");
@@ -64,8 +62,7 @@ initState(crs_Thread* thread, void* data) {
     return NULL;
 }
 
-crs_Thread*
-crsE_open(void) {
+crs_Thread* crsE_open(void) {
     crs_State*  state = malloc(sizeof(crs_State));
     crs_Thread* thread;
 
@@ -78,9 +75,8 @@ crsE_open(void) {
     /* basic initialization */
 
     crsG_init(state);
-    state->memoryError   = NULL;
-    state->nilValue.type = CRS_TYPE_NIL;
-    state->panic         = NULL;
+    state->memoryError = NULL;
+    state->panic       = NULL;
 
     if (initThread(state, thread)) {
         free(state);
@@ -103,15 +99,13 @@ crsE_open(void) {
     return thread;
 }
 
-void
-crsE_close(crs_State* state) {
+void crsE_close(crs_State* state) {
     crsG_freeAll(state);
     free(state->thread.stack.base);
     free(state);
 }
 
-void
-crsE_freeThread(crs_Thread* thread) {
+void crsE_freeThread(crs_Thread* thread) {
     crs_Frame* frame = thread->stack.frame;
 
     while (frame->previous != NULL) {

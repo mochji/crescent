@@ -15,8 +15,9 @@
 #include "types/table.h"
 #include "core/format.h"
 
-char*
-crsO_name(crs_Object* object) {
+crs_Object crsO_nilValue = {.type = CRS_TYPE_NIL};
+
+char* crsO_name(crs_Object* object) {
     switch (object->type) {
         case CRS_TYPE_NIL:       return "nil";
         case CRS_TYPE_BOOLEAN:   return "boolean";
@@ -32,8 +33,7 @@ crsO_name(crs_Object* object) {
     return NULL;
 }
 
-int
-crsO_test(crs_Object* object) {
+int crsO_test(crs_Object* object) {
     if (object->type == CRS_TYPE_BOOLEAN) {
         return obj_getb(object) != 0;
     }
@@ -41,8 +41,7 @@ crsO_test(crs_Object* object) {
     return object->type != CRS_TYPE_NIL;
 }
 
-int
-crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce) {
+int crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce) {
     crs_Integer value   = 0;
     int         success = 0;
 
@@ -69,8 +68,7 @@ crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce) {
     return success;
 }
 
-int
-crsO_toFloat(crs_Object* object, crs_Float* result, int coerce) {
+int crsO_toFloat(crs_Object* object, crs_Float* result, int coerce) {
     crs_Float value   = 0;
     int       success = 0;
 
@@ -97,8 +95,7 @@ crsO_toFloat(crs_Object* object, crs_Float* result, int coerce) {
     return success;
 }
 
-char*
-crsO_toString(crs_Object* object, int* match) {
+char* crsO_toString(crs_Object* object, int* match) {
     crs_byte type = object->type;
 
     if (match != NULL) {

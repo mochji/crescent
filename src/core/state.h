@@ -21,7 +21,7 @@
 #define CRS_STRCACHE_BUCKETS 4
 
 typedef struct crs_Handler {
-    crs_byte            status;
+    int                 status;
     jmp_buf             buffer;
     struct crs_Handler* previous;
 } crs_Handler;
@@ -33,7 +33,7 @@ typedef struct crs_Frame {
 } crs_Frame;
 
 struct crs_Thread {
-    crs_GCHeader header;
+    crs_GCHeader gc;
     struct {
         size_t      size;
         crs_Object* base;
@@ -100,20 +100,14 @@ typedef struct crs_State {
         crs_GCHeader** sweep;
     }              gc;
     crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
-    crs_Object     globals;
     crs_String*    memoryError;
-    crs_Object     nilValue;
-    crs_Thread     thread;
     crs_CFunction* panic;
+    crs_Object     globals;
+    crs_Thread     thread;
 } crs_State;
 
-crs_Thread*
-crsE_open(void);
-
-void
-crsE_close(crs_State* state);
-
-void
-crsE_freeThread(crs_Thread* thread);
+crs_Thread* crsE_open(void);
+void        crsE_close(crs_State* state);
+void        crsE_freeThread(crs_Thread* thread);
 
 #endif

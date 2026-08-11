@@ -121,22 +121,11 @@ typedef struct {
     Data          nested;
 } Chunk;
 
-noret
-crsI_error(Chunk* chunk, char* format, ...);
-
-crs_Function*
-crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser);
-
-crs_Function*
-crsI_finish(Chunk* chunk);
-
-unsigned
-crsI_nested(Chunk* chunk, crs_Function* func);
-
-unsigned
-crsI_emit(Chunk* chunk, crs_instr i);
-
-unsigned
-crsI_newConst(Chunk* chunk, crs_Object* value);
+noret         crsI_error(Chunk* chunk, char* format, ...);
+crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser);
+crs_Function* crsI_finish(Chunk* chunk);
+unsigned crsI_nested(Chunk* chunk, crs_Function* func);
+unsigned crsI_emit(Chunk* chunk, crs_instr i);
+unsigned crsI_newConst(Chunk* chunk, crs_Object* value);
 
 #endif
