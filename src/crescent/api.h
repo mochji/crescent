@@ -127,7 +127,7 @@ void crs_pushBoolean(crs_Thread* thread, int value);
 void crs_pushInteger(crs_Thread* thread, crs_Integer value);
 void crs_pushFloat(crs_Thread* thread, crs_Float value);
 void crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
-void crs_pushString(crs_Thread* thread, const char* str);
+void crs_pushString(crs_Thread* thread, char* str);
 void crs_pushTable(crs_Thread* thread);
 void crs_format(crs_Thread* thread, char* format, ...);
 void crs_vformat(crs_Thread* thread, char* format, va_list args);

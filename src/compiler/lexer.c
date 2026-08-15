@@ -39,6 +39,18 @@ static char* tokens[] = {
     "<float>", "<name>", "<string>"
 };
 
+static char* tokenString(crs_Thread* thread, int token) {
+    if (token > KEYWORD_FIRST) {
+        return tokens[token - KEYWORD_FIRST];
+    }
+
+    crs_String* string = crsF_format(thread,
+        c_isgraph(token) ? "%c" : "<\\x%x>", token);
+
+    obj_setgc(&thread->error, string); /* anchor */
+    return string->contents;
+}
+
 #define next(l) ((l)->next = crsR_next((l)->stream))
 
 static int check(Lexer* lexer, int c) {
@@ -212,7 +224,8 @@ static void escape(Lexer* lexer, crs_Buffer* buffer) {
         case '\n': case '\r': case CRS_EOS:
             crsL_error(lexer, "unterminated escape sequence");
         default:
-            crsL_error(lexer, "invalid escape sequence '\\%c'", lexer->next);
+            crsL_error(lexer, "invalid escape sequence '\\%s'",
+                tokenString(lexer->thread, lexer->next));
     }
 }
 
@@ -316,7 +329,6 @@ static int read_string(Lexer* lexer, Token* token, int delimiter) {
     return TK_STRING;
 }
 
-/* FIXME: if a long string contains a single ']', it won't be added */
 static int read_longString(Lexer* lexer, Token* token) {
     crs_Buffer* buffer = &lexer->buffer;
     int         start  = lexer->info.line;
@@ -332,8 +344,7 @@ static int read_longString(Lexer* lexer, Token* token) {
         c = lexer->next;
         next(lexer);
 
-        /* BUG */
-        if (checkSequence(lexer, "]]")) {
+        if (c == ']' && check(lexer, ']')) {
             break;
         }
 
@@ -489,23 +500,6 @@ void crsL_peek(Lexer* lexer) {
     if (lexer->peek.type == TK_EOF) {
         lexer->peek.type = nextToken(lexer, &lexer->peek);
     }
-}
-
-static char* tokenString(crs_Thread* thread, int token) {
-    if (token > KEYWORD_FIRST) {
-        return tokens[token - KEYWORD_FIRST];
-    }
-
-    crs_String* string;
-
-    if (c_isgraph(token)) {
-        string = crsF_format(thread, "%c", token);
-    } else {
-        string = crsF_format(thread, "<\\x%x>", token);
-    }
-
-    obj_setgc(&thread->error, string); /* anchor */
-    return string->contents;
 }
 
 noret crsL_unexpected(Lexer* lexer) {

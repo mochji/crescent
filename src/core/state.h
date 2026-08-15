@@ -48,15 +48,6 @@ struct crs_Thread {
 };
 
 /*
- * GC usage, next, and last
- *
- * When a block is allocated/freed, the size of it is added to/subtracted from
- * the usage. Once the usage exceeds next, the GC is triggered, and the
- * difference in usage between now and the last step (usage - last) determines
- * how much work will be done in this step.
- */
-
-/*
  * GC lists
  *
  * All collectable objects are in a long linked list, of which there are two:
@@ -89,9 +80,9 @@ typedef struct crs_State {
     struct {
         crs_byte       status;
         crs_byte       phase;
-        crs_mem        usage;
-        crs_mem        next;
-        crs_mem        last;
+        crs_mem        usage; /* sum of requested sizes of allocated blocks */
+        crs_mem        next;  /* usage at which to trigger gc */
+        crs_mem        last;  /* usage after last gc step */
         unsigned short params[3];
         crs_GCHeader*  all;
         crs_GCHeader*  immune;

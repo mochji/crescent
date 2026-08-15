@@ -435,9 +435,9 @@ export void crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
     obj_setc(object, function);
 }
 
-export void crs_pushString(crs_Thread* thread, const char* str) {
+export void crs_pushString(crs_Thread* thread, char* str) {
     crs_Object* object = adjustTop(thread, 1);
-    crs_String* string = crsS_new(thread, (char*)str);
+    crs_String* string = crsS_new(thread, str);
 
     obj_setgc(object, string);
     crsG_check(thread);
@@ -534,7 +534,8 @@ export int crs_load(crs_Thread* thread, crs_Reader* reader, void* data) {
     return status;
 }
 
-export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data) {
+export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
+                                        void* data) {
     crs_Object* object = getIndex(thread, index);
     crs_Dump    dump;
     DumpInfo    info;

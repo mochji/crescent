@@ -67,7 +67,7 @@ static void writer(crs_Thread* thread, void* data, char* buffer, int count) {
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        fprintf(stderr, "expected two arguments\n");
+        fprintf(stderr, "expected one argument\n");
         return 1;
     }
 

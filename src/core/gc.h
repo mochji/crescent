@@ -28,8 +28,11 @@
 #define CRS_BIT_GCEMERGENCY 1
 #define CRS_BIT_GCSTOPEM    2
 
-#define gc_getstatus(s, n)    (bit_get((s)->gc.status, bit_mask(CRS_BIT_GC##n)) >> CRS_BIT_GC##n)
-#define gc_setstatus(s, n, v) ((s)->gc.status = bit_change((s)->gc.status, (v) << CRS_BIT_GC##n, bit_mask(CRS_BIT_GC##n)))
+#define gc_getstatus(s, n) \
+    (bit_get((s)->gc.status, bit_mask(CRS_BIT_GC##n)) >> CRS_BIT_GC##n)
+#define gc_setstatus(s, n, v) \
+    ((s)->gc.status = \
+     bit_change((s)->gc.status, (v) << CRS_BIT_GC##n, bit_mask(CRS_BIT_GC##n)))
 
 /*
  * Header mark byte
@@ -51,8 +54,10 @@
 #define gc_isgray(h)  (!bit_get((h)->mark, CRS_MASK_SET))
 
 /* reset all set bits, then set the correct one */
-#define gc_setwhite(h) ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_WHITE)
-#define gc_setblack(h) ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
+#define gc_setwhite(h) \
+    ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_WHITE)
+#define gc_setblack(h) \
+    ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
 #define gc_setgray(h)  ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET))
 
 /*
@@ -106,9 +111,11 @@ void  crsG_full(crs_Thread* thread, int emergency);
 
 #define crsG_add(t, o, b) crsG_add_((t), obj_toheader(o), (b))
 #define crsG_barrierF(t, b, w) \
-    {if (obj_iscollectable(w)) crsG_barrierF_((t), obj_toheader(b), obj_geth(w));}
+    {if (obj_iscollectable(w)) \
+    crsG_barrierF_((t), obj_toheader(b), obj_geth(w));}
 #define crsG_barrierB(t, b, w) \
-    {if (obj_iscollectable(w)) crsG_barrierB_((t), obj_toheader(b), obj_geth(w));}
+    {if (obj_iscollectable(w)) \
+    crsG_barrierB_((t), obj_toheader(b), obj_geth(w));}
 #define crsG_check(t) \
     ((t)->state->gc.usage >= (t)->state->gc.next ? crsG_step(t) : 0)
 

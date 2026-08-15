@@ -101,7 +101,8 @@ static void mark_header(crs_State* state, crs_GCHeader* header) {
 }
 
 #define mark_object(s, i) mark_header((s), obj_toheader(i))
-#define mark_value(s, o)  {if (obj_iscollectable(o)) mark_header((s), obj_geth(o));}
+#define mark_value(s, o) \
+    {if (obj_iscollectable(o)) mark_header((s), obj_geth(o));}
 
 /*
  * ===========================
@@ -423,9 +424,11 @@ void crsG_setImmune(crs_Thread* thread) {
     gc_setgray(header);
 }
 
-#define dobarrier(s, b, w) ((gc_isblack(b) && gc_iswhite(w)) && keepinvariant(s))
+#define dobarrier(s, b, w) \
+    ((gc_isblack(b) && gc_iswhite(w)) && keepinvariant(s))
 
-void crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black, crs_GCHeader* white) {
+void crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black,
+                                        crs_GCHeader* white) {
     crs_State* state = thread->state;
 
     if (dobarrier(state, black, white)) {

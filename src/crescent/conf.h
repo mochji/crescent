@@ -118,12 +118,12 @@ enum {
     CRS_OP_DIV,
     CRS_OP_POW,
     CRS_OP_MOD,
-    CRS_OP_NOT,
-    CRS_OP_AND,
-    CRS_OP_OR,
-    CRS_OP_XOR,
-    CRS_OP_SHL,
-    CRS_OP_SHR,
+    CRS_OP_BNOT,
+    CRS_OP_BAND,
+    CRS_OP_BOR,
+    CRS_OP_BXOR,
+    CRS_OP_BSHL,
+    CRS_OP_BSHR,
     CRS_OP_EQ,
     CRS_OP_LT,
     CRS_OP_LE
@@ -212,6 +212,8 @@ enum {
 /* binary dump signatures */
 #define CRS_SIGNATURE "\x7F" "CRS"
 #define CRS_DUMPCHECK "\0\r\n\b\x7F\xFF\n\r"
+
+#define CRS_RETALL (-1)
 
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;

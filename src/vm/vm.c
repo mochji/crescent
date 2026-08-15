@@ -173,22 +173,22 @@ static void error_arith(crs_Thread* thread, crs_Object* l, crs_Object* r,
             error_binary(thread, l, r, "^");
         case CRS_OP_MOD:
             error_binary(thread, l, r, "%");
-        case CRS_OP_NOT:
+        case CRS_OP_BNOT:
             error_int(thread, r, r);
             error_unary(thread, r, "~");
-        case CRS_OP_AND:
+        case CRS_OP_BAND:
             error_int(thread, l, r);
             error_binary(thread, l, r, "&");
-        case CRS_OP_OR:
+        case CRS_OP_BOR:
             error_int(thread, l, r);
             error_binary(thread, l, r, "|");
-        case CRS_OP_XOR:
+        case CRS_OP_BXOR:
             error_int(thread, l, r);
             error_binary(thread, l, r, "~");
-        case CRS_OP_SHL:
+        case CRS_OP_BSHL:
             error_int(thread, l, r);
             error_binary(thread, l, r, "<<");
-        case CRS_OP_SHR:
+        case CRS_OP_BSHR:
             error_int(thread, l, r);
             error_binary(thread, l, r, ">>");
     }
@@ -206,17 +206,17 @@ static crs_Integer arith_int(crs_Integer l, crs_Integer r, int op) {
             return l * r;
         case CRS_OP_MOD:
             return r == 0 ? 0 : l % r;
-        case CRS_OP_NOT:
+        case CRS_OP_BNOT:
             return ~r;
-        case CRS_OP_AND:
+        case CRS_OP_BAND:
             return l & r;
-        case CRS_OP_OR:
+        case CRS_OP_BOR:
             return l | r;
-        case CRS_OP_XOR:
+        case CRS_OP_BXOR:
             return l ^ r;
-        case CRS_OP_SHL:
+        case CRS_OP_BSHL:
             return l << r;
-        case CRS_OP_SHR:
+        case CRS_OP_BSHR:
             return l >> r;
     }
 
@@ -244,14 +244,14 @@ static crs_Float arith_float(crs_Float l, crs_Float r, int op) {
     return 0;
 }
 
-static int arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
+int crsV_rawArith(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
     crs_Integer iL, iR;
     crs_Float   fL, fR;
 
     switch (op) {
         /* integers only */
-        case CRS_OP_NOT: case CRS_OP_AND: case CRS_OP_OR:
-        case CRS_OP_XOR: case CRS_OP_SHL: case CRS_OP_SHR:
+        case CRS_OP_BNOT: case CRS_OP_BAND: case CRS_OP_BOR:
+        case CRS_OP_BXOR: case CRS_OP_BSHL: case CRS_OP_BSHR:
             if (obj_cvtint(l, &iL) && obj_cvtint(r, &iR)) {
                 crs_Integer result = arith_int(iL, iR, op);
                 obj_seti(o, result);
@@ -293,7 +293,7 @@ static int arith_raw(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 
 void crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l,
                                     crs_Object* r, int op) {
-    if (arith_raw(o, l, r, op)) {
+    if (crsV_rawArith(o, l, r, op)) {
         return;
     }
 
@@ -480,27 +480,27 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_BNOT: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_NOT);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BNOT);
                 break;
             }
             case OP_BAND: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_AND);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BAND);
                 break;
             }
             case OP_BOR: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_OR);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BOR);
                 break;
             }
             case OP_BXOR: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_XOR);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BXOR);
                 break;
             }
             case OP_SHL: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SHL);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BSHL);
                 break;
             }
             case OP_SHR: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SHR);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BSHR);
                 break;
             }
             case OP_EQ: {
@@ -543,7 +543,6 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
             }
             case OP_SET: {
                 crsV_set(thread, reg_B(i), reg_C(i), reg_A(i));
-
                 break;
             }
             case OP_CALL: {

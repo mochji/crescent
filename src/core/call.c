@@ -255,6 +255,10 @@ static void startCall(crs_Thread* thread, int top, int args) {
 
 /* return 'wanted' elements and pop the top stack frame */
 static void endCall(crs_Thread* thread, int results, int wanted) {
+    if (wanted == CRS_RETALL) {
+        wanted = results;
+    }
+
     crs_Frame* frame    = thread->stack.frame;
     crs_Frame* previous = frame->previous;
     int        top      = thread->stack.top - frame->base;
@@ -273,6 +277,8 @@ static void endCall(crs_Thread* thread, int results, int wanted) {
             to++;
             from++;
         }
+    } else {
+        to += results;
     }
 
     /* return nil for missing elements */
