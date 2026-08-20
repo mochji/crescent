@@ -94,8 +94,12 @@ int crsV_equal(crs_Object* l, crs_Object* r) {
             return crsS_equal(obj_gets(l), obj_gets(r));
         case CRS_TYPE_TABLE:
             return obj_gett(l) == obj_gett(r);
+        case CRS_TYPE_FUNCTION:
+            return obj_getk(l) == obj_getk(r);
         case CRS_TYPE_THREAD:
             return obj_getx(l) == obj_getx(r);
+        default:
+            assert(0);
     }
 
     return 0;
@@ -218,6 +222,8 @@ static crs_Integer arith_int(crs_Integer l, crs_Integer r, int op) {
             return l << r;
         case CRS_OP_BSHR:
             return l >> r;
+        default:
+            assert(0);
     }
 
     return 0;
@@ -239,6 +245,8 @@ static crs_Float arith_float(crs_Float l, crs_Float r, int op) {
             return float_pow(l, r);
         case CRS_OP_MOD:
             return r == 0 ? 0 : float_mod(l, r);
+        default:
+            assert(0);
     }
 
     return 0;
@@ -550,7 +558,7 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 crs_byte    b = instr_B(i);
 
                 thread->stack.top = 1 + (a + b);
-                crsV_call(thread, a, b, instr_C(i));
+                crsV_call(thread, a, b, (int)instr_C(i));
 
                 /* stack may have been resized */
                 stack             = frame->base;
@@ -575,6 +583,8 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 pc--;
                 break;
             }
+            default:
+                assert(0);
         }
 
         crsG_check(thread);

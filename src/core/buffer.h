@@ -28,7 +28,7 @@ typedef struct {
 
 void crsB_init(crs_Thread* thread, crs_Buffer* buffer);
 void crsB_free(crs_Buffer* buffer);
-void crsB_addChar(crs_Buffer* buffer, char c);
+void crsB_addChar(crs_Buffer* buffer, int c);
 void crsB_addString(crs_Buffer* buffer, char* str, size_t length);
 void crsB_clear(crs_Buffer* buffer);
 
@@ -60,6 +60,6 @@ typedef struct {
 void crsW_init(crs_Thread* thread, crs_Dump* dump, crs_Writer* writer,
                                    void* data);
 void crsW_flush(crs_Dump* dump);
-void crsW_write(crs_Dump* dump, char* buffer, size_t length);
+void crsW_write(crs_Dump* dump, char* buffer, size_t count);
 
 #endif

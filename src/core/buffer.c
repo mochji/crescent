@@ -76,9 +76,9 @@ void crsB_free(crs_Buffer* buffer) {
     }
 }
 
-void crsB_addChar(crs_Buffer* buffer, char c) {
+void crsB_addChar(crs_Buffer* buffer, int c) {
     checkBuffer(buffer, 1);
-    buffer->buffer[buffer->length++] = c;
+    buffer->buffer[buffer->length++] = (char)c;
 }
 
 void crsB_addString(crs_Buffer* buffer, char* str, size_t length) {
@@ -119,14 +119,14 @@ size_t crsR_read(crs_Stream* stream, char* buffer, size_t count) {
             break; /* nothing more to read */
         }
 
-        size_t left = stream->length - stream->read;
-        int    copy = count > left ? left : count;
+        size_t left = (size_t)(stream->length - stream->read);
+        size_t copy = count > left ? left : count;
 
         memcpy(buffer, stream->buffer + stream->read, copy);
         count        -= copy;
         buffer       += copy;
-        stream->read += copy;
         read         += copy;
+        stream->read += (int)copy;
     }
 
     return read;
@@ -137,7 +137,7 @@ int crsR_next(crs_Stream* stream) {
         return CRS_EOS;
     }
 
-    return (unsigned char)stream->buffer[stream->read++];
+    return stream->buffer[stream->read++];
 }
 
 void crsW_init(crs_Thread* thread, crs_Dump* dump, crs_Writer* writer,
@@ -155,18 +155,18 @@ void crsW_flush(crs_Dump* dump) {
     }
 }
 
-void crsW_write(crs_Dump* dump, char* buffer, size_t length) {
-    while (length) {
+void crsW_write(crs_Dump* dump, char* buffer, size_t count) {
+    while (count) {
         if (dump->written == CRS_BUF_STREAM) {
             crsW_flush(dump);
         }
 
-        size_t space = CRS_BUF_STREAM - dump->written;
-        int    copy  = length > space ? space : length;
+        size_t space = (size_t)(CRS_BUF_STREAM - dump->written);
+        size_t copy  = count > space ? space : count;
 
         memcpy(dump->buffer + dump->written, buffer, copy);
+        count         -= copy;
         buffer        += copy;
-        dump->written += copy;
-        length        -= copy;
+        dump->written += (int)copy;
     }
 }

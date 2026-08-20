@@ -31,8 +31,8 @@
 #define gc_getstatus(s, n) \
     (bit_get((s)->gc.status, bit_mask(CRS_BIT_GC##n)) >> CRS_BIT_GC##n)
 #define gc_setstatus(s, n, v) \
-    ((s)->gc.status = \
-     bit_change((s)->gc.status, (v) << CRS_BIT_GC##n, bit_mask(CRS_BIT_GC##n)))
+    ((s)->gc.status = (crs_byte)bit_change( \
+    (s)->gc.status, (v) << CRS_BIT_GC##n, bit_mask(CRS_BIT_GC##n)))
 
 /*
  * Header mark byte
@@ -55,10 +55,11 @@
 
 /* reset all set bits, then set the correct one */
 #define gc_setwhite(h) \
-    ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_WHITE)
+    ((h)->mark = (crs_byte)bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_WHITE)
 #define gc_setblack(h) \
-    ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
-#define gc_setgray(h)  ((h)->mark = bit_reset((h)->mark, CRS_MASK_SET))
+    ((h)->mark = (crs_byte)bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
+#define gc_setgray(h) \
+    ((h)->mark = (crs_byte)bit_reset((h)->mark, CRS_MASK_SET))
 
 /*
  * GC parameters
@@ -68,9 +69,9 @@
  *   with larger values having longer pauses.
  *
  *   For example:
- *     - A value of 100 means the memory usage must double.
- *     - A value of 200 means the memory usage must triple.
- *     - A value of 0 forces the collector to immediately start another cycle.
+ *   - A value of 100 means the memory usage must double.
+ *   - A value of 200 means the memory usage must triple.
+ *   - A value of 0 forces the collector to immediately start another cycle.
  *
  * step:
  *   How many bytes must be allocated for another step to begin in the same

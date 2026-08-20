@@ -60,6 +60,15 @@ typedef crs_u32       crs_instr;
 #define bit_change(x, v, m) (((x) & ~(m)) | (v))
 #define bit_1mask(o, l)     (((1 << (l)) - 1) << (o))
 
+#ifdef CRS_DEBUG
+#undef NDEBUG
+#include <assert.h>
+#else
+#define NDEBUG
+#undef assert
+#define assert(...) ((void)0)
+#endif
+
 #define noret  __attribute__((noreturn)) void
 #define export __attribute__((visibility("default")))
 

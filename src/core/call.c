@@ -175,12 +175,12 @@ int crsC_checkTop(crs_Thread* thread, int top, int throw) {
 
     crs_Object* stack  = thread->stack.base;
     crs_Frame*  frame  = thread->stack.frame;
-    size_t      needed = (frame->base - stack) + top;
+    size_t      needed = (size_t)((frame->base - stack) + top);
 
     frame = frame->previous;
 
     while (frame != NULL) {
-        size_t frameNeeds = (frame->base - stack) + frame->top;
+        size_t frameNeeds = (size_t)((frame->base - stack) + frame->top);
 
         if (frameNeeds > needed) {
             needed = frameNeeds;
@@ -200,7 +200,7 @@ int crsC_checkTop(crs_Thread* thread, int top, int throw) {
 
 /* ensure there is at least 'free' free elements on the stack */
 int crsC_checkFree(crs_Thread* thread, int free, int throw) {
-    size_t needed = (thread->stack.top - thread->stack.base) + free;
+    size_t needed = (size_t)((thread->stack.top - thread->stack.base) + free);
 
     if (needed > thread->stack.size) {
         return crsC_resizeStack(thread, needed, throw);
@@ -212,8 +212,8 @@ int crsC_checkFree(crs_Thread* thread, int free, int throw) {
 static void checkResults(crs_Thread* thread, int wanted) {
     crs_Frame* frame    = thread->stack.frame;
     crs_Frame* previous = frame->previous;
-    size_t     needed   = (frame->base - thread->stack.base) + wanted - 1;
-    int        free     = previous->top - (frame->base - previous->base);
+    size_t     needed   = (size_t)((frame->base - thread->stack.base) + wanted);
+    int        free     = (int)(previous->top - (frame->base - previous->base));
 
     /* previous frame cannot hold results? */
     if (wanted > CRS_MAX_TOP - free) {
@@ -261,7 +261,7 @@ static void endCall(crs_Thread* thread, int results, int wanted) {
 
     crs_Frame* frame    = thread->stack.frame;
     crs_Frame* previous = frame->previous;
-    int        top      = thread->stack.top - frame->base;
+    int        top      = (int)(thread->stack.top - frame->base);
 
     /* only return as much as the frame has */
     results = results > top ? top : results;

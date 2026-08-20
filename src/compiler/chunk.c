@@ -42,7 +42,7 @@ static void limitError(Chunk* chunk, unsigned max, char* what) {
 
 static void data_init(Data* data, void** vec, unsigned max, size_t type) {
 	max = max > SIZE_MAX / type
-		? SIZE_MAX / type
+		? (unsigned)(SIZE_MAX / type)
 		: max;
 
 	data->vec   = vec;

@@ -48,7 +48,7 @@ crs_String* crsS_newo(crs_Thread* thread, size_t length) {
         crsM_error(thread);
     }
 
-    string->length = length;
+    string->length = (crs_Integer)length;
     string->hashed = 0;
     string->hash   = 0;
     string->contents[length] = '\0';

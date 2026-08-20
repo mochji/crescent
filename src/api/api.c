@@ -70,7 +70,7 @@ static crs_Object* getIndex(crs_Thread* thread, int index) {
 
 static crs_Object* adjustTop(crs_Thread* thread, int amount) {
     crs_Frame* frame = thread->stack.frame;
-    int        items = thread->stack.top - frame->base;
+    int        items = (int)(thread->stack.top - frame->base);
 
     if (-amount > items) {
         amount = -items;
@@ -198,7 +198,7 @@ export void crs_setGC(crs_Thread* thread, int option, unsigned short value) {
  */
 
 export int crs_getTop(crs_Thread* thread) {
-    return thread->stack.top - thread->stack.frame->base;
+    return (int)(thread->stack.top - thread->stack.frame->base);
 }
 
 export int crs_checkTop(crs_Thread* thread, int top) {
@@ -240,7 +240,7 @@ export void crs_pop(crs_Thread* thread, int amount) {
         return;
     }
 
-    int items = thread->stack.top - thread->stack.frame->base;
+    int items = (int)(thread->stack.top - thread->stack.frame->base);
 
     if (amount > items) {
         amount = items;
@@ -256,7 +256,7 @@ export void crs_remove(crs_Thread* thread, int index) {
     }
 
     crs_Frame* frame = thread->stack.frame;
-    int        items = thread->stack.top - frame->base;
+    int        items = (int)(thread->stack.top - frame->base);
 
     if (index > items) {
         return;

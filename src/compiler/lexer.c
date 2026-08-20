@@ -73,16 +73,19 @@ static int checkSet(Lexer* lexer, char* set) {
     return 0;
 }
 
-static int checkSequence(Lexer* lexer, char* str) {
-    while (*str) {
-        if (lexer->next != *str++) {
-            return 0;
-        }
+/* consume first character and second if matching */
+static int check2next(Lexer* lexer, char* str) {
+    int c = lexer->next;
+    next(lexer);
 
+    if (c != str[0]) {
+        return 0;
+    } else if (lexer->next == str[1]) {
         next(lexer);
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static void newline(Lexer* lexer, int previous) {
@@ -105,9 +108,8 @@ static void comment(Lexer* lexer) {
 
     for (;;) {
         c = lexer->next;
-        next(lexer);
 
-        if (checkSequence(lexer, "*/")) {
+        if (check2next(lexer, "*/")) {
             break;
         }
 
@@ -188,7 +190,7 @@ static int string_token(Lexer* lexer, Token* token) {
             break;
         case CRS_TYPE_INTEGER:
             /* reserved keyword */
-            type = obj_geti(&node->value);
+            type = (int)obj_geti(&node->value);
 
             break;
         case CRS_TYPE_STRING:
@@ -197,6 +199,8 @@ static int string_token(Lexer* lexer, Token* token) {
             token->value.s = obj_gets(&node->value);
 
             break;
+        default:
+            assert(0);
     }
 
     crsC_unanchor(thread);
@@ -342,9 +346,8 @@ static int read_longString(Lexer* lexer, Token* token) {
 
     for (;;) {
         c = lexer->next;
-        next(lexer);
 
-        if (c == ']' && check(lexer, ']')) {
+        if (check2next(lexer, "]]")) {
             break;
         }
 

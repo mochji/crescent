@@ -42,7 +42,7 @@ crs_String* crsF_vformat(crs_Thread* thread, char* format, va_list args) {
     crsB_init(thread, &buffer);
 
     while ((next = strchr(format, '%')) != NULL) {
-        crsB_addString(&buffer, format, next - format);
+        crsB_addString(&buffer, format, (size_t)(next - format));
 
         switch (*(next + 1)) {
             case 'c':
@@ -54,27 +54,27 @@ crs_String* crsF_vformat(crs_Thread* thread, char* format, va_list args) {
                 break;
             }
             case 'x':
-                crsB_addString(&buffer, numBuffer, fmt_hex(
+                crsB_addString(&buffer, numBuffer, (size_t)fmt_hex(
                     numBuffer, CRS_MAX_FMTNUM, va_arg(args, int)));
                 break;
             case 'd':
-                crsB_addString(&buffer, numBuffer, fmt_int(
+                crsB_addString(&buffer, numBuffer, (size_t)fmt_int(
                     numBuffer, CRS_MAX_FMTNUM, va_arg(args, int)));
                 break;
             case 'u':
-                crsB_addString(&buffer, numBuffer, fmt_unsigned(
+                crsB_addString(&buffer, numBuffer, (size_t)fmt_unsigned(
                     numBuffer, CRS_MAX_FMTNUM, va_arg(args, unsigned)));
                 break;
             case 'p':
-                crsB_addString(&buffer, numBuffer, fmt_pointer(
+                crsB_addString(&buffer, numBuffer, (size_t)fmt_pointer(
                     numBuffer, CRS_MAX_FMTNUM, va_arg(args, void*)));
                 break;
             case 'I':
-                crsB_addString(&buffer, numBuffer, fmt_integer(
+                crsB_addString(&buffer, numBuffer, (size_t)fmt_integer(
                     numBuffer, CRS_MAX_FMTNUM, va_arg(args, crs_Integer)));
                 break;
             case 'F':
-                crsB_addString(&buffer, numBuffer, fmt_dapfloat(
+                crsB_addString(&buffer, numBuffer, (size_t)fmt_dapfloat(
                     numBuffer, CRS_MAX_FMTNUM, va_arg(args, crs_DAPFloat)));
                 break;
             case '%':

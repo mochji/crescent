@@ -66,6 +66,8 @@ static void freeObject(crs_State* state, crs_GCHeader* header) {
             crsK_free(thread, obj_tofunc(header)); break;
         case CRS_TYPE_THREAD:
             crsE_freeThread(obj_tothread(header)); break;
+        default:
+            assert(0);
     }
 }
 
@@ -149,7 +151,7 @@ static crs_mem traverse_thread(crs_State* state, crs_Thread* thread) {
 
     mark_value(state, &thread->error);
 
-    return (crs_mem)2 + (object - thread->stack.base);
+    return 2 + (crs_mem)(thread->stack.top - thread->stack.base);
 }
 
 /*
@@ -175,6 +177,8 @@ static crs_mem traverse(crs_State* state, int atomic) {
             return traverse_func(state, obj_tofunc(header));
         case CRS_TYPE_THREAD:
             return traverse_thread(state, obj_tothread(header));
+        default:
+            assert(0);
     }
 
     return 1;
@@ -295,6 +299,8 @@ static crs_mem step_single(crs_State* state) {
             return step_atomic(state);
         case CRS_GCPHASE_SWEEP:
             return step_sweep(state);
+        default:
+            assert(0);
     }
 
     return 0;

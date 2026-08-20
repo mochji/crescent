@@ -161,10 +161,12 @@ static void dump_const(crs_Dump* dump, crs_Object* object) {
         case CRS_TYPE_STRING: {
             crs_String* string = obj_gets(object);
             dump_value(dump, string->length, crs_Integer);
-            crsW_write(dump, string->contents, string->length);
+            crsW_write(dump, string->contents, (size_t)string->length);
 
             break;
         }
+        default:
+            assert(0);
     }
 }
 
@@ -311,9 +313,9 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
         }
         case CRS_TYPE_STRING: {
             crs_Integer length = load_length(stream);
-            crs_String* string = crsS_newo(stream->thread, length);
+            crs_String* string = crsS_newo(stream->thread, (size_t)length);
             obj_setgc(object, string); /* reader may trigger gc */
-            load_block(stream, string->contents, length);
+            load_block(stream, string->contents, (size_t)length);
             break;
         }
         default:

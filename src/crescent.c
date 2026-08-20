@@ -57,12 +57,12 @@ int print(crs_Thread* thread) {
 
 static int reader(crs_Thread* thread, void* data, char* buffer, int count) {
     (void)thread;
-    return fread(buffer, sizeof(char), count, data);
+    return (int)fread(buffer, sizeof(char), (size_t)count, data);
 }
 
 static void writer(crs_Thread* thread, void* data, char* buffer, int count) {
     (void)thread;
-    fwrite(buffer, sizeof(char), count, data);
+    fwrite(buffer, sizeof(char), (size_t)count, data);
 }
 
 int main(int argc, char* argv[]) {

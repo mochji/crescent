@@ -140,6 +140,8 @@ static unsigned hash_obj(crs_Object* key) {
         case CRS_TYPE_FUNCTION:
         case CRS_TYPE_THREAD:
             return hash_pointer(obj_geth(key));
+        default:
+            assert(0);
     }
 
     return 0;
@@ -281,6 +283,8 @@ static int set(crs_Table* table, crs_Object* key, crs_Object* value) {
             free = node;
             node = NULL;
             break;
+        default:
+            assert(0);
     }
 
     obj_seto(&free->key, key);

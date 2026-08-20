@@ -11,6 +11,7 @@ CFLAGS       =         \
 	-Wshadow           \
 	-Wundef            \
 	-Wdouble-promotion \
+	-Wconversion       \
 	-fvisibility=hidden
 LDFLAGS = -lm
 
@@ -53,7 +54,7 @@ ifdef OPTIMIZATION
 endif
 
 ifdef DEBUG
-	CFLAGS := $(CFLAGS) -g
+	CFLAGS := $(CFLAGS) -g -DCRS_DEBUG
 endif
 
 .DEFAULT_GOAL = build
