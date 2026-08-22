@@ -68,6 +68,13 @@ typedef struct crs_Function {
     unsigned     nI; /* # of instructions */
     unsigned     nC; /* # of constants    */
     unsigned     nN; /* # of nested funcs */
+    /*
+     * used for gc traversal. same as their 'n*' counterparts, but stores the
+     * actual number of valid elements, as an array may be larger than this
+     * during loading and compilation.
+     */
+    unsigned cC;
+    unsigned cN;
 
     crs_instr*            code;
     crs_Object*           consts;

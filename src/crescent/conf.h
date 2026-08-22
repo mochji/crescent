@@ -122,8 +122,8 @@ enum {
     CRS_OP_BAND,
     CRS_OP_BOR,
     CRS_OP_BXOR,
-    CRS_OP_BSHL,
-    CRS_OP_BSHR,
+    CRS_OP_SHL,
+    CRS_OP_SHR,
     CRS_OP_EQ,
     CRS_OP_LT,
     CRS_OP_LE

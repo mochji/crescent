@@ -50,6 +50,8 @@ crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
     func->nI     = nI;
     func->nC     = nC;
     func->nN     = nN;
+    func->cC     = 0;
+    func->cN     = 0;
     func->code   = NULL;
     func->consts = NULL;
     func->nested = NULL;
@@ -57,14 +59,6 @@ crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
     func->code   = tryBlock(thread, func, nI, sizeof(crs_instr));
     func->consts = tryBlock(thread, func, nC, sizeof(crs_Object));
     func->nested = tryBlock(thread, func, nN, sizeof(crs_Function*));
-
-    for (unsigned i = 0; i < nC; i++) {
-        obj_setn(&func->consts[i]);
-    }
-
-    for (unsigned i = 0; i < nN; i++) {
-        func->nested[i] = NULL;
-    }
 
     return crsG_add(thread, func, CRS_TYPE_FUNCTION);
 }
@@ -80,8 +74,7 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * Bytecode dump format
  *
  * WARNING: Bytecode dumps are not portable across different versions and
- *          configurations of Crescent. You should not distribute code via
- *          dumps.
+ *          configurations of Crescent.
  *
  * global header {
  *   char[4] | signature
@@ -312,10 +305,10 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
             break;
         }
         case CRS_TYPE_STRING: {
-            crs_Integer length = load_length(stream);
-            crs_String* string = crsS_newo(stream->thread, (size_t)length);
-            obj_setgc(object, string); /* reader may trigger gc */
-            load_block(stream, string->contents, (size_t)length);
+            size_t      length = (size_t)load_length(stream);
+            crs_String* string = crsS_newo(stream->thread, length);
+            obj_setgc(object, string);
+            load_block(stream, string->contents, length);
             break;
         }
         default:
@@ -323,36 +316,45 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
     }
 }
 
-static crs_Function* load_func(crs_Stream* stream) {
+static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
     crs_Thread*   thread = stream->thread;
     crs_Function* func;
 
-    unsigned nI  = load_size(stream, sizeof(crs_instr), "instructions");
-    unsigned nC  = load_size(stream, sizeof(crs_Object), "constants");
-    unsigned nN  = load_size(stream, sizeof(crs_Function*), "nested functions");
-    func         = crsK_new(thread, nI, nC, nN);
-    func->flags  = load_byte(stream);
-    func->args   = load_byte(stream);
-    func->top    = load_byte(stream);
+    unsigned nI = load_size(stream, sizeof(crs_instr), "instructions");
+    unsigned nC = load_size(stream, sizeof(crs_Object), "constants");
+    unsigned nN = load_size(stream, sizeof(crs_Function*), "nested functions");
+    func        = crsK_new(thread, nI, nC, nN);
 
-    crsC_checkFree(thread, 1, 1);
-    crsC_anchor(thread, obj_toheader(func));
+    if (parent != NULL) {
+        parent->nested[parent->cN++] = func;
+    } else {
+        crsC_anchor(thread, obj_toheader(func));
+    }
+
+    func->flags = load_byte(stream);
+    func->args  = load_byte(stream);
+    func->top   = load_byte(stream);
 
     crsR_read(stream, (char*)func->code, nI * sizeof(crs_instr));
 
-    for (unsigned i = 0; i < nC; i++) {
-        load_const(stream, &func->consts[i]);
+    while (func->cC < nC) {
+        crs_Object* object = &func->consts[func->cC++];
+        obj_setn(object);
+        load_const(stream, object);
     }
 
-    for (unsigned i = 0; i < nN; i++) {
-        func->nested[i] = load_func(stream);
+    while (func->cN < nN) {
+        load_func(stream, func);
     }
 
-    crsC_unanchor(thread);
+    if (parent == NULL) {
+        crsC_unanchor(thread);
+    }
+
     return func;
 }
 
 crs_Function* crsK_load(crs_Stream* stream) {
     load_checkHeader(stream);
-    return load_func(stream);
+    return load_func(stream, NULL);
 }

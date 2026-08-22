@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
 #include <limits.h>
 #include <math.h>
 
@@ -189,10 +190,10 @@ static void error_arith(crs_Thread* thread, crs_Object* l, crs_Object* r,
         case CRS_OP_BXOR:
             error_int(thread, l, r);
             error_binary(thread, l, r, "~");
-        case CRS_OP_BSHL:
+        case CRS_OP_SHL:
             error_int(thread, l, r);
             error_binary(thread, l, r, "<<");
-        case CRS_OP_BSHR:
+        case CRS_OP_SHR:
             error_int(thread, l, r);
             error_binary(thread, l, r, ">>");
     }
@@ -218,9 +219,9 @@ static crs_Integer arith_int(crs_Integer l, crs_Integer r, int op) {
             return l | r;
         case CRS_OP_BXOR:
             return l ^ r;
-        case CRS_OP_BSHL:
+        case CRS_OP_SHL:
             return l << r;
-        case CRS_OP_BSHR:
+        case CRS_OP_SHR:
             return l >> r;
         default:
             assert(0);
@@ -259,7 +260,7 @@ int crsV_rawArith(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
     switch (op) {
         /* integers only */
         case CRS_OP_BNOT: case CRS_OP_BAND: case CRS_OP_BOR:
-        case CRS_OP_BXOR: case CRS_OP_BSHL: case CRS_OP_BSHR:
+        case CRS_OP_BXOR: case CRS_OP_SHL: case CRS_OP_SHR:
             if (obj_cvtint(l, &iL) && obj_cvtint(r, &iR)) {
                 crs_Integer result = arith_int(iL, iR, op);
                 obj_seti(o, result);
@@ -373,6 +374,12 @@ int crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
 #define reg_B(i) (stack + instr_B(i))
 #define reg_C(i) (stack + instr_C(i))
 
+static void checkVList(crs_Thread* thread, int values) {
+    if (values > CRS_MAX_TOP) {
+        crsC_error(thread, "stack overflow");
+    }
+}
+
 int crsV_execute(crs_Thread* thread, crs_Function* func) {
     crs_Frame*  frame = thread->stack.frame;
     crs_Object* stack = frame->base;
@@ -480,13 +487,6 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_MOD);
                 break;
             }
-            case OP_NOT: {
-                crs_Object* a = reg_A(i);
-                int         v = !crsO_test(reg_B(i));
-                obj_setb(a, v);
-
-                break;
-            }
             case OP_BNOT: {
                 crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BNOT);
                 break;
@@ -504,11 +504,18 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_SHL: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BSHL);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SHL);
                 break;
             }
             case OP_SHR: {
-                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_BSHR);
+                crsV_arith(thread, reg_A(i), reg_B(i), reg_C(i), CRS_OP_SHR);
+                break;
+            }
+            case OP_NOT: {
+                crs_Object* a = reg_A(i);
+                int         v = !crsO_test(reg_B(i));
+                obj_setb(a, v);
+
                 break;
             }
             case OP_EQ: {
@@ -554,28 +561,52 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_CALL: {
-                crs_Object* a = reg_A(i);
-                crs_byte    b = instr_B(i);
+                crs_Object* a      = reg_A(i);
+                int         args   = (int)instr_B(i);
+                int         wanted = (int)instr_C(i);
 
-                thread->stack.top = 1 + (a + b);
-                crsV_call(thread, a, b, (int)instr_C(i));
+                if (args == MAX_REGS) {
+                    args = (int)(thread->stack.top - (a + 1));
+                    checkVList(thread, args);
+                } else {
+                    thread->stack.top = a + args + 1;
+                }
 
-                /* stack may have been resized */
-                stack             = frame->base;
-                thread->stack.top = 1 + (stack + func->top);
+                if (wanted == MAX_REGS) {
+                    wanted = CRS_RETALL;
+                }
+
+                /* move arguments down, replacing R[A] */
+                crs_Object object;
+                obj_seto(&object, a);
+                memmove(a, a + 1, (size_t)args * sizeof(crs_Object));
+                thread->stack.top--;
+
+                crsV_call(thread, &object, args, wanted);
+                stack = frame->base;
+
+                if (wanted != CRS_RETALL) {
+                    thread->stack.top = stack + func->top;
+                } /* otherwise, top signals end of list for next instruction */
 
                 break;
             }
             case OP_RETURN: {
-                if (!instr_A(i)) {
-                    return 0;
+                crs_Object* a     = reg_A(i);
+                int         count = (int)instr_B(i);
+
+                if (count == MAX_REGS) {
+                    count = (int)(thread->stack.top - a);
+                    checkVList(thread, count);
+                    /* a cfunction can return up to CRS_MAX_TOP values */
+                } else if (count) {
+                    thread->stack.top = a + count;
                 }
 
-                thread->stack.top = 1 + reg_B(i);
-                return instr_A(i);
+                return count;
             }
             case OP_TEST: {
-                pc += crsO_test(reg_A(i));
+                pc += crsO_test(reg_A(i)) == (int)instr_B(i);
                 break;
             }
             case OP_JMP: {

@@ -40,6 +40,8 @@
 #define MAX_Axx  bit_1mask(0, 24)
 #define MAX_sAxx bit_1mask(0, 23)
 
+#define MAX_REGS 255
+
 #define instr_get(i, o, l) \
     ((crs_u32)(bit_get((i), ((crs_instr)bit_1mask(o, l))) >> (o)))
 #define instr_set(x, o, l) (bit_get((crs_instr)(x), bit_1mask(0, l)) << (o))
@@ -108,8 +110,6 @@ typedef enum {
     OP_POW,      /* R[A] = R[B] ^ R[C]                ABC      */
     OP_MOD,      /* R[A] = R[B] % R[C]                ABC      */
 
-    OP_NOT,      /* R[A] = !R[B]                      AB       */
-
     OP_BNOT,     /* R[A] = ~R[B]                      AB       */
     OP_BAND,     /* R[A] = R[B] & R[C]                ABC      */
     OP_BOR,      /* R[A] = R[B] | R[C]                ABC      */
@@ -117,6 +117,7 @@ typedef enum {
     OP_SHL,      /* R[A] = R[B] << R[C]               ABC      */
     OP_SHR,      /* R[A] = R[B] >> R[C]               ABC      */
 
+    OP_NOT,      /* R[A] = !R[B]                      AB       */
     OP_EQ,       /* R[A] = R[B] == R[C]               ABC      */
     OP_LT,       /* R[A] = R[B] < R[C]                ABC      */
     OP_LE,       /* R[A] = R[B] <= R[C]               ABC      */
@@ -126,12 +127,38 @@ typedef enum {
     OP_GET,      /* R[A] = R[B][R[C]]                 ABC      */
     OP_SET,      /* R[B][R[C]] = R[A]                 ABC      */
 
-    OP_CALL,     /* R[A](R[A+1 .. A+B]) (#C results)  ABC      */
-    OP_RETURN,   /* return R[B-A+1 .. B] (#A results) AB       */
+    OP_CALL,     /* R[A](R[A+1 -> ...]) (#C results)  ABC      */
+    OP_RETURN,   /* return R[A -> ...]) (#B results)  AB       */
 
-    OP_TEST,     /* if R[A] then PC++ (skip next)     A        */
+    OP_TEST,     /* if (boolean)R[A] then PC++        AB       */
     OP_JMP       /* PC += sAxx                        sAxx     */
 } crs_OpCode;
+
+/*
+ * OP_CALL and OP_RETURN
+ *
+ * For OP_CALL, B and C signal the number of arguments and wanted return values.
+ * Similarly, for OP_RETURN, B signals the number of values to return.
+ *
+ * Some statements, such as the examples shown below, allow a variable number of
+ * values not known during compile-time to be used:
+ * - foo(bar());       // VLIST with zero fixed args
+ * - foo(x, y, bar()); // VLIST with two fixed args
+ * - return bar();     // VLIST with zero fixed args
+ * - return x, bar();  // VLIST with one fixed arg
+ * Functions are allowed to return an arbitrary amount of values.
+ *
+ * In such cases, where the expression list is a VLIST, 'thread->stack.top'
+ * signals the end of the list. R[255] is reserved to signal this, as it is
+ * reserved and never used. A function call can take a VLIST as an argument
+ * *and* return all return values to the caller (as in 'return foo(bar());').
+ *
+ * note: 'bar()', in the expression 'foo(x, bar(), y)', returns only the first
+ *       return value, as 'bar()' is compiled first, and thus 'y' couldn't be
+ *       stored in any register without potentially overwriting the return
+ *       values of the preceding function call (because, again, the number of
+ *       return values are unknown):
+ */
 
 extern crs_OpMode  crsV_mode[];
 extern const char* crsV_name[];

@@ -30,13 +30,13 @@ crs_OpMode crsV_mode[] = {
     iABC,  /* OP_DIV     */
     iABC,  /* OP_POW     */
     iABC,  /* OP_MOD     */
-    iABC,  /* OP_NOT     */
     iABC,  /* OP_BNOT    */
     iABC,  /* OP_BAND    */
     iABC,  /* OP_BOR     */
     iABC,  /* OP_BXOR    */
     iABC,  /* OP_SHL     */
     iABC,  /* OP_SHR     */
+    iABC,  /* OP_NOT     */
     iABC,  /* OP_EQ      */
     iABC,  /* OP_LE      */
     iABC,  /* OP_LT      */
@@ -69,13 +69,13 @@ const char* crsV_name[] = {
     "DIV",
     "POW",
     "MOD",
-    "NOT",
     "BNOT",
     "BAND",
     "BOR",
     "BXOR",
     "SHL",
     "SHR",
+    "NOT",
     "EQ",
     "LE",
     "LT",

@@ -129,17 +129,15 @@ static crs_mem traverse_table(crs_State* state, crs_Table* table) {
 }
 
 static crs_mem traverse_func(crs_State* state, crs_Function* func) {
-    for (unsigned i = 0; i < func->nC; i++) {
+    for (unsigned i = 0; i < func->cC; i++) {
         mark_value(state, &func->consts[i]);
     }
 
-    for (unsigned i = 0; i < func->nN; i++) {
-        if (func->nested != NULL) {
-            mark_object(state, func->nested[i]);
-        }
+    for (unsigned i = 0; i < func->cN; i++) {
+        mark_object(state, func->nested[i]);
     }
 
-    return (crs_mem)1 + func->nC + func->nN;
+    return (crs_mem)1 + func->cC + func->cN;
 }
 
 static crs_mem traverse_thread(crs_State* state, crs_Thread* thread) {

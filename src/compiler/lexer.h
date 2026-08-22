@@ -39,7 +39,7 @@ typedef struct {
 typedef struct {
     crs_Thread* thread;
     crs_Stream* stream;
-    crs_Buffer  buffer;
+    crs_Buffer* buffer;
     crs_Table*  strings;
     Chunk*      chunk;
     Token       token;
@@ -51,9 +51,8 @@ typedef struct {
     } info;
 } Lexer;
 
-void  crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream,
-                                    char* source);
-void  crsL_close(Lexer* lexer);
+void  crsL_init(crs_Thread* thread, Lexer* lexer, crs_Buffer* buffer,
+                                    crs_Stream* stream, char* source);
 void  crsL_next(Lexer* lexer);
 void  crsL_peek(Lexer* lexer);
 noret crsL_unexpected(Lexer* lexer);

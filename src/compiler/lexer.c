@@ -33,7 +33,7 @@
 /* order TOKENS */
 static char* tokens[] = {
     "if", "else", "for", "while", "do", "continue", "break", "return", "local",
-    "function", "true", "false", "nil", "hiii. umm something broke",
+    "function", "true", "false", "nil", "something went horribly wrong",
 
     "..", "<<", ">>", "&&", "||", "==", "!=", "<=", ">=", "<eof>", "<int>",
     "<float>", "<name>", "<string>"
@@ -144,7 +144,7 @@ static void string_reserve(Lexer* lexer) {
 }
 
 static crs_String* string_new(Lexer* lexer) {
-    crs_Buffer* buffer = &lexer->buffer;
+    crs_Buffer* buffer = lexer->buffer;
     crs_String* string = crsS_newl(lexer->thread,
         buffer->buffer, buffer->length);
 
@@ -235,7 +235,7 @@ static void escape(Lexer* lexer, crs_Buffer* buffer) {
 
 /* 'c' is already consumed */
 static int read_number(Lexer* lexer, Token* token, int c) {
-    crs_Buffer* buffer   = &lexer->buffer;
+    crs_Buffer* buffer   = lexer->buffer;
     char*       exp      = "eE";
     int         afterExp = 0;
 
@@ -296,7 +296,7 @@ static int read_number(Lexer* lexer, Token* token, int c) {
 
 /* 'c' is already consumed */
 static int read_name(Lexer* lexer, Token* token, int c) {
-    crs_Buffer* buffer = &lexer->buffer;
+    crs_Buffer* buffer = lexer->buffer;
     crsB_addChar(buffer, c);
 
     while (c_isalnum(lexer->next)) {
@@ -310,7 +310,7 @@ static int read_name(Lexer* lexer, Token* token, int c) {
 }
 
 static int read_string(Lexer* lexer, Token* token, int delimiter) {
-    crs_Buffer* buffer = &lexer->buffer;
+    crs_Buffer* buffer = lexer->buffer;
     int         c;
 
     while ((c = lexer->next) != delimiter) {
@@ -334,7 +334,7 @@ static int read_string(Lexer* lexer, Token* token, int delimiter) {
 }
 
 static int read_longString(Lexer* lexer, Token* token) {
-    crs_Buffer* buffer = &lexer->buffer;
+    crs_Buffer* buffer = lexer->buffer;
     int         start  = lexer->info.line;
     int         c      = lexer->next;
 
@@ -469,10 +469,11 @@ static int nextToken(Lexer* lexer, Token* token) {
     }
 }
 
-void crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream,
-                                   char* source) {
+void crsL_init(crs_Thread* thread, Lexer* lexer, crs_Buffer* buffer,
+                                   crs_Stream* stream, char* source) {
     lexer->thread      = thread;
     lexer->stream      = stream;
+    lexer->buffer      = buffer;
     lexer->strings     = crsT_new(thread);
     lexer->token.type  = TK_EOF;
     lexer->peek.type   = TK_EOF;
@@ -480,14 +481,8 @@ void crsL_init(crs_Thread* thread, Lexer* lexer, crs_Stream* stream,
     lexer->info.source = source;
 
     crsC_anchor(thread, obj_toheader(lexer->strings));
-    crsB_init(thread, &lexer->buffer);
     string_reserve(lexer);
     next(lexer);
-}
-
-void crsL_close(Lexer* lexer) {
-    crsB_free(&lexer->buffer);
-    crsC_unanchor(lexer->thread);
 }
 
 void crsL_next(Lexer* lexer) {

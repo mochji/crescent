@@ -9,13 +9,14 @@
 #ifndef CRS_COMPILER_CHUNK_H
 #define CRS_COMPILER_CHUNK_H
 
+#include <limits.h>
+
 #include "crescent/conf.h"
 #include "limit.h"
 
 #include "core/object.h"
 #include "core/call.h"
 
-/* must fit within a byte and leave extra stack space */
 #define MAX_LOCALS 200
 
 typedef struct {
@@ -40,31 +41,64 @@ enum {
     BOP_NONE
 };
 
-enum {
-    EXP_NIL,
-    EXP_TRUE,
-    EXP_FALSE,
-    EXP_INT,
-    EXP_FLOAT,
-    EXP_STRING,
-    EXP_LAMBDA,
+/*
+ * Expression types
+ *
+ * - bit 0: Can be folded in operations
+ * - bit 1: Value stored in a register
+ * - bit 2: Can be assigned to
+ */
 
-    EXP_GLOBAL, /* s = name (assignable)       */
-    EXP_LOCAL,  /* v = register (assignable)   */
-    EXP_TEMP,   /* v = register                */
-    EXP_CALL,   /* v = OP_CALL pc              */
-    EXP_LIST,   /* v = last evaluated register */
-    EXP_INDEX   /* x = index info (assignable) */
-};
+#define EXP_NIL     1 /* 00000 001                       */
+#define EXP_TRUE    9 /* 00001 001                       */
+#define EXP_FALSE  17 /* 00010 001                       */
+#define EXP_INT    25 /* 00011 001; i = value            */
+#define EXP_FLOAT  33 /* 00100 001; f = value            */
+#define EXP_STRING  0 /* 00000 000; s = value            */
+#define EXP_GLOBAL  4 /* 00000 100; s = name             */
+#define EXP_LOCAL   6 /* 00000 110; v = register         */
+#define EXP_TEMP    2 /* 00000 010; v = register         */
+#define EXP_FUNC    8 /* 00001 000; v = nested index     */
+#define EXP_INDEX  12 /* 00001 100; x = index info       */
+#define EXP_CALL   24 /* 00011 000; v = instruction pc   */
+#define EXP_LIST   16 /* 00010 000; v = # of items       */
+#define EXP_VLIST  40 /* 00101 000; v = # of fixed items */
+#define EXP_VOID   32 /* 00100 000                       */
+
+/*
+ * 'EXP_CALL' describes a function call (obviously :p), which can return an
+ * arbitrary number of values. In many cases, though, the required number of
+ * return values is known:
+ * - local x, y = foo(); // 'wanted' = 2
+ * - foo();              // 'wanted' = 0
+ *
+ * Some statements allow a variable number of arguments to be returned from a
+ * function:
+ * - foo(bar());   // all return values are passed to 'foo'
+ * - return bar(); // all return values are returned
+ *
+ * Any expression list followed by an 'EXP_CALL' (including lists with zero
+ * items, which would just be an 'EXP_CALL', of course) that can have any number
+ * of values becomes a VLIST. The end of the list is signaled by the stack top,
+ * which can extend beyond the number of registers reserved for a function.
+ *
+ * 'EXP_LIST' and 'EXP_VOID' describe expression lists with a known length and
+ * no values respectively.
+ *
+ * See 'OP_CALL and OP_RETURN' comment in vm/vm.c.
+ */
+
+#define exp_canfold(e)    ((e)->type & 1)
+#define exp_inreg(e)      ((e)->type & 2)
+#define exp_assignable(e) ((e)->type & 4)
 
 /* result of an expression */
 typedef struct {
     union {
-        crs_Integer   i;
-        crs_Float     f;
-        crs_String*   s;
-        unsigned      v;
-        crs_Function* l;
+        crs_Integer i;
+        crs_Float   f;
+        crs_String* s;
+        unsigned    v;
         struct {
             crs_byte obj;
             crs_byte key;
@@ -79,29 +113,30 @@ typedef struct {
     crs_byte    reg;
 } Variable;
 
-/* backpatching for labels and gotos */
+/* label declaration */
 typedef struct {
     crs_String* name;
+    unsigned    list; /* list of unresolved jumps to this label */
     unsigned    pc;
-} Patch;
+} Label;
 
 /* parser state for all functions */
 typedef struct {
     struct {
         Variable* vars;
-        Patch*    labels;
-        Patch*    gotos;
-        unsigned  nV;
-        unsigned  nL;
-        unsigned  nG;
+        Label*    labels;
+        unsigned  sV;
+        unsigned  sL;
     }    vecs;
     Data vars;
     Data labels;
-    Data gotos;
 } Parser;
 
-typedef struct {
-    unsigned fVar; /* first local */
+typedef struct Scope {
+    struct Scope* previous;
+    int           inLoop;
+    unsigned      fL;
+    crs_byte      nV;
 } Scope;
 
 /* parser state for one function */
@@ -110,22 +145,67 @@ typedef struct {
     Parser*     parser;
     Scope*      scope;
     crs_byte    regs;
-    unsigned    fVar;   /* first local */
-    unsigned    fLabel; /* first label */
-    unsigned    fGoto;  /* first goto  */
+    crs_byte    locals;
+    unsigned    fV;
 
     crs_Function* func;
-    crs_Table*    cTable; /* for reusing constants */
     Data          code;
     Data          consts;
     Data          nested;
 } Chunk;
 
-noret         crsI_error(Chunk* chunk, char* format, ...);
+noret crsI_error(Chunk* chunk, char* format, ...);
+void  crsI_init(crs_Thread* thread, Parser* parser);
+void  crsI_free(crs_Thread* thread, Parser* parser);
+
+/* chunk */
 crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser);
-crs_Function* crsI_finish(Chunk* chunk);
-unsigned crsI_nested(Chunk* chunk, crs_Function* func);
+void          crsI_finish(Chunk* chunk);
+unsigned      crsI_nested(Chunk* parent, Chunk* chunk);
+
+/* scope */
+void crsI_enter(Chunk* chunk, Scope* scope, int loop);
+void crsI_leave(Chunk* chunk);
+
+/* code */
 unsigned crsI_emit(Chunk* chunk, crs_instr i);
-unsigned crsI_newConst(Chunk* chunk, crs_Object* value);
+
+#define crsI_iABC(f, o, a, b, c)  crsI_emit(f, instr_newiABC(o, a, b, c))
+#define crsI_iABx(f, o, a, b)     crsI_emit(f, instr_newiABx(o, a, b))
+#define crsI_iAsBx(f, o, a, b, s) crsI_emit(f, instr_newiAsBx(o, a, b, s))
+#define crsI_iAxx(f, o, a)        crsI_emit(f, instr_newiAxx(o, a))
+#define crsI_isAxx(f, o, a, s)    crsI_emit(f, instr_newisAxx(o, a, s))
+#define crsI_nextPC(f)            ((f)->code.count)
+
+/* backpatch lists */
+void crsI_jump(Chunk* chunk, unsigned* list);
+void crsI_backpatch(Chunk* chunk, unsigned list, unsigned target);
+void crsI_label(Chunk* chunk, crs_String* name);
+void crsI_goto(Chunk* chunk, crs_String* name);
+void crsI_patchAll(Chunk* chunk);
+
+#define PATCH_NONE UINT_MAX /* pc can be at most UINT_MAX - 1 */
+
+/* expressions */
+void     crsI_freeExp(Chunk* chunk, Expression* exp);
+int      crsI_flatten(Chunk* chunk, Expression* exp);
+crs_byte crsI_store(Chunk* chunk, Expression* exp, crs_byte reg);
+void     crsI_toAny(Chunk* chunk, Expression* exp);
+void     crsI_toTop(Chunk* chunk, Expression* exp);
+void     crsI_unary(Chunk* chunk, Expression* exp, int uop);
+unsigned crsI_infix(Chunk* chunk, Expression* lhs, int bop);
+void     crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
+                                   int bop, unsigned pc);
+void     crsI_getValues(Chunk* chunk, Expression* exp, int count);
+void     crsI_index(Chunk* chunk, Expression* obj, Expression* key);
+void     crsI_call(Chunk* chunk, Expression* obj, Expression* args);
+void     crsI_test(Chunk* chunk, Expression* exp, int test);
+
+/* variables */
+void crsI_var(Chunk* chunk, crs_String* name, Expression* exp);
+void crsI_local(Chunk* chunk, crs_String* name);
+
+/* statements */
+void crsI_return(Chunk* chunk, Expression* exp);
 
 #endif

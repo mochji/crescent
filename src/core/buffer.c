@@ -92,6 +92,11 @@ void crsB_clear(crs_Buffer* buffer) {
     buffer->length = 0;
 }
 
+/*
+ * NOTE: while the reader and writer functions really shouldn't trigger the gc,
+ *       they *can*
+ */
+
 void crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader,
                                    void* data) {
     stream->thread = thread;
