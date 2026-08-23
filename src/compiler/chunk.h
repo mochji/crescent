@@ -85,7 +85,7 @@ enum {
  * 'EXP_LIST' and 'EXP_VOID' describe expression lists with a known length and
  * no values respectively.
  *
- * See 'OP_CALL and OP_RETURN' comment in vm/vm.c.
+ * See 'OP_CALL and OP_RETURN' comment in vm/opcodes.h.
  */
 
 #define exp_canfold(e)    ((e)->type & 1)

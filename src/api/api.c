@@ -68,7 +68,7 @@ static crs_Object* getIndex(crs_Thread* thread, int index) {
         : nil;
 }
 
-static crs_Object* adjustTop(crs_Thread* thread, int amount) {
+static void incTop(crs_Thread* thread, int amount) {
     crs_Frame* frame = thread->stack.frame;
     int        items = (int)(thread->stack.top - frame->base);
 
@@ -77,7 +77,10 @@ static crs_Object* adjustTop(crs_Thread* thread, int amount) {
     } else if (items + amount > frame->top) {
         crsC_error(thread, "stack overflow");
     }
+}
 
+static crs_Object* adjustTop(crs_Thread* thread, int amount) {
+    incTop(thread, amount);
     thread->stack.top += amount;
 
     return thread->stack.top - 1;
@@ -469,7 +472,7 @@ export void crs_vformat(crs_Thread* thread, char* format, va_list args) {
 
 /*
  * ===========================
- *  calling
+ *  functions
  * ===========================
  */
 
@@ -491,65 +494,25 @@ export int crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
     return status;
 }
 
-/*
- * TODO: the state of these functions are temporary and for testing. when the
- *       compiler is implemented, they will also compile code.
- */
+export int crs_load(crs_Thread* thread, char* source,
+                                        crs_Reader* reader, void* data) {
+    crs_Stream stream;
+    int        status;
 
-typedef struct {
-    crs_Function* func;
-    crs_Dump*     dump;
-} DumpInfo;
-
-static void* try_load(crs_Thread* thread, void* data) {
-    (void)thread;
-    return crsK_load(data);
-}
-
-static void* try_dump(crs_Thread* thread, void* data) {
-    (void)thread;
-    DumpInfo* info = data;
-    crsK_dump(info->dump, info->func);
-    return NULL;
-}
-
-export int crs_load(crs_Thread* thread, crs_Reader* reader, void* data) {
-    crs_Object*   result = adjustTop(thread, 1);
-    crs_Function* func;
-    crs_Stream    stream;
-
+    incTop(thread, 1);
     crsR_init(thread, &stream, reader, data);
-    int status = crsC_try(thread, &try_load, &stream, (void**)&func);
-
-    if (status == CRS_STATUS_OK) {
-        obj_setgc(result, func);
-    } else {
-        obj_seto(result, &thread->error);
-        obj_setn(&thread->error);
-        /* objects may not have been unanchored */
-        thread->stack.top = result + 1;
-    }
+    status = crsK_load(&stream, source);
 
     crsG_check(thread);
     return status;
 }
 
-export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
-                                        void* data) {
+export int crs_dump(crs_Thread* thread, int index, char* source,
+                                        crs_Writer* writer, void* data) {
     crs_Object* object = getIndex(thread, index);
     crs_Dump    dump;
-    DumpInfo    info;
+    UNUSED(source);
 
     crsW_init(thread, &dump, writer, data);
-    info.dump  = &dump;
-    info.func  = obj_getk(object);
-    int status = crsC_try(thread, &try_dump, &info, NULL);
-
-    if (status != CRS_STATUS_OK) {
-        crs_Object* result = adjustTop(thread, 1);
-        obj_seto(result, &thread->error);
-        obj_setn(&thread->error);
-    }
-
-    return status;
+    return crsK_dump(&dump, obj_getk(object));
 }

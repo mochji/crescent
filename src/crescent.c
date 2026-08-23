@@ -83,12 +83,15 @@ int main(int argc, char* argv[]) {
     crs_set(thread, CRS_GLOBALS, 1, 2);
     crs_pop(thread, 2);
 
-    FILE* in  = fopen(argv[1], "rb");
-    FILE* out = fopen("out.crsc", "wb");
+    char* inasdasd = argv[1];
+    char* outasdas = "out.crsc";
+
+    FILE* in  = fopen(inasdasd, "rb");
+    FILE* out = fopen(outasdas, "wb");
     int   status;
 
-    if ((status = crs_load(thread, &reader, in)) != CRS_STATUS_OK) {
-        fprintf(stderr, "error loading dump: %s\n", crs_toString(thread, 1));
+    if ((status = crs_load(thread, inasdasd, &reader, in)) != CRS_STATUS_OK) {
+        fprintf(stderr, "%s\n", crs_toString(thread, 1));
         return 1;
     }
 
@@ -96,8 +99,8 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "%s\n", crs_toString(thread, 2));
     }
 
-    if ((status = crs_dump(thread, 1, &writer, out)) != CRS_STATUS_OK) {
-        fprintf(stderr, "error writing dump: %s\n", crs_toString(thread, 2));
+    if ((status = crs_dump(thread, 1, outasdas, &writer, out)) != CRS_STATUS_OK) {
+        fprintf(stderr, "%s\n", crs_toString(thread, 2));
         return 1;
     }
 

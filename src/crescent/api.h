@@ -140,7 +140,8 @@ void crs_vformat(crs_Thread* thread, char* format, va_list args);
 
 void crs_call(crs_Thread* thread, int index, int args, int wanted);
 int  crs_pcall(crs_Thread* thread, int index, int args, int wanted);
-int  crs_load(crs_Thread* thread, crs_Reader* reader, void* data);
-int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
+int  crs_load(crs_Thread* thread, char* source, crs_Reader* reader, void* data);
+int  crs_dump(crs_Thread* thread, int index, char* source,
+                                  crs_Writer* writer, void* data);
 
 #endif

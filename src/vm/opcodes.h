@@ -127,8 +127,8 @@ typedef enum {
     OP_GET,      /* R[A] = R[B][R[C]]                 ABC      */
     OP_SET,      /* R[B][R[C]] = R[A]                 ABC      */
 
-    OP_CALL,     /* R[A](R[A+1 -> ...]) (#C results)  ABC      */
-    OP_RETURN,   /* return R[A -> ...]) (#B results)  AB       */
+    OP_CALL,     /* R[A](R[A+1 -> A+B-1]) (C results) ABC      */
+    OP_RETURN,   /* return R[A -> A+B-1]) (B results) AB       */
 
     OP_TEST,     /* if (boolean)R[A] then PC++        AB       */
     OP_JMP       /* PC += sAxx                        sAxx     */
@@ -157,7 +157,7 @@ typedef enum {
  *       return value, as 'bar()' is compiled first, and thus 'y' couldn't be
  *       stored in any register without potentially overwriting the return
  *       values of the preceding function call (because, again, the number of
- *       return values are unknown):
+ *       return values are unknown).
  */
 
 extern crs_OpMode  crsV_mode[];

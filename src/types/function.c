@@ -21,6 +21,7 @@
 #include "core/buffer.h"
 #include "core/format.h"
 #include "core/call.h"
+#include "core/debug.h"
 #include "core/gc.h"
 
 #include "types/function.h"
@@ -181,10 +182,12 @@ static void dump_func(crs_Dump* dump, crs_Function* func) {
     }
 }
 
-void crsK_dump(crs_Dump* dump, crs_Function* func) {
+int crsK_dump(crs_Dump* dump, crs_Function* func) {
     dump_header(dump);
     dump_func(dump, func);
     crsW_flush(dump);
+
+    return CRS_STATUS_OK;
 }
 
 /*
@@ -347,14 +350,30 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
         load_func(stream, func);
     }
 
-    if (parent == NULL) {
-        crsC_unanchor(thread);
-    }
-
+    /* the main function, whose parent is NULL, stays on the stack */
     return func;
 }
 
-crs_Function* crsK_load(crs_Stream* stream) {
+static void* load_try(crs_Thread* thread, void* data) {
+    crs_Stream* stream = data;
+    UNUSED(thread);
+
     load_checkHeader(stream);
     return load_func(stream, NULL);
+}
+
+int crsK_load(crs_Stream* stream, char* source) {
+    crs_Thread* thread = stream->thread;
+    int         top    = call_savetop(thread);
+    int         status = crsC_try(thread, &load_try, stream, NULL);
+
+    if (status != CRS_STATUS_OK) {
+        call_restoretop(thread, top);
+
+        crs_String* error = crsD_addInfo(thread, source, 0);
+        crsC_anchor(thread, obj_toheader(error));
+        obj_setn(&thread->error);
+    }
+
+    return status;
 }

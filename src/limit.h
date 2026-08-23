@@ -66,10 +66,12 @@ typedef crs_u32       crs_instr;
 #else
 #define NDEBUG
 #undef assert
-#define assert(...) ((void)0)
+#define assert(c) ((void)0)
 #endif
 
 #define noret  __attribute__((noreturn)) void
 #define export __attribute__((visibility("default")))
+
+#define UNUSED(v) ((void)(v))
 
 #endif
