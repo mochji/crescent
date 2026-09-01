@@ -96,21 +96,19 @@ int crsO_toFloat(crs_Object* object, crs_Float* result, int coerce) {
     return success;
 }
 
-char* crsO_toString(crs_Object* object, int* match) {
-    crs_byte type = object->type;
-
-    if (match != NULL) {
-        *match = type == CRS_TYPE_STRING;
-    }
-
-    switch (type) {
+int crsO_toString(crs_Object* object, char** result) {
+    switch (object->type) {
         case CRS_TYPE_NIL:
-            return "nil";
+            *result = "nil";
+            return 0;
         case CRS_TYPE_BOOLEAN:
-            return obj_getb(object) ? "true" : "false";
+            *result = obj_getb(object) ? "true" : "false";
+            return 0;
         case CRS_TYPE_STRING:
-            return obj_gets(object)->contents;
+            *result = obj_gets(object)->contents;
+            return 1;
     }
 
-    return NULL;
+    *result = NULL;
+    return 0;
 }

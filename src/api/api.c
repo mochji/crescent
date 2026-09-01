@@ -22,8 +22,10 @@
 #include "core/state.h"
 #include "core/memory.h"
 #include "core/call.h"
+#include "core/debug.h"
 #include "core/gc.h"
 #include "vm/vm.h"
+#include "compiler/parser.h"
 
 #include "crescent/api.h"
 
@@ -68,7 +70,7 @@ static crs_Object* getIndex(crs_Thread* thread, int index) {
         : nil;
 }
 
-static void incTop(crs_Thread* thread, int amount) {
+static crs_Object* adjustTop(crs_Thread* thread, int amount) {
     crs_Frame* frame = thread->stack.frame;
     int        items = (int)(thread->stack.top - frame->base);
 
@@ -77,12 +79,8 @@ static void incTop(crs_Thread* thread, int amount) {
     } else if (items + amount > frame->top) {
         crsC_error(thread, "stack overflow");
     }
-}
 
-static crs_Object* adjustTop(crs_Thread* thread, int amount) {
-    incTop(thread, amount);
     thread->stack.top += amount;
-
     return thread->stack.top - 1;
 }
 
@@ -124,7 +122,7 @@ export void crs_error(crs_Thread* thread, int index) {
     crs_Object* object = getIndex(thread, index);
 
     obj_seto(&thread->error, object);
-    crsC_throw(thread, CRS_STATUS_ERROR);
+    crsC_throw(thread, CRS_ERROR);
 }
 
 /*
@@ -404,7 +402,14 @@ export crs_Float crs_toFloatX(crs_Thread* thread, int index, int* equal) {
 }
 
 export const char* crs_toStringX(crs_Thread* thread, int index, int* equal) {
-    return crsO_toString(getIndex(thread, index), equal);
+    char* value;
+    int   match = crsO_toString(getIndex(thread, index), &value);
+
+    if (equal != NULL) {
+        *equal = match;
+    }
+
+    return value;
 }
 
 /*
@@ -484,7 +489,7 @@ export void crs_call(crs_Thread* thread, int index, int args, int wanted) {
 export int crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
     int status = crsV_pcall(thread, getIndex(thread, index), args, wanted);
 
-    if (status != CRS_STATUS_OK) {
+    if (status != CRS_OK) {
         crs_Object* object = adjustTop(thread, 1);
         obj_seto(object, &thread->error);
         obj_setn(&thread->error);
@@ -494,25 +499,67 @@ export int crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
     return status;
 }
 
-export int crs_load(crs_Thread* thread, char* source,
-                                        crs_Reader* reader, void* data) {
-    crs_Stream stream;
-    int        status;
+static void* tryLoad(crs_Thread* thread, void* data) {
+    UNUSED(thread);
+    crs_Stream*   stream = data;
+    crs_Function* func;
+    crsR_fill(stream);
 
-    incTop(thread, 1);
-    crsR_init(thread, &stream, reader, data);
-    status = crsK_load(&stream, source);
+    if (stream->length && stream->buffer[0] == CRS_SIGNATURE[0]) {
+        func = crsK_load(stream);
+    } else {
+        func = crsP_compile(stream);
+    }
+
+    return func;
+}
+
+export int crs_load(crs_Thread* thread, crs_Reader* reader, void* data,
+                                        char* source) {
+    crs_Function* func;
+    crs_Object*   result;
+    crs_Stream    stream;
+    int           status;
+    size_t        top;
+
+    crsR_init(thread, &stream, reader, data, source);
+    top    = call_savetop(thread);
+    status = crsC_try(thread, &tryLoad, &stream, (void**)&func);
+    call_restoretop(thread, top);
+    result = adjustTop(thread, 1);
+
+    switch (status) {
+        case CRS_OK:
+            obj_setgc(result, func);
+            break;
+        case CRS_CODEERR: {
+            crs_String* string = crsD_loadError(thread, &stream);
+            obj_setgc(result, string);
+            break;
+        }
+        default:
+            obj_seto(result, &thread->error);
+    }
+
+    obj_setn(&thread->error);
 
     crsG_check(thread);
     return status;
 }
 
-export int crs_dump(crs_Thread* thread, int index, char* source,
-                                        crs_Writer* writer, void* data) {
+export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
+                                        void* data) {
     crs_Object* object = getIndex(thread, index);
     crs_Dump    dump;
-    UNUSED(source);
+    int         status;
+
+    if (object->type != CRS_TYPE_FUNCTION) {
+        crsC_errorf(thread, "cannot dump a %s value", crsO_name(object));
+    }
 
     crsW_init(thread, &dump, writer, data);
-    return crsK_dump(&dump, obj_getk(object));
+    status = crsK_dump(&dump, obj_getk(object));
+
+    crsG_check(thread);
+    return status;
 }

@@ -59,13 +59,17 @@ static void freeObject(crs_State* state, crs_GCHeader* header) {
 
     switch (header->type) {
         case CRS_TYPE_STRING:
-            crsS_free(thread, obj_tostring(header)); break;
+            crsS_free(thread, obj_tostring(header));
+            break;
         case CRS_TYPE_TABLE:
-            crsT_free(thread, obj_totable(header)); break;
+            crsT_free(thread, obj_totable(header));
+            break;
         case CRS_TYPE_FUNCTION:
-            crsK_free(thread, obj_tofunc(header)); break;
+            crsK_free(thread, obj_tofunc(header));
+            break;
         case CRS_TYPE_THREAD:
-            crsE_freeThread(obj_tothread(header)); break;
+            crsE_freeThread(obj_tothread(header));
+            break;
         default:
             assert(0);
     }

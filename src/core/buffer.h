@@ -41,10 +41,13 @@ typedef struct {
     char        buffer[CRS_BUF_STREAM];
     int         length;
     int         read;
+    /* load error information */
+    char* source;
+    int   line; /* zero if no valid line information */
 } crs_Stream;
 
 void   crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader,
-                                     void* data);
+                                     void* data, char* source);
 int    crsR_fill(crs_Stream* stream);
 size_t crsR_read(crs_Stream* stream, char* buffer, size_t count);
 int    crsR_next(crs_Stream* stream);

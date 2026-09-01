@@ -95,7 +95,7 @@ crs_String* crsF_vformat(crs_Thread* thread, char* format, va_list args) {
     status = crsC_try(thread, &createString, &buffer, (void**)&string);
     crsB_free(&buffer);
 
-    if (status != CRS_STATUS_OK) {
+    if (status != CRS_OK) {
         /* error is already in error register */
         crsC_throw(thread, status);
     }

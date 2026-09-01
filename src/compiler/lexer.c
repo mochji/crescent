@@ -51,7 +51,8 @@ static char* tokenString(crs_Thread* thread, int token) {
     return string->contents;
 }
 
-#define next(l) ((l)->next = crsR_next((l)->stream))
+#define next(l)    ((l)->next = crsR_next((l)->stream))
+#define curline(l) ((l)->stream->line)
 
 static int check(Lexer* lexer, int c) {
     if (lexer->next == c) {
@@ -89,11 +90,11 @@ static int check2next(Lexer* lexer, char* str) {
 }
 
 static void newline(Lexer* lexer, int previous) {
-    if (lexer->info.line == INT_MAX) {
+    if (curline(lexer) == INT_MAX) {
         crsL_error(lexer, "too many lines");
     }
 
-    lexer->info.line++;
+    curline(lexer)++;
 
     if (previous == '\n') {
         check(lexer, '\r'); /* \n\r */
@@ -103,7 +104,7 @@ static void newline(Lexer* lexer, int previous) {
 }
 
 static void comment(Lexer* lexer) {
-    int start = lexer->info.line;
+    int start = curline(lexer);
     int c;
 
     for (;;) {
@@ -140,6 +141,15 @@ static void string_reserve(Lexer* lexer) {
 
         crsT_set(thread, strings, key, &value);
         crsC_unanchor(thread);
+
+        switch (i) {
+            case TK_CONT:
+                lexer->names.cont = string;
+                break;
+            case TK_BREAK:
+                lexer->names.brk = string;
+                break;
+        }
     }
 }
 
@@ -231,6 +241,8 @@ static void escape(Lexer* lexer, crs_Buffer* buffer) {
             crsL_error(lexer, "invalid escape sequence '\\%s'",
                 tokenString(lexer->thread, lexer->next));
     }
+
+    next(lexer);
 }
 
 /* 'c' is already consumed */
@@ -335,7 +347,7 @@ static int read_string(Lexer* lexer, Token* token, int delimiter) {
 
 static int read_longString(Lexer* lexer, Token* token) {
     crs_Buffer* buffer = lexer->buffer;
-    int         start  = lexer->info.line;
+    int         start  = curline(lexer);
     int         c      = lexer->next;
 
     if (c_isnewl(c)) {
@@ -470,15 +482,14 @@ static int nextToken(Lexer* lexer, Token* token) {
 }
 
 void crsL_init(crs_Thread* thread, Lexer* lexer, crs_Buffer* buffer,
-                                   crs_Stream* stream, char* source) {
+                                   crs_Stream* stream) {
     lexer->thread      = thread;
     lexer->stream      = stream;
     lexer->buffer      = buffer;
     lexer->strings     = crsT_new(thread);
     lexer->token.type  = TK_EOF;
     lexer->peek.type   = TK_EOF;
-    lexer->info.line   = 1;
-    lexer->info.source = source;
+    curline(lexer)     = 1;
 
     crsC_anchor(thread, obj_toheader(lexer->strings));
     string_reserve(lexer);

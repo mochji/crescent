@@ -48,6 +48,9 @@ crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
         crsM_error(thread);
     }
 
+    func->flags  = 0;
+    func->args   = 0;
+    func->top    = 0;
     func->nI     = nI;
     func->nC     = nC;
     func->nN     = nN;
@@ -182,12 +185,30 @@ static void dump_func(crs_Dump* dump, crs_Function* func) {
     }
 }
 
-int crsK_dump(crs_Dump* dump, crs_Function* func) {
+typedef struct {
+    crs_Dump*     dump;
+    crs_Function* func;
+} DumpInfo;
+
+static void* dump_try(crs_Thread* thread, void* data) {
+    UNUSED(thread);
+    DumpInfo* info = data;
+    crs_Dump* dump = info->dump;
+
     dump_header(dump);
-    dump_func(dump, func);
+    dump_func(dump, info->func);
     crsW_flush(dump);
 
-    return CRS_STATUS_OK;
+    return NULL;
+}
+
+int crsK_dump(crs_Dump* dump, crs_Function* func) {
+    DumpInfo info = {
+        .dump = dump,
+        .func = func
+    };
+
+    return crsC_try(dump->thread, &dump_try, &info, NULL);
 }
 
 /*
@@ -206,7 +227,7 @@ static noret load_error(crs_Stream* stream, char* format, ...) {
     va_end(args);
 
     obj_setgc(&thread->error, error);
-    crsC_throw(thread, CRS_STATUS_CODEERR);
+    crsC_throw(thread, CRS_CODEERR);
 }
 
 static void load_block(crs_Stream* stream, char* buffer, size_t count) {
@@ -350,30 +371,14 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
         load_func(stream, func);
     }
 
-    /* the main function, whose parent is NULL, stays on the stack */
+    if (parent == NULL) {
+        crsC_unanchor(thread);
+    }
+
     return func;
 }
 
-static void* load_try(crs_Thread* thread, void* data) {
-    crs_Stream* stream = data;
-    UNUSED(thread);
-
+crs_Function* crsK_load(crs_Stream* stream) {
     load_checkHeader(stream);
     return load_func(stream, NULL);
-}
-
-int crsK_load(crs_Stream* stream, char* source) {
-    crs_Thread* thread = stream->thread;
-    int         top    = call_savetop(thread);
-    int         status = crsC_try(thread, &load_try, stream, NULL);
-
-    if (status != CRS_STATUS_OK) {
-        call_restoretop(thread, top);
-
-        crs_String* error = crsD_addInfo(thread, source, 0);
-        crsC_anchor(thread, obj_toheader(error));
-        obj_setn(&thread->error);
-    }
-
-    return status;
 }

@@ -9,6 +9,8 @@
 #ifndef CRS_CORE_CALL_H
 #define CRS_CORE_CALL_H
 
+#include <stddef.h>
+
 #include "crescent/conf.h"
 #include "limit.h"
 
@@ -32,7 +34,7 @@ void crsC_callC(crs_Thread* thread, crs_CFunction* function,
 crs_Object* crsC_anchor(crs_Thread* thread, crs_GCHeader* header);
 void        crsC_unanchor(crs_Thread* thread);
 
-#define call_savetop(t)       ((int)((t)->stack.top - (t)->stack.frame->base))
-#define call_restoretop(t, v) ((t)->stack.top = (t)->stack.frame->base + (v))
+#define call_savetop(t)       ((size_t)((t)->stack.top - (t)->stack.base))
+#define call_restoretop(t, v) ((t)->stack.top = (t)->stack.base + (v))
 
 #endif

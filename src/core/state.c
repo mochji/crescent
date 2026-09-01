@@ -91,7 +91,7 @@ crs_Thread* crsE_open(void) {
 
     /* special objects */
 
-    if (crsC_try(thread, &initState, state, NULL) != CRS_STATUS_OK) {
+    if (crsC_try(thread, &initState, state, NULL) != CRS_OK) {
         crsE_close(state);
         return NULL;
     }

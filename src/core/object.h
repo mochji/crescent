@@ -87,7 +87,7 @@ char* crsO_name(crs_Object* object);
 int   crsO_test(crs_Object* object);
 int   crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce);
 int   crsO_toFloat(crs_Object* object, crs_Float* result, int coerce);
-char* crsO_toString(crs_Object* object, int* match);
+int   crsO_toString(crs_Object* object, char** result);
 
 /* automatic type coercions (if enabled) */
 #ifdef CRS_STR2NUM

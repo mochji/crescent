@@ -35,7 +35,7 @@ noret crsC_throw(crs_Thread* thread, int status) {
 
     while (handler != NULL) {
         /* error in error handler? */
-        if (handler->status != CRS_STATUS_OK) {
+        if (handler->status != CRS_OK) {
             handler         = handler->previous;
             thread->handler = handler;
 
@@ -57,7 +57,7 @@ noret crsC_error(crs_Thread* thread, char* message) {
     crs_String* error = crsS_new(thread, message);
 
     obj_setgc(&thread->error, error);
-    crsC_throw(thread, CRS_STATUS_ERROR);
+    crsC_throw(thread, CRS_ERROR);
 }
 
 noret crsC_errorf(crs_Thread* thread, char* format, ...) {
@@ -69,7 +69,7 @@ noret crsC_errorf(crs_Thread* thread, char* format, ...) {
     va_end(args);
 
     obj_setgc(&thread->error, error);
-    crsC_throw(thread, CRS_STATUS_ERROR);
+    crsC_throw(thread, CRS_ERROR);
 }
 
 void crsC_restoreStack(crs_Thread* thread, short level) {
@@ -88,7 +88,7 @@ int crsC_try(crs_Thread* thread, crs_PFunction* function,
     crs_Handler handler;
     void*       returned = NULL;
 
-    handler.status   = CRS_STATUS_OK;
+    handler.status   = CRS_OK;
     handler.previous = thread->handler;
     thread->handler  = &handler;
 
@@ -101,7 +101,6 @@ int crsC_try(crs_Thread* thread, crs_PFunction* function,
     }
 
     thread->handler = handler.previous;
-
     return handler.status;
 }
 
@@ -296,12 +295,16 @@ static void endCall(crs_Thread* thread, int results, int wanted) {
 
 void crsC_call(crs_Thread* thread, crs_Function* function,
                                    int args, int wanted) {
+    if (args > function->args) {
+        /* discard unused arguments */
+        thread->stack.top -= args - function->args;
+        args               = function->args;
+    }
+
     startCall(
         thread,
         function->top,
-        args > function->args
-            ? function->args
-            : args
+        args
     );
 
     /* fill missing args with nil */

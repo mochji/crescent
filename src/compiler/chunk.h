@@ -65,32 +65,10 @@ enum {
 #define EXP_VLIST  40 /* 00101 000; v = # of fixed items */
 #define EXP_VOID   32 /* 00100 000                       */
 
-/*
- * 'EXP_CALL' describes a function call (obviously :p), which can return an
- * arbitrary number of values. In many cases, though, the required number of
- * return values is known:
- * - local x, y = foo(); // 'wanted' = 2
- * - foo();              // 'wanted' = 0
- *
- * Some statements allow a variable number of arguments to be returned from a
- * function:
- * - foo(bar());   // all return values are passed to 'foo'
- * - return bar(); // all return values are returned
- *
- * Any expression list followed by an 'EXP_CALL' (including lists with zero
- * items, which would just be an 'EXP_CALL', of course) that can have any number
- * of values becomes a VLIST. The end of the list is signaled by the stack top,
- * which can extend beyond the number of registers reserved for a function.
- *
- * 'EXP_LIST' and 'EXP_VOID' describe expression lists with a known length and
- * no values respectively.
- *
- * See 'OP_CALL and OP_RETURN' comment in vm/opcodes.h.
- */
-
 #define exp_canfold(e)    ((e)->type & 1)
 #define exp_inreg(e)      ((e)->type & 2)
 #define exp_assignable(e) ((e)->type & 4)
+#define exp_isvar(e)      ((e)->type == EXP_LOCAL || (e)->type == EXP_GLOBAL)
 
 /* result of an expression */
 typedef struct {
@@ -179,6 +157,7 @@ unsigned crsI_emit(Chunk* chunk, crs_instr i);
 
 /* backpatch lists */
 void crsI_jump(Chunk* chunk, unsigned* list);
+void crsI_jumpTo(Chunk* chunk, unsigned target);
 void crsI_backpatch(Chunk* chunk, unsigned list, unsigned target);
 void crsI_label(Chunk* chunk, crs_String* name);
 void crsI_goto(Chunk* chunk, crs_String* name);

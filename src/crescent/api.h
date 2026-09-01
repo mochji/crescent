@@ -15,7 +15,7 @@
 
 #include "crescent/conf.h"
 
-#define CRS_GLOBALS INT_MAX
+#define CRS_GLOBALS 30000
 
 int crs_version(void);
 int crs_release(void);
@@ -109,7 +109,7 @@ int crs_isNumber(crs_Thread* thread, int index);
 int         crs_toBooleanX(crs_Thread* thread, int index, int* equal);
 crs_Integer crs_toIntegerX(crs_Thread* thread, int index, int* equal);
 crs_Float   crs_toFloatX(crs_Thread* thread, int index, int* equal);
-const char* crs_toStringX(crs_Thread* thread, int index, int* match);
+const char* crs_toStringX(crs_Thread* thread, int index, int* equal);
 
 #define crs_toBoolean(t, i) crs_toBooleanX(t, i, NULL)
 #define crs_toInteger(t, i) crs_toIntegerX(t, i, NULL)
@@ -140,8 +140,7 @@ void crs_vformat(crs_Thread* thread, char* format, va_list args);
 
 void crs_call(crs_Thread* thread, int index, int args, int wanted);
 int  crs_pcall(crs_Thread* thread, int index, int args, int wanted);
-int  crs_load(crs_Thread* thread, char* source, crs_Reader* reader, void* data);
-int  crs_dump(crs_Thread* thread, int index, char* source,
-                                  crs_Writer* writer, void* data);
+int  crs_load(crs_Thread* thread, crs_Reader* reader, void* data, char* source);
+int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
 
 #endif

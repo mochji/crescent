@@ -55,14 +55,16 @@ int print(crs_Thread* thread) {
     return 0;
 }
 
-static int reader(crs_Thread* thread, void* data, char* buffer, int count) {
+static int reader(crs_Thread* thread, void* data, char* buffer, int* count) {
     (void)thread;
-    return (int)fread(buffer, sizeof(char), (size_t)count, data);
+    *count = (int)fread(buffer, sizeof(char), (size_t)*count, data);
+    return CRS_OK;
 }
 
-static void writer(crs_Thread* thread, void* data, char* buffer, int count) {
+static int writer(crs_Thread* thread, void* data, char* buffer, int count) {
     (void)thread;
     fwrite(buffer, sizeof(char), (size_t)count, data);
+    return CRS_OK;
 }
 
 int main(int argc, char* argv[]) {
@@ -90,16 +92,16 @@ int main(int argc, char* argv[]) {
     FILE* out = fopen(outasdas, "wb");
     int   status;
 
-    if ((status = crs_load(thread, inasdasd, &reader, in)) != CRS_STATUS_OK) {
+    if ((status = crs_load(thread, &reader, in, inasdasd)) != CRS_OK) {
         fprintf(stderr, "%s\n", crs_toString(thread, 1));
         return 1;
     }
 
-    if ((status = crs_pcall(thread, 1, 0, 0)) != CRS_STATUS_OK) {
+    if ((status = crs_pcall(thread, 1, 0, 0)) != CRS_OK) {
         fprintf(stderr, "%s\n", crs_toString(thread, 2));
     }
 
-    if ((status = crs_dump(thread, 1, outasdas, &writer, out)) != CRS_STATUS_OK) {
+    if ((status = crs_dump(thread, 1, &writer, out)) != CRS_OK) {
         fprintf(stderr, "%s\n", crs_toString(thread, 2));
         return 1;
     }

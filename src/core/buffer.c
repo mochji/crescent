@@ -98,22 +98,29 @@ void crsB_clear(crs_Buffer* buffer) {
  */
 
 void crsR_init(crs_Thread* thread, crs_Stream* stream, crs_Reader* reader,
-                                   void* data) {
+                                   void* data, char* source) {
     stream->thread = thread;
     stream->reader = reader;
     stream->data   = data;
     stream->length = 0;
     stream->read   = 0;
+    stream->source = source;
+    stream->line   = 0;
 }
 
 int crsR_fill(crs_Stream* stream) {
-    int read = stream->reader(stream->thread,
-        stream->data, stream->buffer, CRS_BUF_STREAM);
-
-    stream->length = read;
+    stream->length = CRS_BUF_STREAM; /* buffer size */
     stream->read   = 0;
+    int status     = stream->reader(stream->thread,
+        stream->data, stream->buffer, &stream->length);
+    /* actual length set by reader */
 
-    return read;
+    if (status != CRS_OK) {
+        /* user can replace it with a more helpful message */
+        crsC_error(stream->thread, "error reading stream");
+    }
+
+    return stream->length;
 }
 
 size_t crsR_read(crs_Stream* stream, char* buffer, size_t count) {
@@ -154,9 +161,17 @@ void crsW_init(crs_Thread* thread, crs_Dump* dump, crs_Writer* writer,
 }
 
 void crsW_flush(crs_Dump* dump) {
-    if (dump->written) {
-        dump->writer(dump->thread, dump->data, dump->buffer, dump->written);
-        dump->written = 0;
+    if (!dump->written) {
+        return;
+    }
+
+    int status = dump->writer(dump->thread,
+        dump->data, dump->buffer, dump->written);
+    dump->written = 0;
+
+    if (status != CRS_OK) {
+        /* user can replace it with a more helpful message */
+        crsC_error(dump->thread, "error writing dump");
     }
 }
 

@@ -40,7 +40,8 @@
 #define MAX_Axx  bit_1mask(0, 24)
 #define MAX_sAxx bit_1mask(0, 23)
 
-#define MAX_REGS 255
+#define MAX_LOCALS 200 /* reserve some space for temporary registers */
+#define MAX_REGS   255 /* 255 is reserved in some cases, anyways     */
 
 #define instr_get(i, o, l) \
     ((crs_u32)(bit_get((i), ((crs_instr)bit_1mask(o, l))) >> (o)))
@@ -130,7 +131,7 @@ typedef enum {
     OP_CALL,     /* R[A](R[A+1 -> A+B-1]) (C results) ABC      */
     OP_RETURN,   /* return R[A -> A+B-1]) (B results) AB       */
 
-    OP_TEST,     /* if (boolean)R[A] then PC++        AB       */
+    OP_TEST,     /* if (boolean)R[A] == B then PC++   AB       */
     OP_JMP       /* PC += sAxx                        sAxx     */
 } crs_OpCode;
 
@@ -140,24 +141,10 @@ typedef enum {
  * For OP_CALL, B and C signal the number of arguments and wanted return values.
  * Similarly, for OP_RETURN, B signals the number of values to return.
  *
- * Some statements, such as the examples shown below, allow a variable number of
- * values not known during compile-time to be used:
- * - foo(bar());       // VLIST with zero fixed args
- * - foo(x, y, bar()); // VLIST with two fixed args
- * - return bar();     // VLIST with zero fixed args
- * - return x, bar();  // VLIST with one fixed arg
- * Functions are allowed to return an arbitrary amount of values.
- *
- * In such cases, where the expression list is a VLIST, 'thread->stack.top'
- * signals the end of the list. R[255] is reserved to signal this, as it is
- * reserved and never used. A function call can take a VLIST as an argument
- * *and* return all return values to the caller (as in 'return foo(bar());').
- *
- * note: 'bar()', in the expression 'foo(x, bar(), y)', returns only the first
- *       return value, as 'bar()' is compiled first, and thus 'y' couldn't be
- *       stored in any register without potentially overwriting the return
- *       values of the preceding function call (because, again, the number of
- *       return values are unknown).
+ * Some statements allow a variable number of values, only known during runtime,
+ * to be used. In these cases, 'thread->stack.top' signals the end of the list,
+ * and the count is set to 255 (calls can pass at most 254 fixed arguments, and
+ * and 255 return values fills the alloted space completely).
  */
 
 extern crs_OpMode  crsV_mode[];

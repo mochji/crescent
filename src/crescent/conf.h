@@ -96,6 +96,15 @@
 #define CRS_DAPFLOAT_TYPE CRS_FLOAT_DOUBLE
 
 /*
+ * =============================================================================
+ * Language Configuration
+ *
+ * The following definitions can be uncommented to enable or disable optional
+ * language features.
+ * =============================================================================
+ */
+
+/*
  * @ CRS_STR2NUM
  *
  * If defined, perform automatic type coercion from strings to numbers (equality
@@ -156,10 +165,10 @@ enum {
 #define CRS_TYPE_FUNCTION  22 /* 0001 0110 */
 #define CRS_TYPE_THREAD    14 /* 0000 1110 */
 
-#define CRS_STATUS_OK      0 /* no error               */
-#define CRS_STATUS_ERROR   1 /* runtime error          */
-#define CRS_STATUS_CODEERR 2 /* load/compilation error */
-#define CRS_STATUS_MEMERR  3 /* out of memory          */
+#define CRS_OK      0 /* no error               */
+#define CRS_ERROR   1 /* runtime error          */
+#define CRS_CODEERR 2 /* load/compilation error */
+#define CRS_MEMERR  3 /* out of memory          */
 
 #if CRS_INTEGER_TYPE == CRS_INTEGER_INT
 #define CRS_INTEGER     int
@@ -217,8 +226,8 @@ enum {
 
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;
-typedef int  (crs_Reader)(crs_Thread*, void*, char*, int);
-typedef void (crs_Writer)(crs_Thread*, void*, char*, int);
+typedef int (crs_Reader)(crs_Thread*, void*, char*, int*);
+typedef int (crs_Writer)(crs_Thread*, void*, char*, int);
 
 typedef CRS_INTEGER  crs_Integer;
 typedef CRS_UNSIGNED crs_Unsigned;

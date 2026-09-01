@@ -363,7 +363,7 @@ int crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
     short level  = thread->stack.level;
     int   status = crsC_try(thread, pcall, &info, NULL);
 
-    if (status != CRS_STATUS_OK) {
+    if (status != CRS_OK) {
         crsC_restoreStack(thread, level);
     }
 

@@ -101,21 +101,22 @@ noret crsI_error(Chunk* chunk, char* format, ...) {
     va_end(args);
 
     obj_setgc(&thread->error, error);
-    crsC_throw(thread, CRS_STATUS_CODEERR);
+    crsC_throw(thread, CRS_CODEERR);
 }
 
 void crsI_init(crs_Thread* thread, Parser* parser) {
     Variable* vars   = mem_vnew(thread, 32, Variable);
     Label*    labels = mem_vnew(thread, 16, Label);
 
+    parser->vecs.vars   = vars;
+    parser->vecs.labels = labels;
+    parser->vecs.sV     = 32;
+    parser->vecs.sL     = 16;
+
     if (vars == NULL || labels == NULL) {
-        parser->vars.vec   = NULL;
-        parser->labels.vec = NULL;
         crsM_error(thread);
     }
 
-    parser->vecs.vars   = vars;
-    parser->vecs.labels = labels;
     data_init(&parser->vars, (void**)&parser->vecs.vars, &parser->vecs.sV,
         UINT_MAX, sizeof(Variable));
     data_init(&parser->labels, (void**)&parser->vecs.labels, &parser->vecs.sL,
@@ -155,6 +156,7 @@ crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
 }
 
 void crsI_finish(Chunk* chunk) {
+    crsI_iABC(chunk, OP_RETURN, 0, 0, 0);
     data_shrink(chunk, &chunk->code);
     data_shrink(chunk, &chunk->consts);
     data_shrink(chunk, &chunk->nested);
@@ -162,7 +164,7 @@ void crsI_finish(Chunk* chunk) {
 
 unsigned crsI_nested(Chunk* parent, Chunk* chunk) {
     Data*         nested = &parent->nested;
-    unsigned      index  = data_check(chunk, nested, "nested functions");
+    unsigned      index  = data_check(parent, nested, "nested functions");
     crs_Function* func   = crsI_newChunk(chunk, parent->thread, parent->parser);
 
     parent->func->nested[parent->func->cN++] = func;
@@ -183,9 +185,13 @@ void crsI_enter(Chunk* chunk, Scope* scope, int loop) {
     loop            = loop || (previous != NULL ? previous->inLoop : 0);
     scope->previous = previous;
     scope->inLoop   = loop;
-    scope->fL       = loop ? parser->labels.count : previous->fL;
+    scope->fL       = parser->labels.count;
     scope->nV       = 0;
+
     /* only expose labels for current loop */
+    if (previous != NULL) {
+        scope->fL = loop ? scope->fL : previous->fL;
+    }
 }
 
 void crsI_leave(Chunk* chunk) {
@@ -253,6 +259,7 @@ static Label* findLabel(Chunk* chunk, crs_String* name) {
 
     unsigned index = data_check(chunk, &parser->labels, "labels");
     label          = &parser->vecs.labels[index];
+    label->name    = name;
     label->list    = PATCH_NONE;
     label->pc      = PATCH_NONE;
 
@@ -263,6 +270,10 @@ static Label* findLabel(Chunk* chunk, crs_String* name) {
 void crsI_jump(Chunk* chunk, unsigned* list) {
     /* 'crs_instr' is at least 'unsigned' */
     *list = crsI_emit(chunk, (crs_instr)*list);
+}
+
+void crsI_jumpTo(Chunk* chunk, unsigned target) {
+    crsI_emit(chunk, createJump(chunk, crsI_nextPC(chunk), target));
 }
 
 /* fix all instructions in list to jump to 'target' */
@@ -355,14 +366,18 @@ static unsigned const_str(Chunk* chunk, crs_String* value) {
  * declaration to the end of their scope and occupy the bottom registers.
  */
 
-static crs_byte reg_new(Chunk* chunk) {
-    if (chunk->regs == MAX_REGS) {
-        crsI_error(chunk, "expression too complex");
-    } else if (chunk->regs == chunk->func->top) {
-        chunk->func->top++;
+static crs_byte reg_new(Chunk* chunk, crs_byte count) {
+    if (chunk->regs == MAX_REGS - count) {
+        limitError(chunk, MAX_REGS, "registers");
     }
 
-    return chunk->regs++;
+    chunk->regs += count;
+
+    if (chunk->regs > chunk->func->top) {
+        chunk->func->top = chunk->regs;
+    }
+
+    return chunk->regs - 1;
 }
 
 static void reg_free(Chunk* chunk, crs_byte reg) {
@@ -406,18 +421,13 @@ void crsI_freeExp(Chunk* chunk, Expression* exp) {
     reg_freeExp(chunk, exp);
 }
 
-/*
- * subscripted expressions need to be flattened before any more registers are
- * allocated, as 'obj' and 'key' would become trapped and unable to be freed
- * otherwise.
- */
 static void flatten_index(Chunk* chunk, Expression* exp, crs_byte dest) {
     crs_byte obj = exp->value.x.obj;
     crs_byte key = exp->value.x.key;
     reg_free2(chunk, obj, key);
 
     if (dest == MAX_REGS) {
-        dest = reg_new(chunk);
+        dest = reg_new(chunk, 1);
     }
 
     crsI_iABC(chunk, OP_GET, dest, obj, key);
@@ -425,12 +435,13 @@ static void flatten_index(Chunk* chunk, Expression* exp, crs_byte dest) {
     exp->value.v = dest;
 }
 
+/* FIXME */
 static void flatten_call(Chunk* chunk, Expression* exp, crs_byte dest) {
     crs_instr* i = &chunk->func->code[exp->value.v];
     *i          |= instr_setC(1);
 
     if (dest == MAX_REGS) {
-        dest = reg_new(chunk);
+        dest = reg_new(chunk, 1);
     }
 
     exp->type    = EXP_TEMP;
@@ -524,8 +535,9 @@ crs_byte crsI_store(Chunk* chunk, Expression* exp, crs_byte reg) {
 /* ensure 'exp' is in a register */
 void crsI_toAny(Chunk* chunk, Expression* exp) {
     if (!exp_inreg(exp) && !crsI_flatten(chunk, exp)) {
+        crs_byte reg = crsI_store(chunk, exp, reg_new(chunk, 1));
         exp->type    = EXP_TEMP;
-        exp->value.v = crsI_store(chunk, exp, reg_new(chunk));
+        exp->value.v = reg;
     }
 }
 
@@ -534,8 +546,9 @@ void crsI_toTop(Chunk* chunk, Expression* exp) {
     assert(exp->type != EXP_TEMP || exp->value.v + 1 == chunk->regs);
 
     if (exp->type != EXP_TEMP && !crsI_flatten(chunk, exp)) {
+        crs_byte reg = crsI_store(chunk, exp, reg_new(chunk, 1));
         exp->type    = EXP_TEMP;
-        exp->value.v = crsI_store(chunk, exp, reg_new(chunk));
+        exp->value.v = reg;
     }
 }
 
@@ -617,7 +630,7 @@ static int fold_unary(Expression* exp, int uop) {
     return success ? fold_fromObject(exp, &object) : 0;
 }
 
-static int fold_binary(Expression* rhs, Expression* lhs, int bop) {
+static int fold_binary(Expression* lhs, Expression* rhs, int bop) {
     crs_Object lObj, rObj;
     int        success = 0;
 
@@ -706,12 +719,11 @@ void crsI_unary(Chunk* chunk, Expression* exp, int uop) {
         return;
     }
 
-    crsI_flatten(chunk, exp);
     crsI_toAny(chunk, exp);
     reg_freeExp(chunk, exp);
 
     crs_byte src  = (crs_byte)exp->value.v;
-    crs_byte dest = reg_new(chunk);
+    crs_byte dest = reg_new(chunk, 1);
 
     switch (uop) {
         case UOP_UNM:
@@ -762,7 +774,7 @@ void crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
 
     crs_byte lReg = (crs_byte)lhs->value.v;
     crs_byte rReg = (crs_byte)rhs->value.v;
-    crs_byte dest = reg_new(chunk);
+    crs_byte dest = reg_new(chunk, 1);
     lhs->type     = EXP_TEMP;
     lhs->value.v  = dest;
 
@@ -833,6 +845,7 @@ void crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
     }
 }
 
+/* FIXME */
 void crsI_getValues(Chunk* chunk, Expression* exp, int count) {
     assert(exp->type == EXP_CALL);
     crs_instr* i = &chunk->func->code[exp->value.v];
@@ -845,7 +858,7 @@ void crsI_getValues(Chunk* chunk, Expression* exp, int count) {
     } else {
         exp->type    = EXP_LIST;
         exp->value.v = (crs_byte)count;
-        chunk->regs += (crs_byte)count;
+        reg_new(chunk, (crs_byte)count);
     }
 }
 
@@ -862,6 +875,7 @@ void crsI_index(Chunk* chunk, Expression* obj, Expression* key) {
     obj->value.x.key = keyReg;
 }
 
+/* FIXME */
 void crsI_call(Chunk* chunk, Expression* obj, Expression* args) {
     unsigned argn;
 
@@ -873,9 +887,11 @@ void crsI_call(Chunk* chunk, Expression* obj, Expression* args) {
         case EXP_VLIST:
             /* stack top signals end of list */
             argn = MAX_REGS;
+            reg_freeList(chunk, args);
             break;
         case EXP_LIST:
             argn = args->value.v;
+            reg_freeList(chunk, args);
             break;
         case EXP_VOID:
             argn = 0;
@@ -888,8 +904,10 @@ void crsI_call(Chunk* chunk, Expression* obj, Expression* args) {
     }
 
     reg_freeExp(chunk, obj); /* 'obj' no longer exists after the call */
+
+    unsigned pc  = crsI_iABC(chunk, OP_CALL, obj->value.v, argn, 0);
     obj->type    = EXP_CALL;
-    obj->value.v = crsI_iABC(chunk, OP_CALL, obj->value.v, argn, 0);
+    obj->value.v = pc;
     /* no return values unless required */
 }
 
@@ -908,12 +926,13 @@ void crsI_var(Chunk* chunk, crs_String* name, Expression* exp) {
     Parser*   parser = chunk->parser;
     Variable* vars   = parser->vecs.vars;
 
-    for (unsigned i = parser->vars.count; i < chunk->fV;) {
+    for (unsigned i = parser->vars.count; i > chunk->fV;) {
         Variable* var = &vars[--i];
 
         if (var->name == name) {
             exp->type    = EXP_LOCAL;
             exp->value.v = var->reg;
+            return;
         }
     }
 

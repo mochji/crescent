@@ -75,6 +75,7 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/debug.o $(CORE)/debug.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/chunk.o $(COMPILER)/chunk.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/lexer.o $(COMPILER)/lexer.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/parser.o $(COMPILER)/parser.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/vm.o $(VM)/vm.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/api.o $(API)/api.c

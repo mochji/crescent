@@ -19,6 +19,6 @@ crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
                                            unsigned nN);
 void          crsK_free(crs_Thread* thread, crs_Function* func);
 int           crsK_dump(crs_Dump* dump, crs_Function* func);
-int           crsK_load(crs_Stream* stream, char* source);
+crs_Function* crsK_load(crs_Stream* stream);
 
 #endif

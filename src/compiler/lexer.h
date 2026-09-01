@@ -46,13 +46,13 @@ typedef struct {
     Token       peek;
     int         next;
     struct {
-        int   line;
-        char* source;
-    } info;
+        crs_String* cont;
+        crs_String* brk;
+    } names; /* names used by parser */
 } Lexer;
 
 void  crsL_init(crs_Thread* thread, Lexer* lexer, crs_Buffer* buffer,
-                                    crs_Stream* stream, char* source);
+                                    crs_Stream* stream);
 void  crsL_next(Lexer* lexer);
 void  crsL_peek(Lexer* lexer);
 noret crsL_unexpected(Lexer* lexer);
