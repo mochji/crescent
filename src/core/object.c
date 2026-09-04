@@ -54,7 +54,7 @@ int crsO_toInteger(crs_Object* object, crs_Integer* result, int coerce) {
             break;
         case CRS_TYPE_FLOAT:
             value   = (crs_Integer)obj_getf(object);
-            success = value == obj_getf(object);
+            success = (crs_Float)value == obj_getf(object);
 
             break;
         case CRS_TYPE_STRING:

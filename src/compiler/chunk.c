@@ -186,15 +186,15 @@ void crsI_enter(Chunk* chunk, Scope* scope, int loop) {
     Scope*  previous = chunk->scope;
     chunk->scope     = scope;
 
-    loop            = loop || (previous != NULL ? previous->inLoop : 0);
     scope->previous = previous;
-    scope->inLoop   = loop;
-    scope->fL       = parser->labels.count;
     scope->nV       = 0;
+    scope->fL       = parser->labels.count;
+    scope->isLoop   = (crs_byte)loop;
+    scope->inLoop   = scope->isLoop;
 
-    /* only expose labels for current loop */
     if (previous != NULL) {
-        scope->fL = loop ? scope->fL : previous->fL;
+        scope->fL     = loop ? scope->fL : previous->fL;
+        scope->inLoop = scope->inLoop || previous->inLoop;
     }
 }
 
@@ -204,9 +204,13 @@ void crsI_leave(Chunk* chunk) {
     Scope*  previous = scope->previous;
     chunk->scope     = previous;
 
-    parser->labels.count = scope->fL;
-    parser->vars.count  -= scope->nV;
-    chunk->regs         -= scope->nV;
+    parser->vars.count -= scope->nV;
+    chunk->regs        -= scope->nV;
+    chunk->locals      -= scope->nV;
+
+    if (scope->isLoop) {
+        parser->labels.count = scope->fL;
+    }
 }
 
 /*
@@ -996,7 +1000,7 @@ void crsI_return(Chunk* chunk, Expression* exp) {
             /* fallthrough */
         case EXP_VLIST:
             /* stack top signals end of list */
-            reg   = 0; /* doesn't matter */
+            reg   = chunk->regs - exp->value.v;
             count = MAX_REGS;
             reg_freeList(chunk, exp);
             break;

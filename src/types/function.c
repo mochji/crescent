@@ -121,7 +121,7 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  */
 
-static crs_byte endianness() {
+static crs_byte endianness(void) {
     int dummy = 1;
     return *((crs_byte*)&dummy);
 }

@@ -110,9 +110,10 @@ typedef struct {
 
 typedef struct Scope {
     struct Scope* previous;
-    int           inLoop;
     unsigned      fL;
     crs_byte      nV;
+    crs_byte      isLoop;
+    crs_byte      inLoop;
 } Scope;
 
 /* parser state for one function */
