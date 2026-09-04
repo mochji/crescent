@@ -40,6 +40,8 @@ crs_OpMode crsV_mode[] = {
     iABC,  /* OP_EQ      */
     iABC,  /* OP_LE      */
     iABC,  /* OP_LT      */
+    iABC,  /* OP_GE      */
+    iABC,  /* OP_GT      */
     iABC,  /* OP_LENGTH  */
     iABC,  /* OP_CONCAT  */
     iABC,  /* OP_GET     */
@@ -79,6 +81,8 @@ const char* crsV_name[] = {
     "EQ",
     "LE",
     "LT",
+    "GE",
+    "GT",
     "LENGTH",
     "CONCAT",
     "GET",

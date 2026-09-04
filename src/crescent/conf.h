@@ -135,7 +135,9 @@ enum {
     CRS_OP_SHR,
     CRS_OP_EQ,
     CRS_OP_LT,
-    CRS_OP_LE
+    CRS_OP_LE,
+    CRS_OP_GT,
+    CRS_OP_GE
 };
 
 /*

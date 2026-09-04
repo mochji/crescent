@@ -134,6 +134,8 @@ static void string_reserve(Lexer* lexer) {
     crs_Table*  strings = lexer->strings;
 
     for (int i = KEYWORD_FIRST; i < KEYWORD_LAST; i++) {
+        crsC_checkFree(lexer->thread, 1, 1); /* anchor slot */
+
         crs_String* string = crsS_new(thread, tokens[i - KEYWORD_FIRST]);
         crs_Object* key    = crsC_anchor(thread, obj_toheader(string));
         crs_Object  value;
@@ -164,6 +166,8 @@ static crs_String* string_new(Lexer* lexer) {
 
 /* buffer -> TK_STRING */
 static crs_String* string_literal(Lexer* lexer) {
+    crsC_checkFree(lexer->thread, 1, 1); /* anchor slot */
+
     crs_Thread* thread = lexer->thread;
     crs_String* string = string_new(lexer);
     crs_Object* key    = crsC_anchor(thread, obj_toheader(string));
@@ -184,6 +188,8 @@ static crs_String* string_literal(Lexer* lexer) {
 
 /* buffer -> TK_NAME or reserved keyword */
 static int string_token(Lexer* lexer, Token* token) {
+    crsC_checkFree(lexer->thread, 1, 1); /* anchor slot */
+
     crs_Thread* thread = lexer->thread;
     crs_String* string = string_new(lexer);
     crs_Object* key    = crsC_anchor(thread, obj_toheader(string));
@@ -483,14 +489,17 @@ static int nextToken(Lexer* lexer, Token* token) {
 
 void crsL_init(crs_Thread* thread, Lexer* lexer, crs_Buffer* buffer,
                                    crs_Stream* stream) {
-    lexer->thread      = thread;
-    lexer->stream      = stream;
-    lexer->buffer      = buffer;
-    lexer->strings     = crsT_new(thread);
-    lexer->token.type  = TK_EOF;
-    lexer->peek.type   = TK_EOF;
-    curline(lexer)     = 1;
+    crsC_checkFree(thread, 1, 1); /* anchor slot */
 
+    lexer->thread     = thread;
+    lexer->stream     = stream;
+    lexer->buffer     = buffer;
+    lexer->strings    = crsT_new(thread);
+    lexer->token.type = TK_EOF;
+    lexer->peek.type  = TK_EOF;
+    curline(lexer)    = 1;
+
+    /* string table is unanchored by 'crsP_compile' */
     crsC_anchor(thread, obj_toheader(lexer->strings));
     string_reserve(lexer);
     next(lexer);

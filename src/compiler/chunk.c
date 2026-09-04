@@ -18,6 +18,8 @@
 #include "types/function.h"
 #include "core/state.h"
 #include "core/memory.h"
+#include "core/call.h"
+#include "core/gc.h"
 #include "core/format.h"
 #include "vm/opcodes.h"
 #include "vm/vm.h"
@@ -160,6 +162,8 @@ void crsI_finish(Chunk* chunk) {
     data_shrink(chunk, &chunk->code);
     data_shrink(chunk, &chunk->consts);
     data_shrink(chunk, &chunk->nested);
+
+    crsG_check(chunk->thread);
 }
 
 unsigned crsI_nested(Chunk* parent, Chunk* chunk) {
@@ -418,34 +422,43 @@ static void reg_freeList(Chunk* chunk, Expression* exp) {
 }
 
 void crsI_freeExp(Chunk* chunk, Expression* exp) {
-    reg_freeExp(chunk, exp);
+    switch (exp->type) {
+        case EXP_TEMP:
+            reg_free(chunk, (crs_byte)exp->value.v);
+            break;
+        case EXP_INDEX:
+            reg_free2(chunk, exp->value.x.obj, exp->value.x.key);
+            break;
+        case EXP_LIST: case EXP_VLIST:
+            chunk->regs -= (crs_byte)exp->value.v;
+            break;
+    }
 }
 
 static void flatten_index(Chunk* chunk, Expression* exp, crs_byte dest) {
     crs_byte obj = exp->value.x.obj;
     crs_byte key = exp->value.x.key;
-    reg_free2(chunk, obj, key);
 
     if (dest == MAX_REGS) {
-        dest = reg_new(chunk, 1);
+        reg_free2(chunk, obj, key);
+
+        dest         = reg_new(chunk, 1);
+        exp->type    = EXP_TEMP;
+        exp->value.v = dest;
     }
 
     crsI_iABC(chunk, OP_GET, dest, obj, key);
-    exp->type    = EXP_TEMP;
-    exp->value.v = dest;
 }
 
-/* FIXME */
 static void flatten_call(Chunk* chunk, Expression* exp, crs_byte dest) {
-    crs_instr* i = &chunk->func->code[exp->value.v];
-    *i          |= instr_setC(1);
-
-    if (dest == MAX_REGS) {
-        dest = reg_new(chunk, 1);
-    }
-
+    crsI_getValues(chunk, exp, 1);
     exp->type    = EXP_TEMP;
-    exp->value.v = dest;
+    exp->value.v = chunk->regs - 1;
+
+    if (dest != MAX_REGS) {
+        crsI_iABC(chunk, OP_MOV, dest, exp->value.v, 0);
+        reg_freeExp(chunk, exp);
+    }
 }
 
 int crsI_flatten(Chunk* chunk, Expression* exp) {
@@ -488,7 +501,7 @@ static void load_global(Chunk* chunk, crs_String* value, crs_byte reg) {
     crsI_iABx(chunk, OP_GETG, reg, index);
 }
 
-/* 'exp' is potentially invalid after return */
+/* store 'exp' into register 'reg' ('exp' remains the same) */
 crs_byte crsI_store(Chunk* chunk, Expression* exp, crs_byte reg) {
     switch (exp->type) {
         case EXP_NIL:
@@ -823,12 +836,10 @@ void crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
             crsI_iABC(chunk, OP_NOT, dest, dest, 0);
             break;
         case BOP_GT:
-            crsI_iABC(chunk, OP_LE, dest, lReg, rReg);
-            crsI_iABC(chunk, OP_NOT, dest, dest, 0);
+            crsI_iABC(chunk, OP_GT, dest, lReg, rReg);
             break;
         case BOP_GE:
-            crsI_iABC(chunk, OP_LT, dest, lReg, rReg);
-            crsI_iABC(chunk, OP_NOT, dest, dest, 0);
+            crsI_iABC(chunk, OP_GE, dest, lReg, rReg);
             break;
         case BOP_LT:
             crsI_iABC(chunk, OP_LT, dest, lReg, rReg);
@@ -845,20 +856,21 @@ void crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
     }
 }
 
-/* FIXME */
-void crsI_getValues(Chunk* chunk, Expression* exp, int count) {
-    assert(exp->type == EXP_CALL);
-    crs_instr* i = &chunk->func->code[exp->value.v];
-    *i          |= instr_setC(count);
+void crsI_getValues(Chunk* chunk, Expression* exp, crs_byte count) {
+    assert(exp_multival(exp));
+    unsigned   pc = exp->value.v;
+    crs_instr* i  = &chunk->func->code[pc];
+    *i           |= instr_setC(count);
+
+    assert(pc == crsI_nextPC(chunk) - 1);
 
     if (count == MAX_REGS) {
         exp->type    = EXP_VLIST;
         exp->value.v = 0;
-        /* it is expected that the next instruction handles the VLIST */
     } else {
         exp->type    = EXP_LIST;
-        exp->value.v = (crs_byte)count;
-        reg_new(chunk, (crs_byte)count);
+        exp->value.v = count;
+        reg_new(chunk, count);
     }
 }
 
@@ -875,40 +887,52 @@ void crsI_index(Chunk* chunk, Expression* obj, Expression* key) {
     obj->value.x.key = keyReg;
 }
 
-/* FIXME */
 void crsI_call(Chunk* chunk, Expression* obj, Expression* args) {
-    unsigned argn;
+    unsigned nArgs;
 
     switch (args->type) {
-        case EXP_CALL:
-            /* all return values passed as arguments */
-            crsI_getValues(chunk, obj, MAX_REGS);
-            /* fallthrough */
         case EXP_VLIST:
-            /* stack top signals end of list */
-            argn = MAX_REGS;
+            nArgs = MAX_REGS;
             reg_freeList(chunk, args);
             break;
         case EXP_LIST:
-            argn = args->value.v;
+            nArgs = args->value.v;
             reg_freeList(chunk, args);
             break;
         case EXP_VOID:
-            argn = 0;
+            nArgs = 0;
             break;
         default:
-            /* all other expression types evaluate to one value */
+            nArgs = 1;
             crsI_toTop(chunk, args);
             reg_freeExp(chunk, args);
-            argn = 1;
     }
 
-    reg_freeExp(chunk, obj); /* 'obj' no longer exists after the call */
+    /* return values overwrite 'obj' */
+    reg_freeExp(chunk, obj);
 
-    unsigned pc  = crsI_iABC(chunk, OP_CALL, obj->value.v, argn, 0);
+    /* no return values unless required */
+    unsigned pc  = crsI_iABC(chunk, OP_CALL, obj->value.v, nArgs, 0);
     obj->type    = EXP_CALL;
     obj->value.v = pc;
-    /* no return values unless required */
+}
+
+void crsI_table(Chunk* chunk, Expression* exp) {
+    crs_byte reg = reg_new(chunk, 1);
+    exp->type    = EXP_TEMP;
+    exp->value.v = reg;
+    crsI_iABC(chunk, OP_NEWT, reg, 0, 0);
+}
+
+/* add a key-value pair to a new table */
+void crsI_set(Chunk* chunk, Expression* tbl, Expression* key,
+                            Expression* value) {
+    crsI_flatten(chunk, value);
+    crsI_toAny(chunk, key);
+    crsI_toAny(chunk, value);
+
+    crsI_iABC(chunk, OP_SET, value->value.v, tbl->value.v, key->value.v);
+    reg_free2Exp(chunk, key, value);
 }
 
 void crsI_test(Chunk* chunk, Expression* exp, int test) {
@@ -994,4 +1018,78 @@ void crsI_return(Chunk* chunk, Expression* exp) {
     }
 
     crsI_iABC(chunk, OP_RETURN, reg, count, 0);
+}
+
+void crsI_assign(Chunk* chunk, Expression* var, Expression* exp) {
+    switch (var->type) {
+        case EXP_GLOBAL:
+            crsI_toAny(chunk, exp);
+            unsigned index = const_str(chunk, var->value.s);
+            crsI_iABx(chunk, OP_SETG, exp->value.v, index);
+
+            break;
+        case EXP_LOCAL:
+            crsI_store(chunk, exp, (crs_byte)var->value.v);
+
+            break;
+        case EXP_INDEX:
+            crsI_toAny(chunk, exp);
+            crsI_iABC(chunk, OP_SET, exp->value.v,
+                var->value.x.obj, var->value.x.key);
+
+            break;
+        default:
+            assert(0);
+    }
+}
+
+static void assign_reg(Chunk* chunk, Expression* exp, crs_byte reg) {
+    Expression temp = {
+        .type  = EXP_TEMP,
+        .value = {
+            .v = reg
+        }
+    };
+
+    crsI_assign(chunk, exp, &temp);
+}
+
+static void assign_list(Chunk* chunk, SubexpList* exps, Expression* values,
+                                      unsigned nExps) {
+    unsigned nVals = values->value.v;
+    crs_byte reg   = chunk->regs - 1;
+
+    /* missing values are nil */
+    while (nVals-- > nExps) {
+        crsI_iABC(chunk, OP_LODN, reg, 0, 0);
+        exps = exps->prev;
+        reg--;
+    }
+
+    while (nVals--) {
+        assign_reg(chunk, &exps->exp, reg--);
+        exps = exps->prev;
+    }
+}
+
+static void assign_single(Chunk* chunk, SubexpList* exps, Expression* value) {
+    /* missing values are nil */
+    while (exps->prev != NULL) {
+        Expression nil = {.type = EXP_NIL};
+        crsI_assign(chunk, &exps->exp, &nil);
+        crsI_freeExp(chunk, &nil);
+        exps = exps->prev;
+    }
+
+    crsI_assign(chunk, &exps->exp, value);
+}
+
+void crsI_multiAssign(Chunk* chunk, SubexpList* exps, Expression* values,
+                                    unsigned nExps) {
+    if (values->type == EXP_LIST) {
+        assign_list(chunk, exps, values, nExps);
+    } else {
+        assert(values->type != EXP_VLIST);
+        assign_single(chunk, exps, values);
+    }
 }

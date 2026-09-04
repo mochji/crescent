@@ -24,8 +24,8 @@
 #include "core/call.h"
 #include "core/debug.h"
 #include "core/gc.h"
-#include "vm/vm.h"
 #include "compiler/parser.h"
+#include "vm/vm.h"
 
 #include "crescent/api.h"
 
@@ -308,16 +308,11 @@ export int crs_compare(crs_Thread* thread, int leftIndex, int rightIndex,
     crs_Object* left  = getIndex(thread, leftIndex);
     crs_Object* right = getIndex(thread, rightIndex);
 
-    switch (op) {
-        case CRS_OP_EQ:
-            return crsV_equal(left, right);
-        case CRS_OP_LT:
-            return crsV_less(thread, left, right);
-        case CRS_OP_LE:
-            return crsV_lessEqual(thread, left, right);
+    if (op == CRS_OP_EQ) {
+        return crsV_equal(left, right);
     }
 
-    return 0;
+    return crsV_compare(thread, left, right, op);
 }
 
 export void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
@@ -410,6 +405,20 @@ export const char* crs_toStringX(crs_Thread* thread, int index, int* equal) {
     }
 
     return value;
+}
+
+export void* crs_toPointer(crs_Thread* thread, int index) {
+    crs_Object* object = getIndex(thread, index);
+
+    switch (object->type) {
+        case CRS_TYPE_CFUNCTION:
+            return *(void**)&obj_getc(object);
+        case CRS_TYPE_STRING: case CRS_TYPE_TABLE:
+        case CRS_TYPE_FUNCTION: case CRS_TYPE_THREAD:
+            return obj_geth(object);
+    }
+
+    return NULL;
 }
 
 /*
@@ -517,16 +526,13 @@ static void* tryLoad(crs_Thread* thread, void* data) {
 export int crs_load(crs_Thread* thread, crs_Reader* reader, void* data,
                                         char* source) {
     crs_Function* func;
-    crs_Object*   result;
     crs_Stream    stream;
-    int           status;
-    size_t        top;
-
     crsR_init(thread, &stream, reader, data, source);
-    top    = call_savetop(thread);
-    status = crsC_try(thread, &tryLoad, &stream, (void**)&func);
+
+    size_t top    = call_savetop(thread);
+    int    status = crsC_try(thread, &tryLoad, &stream, (void**)&func);
     call_restoretop(thread, top);
-    result = adjustTop(thread, 1);
+    crs_Object* result = adjustTop(thread, 1);
 
     switch (status) {
         case CRS_OK:
@@ -551,14 +557,13 @@ export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
                                         void* data) {
     crs_Object* object = getIndex(thread, index);
     crs_Dump    dump;
-    int         status;
 
     if (object->type != CRS_TYPE_FUNCTION) {
         crsC_errorf(thread, "cannot dump a %s value", crsO_name(object));
     }
 
     crsW_init(thread, &dump, writer, data);
-    status = crsK_dump(&dump, obj_getk(object));
+    int status = crsK_dump(&dump, obj_getk(object));
 
     crsG_check(thread);
     return status;

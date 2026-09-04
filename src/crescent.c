@@ -46,7 +46,7 @@ int print(crs_Thread* thread) {
             case CRS_TYPE_TABLE:
             case CRS_TYPE_FUNCTION:
             case CRS_TYPE_THREAD:
-                printf("%s", crs_name(thread, i));
+                printf("%s: %p", crs_name(thread, i), crs_toPointer(thread, i));
                 break;
         }
     }
@@ -105,6 +105,9 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "%s\n", crs_toString(thread, 2));
         return 1;
     }
+
+    fclose(in);
+    fclose(out);
 
     crs_close(thread);
     return 0;

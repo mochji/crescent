@@ -106,40 +106,82 @@ int crsV_equal(crs_Object* l, crs_Object* r) {
     return 0;
 }
 
-int crsV_less(crs_Thread* thread, crs_Object* l, crs_Object* r) {
+static int cmp_less(crs_Object* l, crs_Object* r, int* result) {
     if (l->type == CRS_TYPE_INTEGER) {
         if (r->type == CRS_TYPE_INTEGER) {
-            return obj_geti(l) < obj_geti(r);
+            *result = obj_geti(l) < obj_geti(r);
+            return 1;
         } else if (r->type == CRS_TYPE_FLOAT) {
-            return num_less(l, r);
+            *result = num_less(l, r);
+            return 1;
         }
     } else if (l->type == CRS_TYPE_FLOAT) {
         if (r->type == CRS_TYPE_FLOAT) {
-            return obj_getf(l) < obj_getf(r);
+            *result = obj_getf(l) < obj_getf(r);
+            return 1;
         } else if (r->type == CRS_TYPE_INTEGER) {
-            return num_less(l, r);
+            *result = num_less(l, r);
+            return 1;
         }
     }
 
-    error_binary(thread, l, r, "<");
+    return 0;
 }
 
-int crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r) {
+static int cmp_lessEqual(crs_Object* l, crs_Object* r, int* result) {
     if (l->type == CRS_TYPE_INTEGER) {
         if (r->type == CRS_TYPE_INTEGER) {
-            return obj_geti(l) <= obj_geti(r);
+            *result = obj_geti(l) <= obj_geti(r);
+            return 1;
         } else if (r->type == CRS_TYPE_FLOAT) {
-            return num_lessEqual(l, r);
+            *result = num_lessEqual(l, r);
+            return 1;
         }
     } else if (l->type == CRS_TYPE_FLOAT) {
         if (r->type == CRS_TYPE_FLOAT) {
-            return obj_getf(l) <= obj_getf(r);
+            *result = obj_getf(l) <= obj_getf(r);
+            return 1;
         } else if (r->type == CRS_TYPE_INTEGER) {
-            return num_lessEqual(l, r);
+            *result = num_lessEqual(l, r);
+            return 1;
         }
     }
 
-    error_binary(thread, l, r, "<=");
+    return 0;
+}
+
+int crsV_compare(crs_Thread* thread, crs_Object* l, crs_Object* r, int op) {
+    int   success = 0, result;
+    char* str     = "";
+
+    switch (op) {
+        case CRS_OP_LT:
+            success = cmp_less(l, r, &result);
+            str     = "<";
+            break;
+        case CRS_OP_LE:
+            success = cmp_lessEqual(l, r, &result);
+            str     = "<=";
+            break;
+        case CRS_OP_GT:
+            success = cmp_lessEqual(l, r, &result);
+            result  = !result;
+            str     = ">";
+            break;
+        case CRS_OP_GE:
+            success = cmp_less(l, r, &result);
+            result  = !result;
+            str     = ">=";
+            break;
+        default:
+            assert(0);
+    }
+
+    if (!success) {
+        error_binary(thread, l, r, str);
+    }
+
+    return result;
 }
 
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
@@ -527,14 +569,32 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
             }
             case OP_LT: {
                 crs_Object* a = reg_A(i);
-                int         v = crsV_less(thread, reg_B(i), reg_C(i));
+                int         v = crsV_compare(thread,
+                    reg_B(i), reg_C(i), CRS_OP_LT);
                 obj_setb(a, v);
 
                 break;
             }
             case OP_LE: {
                 crs_Object* a = reg_A(i);
-                int         v = crsV_lessEqual(thread, reg_B(i), reg_C(i));
+                int         v = crsV_compare(thread,
+                    reg_B(i), reg_C(i), CRS_OP_LE);
+                obj_setb(a, v);
+
+                break;
+            }
+            case OP_GT: {
+                crs_Object* a = reg_A(i);
+                int         v = crsV_compare(thread,
+                    reg_B(i), reg_C(i), CRS_OP_GT);
+                obj_setb(a, v);
+
+                break;
+            }
+            case OP_GE: {
+                crs_Object* a = reg_A(i);
+                int         v = crsV_compare(thread,
+                    reg_B(i), reg_C(i), CRS_OP_GE);
                 obj_setb(a, v);
 
                 break;

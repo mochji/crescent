@@ -15,9 +15,7 @@
 #include "limit.h"
 
 #include "core/object.h"
-#include "core/call.h"
-
-#define MAX_LOCALS 200
+#include "vm/opcodes.h"
 
 typedef struct {
     void**    vec;
@@ -41,14 +39,6 @@ enum {
     BOP_NONE
 };
 
-/*
- * Expression types
- *
- * - bit 0: Can be folded in operations
- * - bit 1: Value stored in a register
- * - bit 2: Can be assigned to
- */
-
 #define EXP_NIL     1 /* 00000 001                       */
 #define EXP_TRUE    9 /* 00001 001                       */
 #define EXP_FALSE  17 /* 00010 001                       */
@@ -69,6 +59,8 @@ enum {
 #define exp_inreg(e)      ((e)->type & 2)
 #define exp_assignable(e) ((e)->type & 4)
 #define exp_isvar(e)      ((e)->type == EXP_LOCAL || (e)->type == EXP_GLOBAL)
+#define exp_multival(e)   ((e)->type == EXP_CALL)
+#define exp_haseffect(e)  ((e)->type == EXP_CALL)
 
 /* result of an expression */
 typedef struct {
@@ -84,6 +76,12 @@ typedef struct {
     }        value;
     crs_byte type;
 } Expression;
+
+/* list of subexpressions on the left hand side of an assignment */
+typedef struct SubexpList {
+    struct SubexpList* prev;
+    Expression         exp;
+} SubexpList;
 
 /* local variable */
 typedef struct {
@@ -163,6 +161,8 @@ void crsI_label(Chunk* chunk, crs_String* name);
 void crsI_goto(Chunk* chunk, crs_String* name);
 void crsI_patchAll(Chunk* chunk);
 
+#define crsI_patchHere(f, l) crsI_backpatch(f, l, (f)->code.count)
+
 #define PATCH_NONE UINT_MAX /* pc can be at most UINT_MAX - 1 */
 
 /* expressions */
@@ -175,10 +175,15 @@ void     crsI_unary(Chunk* chunk, Expression* exp, int uop);
 unsigned crsI_infix(Chunk* chunk, Expression* lhs, int bop);
 void     crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
                                    int bop, unsigned pc);
-void     crsI_getValues(Chunk* chunk, Expression* exp, int count);
+void     crsI_getValues(Chunk* chunk, Expression* exp, crs_byte count);
 void     crsI_index(Chunk* chunk, Expression* obj, Expression* key);
 void     crsI_call(Chunk* chunk, Expression* obj, Expression* args);
+void     crsI_table(Chunk* chunk, Expression* exp);
+void     crsI_set(Chunk* chunk, Expression* tbl, Expression* key,
+                                Expression* value);
 void     crsI_test(Chunk* chunk, Expression* exp, int test);
+
+#define crsI_getAll(f, e) crsI_getValues(f, e, MAX_REGS)
 
 /* variables */
 void crsI_var(Chunk* chunk, crs_String* name, Expression* exp);
@@ -186,5 +191,8 @@ void crsI_local(Chunk* chunk, crs_String* name);
 
 /* statements */
 void crsI_return(Chunk* chunk, Expression* exp);
+void crsI_assign(Chunk* chunk, Expression* var, Expression* exp);
+void crsI_multiAssign(Chunk* chunk, SubexpList* vars, Expression* values,
+                                    unsigned nExps);
 
 #endif

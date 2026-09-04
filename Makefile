@@ -18,6 +18,7 @@ LDFLAGS = -lm
 CC       = gcc
 AR       = ar rcs
 VALGRIND = valgrind
+DEBUG    = oksurewhynot
 
 # ============================
 #  end of user configuration

@@ -110,6 +110,7 @@ int         crs_toBooleanX(crs_Thread* thread, int index, int* equal);
 crs_Integer crs_toIntegerX(crs_Thread* thread, int index, int* equal);
 crs_Float   crs_toFloatX(crs_Thread* thread, int index, int* equal);
 const char* crs_toStringX(crs_Thread* thread, int index, int* equal);
+void*       crs_toPointer(crs_Thread* thread, int index);
 
 #define crs_toBoolean(t, i) crs_toBooleanX(t, i, NULL)
 #define crs_toInteger(t, i) crs_toIntegerX(t, i, NULL)

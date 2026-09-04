@@ -17,8 +17,8 @@
 #include "core/object.h"
 
 int         crsV_equal(crs_Object* l, crs_Object* r);
-int         crsV_less(crs_Thread* thread, crs_Object* l, crs_Object* r);
-int         crsV_lessEqual(crs_Thread* thread, crs_Object* l, crs_Object* r);
+int         crsV_compare(crs_Thread* thread, crs_Object* l, crs_Object* r,
+                                             int op);
 crs_Integer crsV_length(crs_Thread* thread, crs_Object* object);
 int         crsV_rawArith(crs_Object* o, crs_Object* l, crs_Object* r, int op);
 void        crsV_arith(crs_Thread* thread, crs_Object* o, crs_Object* l,

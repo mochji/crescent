@@ -122,6 +122,8 @@ typedef enum {
     OP_EQ,       /* R[A] = R[B] == R[C]               ABC      */
     OP_LT,       /* R[A] = R[B] < R[C]                ABC      */
     OP_LE,       /* R[A] = R[B] <= R[C]               ABC      */
+    OP_GT,       /* R[A] = R[B] > R[C]                ABC      */
+    OP_GE,       /* R[A] = R[B] >= R[C]               ABC      */
 
     OP_LENGTH,   /* R[A] = #R[B]                      AB       */
     OP_CONCAT,   /* R[A] = R[B] .. R[C]               ABC      */
@@ -143,8 +145,9 @@ typedef enum {
  *
  * Some statements allow a variable number of values, only known during runtime,
  * to be used. In these cases, 'thread->stack.top' signals the end of the list,
- * and the count is set to 255 (calls can pass at most 254 fixed arguments, and
- * and 255 return values fills the alloted space completely).
+ * and the count is set to MAX_REGS (calls can pass at most MAX_REGS - 1 fixed
+ * arguments, and MAX_REGS return values fills the stack frame completely, so
+ * 'thread->stack.top' signals the end anyway).
  */
 
 extern crs_OpMode  crsV_mode[];
