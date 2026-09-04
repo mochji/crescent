@@ -13,9 +13,8 @@
 #include "crescent/api.h"
 
 /*
- * you're gonna have to manually assemble code into the dump format yourself if
- * you wanna test stuff rn bc there's no compiler :/ (or you could write an
- * assembler, i guess).
+ * GUESS WGAT BITCH???? YEAH THATS RIGHT. THERE IS A COMPILER NOW. IT ONLY TOOK
+ * TWO AND A HALF YEARS, BUT I FINALLY HAVE A OWRKING LAHNGUAGE!@!!!*(!U@
  *
  * all that's provided is a basic global "print"
  */
