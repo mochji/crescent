@@ -23,6 +23,7 @@
 
 /* global to entire stack */
 #define CRS_MIN_STACK 64
+#define CRS_MIN_FREE  3 /* for internal use of stack */
 
 /* local to a stack frame */
 #define CRS_MIN_TOP 16

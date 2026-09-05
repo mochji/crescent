@@ -360,6 +360,11 @@ void crsT_set(crs_Thread* thread, crs_Table* table, crs_Object* key,
         set(table, key, value); /* should always succeed */
     }
 
-    crsG_barrierB(thread, table, key);
-    crsG_barrierB(thread, table, value);
+    if (obj_iscollectable(key)) {
+        crsG_barrierB(thread, obj_toheader(table), obj_geth(key));
+    }
+
+    if (obj_iscollectable(value)) {
+        crsG_barrierB(thread, obj_toheader(table), obj_geth(value));
+    }
 }

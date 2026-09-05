@@ -132,6 +132,8 @@ static int reallocStack(crs_Thread* thread, size_t newSize, int throw) {
 }
 
 int crsC_resizeStack(crs_Thread* thread, size_t needed, int throw) {
+    needed += CRS_MIN_STACK;
+
     if (needed > STACK_MAX) {
         if (throw) {
             crsC_error(thread, "stack overflow");
@@ -201,7 +203,7 @@ int crsC_checkTop(crs_Thread* thread, int top, int throw) {
 int crsC_checkFree(crs_Thread* thread, int free, int throw) {
     size_t needed = (size_t)((thread->stack.top - thread->stack.base) + free);
 
-    if (needed > thread->stack.size) {
+    if (needed > thread->stack.size - CRS_MIN_FREE) {
         return crsC_resizeStack(thread, needed, throw);
     }
 

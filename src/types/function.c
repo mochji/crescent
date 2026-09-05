@@ -344,10 +344,6 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
     crs_Thread*   thread = stream->thread;
     crs_Function* func;
 
-    if (parent == NULL) {
-        crsC_checkFree(thread, 1, 1); /* anchor slot */
-    }
-
     unsigned nI = load_size(stream, sizeof(crs_instr), "instructions");
     unsigned nC = load_size(stream, sizeof(crs_Object), "constants");
     unsigned nN = load_size(stream, sizeof(crs_Function*), "nested functions");

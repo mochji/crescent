@@ -121,7 +121,13 @@ export void crs_setPanic(crs_Thread* thread, crs_CFunction* function) {
 export void crs_error(crs_Thread* thread, int index) {
     crs_Object* object = getIndex(thread, index);
 
-    obj_seto(&thread->error, object);
+    if (object->type == CRS_TYPE_NIL) {
+        crs_String* string = crsS_new(thread, "(error object is nil)");
+        obj_setgc(&thread->error, string);
+    } else {
+        obj_seto(&thread->error, object);
+    }
+
     crsC_throw(thread, CRS_ERROR);
 }
 
@@ -452,12 +458,14 @@ export void crs_pushCFunction(crs_Thread* thread, crs_CFunction* function) {
     obj_setc(object, function);
 }
 
-export void crs_pushString(crs_Thread* thread, char* str) {
+export const char* crs_pushString(crs_Thread* thread, char* str) {
     crs_Object* object = adjustTop(thread, 1);
     crs_String* string = crsS_new(thread, str);
 
     obj_setgc(object, string);
     crsG_check(thread);
+
+    return string->contents;
 }
 
 export void crs_pushTable(crs_Thread* thread) {
@@ -468,20 +476,25 @@ export void crs_pushTable(crs_Thread* thread) {
     crsG_check(thread);
 }
 
-export void crs_format(crs_Thread* thread, char* format, ...) {
-    va_list args;
+export const char* crs_format(crs_Thread* thread, char* format, ...) {
+    const char* str;
+    va_list     args;
 
     va_start(args, format);
-    crs_vformat(thread, format, args);
+    str = crs_vformat(thread, format, args);
     va_end(args);
+
+    return str;
 }
 
-export void crs_vformat(crs_Thread* thread, char* format, va_list args) {
+export const char* crs_vformat(crs_Thread* thread, char* format, va_list args) {
     crs_Object* object = adjustTop(thread, 1);
     crs_String* string = crsF_vformat(thread, format, args);
 
     obj_setgc(object, string);
     crsG_check(thread);
+
+    return string->contents;
 }
 
 /*

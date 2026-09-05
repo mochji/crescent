@@ -29,11 +29,9 @@ void crsM_error(crs_Thread* thread) {
 }
 
 static void* tryAgain(crs_Thread* thread, size_t size, void* block) {
-    if (gc_getstatus(thread->state, STOPEM)) {
+    if (!crsG_full(thread, 1)) {
         return NULL;
     }
-
-    crsG_full(thread, 1);
 
     return block == NULL ? malloc(size) : realloc(block, size);
 }

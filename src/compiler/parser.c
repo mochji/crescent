@@ -918,10 +918,9 @@ static void body(Lexer* lexer) {
  */
 
 static crs_Function* mainFunc(Lexer* lexer, Parser* parser) {
-    Chunk         chunk;
-    Scope         scope;
-    crs_Thread*   thread = lexer->thread;
-    crsC_checkFree(thread, 1, 1); /* anchor slot */
+    Chunk       chunk;
+    Scope       scope;
+    crs_Thread* thread = lexer->thread;
 
     crs_Function* func = crsI_newChunk(&chunk, thread, parser);
     lexer->chunk       = &chunk;
@@ -969,16 +968,18 @@ crs_Function* crsP_compile(crs_Stream* stream) {
 
     crs_Function* main;
     crs_Thread*   thread = stream->thread;
-    size_t        top    = call_savetop(thread);
     int           status = crsC_try(thread, &compile, &info, (void**)&main);
 
     crsB_free(&buffer);
     crsI_free(thread, &parser);
-    call_restoretop(thread, top);
 
     if (status != CRS_OK) {
         /* rethrow for 'tryLoad' */
         crsC_throw(thread, status); /* error is already in error register */
+    } else {
+        /* unanchor main function and string table */
+        crsC_unanchor(thread);
+        crsC_unanchor(thread);
     }
 
     return main;

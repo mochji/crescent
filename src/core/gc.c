@@ -435,8 +435,8 @@ void crsG_setImmune(crs_Thread* thread) {
 #define dobarrier(s, b, w) \
     ((gc_isblack(b) && gc_iswhite(w)) && keepinvariant(s))
 
-void crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black,
-                                        crs_GCHeader* white) {
+void crsG_barrierF(crs_Thread* thread, crs_GCHeader* black,
+                                       crs_GCHeader* white) {
     crs_State* state = thread->state;
 
     if (dobarrier(state, black, white)) {
@@ -444,8 +444,8 @@ void crsG_barrierF_(crs_Thread* thread, crs_GCHeader* black,
     }
 }
 
-void crsG_barrierB_(crs_Thread* thread, crs_GCHeader* black,
-                                        crs_GCHeader* white) {
+void crsG_barrierB(crs_Thread* thread, crs_GCHeader* black,
+                                       crs_GCHeader* white) {
     crs_State* state = thread->state;
 
     if (dobarrier(state, black, white)) {
@@ -459,23 +459,22 @@ int crsG_step(crs_Thread* thread) {
 
     if (gc_getstatus(state, STOP)) {
         setPause(state, 20000);
-
         return 0;
     }
 
     return incremental_step(state);
 }
 
-void crsG_full(crs_Thread* thread, int emergency) {
+int crsG_full(crs_Thread* thread, int emergency) {
     crs_State* state = thread->state;
 
-    if (gc_getstatus(state, STOP)) {
-        setPause(state, 20000);
-
-        return;
+    if (emergency && gc_getstatus(state, EMERGENCY)) {
+        return 0;
     }
 
     gc_setstatus(state, EMERGENCY, emergency);
     incremental_full(state);
     gc_setstatus(state, EMERGENCY, 0);
+
+    return 1;
 }
