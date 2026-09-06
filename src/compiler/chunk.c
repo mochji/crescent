@@ -146,6 +146,7 @@ crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
     chunk->regs   = 0;
     chunk->locals = 0;
     chunk->fV     = parser->vars.count;
+    chunk->lV     = parser->vars.count;
     chunk->func   = func;
     data_init(&chunk->code, (void**)&func->code, &func->nI,
         UINT_MAX, sizeof(crs_instr));
@@ -954,7 +955,7 @@ void crsI_var(Chunk* chunk, crs_String* name, Expression* exp) {
     Parser*   parser = chunk->parser;
     Variable* vars   = parser->vecs.vars;
 
-    for (unsigned i = parser->vars.count; i > chunk->fV;) {
+    for (unsigned i = chunk->lV; i > chunk->fV;) {
         Variable* var = &vars[--i];
 
         if (var->name == name) {
@@ -981,6 +982,7 @@ void crsI_local(Chunk* chunk, crs_String* name) {
     var->name = name;
     var->reg  = chunk->locals++;
     chunk->scope->nV++;
+    chunk->lV++;
 }
 
 /*
@@ -1064,10 +1066,11 @@ static void assign_list(Chunk* chunk, SubexpList* exps, Expression* values,
     crs_byte reg   = chunk->regs - 1;
 
     /* missing values are nil */
-    while (nVals-- > nExps) {
+    while (nVals > nExps) {
         crsI_iABC(chunk, OP_LODN, reg, 0, 0);
         exps = exps->prev;
         reg--;
+        nVals--;
     }
 
     while (nVals--) {

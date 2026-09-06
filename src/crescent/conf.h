@@ -157,15 +157,15 @@ enum {
  * b: For types without write barriers: they should be traversed atomically.
  */
 
-#define CRS_TYPE_NIL        0 /* 0000 0000 */
-#define CRS_TYPE_BOOLEAN   16 /* 0001 0000 */
-#define CRS_TYPE_INTEGER    1 /* 0000 0001 */
-#define CRS_TYPE_FLOAT     17 /* 0001 0001 */
-#define CRS_TYPE_CFUNCTION 32 /* 0010 0000 */
-#define CRS_TYPE_STRING     2 /* 0000 0010 */
-#define CRS_TYPE_TABLE      6 /* 0000 0110 */
-#define CRS_TYPE_FUNCTION  22 /* 0001 0110 */
-#define CRS_TYPE_THREAD    14 /* 0000 1110 */
+#define CRS_TYPE_NIL       0x00 /* 0000 0000 */
+#define CRS_TYPE_BOOLEAN   0x10 /* 0001 0000 */
+#define CRS_TYPE_INTEGER   0x01 /* 0000 0001 */
+#define CRS_TYPE_FLOAT     0x11 /* 0001 0001 */
+#define CRS_TYPE_CFUNCTION 0x20 /* 0010 0000 */
+#define CRS_TYPE_STRING    0x02 /* 0000 0010 */
+#define CRS_TYPE_TABLE     0x06 /* 0000 0110 */
+#define CRS_TYPE_FUNCTION  0x16 /* 0001 0110 */
+#define CRS_TYPE_THREAD    0x0E /* 0000 1110 */
 
 #define CRS_OK      0 /* no error               */
 #define CRS_ERROR   1 /* runtime error          */

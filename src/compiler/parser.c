@@ -686,7 +686,7 @@ static void stat_local(Lexer* lexer) {
     Expression list;
 
     /* they aren't actually declared yet, so don't reference them */
-    parser->vars.count -= vars;
+    chunk->lV -= vars;
 
     if (check(lexer, '=')) {
         values = expr_list(lexer, &list, vars);
@@ -714,7 +714,8 @@ static void stat_local(Lexer* lexer) {
 
     crsI_freeExp(chunk, &list);
     chunk->regs         = chunk->locals; /* now, they hold values, so... */
-    parser->vars.count += vars;          /* they can be referenced */
+    chunk->lV          += vars;          /* they can be referenced */
+    printf("%u\n", parser->vars.count);
 }
 
 /* <stat_localfunc> ::= "local" "function" <name> <func_body> */

@@ -124,6 +124,7 @@ typedef struct {
     crs_byte    regs;
     crs_byte    locals;
     unsigned    fV;
+    unsigned    lV;
 
     crs_Function* func;
     Data          code;
