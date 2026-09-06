@@ -232,7 +232,7 @@ static void checkResults(crs_Thread* thread, int wanted) {
 }
 
 /* create and initialize a new stack frame */
-static void startCall(crs_Thread* thread, int top, int args) {
+static crs_Frame* startCall(crs_Thread* thread, int top, int args) {
     if (thread->stack.level >= CRS_MAX_LEVEL) {
         crsC_error(thread, "stack overflow");
     }
@@ -246,12 +246,15 @@ static void startCall(crs_Thread* thread, int top, int args) {
         crsM_error(thread);
     }
 
+    frame->previous = previous;
     frame->base     = thread->stack.top - args;
     frame->top      = top;
-    frame->previous = previous;
+    frame->flags    = 0;
 
     thread->stack.frame = frame;
     thread->stack.level++;
+
+    return frame;
 }
 
 /* return 'wanted' elements and pop the top stack frame */
@@ -303,11 +306,9 @@ void crsC_call(crs_Thread* thread, crs_Function* function,
         args               = function->args;
     }
 
-    startCall(
-        thread,
-        function->top,
-        args
-    );
+    crs_Frame* frame = startCall(thread, function->top, args);
+    frame->flags    |= CALL_VM;
+    frame->i.crs.f   = function;
 
     /* fill missing args with nil */
     for (int i = args; i < function->args; i++) {

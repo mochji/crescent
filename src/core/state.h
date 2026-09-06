@@ -26,10 +26,20 @@ typedef struct crs_Handler {
     struct crs_Handler* previous;
 } crs_Handler;
 
+/* frame flags */
+#define CALL_VM (1 << 0) /* is a crescent function */
+
 typedef struct crs_Frame {
+    struct crs_Frame* previous;
     crs_Object*       base;
     int               top;
-    struct crs_Frame* previous;
+    int               flags;
+    union {
+        struct {
+            crs_Function* f;
+            crs_instr*    pc; /* last/currently executing instruction */
+        } crs;
+    } i;
 } crs_Frame;
 
 struct crs_Thread {

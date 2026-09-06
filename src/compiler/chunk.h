@@ -104,8 +104,9 @@ typedef struct {
         unsigned  sV;
         unsigned  sL;
     }    vecs;
-    Data vars;
-    Data labels;
+    crs_Stream* stream; /* only used for line information */
+    Data        vars;
+    Data        labels;
 } Parser;
 
 typedef struct Scope {
@@ -133,7 +134,7 @@ typedef struct {
 } Chunk;
 
 noret crsI_error(Chunk* chunk, char* format, ...);
-void  crsI_init(crs_Thread* thread, Parser* parser);
+void  crsI_init(crs_Thread* thread, Parser* parser, crs_Stream* stream);
 void  crsI_free(crs_Thread* thread, Parser* parser);
 
 /* chunk */

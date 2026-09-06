@@ -30,13 +30,21 @@
  * =============================================================================
  */
 
+#define CRS_STRHELPER(x) #x
+#define CRS_STR(x)       CRS_STRHELPER(x)
+
 #define CRS_VERSION_MAJOR 0
-#define CRS_VERSION_MINOR 0
+#define CRS_VERSION_MINOR 1
 #define CRS_VERSION_PATCH 0
+#define CRS_AUTHORS      "mochji"
+
+#define CRS_VERSION_STR \
+    "Crescent " CRS_STR(CRS_VERSION_MAJOR) "." CRS_STR(CRS_VERSION_MINOR)
+#define CRS_RELEASE_STR \
+    CRS_VERSION_STR "." CRS_STR(CRS_VERSION_PATCH)
 
 #define CRS_VERSION (CRS_VERSION_MAJOR * 10 + CRS_VERSION_MINOR)
 #define CRS_RELEASE (CRS_VERSION * 10 + CRS_VERSION_PATCH)
-#define CRS_AUTHORS "mochji"
 
 /*
  * =============================================================================

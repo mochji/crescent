@@ -142,7 +142,7 @@ export int crs_gc(crs_Thread* thread, int option) {
         case CRS_GC_STEP:
             return crsG_step(thread);
         case CRS_GC_FULL:
-            crsG_full(thread, 0); return 1;
+            return crsG_full(thread, 0);
         case CRS_GC_USAGE:
             return (int)(thread->state->gc.usage / 1024);
     }
@@ -176,24 +176,19 @@ export void crs_setGC(crs_Thread* thread, int option, unsigned short value) {
         case CRS_GC_STOP:
             value = value != 0;
             gc_setstatus(state, STOP, value);
-
             break;
         case CRS_GC_STOPEM:
             value = value != 0;
             gc_setstatus(state, STOPEM, value);
-
             break;
         case CRS_GC_PAUSE:
             gc_setparam(state, PAUSE, value);
-
             break;
         case CRS_GC_STEP:
             gc_setparam(state, STEP, value);
-
             break;
         case CRS_GC_MULTIPLIER:
             gc_setparam(state, MULTIPLIER, value);
-
             break;
     }
 }
@@ -285,6 +280,25 @@ export void crs_remove(crs_Thread* thread, int index) {
     thread->stack.top -= 1;
 }
 
+export void crs_copy(crs_Thread* thread, int index) {
+    crs_Object* from = getIndex(thread, index);
+    crs_Object* to   = adjustTop(thread, 1);
+
+    obj_seto(to, from);
+}
+
+export void crs_replace(crs_Thread* thread, int index) {
+    crs_Object* from = getIndex(thread, -1);
+    crs_Object* to   = getIndex(thread, index);
+
+    if (to == &crsO_nilValue || to == &thread->state->globals) {
+        return;
+    }
+
+    obj_seto(to, from);
+    crs_pop(thread, 1);
+}
+
 /*
  * ===========================
  *  basic object functions
@@ -345,13 +359,6 @@ export void crs_set(crs_Thread* thread, int index, int keyIndex,
 
     crsV_set(thread, getIndex(thread, index), key, value);
     crsG_check(thread);
-}
-
-export void crs_copy(crs_Thread* thread, int index) {
-    crs_Object* from = getIndex(thread, index);
-    crs_Object* to   = adjustTop(thread, 1);
-
-    obj_seto(to, from);
 }
 
 /*

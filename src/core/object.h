@@ -60,6 +60,9 @@ typedef struct crs_Table {
     crs_TNode*   table;
 } crs_Table;
 
+/* function flags */
+#define FUNC_DEBUG (1 << 0) /* has debug info FIXME: implement */
+
 typedef struct crs_Function {
     crs_GCHeader gc;
     crs_byte     flags;

@@ -99,9 +99,9 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *   byte     | args
  *   byte     | top
  *
- *   crs_instr[# of instructions]
- *   constant[# of constants]
- *   function[# of nested functions]
+ *   crs_instr[nI] | code
+ *   constant[nC]  | constants
+ *   function[nN]  | nested functions
  * }
  *
  * constant {

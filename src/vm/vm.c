@@ -428,7 +428,8 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
     crs_instr*  pc    = func->code;
 
     for (;;) {
-        crs_instr i = *pc++;
+        frame->i.crs.pc = pc;
+        crs_instr i     = *pc++;
 
         switch (instr_opcode(i)) {
             case OP_MOV: {

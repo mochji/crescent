@@ -948,7 +948,7 @@ static void* compile(crs_Thread* thread, void* data) {
     Parser*     parser = info->parser;
 
     crsB_init(thread, info->buffer);
-    crsI_init(thread, parser);
+    crsI_init(thread, parser, info->stream);
     crsL_init(thread, lexer, info->buffer, info->stream);
 
     return mainFunc(lexer, parser);

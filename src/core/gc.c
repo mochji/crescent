@@ -106,9 +106,9 @@ static void mark_header(crs_State* state, crs_GCHeader* header) {
     }
 }
 
-#define mark_object(s, i) mark_header((s), obj_toheader(i))
-#define mark_value(s, o) \
-    {if (obj_iscollectable(o)) mark_header((s), obj_geth(o));}
+#define mark_object(s, o) mark_header((s), obj_toheader(o))
+#define mark_value(s, v) \
+    {if (obj_iscollectable(v)) mark_header((s), obj_geth(v));}
 
 /*
  * ===========================

@@ -59,7 +59,7 @@ ifdef DEBUG
 endif
 
 .DEFAULT_GOAL = build
-.PHONY: build run valgrind clean rmobj todo fixme notes echo
+.PHONY: build clean rmobj todo fixme notes echo
 
 build:
 	mkdir -p $(BUILD)
@@ -82,14 +82,6 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/api.o $(API)/api.c
 	$(AR) $(ARCHIVE) $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(ARCHIVE)
-
-run: build
-	./$(TARGET)
-
-valgrind: build
-	valgrind --tool=massif ./$(TARGET)
-	valgrind --tool=callgrind --dump-instr=yes ./$(TARGET)
-	valgrind --tool=memcheck ./$(TARGET)
 
 clean:
 	rm -rf $(BUILD)

@@ -61,6 +61,8 @@ int  crs_checkTop(crs_Thread* thread, int top);
 void crs_setTop(crs_Thread* thread, int top);
 void crs_pop(crs_Thread* thread, int amount);
 void crs_remove(crs_Thread* thread, int index);
+void crs_copy(crs_Thread* thread, int index);
+void crs_replace(crs_Thread* thread, int index);
 
 /*
  * ===========================
@@ -70,7 +72,6 @@ void crs_remove(crs_Thread* thread, int index);
 
 int         crs_type(crs_Thread* thread, int index);
 const char* crs_name(crs_Thread* thread, int index);
-void        crs_copy(crs_Thread* thread, int index);
 
 /*
  * ===========================

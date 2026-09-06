@@ -14,6 +14,7 @@
 #include "crescent/conf.h"
 #include "limit.h"
 
+#include "types/string.h"
 #include "types/table.h"
 #include "types/function.h"
 #include "core/state.h"
@@ -106,7 +107,7 @@ noret crsI_error(Chunk* chunk, char* format, ...) {
     crsC_throw(thread, CRS_CODEERR);
 }
 
-void crsI_init(crs_Thread* thread, Parser* parser) {
+void crsI_init(crs_Thread* thread, Parser* parser, crs_Stream* stream) {
     Variable* vars   = mem_vnew(thread, 32, Variable);
     Label*    labels = mem_vnew(thread, 16, Label);
 
@@ -114,6 +115,7 @@ void crsI_init(crs_Thread* thread, Parser* parser) {
     parser->vecs.labels = labels;
     parser->vecs.sV     = 32;
     parser->vecs.sL     = 16;
+    parser->stream      = stream;
 
     if (vars == NULL || labels == NULL) {
         crsM_error(thread);
@@ -139,6 +141,7 @@ void crsI_free(crs_Thread* thread, Parser* parser) {
 
 crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
     crs_Function* func = crsK_new(thread, 32, 8, 8);
+    func->flags        = FUNC_DEBUG;
 
     chunk->thread = thread;
     chunk->parser = parser;
@@ -154,6 +157,7 @@ crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
         UINT_MAX, sizeof(crs_Object));
     data_init(&chunk->nested, (void**)&func->nested, &func->nN,
         UINT_MAX, sizeof(crs_Function*));
+
 
     return func;
 }
