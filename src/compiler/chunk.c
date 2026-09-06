@@ -208,6 +208,7 @@ void crsI_leave(Chunk* chunk) {
     parser->vars.count -= scope->nV;
     chunk->regs        -= scope->nV;
     chunk->locals      -= scope->nV;
+    chunk->lV          -= scope->nV;
 
     if (scope->isLoop) {
         parser->labels.count = scope->fL;

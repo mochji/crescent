@@ -680,7 +680,6 @@ static void stat_ret(Lexer* lexer) {
 /* <stat_local> ::= "local" <name_list> ("=" <expr_list>)? */
 static void stat_local(Lexer* lexer) {
     Chunk*     chunk  = lexer->chunk;
-    Parser*    parser = chunk->parser;
     unsigned   vars   = name_list(lexer);
     unsigned   values = 0;
     Expression list;
@@ -713,9 +712,8 @@ static void stat_local(Lexer* lexer) {
     }
 
     crsI_freeExp(chunk, &list);
-    chunk->regs         = chunk->locals; /* now, they hold values, so... */
-    chunk->lV          += vars;          /* they can be referenced */
-    printf("%u\n", parser->vars.count);
+    chunk->regs = chunk->locals; /* now, they hold values, so... */
+    chunk->lV  += vars;          /* they can be referenced */
 }
 
 /* <stat_localfunc> ::= "local" "function" <name> <func_body> */
