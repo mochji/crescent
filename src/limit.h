@@ -31,6 +31,10 @@
 
 #define CRS_MAX_LEVEL SHRT_MAX
 
+#define MAX_LOCALS 200 /* reserve some space for temporary registers */
+#define MAX_REGS   255 /* 255 is reserved in some cases, anyways     */
+#define MAX_RET    255
+
 #if CRS_32INT
 typedef int      crs_s32;
 typedef unsigned crs_u32;

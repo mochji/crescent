@@ -176,12 +176,12 @@ int crsC_checkTop(crs_Thread* thread, int top, int throw) {
 
     crs_Object* stack  = thread->stack.base;
     crs_Frame*  frame  = thread->stack.frame;
-    size_t      needed = (size_t)((frame->base - stack) + top);
+    ptrdiff_t   needed = (frame->base - stack) + top;
 
     frame = frame->previous;
 
     while (frame != NULL) {
-        size_t frameNeeds = (size_t)((frame->base - stack) + frame->top);
+        ptrdiff_t frameNeeds = (frame->base - stack) + frame->top;
 
         if (frameNeeds > needed) {
             needed = frameNeeds;
@@ -190,12 +190,11 @@ int crsC_checkTop(crs_Thread* thread, int top, int throw) {
         frame = frame->previous;
     }
 
-    if (crsC_resizeStack(thread, needed, throw)) {
+    if (crsC_resizeStack(thread, (size_t)needed, throw)) {
         return 1;
     }
 
     thread->stack.frame->top = top;
-
     return 0;
 }
 
@@ -259,6 +258,10 @@ static crs_Frame* startCall(crs_Thread* thread, int top, int args) {
 
 /* return 'wanted' elements and pop the top stack frame */
 static void endCall(crs_Thread* thread, int results, int wanted) {
+    if (results > MAX_RET) {
+        results = MAX_RET;
+    }
+
     if (wanted == CRS_RETALL) {
         wanted = results;
     }
@@ -308,7 +311,7 @@ void crsC_call(crs_Thread* thread, crs_Function* function,
 
     crs_Frame* frame = startCall(thread, function->top, args);
     frame->flags    |= CALL_VM;
-    frame->i.crs.f   = function;
+    frame->i.v.f     = function;
 
     /* fill missing args with nil */
     for (int i = args; i < function->args; i++) {

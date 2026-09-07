@@ -549,8 +549,8 @@ export int crs_load(crs_Thread* thread, crs_Reader* reader, void* data,
     crs_Stream    stream;
     crsR_init(thread, &stream, reader, data, source);
 
-    size_t top    = call_savetop(thread);
-    int    status = crsC_try(thread, &tryLoad, &stream, (void**)&func);
+    ptrdiff_t top    = call_savetop(thread);
+    int       status = crsC_try(thread, &tryLoad, &stream, (void**)&func);
     call_restoretop(thread, top);
     crs_Object* result = adjustTop(thread, 1);
 

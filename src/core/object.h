@@ -69,6 +69,7 @@ typedef struct {
 } Debug_Line;
 
 typedef struct {
+    crs_String* source;
     Debug_Line* lines;
     unsigned    nL; /* # of lines */
 } Debug_Info;
@@ -92,7 +93,6 @@ typedef struct crs_Function {
     crs_instr*            code;
     crs_Object*           consts;
     struct crs_Function** nested;
-    crs_String*           source;
     Debug_Info            debug; /* only valid if flags & FUNC_DEBUG */
 } crs_Function;
 

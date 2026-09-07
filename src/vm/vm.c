@@ -416,20 +416,14 @@ int crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
 #define reg_B(i) (stack + instr_B(i))
 #define reg_C(i) (stack + instr_C(i))
 
-static void checkVList(crs_Thread* thread, int values) {
-    if (values > CRS_MAX_TOP) {
-        crsC_error(thread, "stack overflow");
-    }
-}
-
 int crsV_execute(crs_Thread* thread, crs_Function* func) {
     crs_Frame*  frame = thread->stack.frame;
     crs_Object* stack = frame->base;
     crs_instr*  pc    = func->code;
 
     for (;;) {
-        frame->i.crs.pc = pc;
-        crs_instr i     = *pc++;
+        frame->i.v.pc = pc;
+        crs_instr i   = *pc++;
 
         switch (instr_opcode(i)) {
             case OP_MOV: {
@@ -628,7 +622,6 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
 
                 if (args == MAX_REGS) {
                     args = (int)(thread->stack.top - (a + 1));
-                    checkVList(thread, args);
                 } else {
                     thread->stack.top = a + args + 1;
                 }
@@ -658,8 +651,6 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
 
                 if (count == MAX_REGS) {
                     count = (int)(thread->stack.top - a);
-                    checkVList(thread, count);
-                    /* a cfunction can return up to CRS_MAX_TOP values */
                 } else if (count) {
                     thread->stack.top = a + count;
                 }

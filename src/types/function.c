@@ -48,20 +48,20 @@ crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
         crsM_error(thread);
     }
 
-    func->flags       = nL ? FUNC_DEBUG : 0;
-    func->args        = 0;
-    func->top         = 0;
-    func->nI          = nI;
-    func->nC          = nC;
-    func->nN          = nN;
-    func->cC          = 0;
-    func->cN          = 0;
-    func->code        = NULL;
-    func->consts      = NULL;
-    func->nested      = NULL;
-    func->source      = NULL;
-    func->debug.nL    = nL;
-    func->debug.lines = NULL;
+    func->flags        = nL ? FUNC_DEBUG : 0;
+    func->args         = 0;
+    func->top          = 0;
+    func->nI           = nI;
+    func->nC           = nC;
+    func->nN           = nN;
+    func->cC           = 0;
+    func->cN           = 0;
+    func->code         = NULL;
+    func->consts       = NULL;
+    func->nested       = NULL;
+    func->debug.source = thread->state->memoryError; /* placeholder */
+    func->debug.lines  = NULL;
+    func->debug.nL     = nL;
 
     func->code        = tryBlock(thread, func, nI, sizeof(crs_instr));
     func->consts      = tryBlock(thread, func, nC, sizeof(crs_Object));
@@ -109,10 +109,10 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *   byte     | args
  *   byte     | top
  *
- *   debug?        | debug info; only present if flags & FUNC_DEBUG
  *   crs_instr[nI] | code
  *   constant[nC]  | constants
  *   function[nN]  | nested functions
+ *   debug?        | debug info; only present if flags & FUNC_DEBUG
  * }
  *
  * constant {
@@ -132,8 +132,10 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  *
  * debug {
- *   unsigned    | # of lines
- *   line[lines] | line information
+ *   crs_Integer  | source length
+ *   char[length] | source name
+ *   unsigned     | # of lines
+ *   line[lines]  | line information
  * }
  *
  * line {
@@ -154,6 +156,11 @@ static crs_byte endianness(void) {
  */
 
 #define dump_value(d, v, t) {t x = (t)(v); crsW_write(d, (char*)&x, sizeof(t));}
+
+static void dump_string(crs_Dump* dump, crs_String* string) {
+    dump_value(dump, string->length, crs_Integer);
+    crsW_write(dump, string->contents, (size_t)string->length);
+}
 
 static void dump_header(crs_Dump* dump) {
     crsW_write(dump, CRS_SIGNATURE, 4);
@@ -176,13 +183,9 @@ static void dump_const(crs_Dump* dump, crs_Object* object) {
         case CRS_TYPE_FLOAT:
             dump_value(dump, obj_getf(object), crs_Float);
             break;
-        case CRS_TYPE_STRING: {
-            crs_String* string = obj_gets(object);
-            dump_value(dump, string->length, crs_Integer);
-            crsW_write(dump, string->contents, (size_t)string->length);
-
+        case CRS_TYPE_STRING:
+            dump_string(dump, obj_gets(object));
             break;
-        }
         default:
             assert(0);
     }
@@ -194,14 +197,13 @@ static void dump_debug(crs_Dump* dump, crs_Function* func) {
     }
 
     Debug_Info* debug = &func->debug;
-    Debug_Line* lines = debug->lines;
-    unsigned    nL    = debug->nL;
 
-    dump_value(dump, nL, unsigned);
+    dump_string(dump, debug->source);
+    dump_value(dump, debug->nL, unsigned);
 
-    for (unsigned i = 0; i < nL; i++) {
-        dump_value(dump, lines[i].pc, unsigned);
-        dump_value(dump, lines[i].line, int);
+    for (unsigned i = 0; i < debug->nL; i++) {
+        dump_value(dump, debug->lines[i].pc, unsigned);
+        dump_value(dump, debug->lines[i].line, int);
     }
 }
 
@@ -212,7 +214,6 @@ static void dump_func(crs_Dump* dump, crs_Function* func) {
     dump_value(dump, func->flags, crs_byte);
     dump_value(dump, func->args, crs_byte);
     dump_value(dump, func->top, crs_byte);
-    dump_debug(dump, func);
     crsW_write(dump, (char*)func->code, func->nI * sizeof(crs_instr));
 
     for (unsigned i = 0; i < func->nC; i++) {
@@ -222,6 +223,8 @@ static void dump_func(crs_Dump* dump, crs_Function* func) {
     for (unsigned i = 0; i < func->nN; i++) {
         dump_func(dump, func->nested[i]);
     }
+
+    dump_debug(dump, func);
 }
 
 typedef struct {
@@ -351,6 +354,18 @@ static crs_Integer load_length(crs_Stream* stream) {
     return length;
 }
 
+static crs_String* load_string(crs_Stream* stream) {
+    crs_Thread* thread = stream->thread;
+    size_t      length = (size_t)load_length(stream);
+    crs_String* string = crsS_newo(thread, length);
+
+    crsC_anchor(thread, obj_toheader(string));
+    load_block(stream, string->contents, length);
+    crsC_unanchor(thread);
+
+    return string;
+}
+
 static void load_checkHeader(crs_Stream* stream) {
     load_checkString(stream, CRS_SIGNATURE, 4, "not a binary dump");
     load_checkString(stream, CRS_DUMPCHECK, 8, "corrupted dump");
@@ -375,10 +390,8 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
             break;
         }
         case CRS_TYPE_STRING: {
-            size_t      length = (size_t)load_length(stream);
-            crs_String* string = crsS_newo(stream->thread, length);
+            crs_String* string = load_string(stream);
             obj_setgc(object, string);
-            load_block(stream, string->contents, length);
             break;
         }
         default:
@@ -392,6 +405,7 @@ static void load_debug(crs_Stream* stream, crs_Function* func) {
     }
 
     Debug_Info* debug = &func->debug;
+    debug->source     = load_string(stream);
     debug->nL         = load_size(stream, sizeof(Debug_Line), "lines");
     debug->lines      = mem_vnew(stream->thread, debug->nL, Debug_Line);
 
@@ -399,16 +413,13 @@ static void load_debug(crs_Stream* stream, crs_Function* func) {
         crsM_error(stream->thread);
     }
 
-    Debug_Line* lines = debug->lines;
-
     for (unsigned i = 0; i < debug->nL; i++) {
-        lines[i].pc   = load_unsigned(stream);
-        lines[i].line = load_int(stream);
+        debug->lines[i].pc   = load_unsigned(stream);
+        debug->lines[i].line = load_int(stream);
     }
 }
 
-static crs_Function* load_func(crs_Stream* stream, crs_Function* parent,
-                                                   crs_String* source) {
+static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
     crs_Thread*   thread = stream->thread;
     crs_Function* func;
 
@@ -423,12 +434,10 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent,
         crsC_anchor(thread, obj_toheader(func));
     }
 
-    func->flags  = load_byte(stream);
-    func->args   = load_byte(stream);
-    func->top    = load_byte(stream);
-    func->source = source;
+    func->flags = load_byte(stream);
+    func->args  = load_byte(stream);
+    func->top   = load_byte(stream);
 
-    load_debug(stream, func);
     crsR_read(stream, (char*)func->code, nI * sizeof(crs_instr));
 
     while (func->cC < nC) {
@@ -438,8 +447,10 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent,
     }
 
     while (func->cN < nN) {
-        load_func(stream, func, source);
+        load_func(stream, func);
     }
+
+    load_debug(stream, func);
 
     if (parent == NULL) {
         crsC_unanchor(thread);
@@ -449,13 +460,6 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent,
 }
 
 crs_Function* crsK_load(crs_Stream* stream) {
-    crs_Thread* thread = stream->thread;
-    crs_String* source = crsS_new(thread, stream->source);
-    crsC_anchor(thread, obj_toheader(source));
-
     load_checkHeader(stream);
-    crs_Function* func = load_func(stream, NULL, source);
-    crsC_unanchor(thread); /* source */
-
-    return func;
+    return load_func(stream, NULL);
 }

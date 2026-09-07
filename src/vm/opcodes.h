@@ -40,9 +40,6 @@
 #define MAX_Axx  bit_1mask(0, 24)
 #define MAX_sAxx bit_1mask(0, 23)
 
-#define MAX_LOCALS 200 /* reserve some space for temporary registers */
-#define MAX_REGS   255 /* 255 is reserved in some cases, anyways     */
-
 #define instr_get(i, o, l) \
     ((crs_u32)(bit_get((i), ((crs_instr)bit_1mask(o, l))) >> (o)))
 #define instr_set(x, o, l) (bit_get((crs_instr)(x), bit_1mask(0, l)) << (o))

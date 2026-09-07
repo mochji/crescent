@@ -927,7 +927,7 @@ static crs_Function* mainFunc(Lexer* lexer, Parser* parser) {
     crsC_anchor(thread, obj_toheader(func));
 
     /* now it can be safely created and referenced */
-    func->source = crsS_new(thread, lexer->stream->source);
+    func->debug.source = crsS_new(thread, lexer->stream->source);
 
     crsI_enter(&chunk, &scope, 0);
     body(lexer);

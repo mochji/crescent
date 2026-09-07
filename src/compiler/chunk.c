@@ -177,7 +177,7 @@ unsigned crsI_nested(Chunk* parent, Chunk* chunk) {
     Data*         nested = &parent->nested;
     unsigned      index  = data_check(parent, nested, "nested functions");
     crs_Function* func   = crsI_newChunk(chunk, parent->thread, parent->parser);
-    func->source         = parent->func->source;
+    func->debug.source   = parent->func->debug.source;
 
     parent->func->nested[parent->func->cN++] = func;
     return index;

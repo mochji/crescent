@@ -38,7 +38,7 @@ typedef struct crs_Frame {
         struct {
             crs_Function* f;
             crs_instr*    pc; /* last/currently executing instruction */
-        } crs;
+        } v;
     } i;
 } crs_Frame;
 

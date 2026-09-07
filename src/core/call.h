@@ -34,7 +34,7 @@ void crsC_callC(crs_Thread* thread, crs_CFunction* function,
 crs_Object* crsC_anchor(crs_Thread* thread, crs_GCHeader* header);
 void        crsC_unanchor(crs_Thread* thread);
 
-#define call_savetop(t)       ((size_t)((t)->stack.top - (t)->stack.base))
+#define call_savetop(t)       ((t)->stack.top - (t)->stack.base)
 #define call_restoretop(t, v) ((t)->stack.top = (t)->stack.base + (v))
 
 #endif
