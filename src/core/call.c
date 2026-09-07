@@ -34,14 +34,7 @@ noret crsC_throw(crs_Thread* thread, int status) {
     crs_State*   state   = thread->state;
 
     while (handler != NULL) {
-        /* error in error handler? */
-        if (handler->status != CRS_OK) {
-            handler         = handler->previous;
-            thread->handler = handler;
-
-            continue;
-        }
-
+        assert(handler->status == CRS_OK);
         handler->status = status;
         longjmp(handler->buffer, 1);
     }
@@ -72,7 +65,7 @@ noret crsC_errorf(crs_Thread* thread, char* format, ...) {
     crsC_throw(thread, CRS_ERROR);
 }
 
-void crsC_restoreStack(crs_Thread* thread, short level) {
+void crsC_unwind(crs_Thread* thread, short level) {
     while (thread->stack.level > level) {
         crs_Frame* frame    = thread->stack.frame;
         thread->stack.top   = frame->base;
@@ -225,7 +218,7 @@ static void checkResults(crs_Thread* thread, int wanted) {
         crsC_resizeStack(thread, needed, 1);
     }
 
-    if (wanted > free) {
+    if (wanted > free && !(previous->flags & CALL_VM)) {
         previous->top += wanted - free;
     }
 }
@@ -330,7 +323,7 @@ void crsC_callC(crs_Thread* thread, crs_CFunction* function,
             ? CRS_MIN_TOP
             : args,
         args
-    );
+    )->i.c.c = function;
 
     endCall(thread, function(thread), wanted);
 }

@@ -145,4 +145,12 @@ int  crs_pcall(crs_Thread* thread, int index, int args, int wanted);
 int  crs_load(crs_Thread* thread, crs_Reader* reader, void* data, char* source);
 int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
 
+/*
+ * ===========================
+ *  debugging
+ * ===========================
+ */
+
+int crs_debug(crs_Thread* thread, crs_Debug* debug, short level);
+
 #endif

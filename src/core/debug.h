@@ -15,6 +15,7 @@
 #include "core/object.h"
 #include "core/buffer.h"
 
+int         crsD_getLine(crs_Function* func, unsigned pc);
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream);
 
 #endif

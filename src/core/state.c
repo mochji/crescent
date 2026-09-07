@@ -39,6 +39,8 @@ static int initThread(crs_State* state, crs_Thread* thread) {
     frame->base     = stack;
     frame->top      = CRS_MIN_TOP;
     frame->previous = NULL;
+    frame->flags    = 0;
+    frame->i.c.c    = NULL;
 
     thread->handler = NULL;
     thread->state   = state;

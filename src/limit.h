@@ -27,7 +27,7 @@
 
 /* local to a stack frame */
 #define CRS_MIN_TOP 16
-#define CRS_MAX_TOP 10000 /* no function should need anywhere close to this */
+#define CRS_MAX_TOP 10000
 
 #define CRS_MAX_LEVEL SHRT_MAX
 

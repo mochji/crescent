@@ -406,7 +406,7 @@ int crsV_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
     int   status = crsC_try(thread, pcall, &info, NULL);
 
     if (status != CRS_OK) {
-        crsC_restoreStack(thread, level);
+        crsC_unwind(thread, level);
     }
 
     return status;

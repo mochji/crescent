@@ -61,7 +61,8 @@ typedef struct crs_Table {
 } crs_Table;
 
 /* function flags */
-#define FUNC_DEBUG (1 << 0) /* has debug info */
+#define FUNC_DEBUG 1 /* has debug info */
+#define FUNC_MAIN  2 /* is main function */
 
 typedef struct {
     unsigned pc; /* first pc on line */
@@ -124,7 +125,7 @@ int   crsO_toString(crs_Object* object, char** result);
 #define obj_tothread(h) ((crs_Thread*)h)
 
 /* object */
-#define obj_seto(a, b) {(a)->type = (b)->type; (a)->value = (b)->value;}
+#define obj_seto(a, b) (*(a) = *(b))
 
 /* nil */
 #define obj_setn(o) ((o)->type = CRS_TYPE_NIL)

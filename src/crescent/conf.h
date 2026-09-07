@@ -245,4 +245,15 @@ typedef CRS_FLOAT    crs_Float;
 typedef CRS_DAPFLOAT crs_DAPFloat;
 typedef int         (crs_CFunction)(struct crs_Thread*);
 
+typedef struct crs_Debug {
+    char* source;
+    int   what;
+    int   params;
+    int   line;
+} crs_Debug;
+
+#define CRS_DBG_C    0
+#define CRS_DBG_VM   1
+#define CRS_DBG_MAIN 2
+
 #endif

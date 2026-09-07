@@ -429,6 +429,7 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
     func        = crsK_new(thread, nI, nC, nN, 0);
 
     if (parent != NULL) {
+        func->flags                 |= FUNC_MAIN;
         parent->nested[parent->cN++] = func;
     } else {
         crsC_anchor(thread, obj_toheader(func));

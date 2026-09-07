@@ -588,3 +588,54 @@ export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
     crsG_check(thread);
     return status;
 }
+
+/*
+ * ===========================
+ *  debugging
+ * ===========================
+ */
+
+int crs_debug(crs_Thread* thread, crs_Debug* debug, short level) {
+    crs_Frame*  frame = thread->stack.frame;
+    crs_Object* object;
+
+    while (level--) {
+        if ((frame = frame->previous) == NULL) {
+            return 0;
+        }
+    }
+
+    if (frame->previous == NULL) {
+        return 0;
+    }
+
+    object = adjustTop(thread, 1);
+
+    if (frame->flags & CALL_VM) {
+        crs_Function* func = frame->i.v.f;
+        debug->params      = func->args;
+        debug->what        = func->flags & FUNC_MAIN
+            ? CRS_DBG_MAIN
+            : CRS_DBG_VM;
+
+        if (func->flags & FUNC_DEBUG) {
+            debug->source = func->debug.source->contents;
+            debug->line   = crsD_getLine(func,
+                (unsigned)(frame->i.v.pc - func->code));
+        } else {
+            debug->source = "?";
+            debug->line   = 0;
+        }
+
+        obj_setgc(object, func);
+    } else {
+        debug->source = "[C]";
+        debug->what   = CRS_DBG_C;
+        debug->params = 0;
+        debug->line   = 0;
+        obj_setc(object, frame->i.c.c);
+    }
+
+
+    return 1;
+}
