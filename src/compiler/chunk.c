@@ -14,7 +14,6 @@
 #include "crescent/conf.h"
 #include "limit.h"
 
-#include "types/string.h"
 #include "types/table.h"
 #include "types/function.h"
 #include "core/state.h"
@@ -140,24 +139,26 @@ void crsI_free(crs_Thread* thread, Parser* parser) {
  */
 
 crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
-    crs_Function* func = crsK_new(thread, 32, 8, 8);
-    func->flags        = FUNC_DEBUG;
+    crs_Function* func = crsK_new(thread, 32, 8, 8, 16);
 
-    chunk->thread = thread;
-    chunk->parser = parser;
-    chunk->scope  = NULL;
-    chunk->regs   = 0;
-    chunk->locals = 0;
-    chunk->fV     = parser->vars.count;
-    chunk->lV     = parser->vars.count;
-    chunk->func   = func;
+    chunk->thread   = thread;
+    chunk->parser   = parser;
+    chunk->scope    = NULL;
+    chunk->regs     = 0;
+    chunk->locals   = 0;
+    chunk->fV       = parser->vars.count;
+    chunk->lV       = parser->vars.count;
+    chunk->prevLine = 0;
+    chunk->line     = &parser->stream->line;
+    chunk->func     = func;
     data_init(&chunk->code, (void**)&func->code, &func->nI,
         UINT_MAX, sizeof(crs_instr));
     data_init(&chunk->consts, (void**)&func->consts, &func->nC,
         UINT_MAX, sizeof(crs_Object));
     data_init(&chunk->nested, (void**)&func->nested, &func->nN,
         UINT_MAX, sizeof(crs_Function*));
-
+    data_init(&chunk->lines, (void**)&func->debug.lines, &func->debug.nL,
+        UINT_MAX, sizeof(Debug_Line));
 
     return func;
 }
@@ -167,6 +168,7 @@ void crsI_finish(Chunk* chunk) {
     data_shrink(chunk, &chunk->code);
     data_shrink(chunk, &chunk->consts);
     data_shrink(chunk, &chunk->nested);
+    data_shrink(chunk, &chunk->lines);
 
     crsG_check(chunk->thread);
 }
@@ -175,6 +177,7 @@ unsigned crsI_nested(Chunk* parent, Chunk* chunk) {
     Data*         nested = &parent->nested;
     unsigned      index  = data_check(parent, nested, "nested functions");
     crs_Function* func   = crsI_newChunk(chunk, parent->thread, parent->parser);
+    func->source         = parent->func->source;
 
     parent->func->nested[parent->func->cN++] = func;
     return index;
@@ -221,12 +224,33 @@ void crsI_leave(Chunk* chunk) {
 
 /*
  * ===========================
+ *  debug info
+ * ===========================
+ */
+
+/* emit line information for the last instruction */
+static void debug_line(Chunk* chunk, unsigned pc) {
+    crs_Function* func = chunk->func;
+    int           line = *chunk->line;
+
+    if (line > chunk->prevLine) {
+        unsigned    index = data_check(chunk, &chunk->lines, "lines");
+        Debug_Line* info  = &func->debug.lines[index];
+        chunk->prevLine   = line;
+        info->pc          = pc;
+        info->line        = line;
+    }
+}
+
+/*
+ * ===========================
  *  code
  * ===========================
  */
 
 unsigned crsI_emit(Chunk* chunk, crs_instr i) {
     unsigned pc = data_check(chunk, &chunk->code, "instructions");
+    debug_line(chunk, pc);
 
     chunk->func->code[pc] = i;
     return pc;

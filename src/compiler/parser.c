@@ -11,6 +11,7 @@
 #include "crescent/conf.h"
 #include "limit.h"
 
+#include "types/string.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
@@ -924,6 +925,9 @@ static crs_Function* mainFunc(Lexer* lexer, Parser* parser) {
     crs_Function* func = crsI_newChunk(&chunk, thread, parser);
     lexer->chunk       = &chunk;
     crsC_anchor(thread, obj_toheader(func));
+
+    /* now it can be safely created and referenced */
+    func->source = crsS_new(thread, lexer->stream->source);
 
     crsI_enter(&chunk, &scope, 0);
     body(lexer);

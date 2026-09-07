@@ -126,11 +126,14 @@ typedef struct {
     crs_byte    locals;
     unsigned    fV;
     unsigned    lV;
+    int         prevLine;
+    int*        line;
 
     crs_Function* func;
     Data          code;
     Data          consts;
     Data          nested;
+    Data          lines;
 } Chunk;
 
 noret crsI_error(Chunk* chunk, char* format, ...);

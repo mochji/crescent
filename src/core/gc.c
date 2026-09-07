@@ -141,7 +141,11 @@ static crs_mem traverse_func(crs_State* state, crs_Function* func) {
         mark_object(state, func->nested[i]);
     }
 
-    return (crs_mem)1 + func->cC + func->cN;
+    if (func->source != NULL) {
+        mark_object(state, func->source);
+    }
+
+    return (crs_mem)2 + func->cC + func->cN;
 }
 
 static crs_mem traverse_thread(crs_State* state, crs_Thread* thread) {

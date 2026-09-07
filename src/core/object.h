@@ -61,7 +61,17 @@ typedef struct crs_Table {
 } crs_Table;
 
 /* function flags */
-#define FUNC_DEBUG (1 << 0) /* has debug info FIXME: implement */
+#define FUNC_DEBUG (1 << 0) /* has debug info */
+
+typedef struct {
+    unsigned pc; /* first pc on line */
+    int      line;
+} Debug_Line;
+
+typedef struct {
+    Debug_Line* lines;
+    unsigned    nL; /* # of lines */
+} Debug_Info;
 
 typedef struct crs_Function {
     crs_GCHeader gc;
@@ -82,6 +92,8 @@ typedef struct crs_Function {
     crs_instr*            code;
     crs_Object*           consts;
     struct crs_Function** nested;
+    crs_String*           source;
+    Debug_Info            debug; /* only valid if flags & FUNC_DEBUG */
 } crs_Function;
 
 extern crs_Object crsO_nilValue;
