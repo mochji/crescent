@@ -16,6 +16,7 @@
 #include "limit.h"
 
 #include "types/string.h"
+#include "types/table.h"
 #include "core/object.h"
 #include "core/memory.h"
 #include "core/buffer.h"
@@ -115,6 +116,13 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *   debug?        | debug info; only present if flags & FUNC_DEBUG
  * }
  *
+ * string {
+ *   crs_Integer    | length (if <= 0, negative of index into saved strings)
+ *   if length > 0 {
+ *     char[length] | contents
+ *   }
+ * }
+ *
  * constant {
  *   byte             | type
  *   switch type {
@@ -123,10 +131,8 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *     float:
  *       crs_Float    | value
  *     string:
- *       crs_Integer  | length
- *       char[length] | contents
+ *       string       | value
  *   }
- *   crs_Integer  | value
  * }
  *
  * debug {
@@ -150,6 +156,17 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *     int      | absolute line #
  *   }
  * }
+ *
+ * FIXME: rewrite the following two. i am incredibly tired right now
+ * About strings:
+ *   Many functions use some of the same strings, and to avoid writing and
+ *   potentially storing in memory multiple copies of the same string, all
+ *   strings encountered when dumping are saved in a table and assigned an
+ *   integer key; further instances of the same string are instead replaced with
+ *   with an index into this table. Since strings are dumped in the order that
+ *   they are encountered, and therefore loading encounters the same strings in
+ *   the same order, loading assigns each string with the same key that dumping
+ *   did, and the dump can be loaded correctly.
  *
  * About line information:
  *   There are two assumptions that can be made about reasonably formatted code:
@@ -187,11 +204,6 @@ static crs_byte endianness(void) {
 
 #define dump_value(d, v, t) {t x = (t)(v); crsW_write(d, (char*)&x, sizeof(t));}
 
-static void dump_string(crs_Dump* dump, crs_String* string) {
-    dump_value(dump, string->length, crs_Integer);
-    crsW_write(dump, string->contents, (size_t)string->length);
-}
-
 static void dump_header(crs_Dump* dump) {
     crsW_write(dump, CRS_SIGNATURE, 4);
     crsW_write(dump, CRS_DUMPCHECK, 8);
@@ -201,6 +213,26 @@ static void dump_header(crs_Dump* dump) {
     dump_value(dump, sizeof(crs_instr), crs_byte);
     dump_value(dump, sizeof(crs_Integer), crs_byte);
     dump_value(dump, sizeof(crs_Float), crs_byte);
+}
+
+static void dump_string(crs_Dump* dump, crs_String* string) {
+    crs_Thread* thread  = dump->thread;
+    crs_Table*  strings = obj_gett(thread->stack.top - 1);
+    crs_Object  key;
+
+    obj_setgc(&key, string);
+    crs_Object* result = crsT_get(thread, strings, &key);
+
+    if (result->type != CRS_TYPE_NIL) {
+        /* string already exists; reuse it */
+        dump_value(dump, -obj_geti(result), crs_Integer);
+    } else {
+        /* new string */
+        dump_value(dump, string->length, crs_Integer);
+        crsW_write(dump, string->contents, (size_t)string->length);
+        crsT_set(thread, strings, &key, thread->stack.top - 2);
+        obj_seti(thread->stack.top - 2, obj_geti(thread->stack.top - 2) + 1);
+    }
 }
 
 static void dump_const(crs_Dump* dump, crs_Object* object) {
@@ -302,9 +334,14 @@ static void* dump_try(crs_Thread* thread, void* data) {
     DumpInfo* info = data;
     crs_Dump* dump = info->dump;
 
+    obj_seti(thread->stack.top, 0);
+    thread->stack.top++;
+    crsC_anchor(thread, obj_toheader(crsT_new(thread))); /* string table */
     dump_header(dump);
     dump_func(dump, info->func);
     crsW_flush(dump);
+    crsC_unanchor(thread);
+    thread->stack.top--;
 
     return NULL;
 }
@@ -315,7 +352,12 @@ int crsK_dump(crs_Dump* dump, crs_Function* func) {
         .func = func
     };
 
-    return crsC_try(dump->thread, &dump_try, &info, NULL);
+    crs_Thread* thread = dump->thread;
+    ptrdiff_t   top    = call_savetop(thread);
+    int         status = crsC_try(thread, &dump_try, &info, NULL);
+    call_restoretop(thread, top);
+
+    return status;
 }
 
 /*
@@ -407,26 +449,40 @@ static unsigned load_size(crs_Stream* stream, size_t size, char* what) {
     return count;
 }
 
-static crs_Integer load_length(crs_Stream* stream) {
-    crs_Integer length = load_integer(stream);
-
-    if (length < 0) {
-        load_error(stream, "corrupted dump");
-    } else if ((crs_Unsigned)length > SIZE_MAX) {
-        load_error(stream, "string too long");
-    }
-
-    return length;
-}
-
 static crs_String* load_string(crs_Stream* stream) {
-    crs_Thread* thread = stream->thread;
-    size_t      length = (size_t)load_length(stream);
-    crs_String* string = crsS_newo(thread, length);
+    crs_Thread* thread  = stream->thread;
+    crs_Table*  strings = obj_gett(thread->stack.top - 2); /* -1 is main func */
+    crs_Integer length  = load_integer(stream);
+    crs_String* string;
+    crs_Object  key;
 
-    crsC_anchor(thread, obj_toheader(string));
-    load_block(stream, string->contents, length);
-    crsC_unanchor(thread);
+    if (length > 0) {
+        /* new string */
+        if ((crs_Unsigned)length > SIZE_MAX) {
+            load_error(stream, "string too long");
+        }
+
+        string = crsS_newo(thread, (size_t)length);
+        crsC_anchor(thread, obj_toheader(string));
+        load_block(stream, string->contents, (size_t)length);
+
+        crs_Object value;
+        obj_seti(&key, strings->length);
+        obj_setgc(&value, string);
+        crsT_set(thread, strings, &key, &value);
+
+        crsC_unanchor(thread);
+    } else {
+        /* reuse string */
+        obj_seti(&key, -length);
+        crs_Object* result = crsT_get(thread, strings, &key);
+
+        if (result->type == CRS_TYPE_NIL) {
+            load_error(stream, "corrupted dump");
+        } else {
+            string = obj_gets(result);
+        }
+    }
 
     return string;
 }
@@ -554,6 +610,13 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
 }
 
 crs_Function* crsK_load(crs_Stream* stream) {
+    crs_Thread*   thread = stream->thread;
+    crs_Function* main;
+
+    crsC_anchor(thread, obj_toheader(crsT_new(thread))); /* string table */
     load_checkHeader(stream);
-    return load_func(stream, NULL);
+    main = load_func(stream, NULL);
+    crsC_unanchor(thread);
+
+    return main;
 }

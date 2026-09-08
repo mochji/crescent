@@ -210,6 +210,11 @@ static void relocate(crs_TNode* old, crs_TNode* new) {
     }
 }
 
+static int integerKey(crs_Object* object) {
+    crs_Integer dummy;
+    return crsO_toInteger(object, &dummy, 0);
+}
+
 static crs_Object* get(crs_Table* table, crs_Object* key) {
     crs_TNode* node;
 
@@ -238,6 +243,10 @@ static void delete(crs_Table* table, crs_Object* key) {
 
     obj_setn(&node->value);
     free_add(table, node);
+
+    if (integerKey(key)) {
+        table->length--;
+    }
 }
 
 static int set(crs_Table* table, crs_Object* key, crs_Object* value) {
@@ -292,6 +301,10 @@ static int set(crs_Table* table, crs_Object* key, crs_Object* value) {
     free->previous = node;
     free->next     = NULL;
 
+    if (integerKey(key)) {
+        table->length++;
+    }
+
     return 1;
 }
 
@@ -317,9 +330,10 @@ crs_Table* crsT_new(crs_Thread* thread) {
         crsM_error(thread);
     }
 
-    table->nodes = 4;
-    table->free  = hash;
-    table->table = hash;
+    table->length = 0;
+    table->nodes  = 4;
+    table->free   = hash;
+    table->table  = hash;
     setNil(hash, hash + 16);
 
     return crsG_add(thread, table, CRS_TYPE_TABLE);
