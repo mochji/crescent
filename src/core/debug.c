@@ -16,26 +16,68 @@
 
 #include "core/debug.h"
 
-int crsD_getLine(crs_Function* func, unsigned pc) {
-    Debug_Info* debug = &func->debug;
-    Debug_Line* info  = debug->lines;
-    unsigned    low   = 0;
-    unsigned    high  = debug->nL - 1;
+char* crsD_getSource(crs_Frame* frame, int* what) {
+    if (frame->flags & CALL_VM) {
+        crs_Function* func = frame->i.v.f;
+        *what              = func->flags & FUNC_MAIN
+            ? CRS_DBG_MAIN
+            : CRS_DBG_VM;
 
-    while (low < high) {
+        if (func->flags & FUNC_DEBUG) {
+            return func->debug.source->contents;
+        }
+    }
+
+    *what = CRS_DBG_C;
+    return "?";
+}
+
+int crsD_getParams(crs_Frame* frame) {
+    return frame->flags & CALL_VM
+        ? frame->i.v.f->args
+        : 0;
+}
+
+int crsD_getLine(crs_Frame* frame) {
+    if (!(frame->flags & CALL_VM)) {
+        return 0;
+    }
+
+    crs_Function* func  = frame->i.v.f;
+    Debug_Info*   debug = &func->debug;
+    Debug_Line*   info  = debug->lines;
+    unsigned      low   = 0;
+    unsigned      high  = debug->nL - 1;
+    unsigned      pc    = (unsigned)(frame->i.v.pc - func->code);
+
+    while (low <= high) {
         unsigned mid = low + (high - low) / 2;
         info         = &debug->lines[mid];
+
+        if (low == high) {
+            break; /* found it */
+        }
 
         if (info->pc > pc) {
             high = mid - 1;
         } else if ((info + 1)->pc <= pc) {
-            low = mid;
-        } else { /* info->pc <= pc < (info + 1)->pc */
+            /* info->pc <= pc >= (info + 1)->pc */
+            low = mid + 1;
+        } else {
+            /* info->pc <= pc < (info + 1)->pc */
             break;
         }
     }
 
     return info->line;
+}
+
+void crsD_getFunc(crs_Frame* frame, crs_Object* object) {
+    if (frame->flags & CALL_VM) {
+        obj_setgc(object, frame->i.v.f);
+    } else {
+        obj_setc(object, frame->i.c.f);
+    }
 }
 
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream) {

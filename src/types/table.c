@@ -14,10 +14,10 @@
 
 #include "types/string.h"
 #include "core/object.h"
+#include "core/methods.h"
 #include "core/memory.h"
 #include "core/call.h"
 #include "core/gc.h"
-#include "vm/vm.h"
 
 #include "types/table.h"
 
@@ -172,7 +172,7 @@ static int search(crs_Table* table, crs_Object* key, crs_TNode** location) {
         node = next;
         next = node->next;
 
-        if (crsV_equal(key, &node->key)) {
+        if (crsM_equal(key, &node->key)) {
             *location = node;
             return SEARCH_EXISTS;
         }

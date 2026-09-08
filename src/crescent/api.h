@@ -151,6 +151,6 @@ int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
  * ===========================
  */
 
-int crs_debug(crs_Thread* thread, crs_Debug* debug, short level);
+int crs_debug(crs_Thread* thread, crs_Debug* debug, short level, char* options);
 
 #endif

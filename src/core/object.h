@@ -61,8 +61,8 @@ typedef struct crs_Table {
 } crs_Table;
 
 /* function flags */
-#define FUNC_DEBUG 1 /* has debug info */
-#define FUNC_MAIN  2 /* is main function */
+#define FUNC_DEBUG 1
+#define FUNC_MAIN  2
 
 typedef struct {
     unsigned pc; /* first pc on line */

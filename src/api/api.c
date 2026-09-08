@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stddef.h>
+#include <string.h>
 #include <limits.h>
 
 #include "crescent/conf.h"
@@ -17,6 +18,7 @@
 #include "types/table.h"
 #include "types/function.h"
 #include "core/object.h"
+#include "core/methods.h"
 #include "core/buffer.h"
 #include "core/format.h"
 #include "core/state.h"
@@ -25,7 +27,6 @@
 #include "core/debug.h"
 #include "core/gc.h"
 #include "compiler/parser.h"
-#include "vm/vm.h"
 
 #include "crescent/api.h"
 
@@ -320,7 +321,7 @@ export const char* crs_name(crs_Thread* thread, int index) {
  */
 
 export crs_Integer crs_length(crs_Thread* thread, int index) {
-    return crsV_length(thread, getIndex(thread, index));
+    return crsM_length(thread, getIndex(thread, index));
 }
 
 export int crs_compare(crs_Thread* thread, int leftIndex, int rightIndex,
@@ -329,10 +330,10 @@ export int crs_compare(crs_Thread* thread, int leftIndex, int rightIndex,
     crs_Object* right = getIndex(thread, rightIndex);
 
     if (op == CRS_OP_EQ) {
-        return crsV_equal(left, right);
+        return crsM_equal(left, right);
     }
 
-    return crsV_compare(thread, left, right, op);
+    return crsM_compare(thread, left, right, op);
 }
 
 export void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
@@ -340,12 +341,12 @@ export void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
     crs_Object* left  = getIndex(thread, leftIndex);
     crs_Object* right = getIndex(thread, rightIndex);
 
-    crsV_arith(thread, adjustTop(thread, 1), left, right, op);
+    crsM_arith(thread, adjustTop(thread, 1), left, right, op);
 }
 
 export void crs_get(crs_Thread* thread, int index, int keyIndex) {
     crs_Object* key    = getIndex(thread, keyIndex);
-    crs_Object* value  = crsV_get(thread, getIndex(thread, index), key);
+    crs_Object* value  = crsM_get(thread, getIndex(thread, index), key);
     crs_Object* object = adjustTop(thread, 1);
 
     obj_seto(object, value);
@@ -357,7 +358,7 @@ export void crs_set(crs_Thread* thread, int index, int keyIndex,
     crs_Object* key    = getIndex(thread, keyIndex);
     crs_Object* value  = getIndex(thread, valueIndex);
 
-    crsV_set(thread, getIndex(thread, index), key, value);
+    crsM_set(thread, getIndex(thread, index), key, value);
     crsG_check(thread);
 }
 
@@ -511,12 +512,12 @@ export const char* crs_vformat(crs_Thread* thread, char* format, va_list args) {
  */
 
 export void crs_call(crs_Thread* thread, int index, int args, int wanted) {
-    crsV_call(thread, getIndex(thread, index), args, wanted);
+    crsM_call(thread, getIndex(thread, index), args, wanted);
     crsG_check(thread);
 }
 
 export int crs_pcall(crs_Thread* thread, int index, int args, int wanted) {
-    int status = crsV_pcall(thread, getIndex(thread, index), args, wanted);
+    int status = crsM_pcall(thread, getIndex(thread, index), args, wanted);
 
     if (status != CRS_OK) {
         crs_Object* object = adjustTop(thread, 1);
@@ -595,47 +596,46 @@ export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
  * ===========================
  */
 
-int crs_debug(crs_Thread* thread, crs_Debug* debug, short level) {
-    crs_Frame*  frame = thread->stack.frame;
-    crs_Object* object;
+static void getOption(crs_Frame* frame, crs_Debug* debug, char option) {
+    switch (option) {
+        case 's':
+            debug->source = crsD_getSource(frame, &debug->what);
+            break;
+        case 'p':
+            debug->params = crsD_getParams(frame);
+            break;
+        case 'l':
+            debug->line = crsD_getLine(frame);
+            break;
+    }
+}
+
+int crs_debug(crs_Thread* thread, crs_Debug* debug, short level,
+                                  char* options) {
+    crs_Frame* frame   = thread->stack.frame;
+    int        gotFunc = 0;
+    char       option;
 
     while (level--) {
-        if ((frame = frame->previous) == NULL) {
-            return 0;
+        if (frame->previous == NULL) {
+            break;
         }
+
+        frame = frame->previous;
     }
 
     if (frame->previous == NULL) {
-        return 0;
+        return 0; /* base frame has no function */
     }
 
-    object = adjustTop(thread, 1);
-
-    if (frame->flags & CALL_VM) {
-        crs_Function* func = frame->i.v.f;
-        debug->params      = func->args;
-        debug->what        = func->flags & FUNC_MAIN
-            ? CRS_DBG_MAIN
-            : CRS_DBG_VM;
-
-        if (func->flags & FUNC_DEBUG) {
-            debug->source = func->debug.source->contents;
-            debug->line   = crsD_getLine(func,
-                (unsigned)(frame->i.v.pc - func->code));
+    while ((option = *options++)) {
+        if (option == 'f' && !gotFunc) {
+            gotFunc = 1;
+            crsD_getFunc(frame, adjustTop(thread, 1));
         } else {
-            debug->source = "?";
-            debug->line   = 0;
+            getOption(frame, debug, option);
         }
-
-        obj_setgc(object, func);
-    } else {
-        debug->source = "[C]";
-        debug->what   = CRS_DBG_C;
-        debug->params = 0;
-        debug->line   = 0;
-        obj_setc(object, frame->i.c.c);
     }
 
-
-    return 1;
+    return 0;
 }

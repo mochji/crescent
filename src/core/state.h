@@ -20,27 +20,27 @@
 #define CRS_STRCACHE_SIZE    32
 #define CRS_STRCACHE_BUCKETS 4
 
-typedef struct crs_Handler {
-    int                 status;
-    jmp_buf             buffer;
-    struct crs_Handler* previous;
-} crs_Handler;
+typedef struct crs_Jump {
+    int              status;
+    jmp_buf          buffer;
+    struct crs_Jump* previous;
+} crs_Jump;
 
 /* frame flags */
-#define CALL_VM (1 << 0) /* is a crescent function */
+#define CALL_VM 1
 
 typedef struct crs_Frame {
     struct crs_Frame* previous;
     crs_Object*       base;
     int               top;
-    int               flags;
+    crs_byte          flags;
     union {
         struct {
             crs_Function* f;
             crs_instr*    pc; /* last/currently executing instruction */
         } v;
         struct {
-            crs_CFunction* c;
+            crs_CFunction* f;
         } c;
     } i;
 } crs_Frame;
@@ -55,7 +55,7 @@ struct crs_Thread {
         crs_Frame*  frame;
         crs_Frame   baseFrame;
     }                 stack;
-    crs_Handler*      handler;
+    crs_Jump*         jump;
     crs_Object        error;
     struct crs_State* state;
 };

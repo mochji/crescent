@@ -30,13 +30,13 @@
  */
 
 noret crsC_throw(crs_Thread* thread, int status) {
-    crs_Handler* handler = thread->handler;
-    crs_State*   state   = thread->state;
+    crs_Jump*  jump  = thread->jump;
+    crs_State* state = thread->state;
 
-    while (handler != NULL) {
-        assert(handler->status == CRS_OK);
-        handler->status = status;
-        longjmp(handler->buffer, 1);
+    while (jump != NULL) {
+        assert(jump->status == CRS_OK);
+        jump->status = status;
+        longjmp(jump->buffer, 1);
     }
 
     if (state->panic != NULL) {
@@ -78,14 +78,14 @@ void crsC_unwind(crs_Thread* thread, short level) {
 
 int crsC_try(crs_Thread* thread, crs_PFunction* function,
                                  void* data, void** result) {
-    crs_Handler handler;
-    void*       returned = NULL;
+    crs_Jump jump;
+    void*    returned = NULL;
 
-    handler.status   = CRS_OK;
-    handler.previous = thread->handler;
-    thread->handler  = &handler;
+    jump.status   = CRS_OK;
+    jump.previous = thread->jump;
+    thread->jump  = &jump;
 
-    if (!setjmp(handler.buffer)) {
+    if (!setjmp(jump.buffer)) {
         returned = function(thread, data);
     }
 
@@ -93,8 +93,8 @@ int crsC_try(crs_Thread* thread, crs_PFunction* function,
         *result = returned;
     }
 
-    thread->handler = handler.previous;
-    return handler.status;
+    thread->jump = jump.previous;
+    return jump.status;
 }
 
 static int reallocStack(crs_Thread* thread, size_t newSize, int throw) {
@@ -323,7 +323,7 @@ void crsC_callC(crs_Thread* thread, crs_CFunction* function,
             ? CRS_MIN_TOP
             : args,
         args
-    )->i.c.c = function;
+    )->i.c.f = function;
 
     endCall(thread, function(thread), wanted);
 }

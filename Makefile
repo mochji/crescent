@@ -67,6 +67,7 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/table.o $(TYPES)/table.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/function.o $(TYPES)/function.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/object.o $(CORE)/object.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/methods.o $(CORE)/methods.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/memory.o $(CORE)/memory.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/gc.o $(CORE)/gc.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/buffer.o $(CORE)/buffer.c
