@@ -116,19 +116,17 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  *
  * constant {
- *   byte         | type (integer)
+ *   byte             | type
+ *   switch type {
+ *     integer:
+ *       crs_Integer  | value
+ *     float:
+ *       crs_Float    | value
+ *     string:
+ *       crs_Integer  | length
+ *       char[length] | contents
+ *   }
  *   crs_Integer  | value
- * }
- * ... or ...
- * constant {
- *   byte         | type (float)
- *   crs_Float    | value
- * }
- * ... or ...
- * constant {
- *   byte         | type (string)
- *   crs_Integer  | length
- *   char[length] | value
  * }
  *
  * debug {
@@ -139,10 +137,42 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  *
  * line {
- *   unsigned | first pc on line
- *   int      | line #
+ *   byte       | info
+ *   - bit  0   | is relative pc
+ *   - bit  1   | is relative line #
+ *   - bits 2-7 | line # offset - 1 (if info.1)
+ *   if info.0 {
+ *     byte     | pc offset - 1
+ *   } else {
+ *     unsigned | absolute pc
+ *   }
+ *   if !info.1 {
+ *     int      | absolute line #
+ *   }
  * }
+ *
+ * About line information:
+ *   There are two assumptions that can be made about reasonably formatted code:
+ *   there are few sequential empty/whitespace lines, and most lines don't have
+ *   an absurd amount of instructions. Long comments are, however, likely to
+ *   span many lines (as seen here), but such comments should be a rarity. Thus,
+ *   usually, line increments are tiny, and each line has around a dozen or so
+ *   instructions, so it is therefore not always necessary (and even wasteful)
+ *   to store the absolute line number and instruction PC. Rather, if it is
+ *   small enough, the difference can be stored instead; if not, then the
+ *   absolute value must be stored.
+ *
+ *   Since line offsets are miniscule compared to PC offsets, they don't require
+ *   as many bits, and can be stored in the same byte as the two flags
+ *   signalling relative or absolute information. Additionally, an offset of
+ *   zero is impossible (nor does it make much sense), so they can be offset by
+ *   one.
  */
+
+#define LINE_RELPC      1
+#define LINE_RELLINE    2
+#define LINE_MAXRELPC   0x100
+#define LINE_MAXRELLINE 64
 
 static crs_byte endianness(void) {
     int dummy = 1;
@@ -191,19 +221,54 @@ static void dump_const(crs_Dump* dump, crs_Object* object) {
     }
 }
 
+static void dump_line(crs_Dump* dump, Debug_Line* prev, Debug_Line* line) {
+    crs_byte info = 0;
+    unsigned pc   = line->pc;
+    int      num  = line->line;
+
+    if (prev != NULL) {
+        unsigned pcDiff  = pc - prev->pc;
+        int      numDiff = num - prev->line;
+
+        if (pcDiff <= LINE_MAXRELPC) {
+            pc    = pcDiff - 1;
+            info |= LINE_RELPC;
+        }
+
+        if (numDiff <= LINE_MAXRELLINE) {
+            info |= (crs_byte)(numDiff - 1) << 2;
+            info |= LINE_RELLINE;
+        }
+    }
+
+    dump_value(dump, info, crs_byte);
+
+    if (info & LINE_RELPC) {
+        dump_value(dump, pc, crs_byte);
+    } else {
+        dump_value(dump, pc, unsigned);
+    }
+
+    if (!(info & LINE_RELLINE)) {
+        dump_value(dump, num, int);
+    }
+}
+
 static void dump_debug(crs_Dump* dump, crs_Function* func) {
     if (!(func->flags & FUNC_DEBUG)) {
         return;
     }
 
     Debug_Info* debug = &func->debug;
+    Debug_Line* prev  = NULL;
 
     dump_string(dump, debug->source);
     dump_value(dump, debug->nL, unsigned);
 
     for (unsigned i = 0; i < debug->nL; i++) {
-        dump_value(dump, debug->lines[i].pc, unsigned);
-        dump_value(dump, debug->lines[i].line, int);
+        Debug_Line* line = &debug->lines[i];
+        dump_line(dump, prev, line);
+        prev = line;
     }
 }
 
@@ -399,11 +464,38 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
     }
 }
 
+static void load_line(crs_Stream* stream, Debug_Line* prev, Debug_Line* line) {
+    crs_byte info = load_byte(stream);
+    unsigned pc;
+    int      num;
+
+    if (prev == NULL && (info & (LINE_RELPC | LINE_RELLINE))) {
+        /* first must be absolute */
+        load_error(stream, "corrupted dump");
+    }
+
+    if (info & LINE_RELPC) {
+        pc = prev->pc + load_byte(stream) + 1;
+    } else {
+        pc = load_unsigned(stream);
+    }
+
+    if (info & LINE_RELLINE) {
+        num = prev->line + ((info >> 2) & (LINE_MAXRELLINE - 1)) + 1;
+    } else {
+        num = load_int(stream);
+    }
+
+    line->pc   = pc;
+    line->line = num;
+}
+
 static void load_debug(crs_Stream* stream, crs_Function* func) {
     if (!(func->flags & FUNC_DEBUG)) {
         return;
     }
 
+    Debug_Line* prev  = NULL;
     Debug_Info* debug = &func->debug;
     debug->source     = load_string(stream);
     debug->nL         = load_size(stream, sizeof(Debug_Line), "lines");
@@ -414,8 +506,9 @@ static void load_debug(crs_Stream* stream, crs_Function* func) {
     }
 
     for (unsigned i = 0; i < debug->nL; i++) {
-        debug->lines[i].pc   = load_unsigned(stream);
-        debug->lines[i].line = load_int(stream);
+        Debug_Line* line = &debug->lines[i];
+        load_line(stream, prev, line);
+        prev = line;
     }
 }
 
