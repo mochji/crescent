@@ -117,8 +117,8 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  *
  * string {
- *   crs_Integer    | length (if <= 0, negative of index into saved strings)
- *   if length > 0 {
+ *   crs_Integer    | length (if < 0, index into string table)
+ *   if length >= 0 {
  *     char[length] | contents
  *   }
  * }
@@ -136,10 +136,9 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * }
  *
  * debug {
- *   crs_Integer  | source length
- *   char[length] | source name
- *   unsigned     | # of lines
- *   line[lines]  | line information
+ *   string      | source name
+ *   unsigned    | # of lines
+ *   line[lines] | line information
  * }
  *
  * line {
@@ -334,14 +333,12 @@ static void* dump_try(crs_Thread* thread, void* data) {
     DumpInfo* info = data;
     crs_Dump* dump = info->dump;
 
-    obj_seti(thread->stack.top, 0);
+    obj_seti(thread->stack.top, 0); /* # of strings */
     thread->stack.top++;
     crsC_anchor(thread, obj_toheader(crsT_new(thread))); /* string table */
     dump_header(dump);
     dump_func(dump, info->func);
     crsW_flush(dump);
-    crsC_unanchor(thread);
-    thread->stack.top--;
 
     return NULL;
 }
@@ -456,7 +453,7 @@ static crs_String* load_string(crs_Stream* stream) {
     crs_String* string;
     crs_Object  key;
 
-    if (length > 0) {
+    if (length >= 0) {
         /* new string */
         if ((crs_Unsigned)length > SIZE_MAX) {
             load_error(stream, "string too long");
@@ -474,7 +471,7 @@ static crs_String* load_string(crs_Stream* stream) {
         crsC_unanchor(thread);
     } else {
         /* reuse string */
-        obj_seti(&key, -length);
+        obj_seti(&key, -length - 1);
         crs_Object* result = crsT_get(thread, strings, &key);
 
         if (result->type == CRS_TYPE_NIL) {
@@ -616,7 +613,6 @@ crs_Function* crsK_load(crs_Stream* stream) {
     crsC_anchor(thread, obj_toheader(crsT_new(thread))); /* string table */
     load_checkHeader(stream);
     main = load_func(stream, NULL);
-    crsC_unanchor(thread);
 
     return main;
 }

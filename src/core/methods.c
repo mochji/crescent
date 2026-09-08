@@ -337,14 +337,15 @@ void crsM_arith(crs_Thread* thread, crs_Object* o, crs_Object* l,
 }
 
 crs_Integer crsM_length(crs_Thread* thread, crs_Object* object) {
-    if (object->type == CRS_TYPE_STRING) {
-        return obj_gets(object)->length;
+    switch (object->type) {
+        case CRS_TYPE_STRING:
+            return obj_gets(object)->length;
+        case CRS_TYPE_TABLE:
+            return obj_gett(object)->length;
     }
 
     error_op(thread, object, "get length of");
 }
-
-
 
 crs_Object* crsM_get(crs_Thread* thread, crs_Object* object, crs_Object* key) {
     if (object->type == CRS_TYPE_TABLE) {
