@@ -155,34 +155,6 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *     int      | absolute line #
  *   }
  * }
- *
- * FIXME: rewrite the following two. i am incredibly tired right now
- * About strings:
- *   Many functions use some of the same strings, and to avoid writing and
- *   potentially storing in memory multiple copies of the same string, all
- *   strings encountered when dumping are saved in a table and assigned an
- *   integer key; further instances of the same string are instead replaced with
- *   with an index into this table. Since strings are dumped in the order that
- *   they are encountered, and therefore loading encounters the same strings in
- *   the same order, loading assigns each string with the same key that dumping
- *   did, and the dump can be loaded correctly.
- *
- * About line information:
- *   There are two assumptions that can be made about reasonably formatted code:
- *   there are few sequential empty/whitespace lines, and most lines don't have
- *   an absurd amount of instructions. Long comments are, however, likely to
- *   span many lines (as seen here), but such comments should be a rarity. Thus,
- *   usually, line increments are tiny, and each line has around a dozen or so
- *   instructions, so it is therefore not always necessary (and even wasteful)
- *   to store the absolute line number and instruction PC. Rather, if it is
- *   small enough, the difference can be stored instead; if not, then the
- *   absolute value must be stored.
- *
- *   Since line offsets are miniscule compared to PC offsets, they don't require
- *   as many bits, and can be stored in the same byte as the two flags
- *   signalling relative or absolute information. Additionally, an offset of
- *   zero is impossible (nor does it make much sense), so they can be offset by
- *   one.
  */
 
 #define LINE_RELPC      1
@@ -214,6 +186,10 @@ static void dump_header(crs_Dump* dump) {
     dump_value(dump, sizeof(crs_Float), crs_byte);
 }
 
+/*
+ * strings are dumped in the order that they are encountered, and so they are
+ * loaded in the same order.
+ */
 static void dump_string(crs_Dump* dump, crs_String* string) {
     crs_Thread* thread  = dump->thread;
     crs_Table*  strings = obj_gett(thread->stack.top - 1);
@@ -224,7 +200,7 @@ static void dump_string(crs_Dump* dump, crs_String* string) {
 
     if (result->type != CRS_TYPE_NIL) {
         /* string already exists; reuse it */
-        dump_value(dump, -obj_geti(result), crs_Integer);
+        dump_value(dump, -obj_geti(result) - 1, crs_Integer);
     } else {
         /* new string */
         dump_value(dump, string->length, crs_Integer);
