@@ -144,23 +144,22 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  * line {
  *   byte       | info
  *   - bit  0   | is relative pc
- *   - bit  1   | is relative line #
- *   - bits 2-7 | line # offset - 1 (if info.1)
+ *   - bits 1-7 | line # offset (if zero, then absolute)
  *   if info.0 {
  *     byte     | pc offset - 1
  *   } else {
  *     unsigned | absolute pc
  *   }
- *   if !info.1 {
+ *   if !info.1-7 {
  *     int      | absolute line #
  *   }
  * }
  */
 
-#define LINE_RELPC      1
-#define LINE_RELLINE    2
+#define LINE_RELPC      0x01
+#define LINE_RELLINE    0xFE
 #define LINE_MAXRELPC   0x100
-#define LINE_MAXRELLINE 64
+#define LINE_MAXRELLINE 0x7F
 
 static crs_byte endianness(void) {
     int dummy = 1;
@@ -243,8 +242,7 @@ static void dump_line(crs_Dump* dump, Debug_Line* prev, Debug_Line* line) {
         }
 
         if (numDiff <= LINE_MAXRELLINE) {
-            info |= (crs_byte)(numDiff - 1) << 2;
-            info |= LINE_RELLINE;
+            info |= (crs_byte)numDiff << 1;
         }
     }
 
@@ -510,7 +508,7 @@ static void load_line(crs_Stream* stream, Debug_Line* prev, Debug_Line* line) {
     }
 
     if (info & LINE_RELLINE) {
-        num = prev->line + ((info >> 2) & (LINE_MAXRELLINE - 1)) + 1;
+        num = prev->line + ((info & LINE_RELLINE) >> 1);
     } else {
         num = load_int(stream);
     }
