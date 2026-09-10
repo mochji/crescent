@@ -25,6 +25,7 @@ DEBUG    = oksurewhynot
 # ============================
 
 SRC      = src
+TOOLS    = tools
 BUILD    = build
 TYPES    = $(SRC)/types
 CORE     = $(SRC)/core
@@ -32,7 +33,7 @@ COMPILER = $(SRC)/compiler
 VM       = $(SRC)/vm
 API      = $(SRC)/api
 
-MAIN    = $(SRC)/crescent.c
+MAIN    = $(TOOLS)/crescent.c
 TARGET  = $(BUILD)/crescent
 ARCHIVE = $(BUILD)/libcrescent.a
 SHARED  = $(BUILD)/libcrescent.so
@@ -83,6 +84,7 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/api.o $(API)/api.c
 	$(AR) $(ARCHIVE) $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(ARCHIVE)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(BUILD)/crsc $(TOOLS)/crsc.c $(OBJECTS)
 
 clean:
 	rm -rf $(BUILD)
