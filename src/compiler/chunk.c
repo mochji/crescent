@@ -149,6 +149,7 @@ crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
     chunk->locals   = 0;
     chunk->fV       = parser->vars.count;
     chunk->lV       = parser->vars.count;
+    chunk->vV       = LIST_NONE;
     chunk->prevLine = 0;
     chunk->line     = &parser->stream->line;
     chunk->func     = func;
@@ -160,16 +161,20 @@ crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser) {
         UINT_MAX, sizeof(crs_Function*));
     data_init(&chunk->lines, (void**)&func->debug.lines, &func->debug.nL,
         UINT_MAX, sizeof(Debug_Line));
+    data_init(&chunk->vars, (void**)&func->debug.vars, &func->debug.nV,
+        UINT_MAX, sizeof(Debug_Var));
 
     return func;
 }
 
 void crsI_finish(Chunk* chunk) {
+    assert(chunk->vV == LIST_NONE);
     crsI_iABC(chunk, OP_RETURN, 0, 0, 0);
     data_shrink(chunk, &chunk->code);
     data_shrink(chunk, &chunk->consts);
     data_shrink(chunk, &chunk->nested);
     data_shrink(chunk, &chunk->lines);
+    data_shrink(chunk, &chunk->vars);
 
     crsG_check(chunk->thread);
 }
@@ -182,6 +187,60 @@ unsigned crsI_nested(Chunk* parent, Chunk* chunk) {
 
     parent->func->nested[parent->func->cN++] = func;
     return index;
+}
+
+/*
+ * ===========================
+ *  debug info
+ * ===========================
+ */
+
+/* emit line information for the last instruction */
+static void debug_line(Chunk* chunk, unsigned pc) {
+    crs_Function* func = chunk->func;
+    int           line = *chunk->line;
+
+    if (line > chunk->prevLine) {
+        unsigned    index = data_check(chunk, &chunk->lines, "lines");
+        Debug_Line* info  = &func->debug.lines[index];
+        chunk->prevLine   = line;
+        info->pc          = pc;
+        info->line        = line;
+    }
+}
+
+/* emit information for a variable */
+static void debug_var(Chunk* chunk, crs_String* name, crs_byte reg,
+                                    crs_byte type) {
+    unsigned    index = data_check(chunk, &chunk->vars, "variables");
+    Debug_Info* debug = &chunk->func->debug;
+    Debug_Var*  var   = &debug->vars[index];
+
+    /* value was assigned to register at least before the next instruction */
+    var->name  = name;
+    var->start = crsI_nextPC(chunk);
+    var->end   = chunk->vV;
+    var->reg   = reg;
+    var->type  = type | DVAR_VIS;
+    chunk->vV  = index;
+    debug->cV++;
+}
+
+static void debug_close(Chunk* chunk, Debug_Var* var) {
+    var->end  = crsI_nextPC(chunk);
+    var->type = (crs_byte)bit_reset(var->type, DVAR_VIS);
+}
+
+/* close all local variables before leaving scope. */
+static void debug_leave(Chunk* chunk, Scope* scope) {
+    Debug_Var* vars  = chunk->func->debug.vars;
+    crs_byte   count = scope->nV;
+
+    while (count--) {
+        Debug_Var* var = &vars[chunk->vV];
+        chunk->vV      = var->end;
+        debug_close(chunk, var);
+    }
 }
 
 /*
@@ -212,6 +271,7 @@ void crsI_leave(Chunk* chunk) {
     Scope*  scope    = chunk->scope;
     Scope*  previous = scope->previous;
     chunk->scope     = previous;
+    debug_leave(chunk, scope);
 
     parser->vars.count -= scope->nV;
     chunk->regs        -= scope->nV;
@@ -220,26 +280,6 @@ void crsI_leave(Chunk* chunk) {
 
     if (scope->isLoop) {
         parser->labels.count = scope->fL;
-    }
-}
-
-/*
- * ===========================
- *  debug info
- * ===========================
- */
-
-/* emit line information for the last instruction */
-static void debug_line(Chunk* chunk, unsigned pc) {
-    crs_Function* func = chunk->func;
-    int           line = *chunk->line;
-
-    if (line > chunk->prevLine) {
-        unsigned    index = data_check(chunk, &chunk->lines, "lines");
-        Debug_Line* info  = &func->debug.lines[index];
-        chunk->prevLine   = line;
-        info->pc          = pc;
-        info->line        = line;
     }
 }
 
@@ -299,8 +339,8 @@ static Label* findLabel(Chunk* chunk, crs_String* name) {
     unsigned index = data_check(chunk, &parser->labels, "labels");
     label          = &parser->vecs.labels[index];
     label->name    = name;
-    label->list    = PATCH_NONE;
-    label->pc      = PATCH_NONE;
+    label->list    = LIST_NONE;
+    label->pc      = LIST_NONE;
 
     return label;
 }
@@ -319,7 +359,7 @@ void crsI_jumpTo(Chunk* chunk, unsigned target) {
 void crsI_backpatch(Chunk* chunk, unsigned list, unsigned target) {
     crs_instr* code = chunk->func->code;
 
-    while (list != PATCH_NONE) {
+    while (list != LIST_NONE) {
         unsigned pc = list;
         list        = (unsigned)code[pc];
         code[pc]    = createJump(chunk, pc, target);
@@ -345,7 +385,7 @@ void crsI_patchAll(Chunk* chunk) {
     Label*   label  = parser->vecs.labels + chunk->scope->fL;
 
     while (count--) {
-        assert(label->pc != PATCH_NONE); /* label should exist */
+        assert(label->pc != LIST_NONE); /* label should exist */
         crsI_backpatch(chunk, label->list, label->pc);
         label++;
     }
@@ -1013,6 +1053,16 @@ void crsI_local(Chunk* chunk, crs_String* name) {
     var->reg  = chunk->locals++;
     chunk->scope->nV++;
     chunk->lV++;
+}
+
+void crsI_finishDec(Chunk* chunk, unsigned count) {
+    Parser*   parser = chunk->parser;
+    Variable* var    = &parser->vecs.vars[parser->vars.count - count];
+
+    while (count--) {
+        debug_var(chunk, var->name, var->reg, DVAR_LOCAL);
+        var++;
+    }
 }
 
 /*

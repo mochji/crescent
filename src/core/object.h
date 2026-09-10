@@ -65,15 +65,32 @@ typedef struct crs_Table {
 #define FUNC_DEBUG 1
 #define FUNC_MAIN  2
 
+#define func_hasdebug(f) ((f)->flags & FUNC_DEBUG)
+#define func_ismain(f)   ((f)->flags & FUNC_MAIN)
+
 typedef struct {
     unsigned pc; /* first pc on line */
     int      line;
 } Debug_Line;
 
+#define DVAR_LOCAL 0
+#define DVAR_VIS   4 /* flag: currently visible */
+
+typedef struct {
+    crs_String* name;
+    unsigned    start; /* first pc within scope */
+    unsigned    end;   /* first pc outside scope or index of prev visible var */
+    crs_byte    reg;
+    crs_byte    type;
+} Debug_Var;
+
 typedef struct {
     crs_String* source;
     Debug_Line* lines;
+    Debug_Var*  vars;
     unsigned    nL; /* # of lines */
+    unsigned    nV; /* # of vars */
+    unsigned    cV; /* see below */
 } Debug_Info;
 
 typedef struct crs_Function {

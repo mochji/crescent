@@ -580,7 +580,7 @@ export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
     crs_Dump    dump;
 
     if (object->type != CRS_TYPE_FUNCTION) {
-        crsC_errorf(thread, "cannot dump a %s value", crsO_name(object));
+        crsC_error(thread, "expected Crescent function to 'crs_dump'");
     }
 
     crsW_init(thread, &dump, writer, data);
@@ -596,42 +596,50 @@ export int crs_dump(crs_Thread* thread, int index, crs_Writer* writer,
  * ===========================
  */
 
+static crs_Frame* getFrame(crs_Thread* thread, short level) {
+    crs_Frame* frame = thread->stack.frame;
+
+    while (level--) {
+        if (frame->previous == NULL) {
+            break;
+        }
+    }
+
+    if (frame->previous == NULL) {
+        return NULL; /* base frame has no function */
+    }
+
+    return frame;
+}
+
 static void getOption(crs_Frame* frame, crs_Debug* debug, char option) {
     switch (option) {
         case 's':
-            debug->source = crsD_getSource(frame, &debug->what);
+            debug->source = crsD_source(frame, &debug->what);
             break;
         case 'p':
-            debug->params = crsD_getParams(frame);
+            debug->params = crsD_params(frame);
             break;
         case 'l':
-            debug->line = crsD_getLine(frame);
+            debug->line = crsD_line(frame);
             break;
     }
 }
 
 int crs_debug(crs_Thread* thread, crs_Debug* debug, short level,
                                   char* options) {
-    crs_Frame* frame   = thread->stack.frame;
+    crs_Frame* frame   = getFrame(thread, level);
     int        gotFunc = 0;
     char       option;
 
-    while (level--) {
-        if (frame->previous == NULL) {
-            break;
-        }
-
-        frame = frame->previous;
-    }
-
-    if (frame->previous == NULL) {
-        return 0; /* base frame has no function */
+    if (frame == NULL) {
+        return 0;
     }
 
     while ((option = *options++)) {
         if (option == 'f' && !gotFunc) {
             gotFunc = 1;
-            crsD_getFunc(frame, adjustTop(thread, 1));
+            crsD_func(frame, adjustTop(thread, 1));
         } else {
             getOption(frame, debug, option);
         }

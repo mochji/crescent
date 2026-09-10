@@ -492,6 +492,7 @@ static void func_pars(Lexer* lexer) {
         lexer->chunk->func->args = count;
         lexer->chunk->func->top  = count;
         lexer->chunk->regs      += count;
+        crsI_finishDec(lexer->chunk, count);
 
         check_expected(lexer, ')');
     }
@@ -525,7 +526,7 @@ static void func_body(Lexer* lexer, Expression* exp) {
 static void if_if(Lexer* lexer, unsigned* end) {
     Scope    scope;
     Chunk*   chunk = lexer->chunk;
-    unsigned next  = PATCH_NONE;
+    unsigned next  = LIST_NONE;
 
     block_cond(lexer, 1);    /* if condition is false... */
     crsI_jump(chunk, &next); /* try next branch          */
@@ -553,7 +554,7 @@ static void if_else(Lexer* lexer) {
  *               ("else" <block_body>)?
  */
 static void stat_if(Lexer* lexer) {
-    unsigned end = PATCH_NONE;
+    unsigned end = LIST_NONE;
 
     crsL_next(lexer); /* consume 'if' */
     if_if(lexer, &end);
@@ -715,6 +716,7 @@ static void stat_local(Lexer* lexer) {
     crsI_freeExp(chunk, &list);
     chunk->regs = chunk->locals; /* now, they hold values, so... */
     chunk->lV  += vars;          /* they can be referenced */
+    crsI_finishDec(chunk, vars);
 }
 
 /* <stat_localfunc> ::= "local" "function" <name> <func_body> */
@@ -727,6 +729,7 @@ static void stat_localfunc(Lexer* lexer) {
     crsI_local(chunk, get_name(lexer));
     func_body(lexer, &func);
     crsI_toTop(chunk, &func); /* allocate the register holding the local */
+    crsI_finishDec(chunk, 1);
 }
 
 /* <stat_func> ::= "function" <func_name> <func_body> */

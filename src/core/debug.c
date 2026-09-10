@@ -6,6 +6,8 @@
  * MIT License
  */
 
+#include <stddef.h>
+
 #include "crescent/conf.h"
 #include "limit.h"
 
@@ -16,14 +18,14 @@
 
 #include "core/debug.h"
 
-char* crsD_getSource(crs_Frame* frame, int* what) {
-    if (frame->flags & CALL_VM) {
+char* crsD_source(crs_Frame* frame, int* what) {
+    if (!call_isvm(frame)) {
         crs_Function* func = frame->i.v.f;
         *what              = func->flags & FUNC_MAIN
             ? CRS_DBG_MAIN
             : CRS_DBG_VM;
 
-        if (func->flags & FUNC_DEBUG) {
+        if (func_hasdebug(func)) {
             return func->debug.source->contents;
         }
     }
@@ -32,52 +34,54 @@ char* crsD_getSource(crs_Frame* frame, int* what) {
     return "?";
 }
 
-int crsD_getParams(crs_Frame* frame) {
-    return frame->flags & CALL_VM
-        ? frame->i.v.f->args
-        : 0;
+int crsD_params(crs_Frame* frame) {
+    if (call_isvm(frame)) {
+        return frame->i.v.f->args;
+    }
+
+    return 0;
 }
 
-int crsD_getLine(crs_Frame* frame) {
-    if (!(frame->flags & CALL_VM)) {
+int crsD_line(crs_Frame* frame) {
+    if (!call_hasdebug(frame)) {
         return 0;
     }
 
     crs_Function* func  = frame->i.v.f;
     Debug_Info*   debug = &func->debug;
-    Debug_Line*   info  = debug->lines;
+    Debug_Line*   line  = debug->lines;
     unsigned      low   = 0;
     unsigned      high  = debug->nL - 1;
     unsigned      pc    = (unsigned)(frame->i.v.pc - func->code);
 
     while (low <= high) {
         unsigned mid = low + (high - low) / 2;
-        info         = &debug->lines[mid];
+        line         = &debug->lines[mid];
 
         if (low == high) {
             break; /* found it */
         }
 
-        if (info->pc > pc) {
+        if (line->pc > pc) {
             high = mid - 1;
-        } else if ((info + 1)->pc <= pc) {
-            /* info->pc <= pc >= (info + 1)->pc */
+        } else if ((line + 1)->pc <= pc) {
+            /* line->pc <= pc >= (line + 1)->pc */
             low = mid + 1;
         } else {
-            /* info->pc <= pc < (info + 1)->pc */
+            /* line->pc <= pc < (line + 1)->pc */
             break;
         }
     }
 
-    return info->line;
+    return line->line;
 }
 
-void crsD_getFunc(crs_Frame* frame, crs_Object* object) {
-    if (frame->flags & CALL_VM) {
+void crsD_func(crs_Frame* frame, crs_Object* object) {
+    if (call_isvm(frame)) {
         obj_setgc(object, frame->i.v.f);
-    } else {
-        obj_setc(object, frame->i.c.f);
     }
+
+    obj_setc(object, frame->i.c.f);
 }
 
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream) {

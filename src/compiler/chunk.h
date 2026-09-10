@@ -126,6 +126,7 @@ typedef struct {
     crs_byte    locals;
     unsigned    fV;
     unsigned    lV;
+    unsigned    vV; /* last visible variable (debug info) */
     int         prevLine;
     int*        line;
 
@@ -133,8 +134,11 @@ typedef struct {
     Data          code;
     Data          consts;
     Data          nested;
-    Data          lines;
+    Data          lines; /* debug info */
+    Data          vars;  /* debug info */
 } Chunk;
+
+#define LIST_NONE UINT_MAX
 
 noret crsI_error(Chunk* chunk, char* format, ...);
 void  crsI_init(crs_Thread* thread, Parser* parser, crs_Stream* stream);
@@ -169,8 +173,6 @@ void crsI_patchAll(Chunk* chunk);
 
 #define crsI_patchHere(f, l) crsI_backpatch(f, l, (f)->code.count)
 
-#define PATCH_NONE UINT_MAX /* pc can be at most UINT_MAX - 1 */
-
 /* expressions */
 void     crsI_freeExp(Chunk* chunk, Expression* exp);
 int      crsI_flatten(Chunk* chunk, Expression* exp);
@@ -194,6 +196,7 @@ void     crsI_test(Chunk* chunk, Expression* exp, int test);
 /* variables */
 void crsI_var(Chunk* chunk, crs_String* name, Expression* exp);
 void crsI_local(Chunk* chunk, crs_String* name);
+void crsI_finishDec(Chunk* chunk, unsigned count);
 
 /* statements */
 void crsI_return(Chunk* chunk, Expression* exp);

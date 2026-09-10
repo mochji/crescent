@@ -137,9 +137,16 @@ static crs_mem traverse_debug(crs_State* state, crs_Function* func) {
         return 1;
     }
 
+    Debug_Var* var = func->debug.vars;
+
+    for (unsigned i = 0; i < func->debug.cV; i++) {
+        mark_object(state, var->name);
+        var++;
+    }
+
     mark_object(state, func->debug.source);
 
-    return 2;
+    return (crs_mem)2 + func->debug.cV;
 }
 
 static crs_mem traverse_func(crs_State* state, crs_Function* func) {

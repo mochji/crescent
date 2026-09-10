@@ -29,6 +29,10 @@ typedef struct crs_Jump {
 /* frame flags */
 #define CALL_VM 1
 
+#define call_isvm(r) ((r)->flags & CALL_VM)
+#define call_hasdebug(r) \
+    (((r)->flags & CALL_VM) && ((r)->i.v.f->flags & FUNC_DEBUG))
+
 typedef struct crs_Frame {
     struct crs_Frame* previous;
     crs_Object*       base;

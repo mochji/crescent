@@ -42,14 +42,14 @@ static void* tryBlock(crs_Thread* thread, crs_Function* func,
 }
 
 crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
-                                           unsigned nN, unsigned nL) {
+                                           unsigned nN, int debug) {
     crs_Function* func = mem_new(thread, crs_Function);
 
     if (func == NULL) {
         crsM_error(thread);
     }
 
-    func->flags        = nL ? FUNC_DEBUG : 0;
+    func->flags        = 0;
     func->args         = 0;
     func->top          = 0;
     func->nI           = nI;
@@ -62,12 +62,22 @@ crs_Function* crsK_new(crs_Thread* thread, unsigned nI, unsigned nC,
     func->nested       = NULL;
     func->debug.source = thread->state->memoryError; /* placeholder */
     func->debug.lines  = NULL;
-    func->debug.nL     = nL;
+    func->debug.vars   = NULL;
+    func->debug.nL     = 0;
+    func->debug.nV     = 0;
+    func->debug.cV     = 0;
 
-    func->code        = tryBlock(thread, func, nI, sizeof(crs_instr));
-    func->consts      = tryBlock(thread, func, nC, sizeof(crs_Object));
-    func->nested      = tryBlock(thread, func, nN, sizeof(crs_Function*));
-    func->debug.lines = tryBlock(thread, func, nL, sizeof(Debug_Line));
+    func->code   = tryBlock(thread, func, nI, sizeof(crs_instr));
+    func->consts = tryBlock(thread, func, nC, sizeof(crs_Object));
+    func->nested = tryBlock(thread, func, nN, sizeof(crs_Function*));
+
+    if (debug) {
+        func->flags      |= FUNC_DEBUG;
+        func->debug.nL    = 16;
+        func->debug.nV    = 16;
+        func->debug.lines = tryBlock(thread, func, 16, sizeof(Debug_Line));
+        func->debug.vars  = tryBlock(thread, func, 16, sizeof(Debug_Var));
+    }
 
     return crsG_add(thread, func, CRS_TYPE_FUNCTION);
 }
@@ -77,6 +87,7 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
     mem_vfree(thread, func->consts, func->nC);
     mem_vfree(thread, func->nested, func->nN);
     mem_vfree(thread, func->debug.lines, func->debug.nL);
+    mem_vfree(thread, func->debug.vars, func->debug.nV);
     mem_free(thread, func);
 }
 
@@ -113,7 +124,9 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *   crs_instr[nI] | code
  *   constant[nC]  | constants
  *   function[nN]  | nested functions
- *   debug?        | debug info; only present if flags & FUNC_DEBUG
+ *   if flags & FLAG_DEBUG {
+ *     debug       | debug info
+ *   }
  * }
  *
  * string {
@@ -137,16 +150,18 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *
  * debug {
  *   string      | source name
- *   unsigned    | # of lines
+ *   unsigned    | # of lines (always at least one)
+ *   unsigned    | # of vars (zero or more)
  *   line[lines] | line information
+ *   var[vars]   | variable information
  * }
  *
  * line {
  *   byte       | info
  *   - bit  0   | is relative pc
- *   - bits 1-7 | line # offset (if zero, then absolute)
+ *   - bits 1-7 | line # offset (must increment; if zero, then absolute)
  *   if info.0 {
- *     byte     | pc offset - 1
+ *     byte     | pc offset - 1 (must increment)
  *   } else {
  *     unsigned | absolute pc
  *   }
@@ -154,12 +169,35 @@ void crsK_free(crs_Thread* thread, crs_Function* func) {
  *     int      | absolute line #
  *   }
  * }
+ *
+ * var {
+ *   byte       | type
+ *   - bits 0-1 | variable type
+ *   - bit  2   | start pc relative to previous start
+ *   - bits 3-7 | end pc relative to start (if zero, then absolute)
+ *   byte       | register
+ *   if type.2 {
+ *     byte     | start pc offset (can be same)
+ *   } else {
+ *     unsigned | absolute start pc
+ *   }
+ *   if !type.3-7 {
+ *     unsigned | absolute end pc
+ *   }
+ *   string     | name
+ * }
  */
 
 #define LINE_RELPC      0x01
 #define LINE_RELLINE    0xFE
 #define LINE_MAXRELPC   0x100
 #define LINE_MAXRELLINE 0x7F
+
+#define VAR_TYPE        0x03
+#define VAR_RELSTART    0x04
+#define VAR_RELEND      0xF8
+#define VAR_MAXRELSTART 0x100
+#define VAR_MAXRELEND   0x1F
 
 static crs_byte endianness(void) {
     int dummy = 1;
@@ -227,7 +265,8 @@ static void dump_const(crs_Dump* dump, crs_Object* object) {
     }
 }
 
-static void dump_line(crs_Dump* dump, Debug_Line* prev, Debug_Line* line) {
+static Debug_Line* dump_line(crs_Dump* dump, Debug_Line* prev,
+                                             Debug_Line* line) {
     crs_byte info = 0;
     unsigned pc   = line->pc;
     int      num  = line->line;
@@ -257,6 +296,44 @@ static void dump_line(crs_Dump* dump, Debug_Line* prev, Debug_Line* line) {
     if (!(info & LINE_RELLINE)) {
         dump_value(dump, num, int);
     }
+
+    return line;
+}
+
+static Debug_Var* dump_var(crs_Dump* dump, Debug_Var* prev, Debug_Var* var) {
+    crs_byte type  = var->type;
+    unsigned start = var->start;
+    unsigned end   = var->end;
+
+    if (prev != NULL) {
+        unsigned startDiff = start - prev->start;
+        unsigned endDiff   = end - start;
+
+        if (startDiff <= VAR_MAXRELSTART) {
+            type |= VAR_RELSTART;
+            start = startDiff;
+        }
+
+        if (endDiff <= VAR_MAXRELEND) {
+            type |= (crs_byte)endDiff << 3;
+        }
+    }
+
+    dump_value(dump, type, crs_byte);
+    dump_value(dump, var->reg, crs_byte);
+
+    if (type & VAR_RELSTART) {
+        dump_value(dump, start, crs_byte);
+    } else {
+        dump_value(dump, start, unsigned);
+    }
+
+    if (!(type & VAR_RELEND)) {
+        dump_value(dump, end, unsigned);
+    }
+
+    dump_string(dump, var->name);
+    return var;
 }
 
 static void dump_debug(crs_Dump* dump, crs_Function* func) {
@@ -264,16 +341,20 @@ static void dump_debug(crs_Dump* dump, crs_Function* func) {
         return;
     }
 
-    Debug_Info* debug = &func->debug;
-    Debug_Line* prev  = NULL;
+    Debug_Info* debug    = &func->debug;
+    Debug_Line* prevLine = NULL;
+    Debug_Var*  prevVar  = NULL;
 
     dump_string(dump, debug->source);
     dump_value(dump, debug->nL, unsigned);
+    dump_value(dump, debug->nV, unsigned);
 
     for (unsigned i = 0; i < debug->nL; i++) {
-        Debug_Line* line = &debug->lines[i];
-        dump_line(dump, prev, line);
-        prev = line;
+        prevLine = dump_line(dump, prevLine, &debug->lines[i]);
+    }
+
+    for (unsigned i = 0; i < debug->nV; i++) {
+        prevVar = dump_var(dump, prevVar, &debug->vars[i]);
     }
 }
 
@@ -336,6 +417,9 @@ int crsK_dump(crs_Dump* dump, crs_Function* func) {
  *  loading
  * ===========================
  */
+
+/* general message for unexpected data */
+#define LOAD_CORRUPTED "corrupted dump"
 
 static noret load_error(crs_Stream* stream, char* format, ...) {
     crs_Thread* thread = stream->thread;
@@ -433,14 +517,12 @@ static crs_String* load_string(crs_Stream* stream) {
             load_error(stream, "string too long");
         }
 
-        string = crsS_newo(thread, (size_t)length);
-        crsC_anchor(thread, obj_toheader(string));
+        string            = crsS_newo(thread, (size_t)length);
+        crs_Object* value = crsC_anchor(thread, obj_toheader(string));
         load_block(stream, string->contents, (size_t)length);
 
-        crs_Object value;
         obj_seti(&key, strings->length);
-        obj_setgc(&value, string);
-        crsT_set(thread, strings, &key, &value);
+        crsT_set(thread, strings, &key, value);
 
         crsC_unanchor(thread);
     } else {
@@ -449,7 +531,7 @@ static crs_String* load_string(crs_Stream* stream) {
         crs_Object* result = crsT_get(thread, strings, &key);
 
         if (result->type == CRS_TYPE_NIL) {
-            load_error(stream, "corrupted dump");
+            load_error(stream, LOAD_CORRUPTED);
         } else {
             string = obj_gets(result);
         }
@@ -460,7 +542,7 @@ static crs_String* load_string(crs_Stream* stream) {
 
 static void load_checkHeader(crs_Stream* stream) {
     load_checkString(stream, CRS_SIGNATURE, 4, "not a binary dump");
-    load_checkString(stream, CRS_DUMPCHECK, 8, "corrupted dump");
+    load_checkString(stream, CRS_DUMPCHECK, 8, LOAD_CORRUPTED);
     load_checkByte(stream, CRS_VERSION, "version");
     load_checkByte(stream, endianness(), "endianness");
     load_checkByte(stream, sizeof(unsigned), "unsigned size");
@@ -487,34 +569,59 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
             break;
         }
         default:
-            load_error(stream, "corrupted dump");
+            load_error(stream, LOAD_CORRUPTED);
     }
 }
 
-static void load_line(crs_Stream* stream, Debug_Line* prev, Debug_Line* line) {
+static Debug_Line* load_line(crs_Stream* stream, Debug_Line* prev,
+                                                 Debug_Line* line) {
     crs_byte info = load_byte(stream);
-    unsigned pc;
-    int      num;
 
     if (prev == NULL && (info & (LINE_RELPC | LINE_RELLINE))) {
         /* first must be absolute */
-        load_error(stream, "corrupted dump");
+        load_error(stream, LOAD_CORRUPTED);
     }
 
     if (info & LINE_RELPC) {
-        pc = prev->pc + load_byte(stream) + 1;
+        line->pc = (prev->pc + load_byte(stream)) + 1;
     } else {
-        pc = load_unsigned(stream);
+        line->pc = load_unsigned(stream);
     }
 
     if (info & LINE_RELLINE) {
-        num = prev->line + ((info & LINE_RELLINE) >> 1);
+        line->line = prev->line + ((info & LINE_RELLINE) >> 1);
     } else {
-        num = load_int(stream);
+        line->line = load_int(stream);
     }
 
-    line->pc   = pc;
-    line->line = num;
+    return line;
+}
+
+static Debug_Var* load_var(crs_Stream* stream, Debug_Var* prev,
+                                               Debug_Var* var) {
+    crs_byte type = load_byte(stream);
+    var->reg      = load_byte(stream);
+    var->type     = type;
+
+    if (prev == NULL && (type & (VAR_RELSTART | VAR_RELEND))) {
+        /* first must be absolute */
+        load_error(stream, LOAD_CORRUPTED);
+    }
+
+    if (type & VAR_RELSTART) {
+        var->start = prev->start + load_byte(stream);
+    } else {
+        var->start = load_unsigned(stream);
+    }
+
+    if (type & VAR_RELEND) {
+        var->end = var->start + ((type & VAR_RELEND) >> 3);
+    } else {
+        var->end = load_unsigned(stream);
+    }
+
+    var->name = load_string(stream);
+    return var;
 }
 
 static void load_debug(crs_Stream* stream, crs_Function* func) {
@@ -522,20 +629,29 @@ static void load_debug(crs_Stream* stream, crs_Function* func) {
         return;
     }
 
-    Debug_Line* prev  = NULL;
     Debug_Info* debug = &func->debug;
     debug->source     = load_string(stream);
     debug->nL         = load_size(stream, sizeof(Debug_Line), "lines");
+    debug->nV         = load_size(stream, sizeof(Debug_Var), "variables");
     debug->lines      = mem_vnew(stream->thread, debug->nL, Debug_Line);
+    debug->vars       = debug->nV
+        ? mem_vnew(stream->thread, debug->nV, Debug_Var)
+        : NULL;
 
-    if (debug->lines == NULL) {
+    if (debug->lines == NULL || (debug->nV && debug->vars == NULL)) {
         crsM_error(stream->thread);
     }
 
+    Debug_Line* prevLine = NULL;
+    Debug_Var*  prevVar  = NULL;
+
     for (unsigned i = 0; i < debug->nL; i++) {
-        Debug_Line* line = &debug->lines[i];
-        load_line(stream, prev, line);
-        prev = line;
+        prevLine = load_line(stream, prevLine, &debug->lines[i]);
+    }
+
+    for (unsigned i = 0; i < debug->nV; i++) {
+        prevVar = load_var(stream, prevVar, &debug->vars[i]);
+        debug->cV++;
     }
 }
 
