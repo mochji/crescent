@@ -11,6 +11,8 @@
 #include <stddef.h>
 
 #include "crescent/api.h"
+#include "crescent/aux.h"
+#include "crescent/std.h"
 
 /*
  * GUESS WGAT BITCH???? YEAH THATS RIGHT. THERE IS A COMPILER NOW. IT ONLY TOOK
@@ -78,6 +80,8 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "failed opening thread\n");
         return 1;
     }
+
+    crsX_stdLibs(thread, CRS_STD_ALL);
 
     crs_pushString(thread, "print");
     crs_pushCFunction(thread, &print);

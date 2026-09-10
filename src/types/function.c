@@ -421,7 +421,7 @@ int crsK_dump(crs_Dump* dump, crs_Function* func) {
 /* general message for unexpected data */
 #define LOAD_CORRUPTED "corrupted dump"
 
-static noret load_error(crs_Stream* stream, char* format, ...) {
+static CRS_NORET void load_error(crs_Stream* stream, char* format, ...) {
     crs_Thread* thread = stream->thread;
     crs_String* error;
     va_list     args;

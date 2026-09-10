@@ -32,6 +32,7 @@ CORE     = $(SRC)/core
 COMPILER = $(SRC)/compiler
 VM       = $(SRC)/vm
 API      = $(SRC)/api
+LIBS     = $(SRC)/libs
 
 MAIN    = $(TOOLS)/crescent.c
 TARGET  = $(BUILD)/crescent
@@ -43,7 +44,8 @@ CORESRC     = $(wildcard $(CORE)/*.c)
 COMPILERSRC = $(wildcard $(COMPILER)/*.c)
 VMSRC       = $(wildcard $(VM)/*.c)
 APISRC      = $(wildcard $(API)/*.c)
-OBJECTS     = $(foreach source,$(TYPESSRC) $(CORESRC) $(COMPILERSRC) $(VMSRC) $(APISRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
+LIBSSRC     = $(wildcard $(LIBS)/*.c)
+OBJECTS     = $(foreach source,$(TYPESSRC) $(CORESRC) $(COMPILERSRC) $(VMSRC) $(APISRC) $(LIBSSRC),$(BUILD)/$(subst .c,.o,$(notdir $(source))))
 
 CFLAGS := $(CFLAGS) -I$(SRC)
 
@@ -82,6 +84,9 @@ build:
 	$(CC) $(CFLAGS) -c -o $(BUILD)/opcodes.o $(VM)/opcodes.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/vm.o $(VM)/vm.c
 	$(CC) $(CFLAGS) -c -o $(BUILD)/api.o $(API)/api.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/aux.o $(API)/aux.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/std.o $(API)/std.c
+	$(CC) $(CFLAGS) -c -o $(BUILD)/baselib.o $(LIBS)/baselib.c
 	$(AR) $(ARCHIVE) $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(MAIN) $(ARCHIVE)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(BUILD)/crsc $(TOOLS)/crsc.c $(OBJECTS)

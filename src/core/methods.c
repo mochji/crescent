@@ -30,13 +30,13 @@
 #define float_mod(l, r) fmodl(l, r)
 #endif
 
-static noret error_unary(crs_Thread* thread, crs_Object* r, char* op) {
+static CRS_NORET void error_unary(crs_Thread* thread, crs_Object* r, char* op) {
     crsC_errorf(thread, "attempt to perform unary '%s' on a %s value",
         op, crsO_name(r));
 }
 
-static noret error_binary(crs_Thread* thread, crs_Object* l, crs_Object* r,
-                                              char* op) {
+static CRS_NORET void error_binary(crs_Thread* thread, crs_Object* l,
+                                               crs_Object* r, char* op) {
     crsC_errorf(thread, "attempt to perform '%s' on %s and %s values",
         op, crsO_name(l), crsO_name(r));
 }
@@ -47,7 +47,7 @@ static void error_int(crs_Thread* thread, crs_Object* l, crs_Object* r) {
     }
 }
 
-static noret error_op(crs_Thread* thread, crs_Object* o, char* op) {
+static CRS_NORET void error_op(crs_Thread* thread, crs_Object* o, char* op) {
     crsC_errorf(thread, "attempt to %s a %s value", op, crsO_name(o));
 }
 

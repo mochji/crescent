@@ -140,9 +140,10 @@ typedef struct {
 
 #define LIST_NONE UINT_MAX
 
-noret crsI_error(Chunk* chunk, char* format, ...);
-void  crsI_init(crs_Thread* thread, Parser* parser, crs_Stream* stream);
-void  crsI_free(crs_Thread* thread, Parser* parser);
+CRS_NORET void crsI_error(Chunk* chunk, char* format, ...);
+void           crsI_init(crs_Thread* thread, Parser* parser,
+                         crs_Stream* stream);
+void           crsI_free(crs_Thread* thread, Parser* parser);
 
 /* chunk */
 crs_Function* crsI_newChunk(Chunk* chunk, crs_Thread* thread, Parser* parser);

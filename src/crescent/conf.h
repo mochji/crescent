@@ -256,4 +256,7 @@ typedef struct crs_Debug {
 #define CRS_DBG_VM   1
 #define CRS_DBG_MAIN 2
 
+#define CRS_NORET  __attribute__((noreturn))
+#define CRS_EXPORT __attribute__((visibility("default")))
+
 #endif

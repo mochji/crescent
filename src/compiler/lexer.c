@@ -512,12 +512,12 @@ void crsL_peek(Lexer* lexer) {
     }
 }
 
-noret crsL_unexpected(Lexer* lexer) {
+CRS_NORET void crsL_unexpected(Lexer* lexer) {
     crsL_error(lexer, "unexpected '%s'",
         tokenString(lexer->thread, lexer->token.type));
 }
 
-noret crsL_expected(Lexer* lexer, int token) {
+CRS_NORET void crsL_expected(Lexer* lexer, int token) {
     crsL_error(lexer, "expected '%s'; got '%s'",
         tokenString(lexer->thread, token),
         tokenString(lexer->thread, lexer->token.type)

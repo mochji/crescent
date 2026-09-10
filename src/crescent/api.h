@@ -26,10 +26,10 @@ int crs_release(void);
  * ===========================
  */
 
-crs_Thread* crs_open(void);
-void        crs_close(crs_Thread* thread);
-void        crs_setPanic(crs_Thread* thread, crs_CFunction* function);
-void        crs_error(crs_Thread* thread, int index);
+crs_Thread*    crs_open(void);
+void           crs_close(crs_Thread* thread);
+void           crs_setPanic(crs_Thread* thread, crs_CFunction* function);
+CRS_NORET void crs_error(crs_Thread* thread, int index);
 
 /*
  * ===========================

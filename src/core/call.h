@@ -18,12 +18,12 @@
 
 typedef void* (crs_PFunction)(crs_Thread*, void*);
 
-noret crsC_throw(crs_Thread* thread, int status);
-noret crsC_error(crs_Thread* thread, char* message);
-noret crsC_errorf(crs_Thread* thread, char* format, ...);
-void  crsC_unwind(crs_Thread* thread, short level);
-int   crsC_try(crs_Thread* thread, crs_PFunction* function,
-                                   void* data, void** result);
+CRS_NORET void crsC_throw(crs_Thread* thread, int status);
+CRS_NORET void crsC_error(crs_Thread* thread, char* message);
+CRS_NORET void crsC_errorf(crs_Thread* thread, char* format, ...);
+void           crsC_unwind(crs_Thread* thread, short level);
+int            crsC_try(crs_Thread* thread, crs_PFunction* function,
+                                            void* data, void** result);
 int crsC_resizeStack(crs_Thread* thread, size_t needed, int throw);
 int crsC_checkTop(crs_Thread* thread, int top, int throw);
 int crsC_checkFree(crs_Thread* thread, int free, int throw);

@@ -94,7 +94,7 @@ static void data_free(Chunk* chunk, Data* data) {
     }
 }
 
-noret crsI_error(Chunk* chunk, char* format, ...) {
+CRS_NORET void crsI_error(Chunk* chunk, char* format, ...) {
     crs_Thread* thread = chunk->thread;
     crs_String* error;
     va_list     args;
