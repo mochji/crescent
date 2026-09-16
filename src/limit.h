@@ -23,7 +23,7 @@
  * - bit 4: is number
  * - bit 5: is collectable (gc-managed)
  * - bit 6: can reference other objects (should be marked gray)
- * - bit 7: atomic traversal (without write barriers)
+ * - bit 7: reserved
  */
 
 #define CRS_TYPE_NIL       (0x00 | CRS_TNIL)       /* 0000 */
@@ -34,7 +34,7 @@
 #define CRS_TYPE_STRING    (0x20 | CRS_TSTRING)    /* 0010 */
 #define CRS_TYPE_TABLE     (0x60 | CRS_TTABLE)     /* 0110 */
 #define CRS_TYPE_FUNCTION  (0x60 | CRS_TFUNCTION)  /* 0110 */
-#define CRS_TYPE_THREAD    (0xE0 | CRS_TTHREAD)    /* 1110 */
+#define CRS_TYPE_THREAD    (0x60 | CRS_TTHREAD)    /* 0110 */
 
 #if CRS_INTEGER_MAX > SIZE_MAX
 #define CRS_MAX_LENGTH SIZE_MAX

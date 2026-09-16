@@ -36,7 +36,7 @@
 #define CRS_VERSION_MAJOR 0
 #define CRS_VERSION_MINOR 1
 #define CRS_VERSION_PATCH 0
-#define CRS_AUTHORS      "mochji"
+#define CRS_AUTHORS       "mochji"
 
 #define CRS_VERSION_STR \
     "Crescent " CRS_STR(CRS_VERSION_MAJOR) "." CRS_STR(CRS_VERSION_MINOR)

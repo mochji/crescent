@@ -112,7 +112,7 @@ CRS_EXPORT crs_Thread* crs_open(void) {
 }
 
 CRS_EXPORT void crs_close(crs_Thread* thread) {
-    crsE_close(thread->state);
+    crsE_close(thread);
 }
 
 CRS_EXPORT void crs_setPanic(crs_Thread* thread, crs_CFunction* function) {

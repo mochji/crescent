@@ -134,6 +134,19 @@ unsigned crsS_hash(crs_String* string) {
     }
 }
 
+void crsS_init(crs_State* state) {
+    crs_Thread* thread = &state->thread;
+
+    for (int i = 0; i < CRS_STRCACHE_SIZE; i++) {
+        for (int j = 0; j < CRS_STRCACHE_BUCKETS; j++) {
+            state->strings[i][j] = NULL;
+        }
+    }
+
+    state->memoryError = crsS_new(thread, "out of memory");
+    crsG_setImmune(thread);
+}
+
 void crsS_clearCache(crs_State* state) {
     crs_String* alive[CRS_STRCACHE_BUCKETS];
 

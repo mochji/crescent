@@ -23,7 +23,6 @@
 
 /* see type defs in limit.h */
 #define istraversable(h) ((h)->type & 0x40)
-#define isgrayagain(h)   ((h)->type & 0x80)
 
 #define linklist(h, l) {(h)->next = (l); (l) = (h);}
 #define linkset(h, s)  {(h)->set = (s); (s) = (h);}
@@ -32,7 +31,6 @@
  * During the sweep phase, we don't have to keep the invariant, and as such,
  * write barriers are not activated.
  */
-
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
 
 /*
@@ -54,9 +52,7 @@ static crs_mem applyParam(crs_mem value, unsigned short parameter) {
     return ((value / 100) * parameter) + ((value % 100) * parameter) / 100;
 }
 
-static void freeObject(crs_State* state, crs_GCHeader* header) {
-    crs_Thread* thread = &state->thread;
-
+static void freeObject(crs_Thread* thread, crs_GCHeader* header) {
     switch (header->type) {
         case CRS_TYPE_STRING:
             crsS_free(thread, obj_tostring(header));
@@ -183,18 +179,24 @@ static crs_mem traverse(crs_State* state, int atomic) {
     crs_GCHeader* header = state->gc.gray;
     state->gc.gray       = header->set;
 
-    if (isgrayagain(header) && !atomic) {
-        linkset(header, state->gc.grayAgain);
-    } else {
-        gc_setblack(header);
-    }
-
     switch (header->type) {
         case CRS_TYPE_TABLE:
+            gc_setblack(header);
             return traverse_table(state, obj_totable(header));
         case CRS_TYPE_FUNCTION:
+            gc_setblack(header);
             return traverse_func(state, obj_tofunc(header));
         case CRS_TYPE_THREAD:
+            if (!atomic) {
+                /*
+                 * threads do not have write barriers, so all reachable threads
+                 * must be kept gray and scanned again in the atomic phase.
+                 */
+                linkset(header, state->gc.grayAgain);
+            } else {
+                gc_setblack(header);
+            }
+
             return traverse_thread(state, obj_tothread(header));
         default:
             assert(0);
@@ -203,12 +205,13 @@ static crs_mem traverse(crs_State* state, int atomic) {
     return 1;
 }
 
-static crs_mem sweep(crs_State* state) {
+static crs_mem sweep(crs_Thread* thread) {
+    crs_State*    state  = thread->state;
     crs_GCHeader* header = *state->gc.sweep;
 
     if (gc_iswhite(header)) {
         *state->gc.sweep = header->next; /* remove from list */
-        freeObject(state, header);
+        freeObject(thread, header);
     } else {
         state->gc.sweep = &header->next; /* advance sweep */
         gc_setwhite(header);
@@ -217,14 +220,13 @@ static crs_mem sweep(crs_State* state) {
     return 1;
 }
 
-static void delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
+static void delete(crs_Thread* thread, crs_GCHeader* list, crs_GCHeader* stop) {
     crs_GCHeader* next = list;
 
     while (next != stop) {
         list = next;
         next = next->next;
-
-        freeObject(state, list);
+        freeObject(thread, list);
     }
 }
 
@@ -238,9 +240,7 @@ static void delete(crs_State* state, crs_GCHeader* list, crs_GCHeader* stop) {
  * GC phases
  *
  * restart (atomic):
- *   Reset the sweep pointer and mark the root objects (main thread and global
- *   table). There is no need to reset the gray and grayAgain sets as it becomes
- *   NULL once the last element is removed.
+ *   Reset the sweep pointer and mark all objects in the root set.
  *
  * mark:
  *   Traverse an object in the gray set, marking white objects it references as
@@ -272,7 +272,6 @@ static crs_mem step_restart(crs_State* state) {
 static crs_mem step_mark(crs_State* state) {
     if (state->gc.gray == NULL) {
         state->gc.phase = CRS_GCPHASE_ATOMIC;
-
         return 0;
     }
 
@@ -294,21 +293,23 @@ static crs_mem step_atomic(crs_State* state) {
     crsS_clearCache(state);
 
     state->gc.phase = CRS_GCPHASE_SWEEP;
-
     return CRS_MAX_MEM;
 }
 
-static crs_mem step_sweep(crs_State* state) {
+static crs_mem step_sweep(crs_Thread* thread) {
+    crs_State* state = thread->state;
+
     if (*state->gc.sweep == NULL) {
         state->gc.phase = CRS_GCPHASE_RESTART;
-
-        return CRS_MAX_MEM; /* end of cycle; don't do any more */
+        return CRS_MAX_MEM; /* end of cycle */
     }
 
-    return sweep(state);
+    return sweep(thread);
 }
 
-static crs_mem step_single(crs_State* state) {
+static crs_mem step_single(crs_Thread* thread) {
+    crs_State* state = thread->state;
+
     switch (state->gc.phase) {
         case CRS_GCPHASE_RESTART:
             return step_restart(state);
@@ -317,7 +318,7 @@ static crs_mem step_single(crs_State* state) {
         case CRS_GCPHASE_ATOMIC:
             return step_atomic(state);
         case CRS_GCPHASE_SWEEP:
-            return step_sweep(state);
+            return step_sweep(thread);
         default:
             assert(0);
     }
@@ -338,23 +339,26 @@ static crs_mem step_single(crs_State* state) {
  * work unit is equal to one object processed (marked, traversed, or swept).
  */
 
-static void incremental_until(crs_State* state, int phase) {
+static void incremental_until(crs_Thread* thread, int phase) {
     do {
-        step_single(state);
-    } while (state->gc.phase != phase);
+        step_single(thread);
+    } while (thread->state->gc.phase != phase);
 }
 
-static void incremental_full(crs_State* state) {
+static void incremental_full(crs_Thread* thread) {
+    crs_State* state = thread->state;
+
     if (!keepinvariant(state)) {
         /* finish sweep and reset everything back to white */
-        incremental_until(state, CRS_GCPHASE_RESTART);
+        incremental_until(thread, CRS_GCPHASE_RESTART);
     }
 
-    incremental_until(state, CRS_GCPHASE_RESTART);
+    incremental_until(thread, CRS_GCPHASE_RESTART);
     setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
 }
 
-static int incremental_step(crs_State* state) {
+static int incremental_step(crs_Thread* thread) {
+    crs_State*     state      = thread->state;
     unsigned short multiplier = gc_getparam(state, MULTIPLIER);
     crs_mem        work       = (state->gc.usage - state->gc.last) / 1024;
 
@@ -365,17 +369,15 @@ static int incremental_step(crs_State* state) {
     }
 
     while (work) {
-        crs_mem done = step_single(state);
+        crs_mem done = step_single(thread);
         work         = done > work ? 0 : work - done;
     }
 
     if (state->gc.phase == CRS_GCPHASE_RESTART) {
         setPause(state, applyParam(state->gc.usage, gc_getparam(state, PAUSE)));
-
         return 1;
     } else {
         setPause(state, gc_getparam(state, STEP));
-
         return 0;
     }
 }
@@ -405,9 +407,11 @@ void crsG_init(crs_State* state) {
     setPause(state, applyParam(state->gc.usage, CRS_GCP_PAUSE));
 }
 
-void crsG_freeAll(crs_State* state) {
-    delete(state, state->gc.all, obj_toheader(&state->thread));
-    delete(state, state->gc.immune, NULL);
+void crsG_freeAll(crs_Thread* thread) {
+    crs_State* state = thread->state;
+
+    delete(thread, state->gc.all, obj_toheader(&state->thread));
+    delete(thread, state->gc.immune, NULL);
 }
 
 void* crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
@@ -452,15 +456,13 @@ void crsG_setImmune(crs_Thread* thread) {
 #define dobarrier(s, b, w) \
     ((gc_isblack(b) && gc_iswhite(w)) && keepinvariant(s))
 
-void crsG_barrierF(crs_Thread* thread, crs_GCHeader* black,
-                                       crs_GCHeader* white) {
-    crs_State* state = thread->state;
-
-    if (dobarrier(state, black, white)) {
-        mark_header(state, white);
-    }
+/* move a white object to gray (or black) */
+void crsG_barrierF(crs_Thread* thread, crs_GCHeader* header) {
+    /* doesn't really matter if the parent object isn't black */
+    mark_header(thread->state, header);
 }
 
+/* move a black object back to gray */
 void crsG_barrierB(crs_Thread* thread, crs_GCHeader* black,
                                        crs_GCHeader* white) {
     crs_State* state = thread->state;
@@ -479,7 +481,7 @@ int crsG_step(crs_Thread* thread) {
         return 0;
     }
 
-    return incremental_step(state);
+    return incremental_step(thread);
 }
 
 int crsG_full(crs_Thread* thread, int emergency) {
@@ -490,7 +492,7 @@ int crsG_full(crs_Thread* thread, int emergency) {
     }
 
     gc_setstatus(state, EMERGENCY, emergency);
-    incremental_full(state);
+    incremental_full(thread);
     gc_setstatus(state, EMERGENCY, 0);
 
     return 1;

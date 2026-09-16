@@ -100,11 +100,10 @@
 #define CRS_GCPHASE_SWEEP   3
 
 void  crsG_init(crs_State* state);
-void  crsG_freeAll(crs_State* state);
+void  crsG_freeAll(crs_Thread* thread);
 void* crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type);
 void  crsG_setImmune(crs_Thread* thread);
-void  crsG_barrierF(crs_Thread* thread, crs_GCHeader* black,
-                                        crs_GCHeader* white);
+void  crsG_barrierF(crs_Thread* thread, crs_GCHeader* header);
 void  crsG_barrierB(crs_Thread* thread, crs_GCHeader* black,
                                         crs_GCHeader* white);
 int   crsG_step(crs_Thread* thread);

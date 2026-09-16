@@ -65,7 +65,13 @@ CRS_NORET void crsC_errorf(crs_Thread* thread, char* format, ...) {
     crsC_throw(thread, CRS_ERROR);
 }
 
-void crsC_unwind(crs_Thread* thread, short level) {
+void crsC_unwind(crs_Thread* thread, short level, int args) {
+    if (thread->stack.level == level) {
+        /* error thrown before new frame could be created */
+        thread->stack.top -= args;
+        return;
+    }
+
     while (thread->stack.level > level) {
         crs_Frame* frame    = thread->stack.frame;
         thread->stack.top   = frame->base;

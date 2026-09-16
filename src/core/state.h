@@ -86,7 +86,7 @@ typedef struct crs_State {
 } crs_State;
 
 crs_Thread* crsE_open(void);
-void        crsE_close(crs_State* state);
+void        crsE_close(crs_Thread* thread);
 void        crsE_freeThread(crs_Thread* thread);
 
 #endif

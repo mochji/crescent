@@ -52,17 +52,16 @@ static int initThread(crs_State* state, crs_Thread* thread) {
 }
 
 static void* initState(crs_Thread* thread, void* data) {
-    crs_State* state = (crs_State*)data;
-
-    state->memoryError = crsS_new(thread, "out of memory");
-    crsG_setImmune(thread);
-
+    crs_State* state   = (crs_State*)data;
     crs_Table* globals = crsT_new(thread);
     obj_setgc(&state->globals, globals);
+
+    crsS_init(state);
 
     return NULL;
 }
 
+/* create a new state and main thread */
 crs_Thread* crsE_open(void) {
     crs_State*  state = malloc(sizeof(crs_State));
     crs_Thread* thread;
@@ -71,37 +70,30 @@ crs_Thread* crsE_open(void) {
         return NULL;
     }
 
-    thread = &state->thread;
-
-    /* basic initialization */
-
     crsG_init(state);
     state->memoryError = NULL;
     state->panic       = NULL;
+    thread             = &state->thread;
 
+    /* init main thread */
     if (initThread(state, thread)) {
         free(state);
         return NULL;
     }
 
-    for (int i = 0; i < CRS_STRCACHE_SIZE; i++) {
-        for (int j = 0; j < CRS_STRCACHE_BUCKETS; j++) {
-            state->strings[i][j] = NULL;
-        }
-    }
-
-    /* special objects */
-
+    /* create special objects */
     if (crsC_try(thread, &initState, state, NULL) != CRS_OK) {
-        crsE_close(state);
+        crsE_close(thread);
         return NULL;
     }
 
     return thread;
 }
 
-void crsE_close(crs_State* state) {
-    crsG_freeAll(state);
+void crsE_close(crs_Thread* thread) {
+    crs_State* state = thread->state;
+
+    crsG_freeAll(thread);
     free(state->thread.stack.base);
     free(state);
 }
