@@ -504,7 +504,7 @@ static unsigned load_size(crs_Stream* stream, size_t size, char* what) {
     return count;
 }
 
-static crs_String* load_string(crs_Stream* stream) {
+static crs_String* load_string(crs_Stream* stream, crs_Function* func) {
     crs_Thread* thread  = stream->thread;
     crs_Table*  strings = obj_gett(thread->stack.top - 2); /* -1 is main func */
     crs_Integer length  = load_integer(stream);
@@ -525,6 +525,7 @@ static crs_String* load_string(crs_Stream* stream) {
         crsT_set(thread, strings, &key, value);
 
         crsC_unanchor(thread);
+        crsG_barrierB(thread, obj_toheader(func), obj_toheader(string));
     } else {
         /* reuse string */
         crs_Object result;
@@ -552,7 +553,8 @@ static void load_checkHeader(crs_Stream* stream) {
     load_checkByte(stream, sizeof(crs_Float), "float size");
 }
 
-static void load_const(crs_Stream* stream, crs_Object* object) {
+static void load_const(crs_Stream* stream, crs_Function* func,
+                                           crs_Object* object) {
     switch (load_byte(stream)) {
         case CRS_TYPE_INTEGER: {
             crs_Integer value = load_integer(stream);
@@ -565,7 +567,7 @@ static void load_const(crs_Stream* stream, crs_Object* object) {
             break;
         }
         case CRS_TYPE_STRING: {
-            crs_String* string = load_string(stream);
+            crs_String* string = load_string(stream, func);
             obj_setgc(object, string);
             break;
         }
@@ -598,7 +600,8 @@ static Debug_Line* load_line(crs_Stream* stream, Debug_Line* prev,
     return line;
 }
 
-static Debug_Var* load_var(crs_Stream* stream, Debug_Var* prev,
+static Debug_Var* load_var(crs_Stream* stream, crs_Function* func,
+                                               Debug_Var* prev,
                                                Debug_Var* var) {
     crs_byte type = load_byte(stream);
     var->reg      = load_byte(stream);
@@ -621,7 +624,7 @@ static Debug_Var* load_var(crs_Stream* stream, Debug_Var* prev,
         var->end = load_unsigned(stream);
     }
 
-    var->name = load_string(stream);
+    var->name = load_string(stream, func);
     return var;
 }
 
@@ -631,7 +634,7 @@ static void load_debug(crs_Stream* stream, crs_Function* func) {
     }
 
     Debug_Info* debug = &func->debug;
-    debug->source     = load_string(stream);
+    debug->source     = load_string(stream, func);
     debug->nL         = load_size(stream, sizeof(Debug_Line), "lines");
     debug->nV         = load_size(stream, sizeof(Debug_Var), "variables");
     debug->lines      = mem_vnew(stream->thread, debug->nL, Debug_Line);
@@ -651,7 +654,7 @@ static void load_debug(crs_Stream* stream, crs_Function* func) {
     }
 
     for (unsigned i = 0; i < debug->nV; i++) {
-        prevVar = load_var(stream, prevVar, &debug->vars[i]);
+        prevVar = load_var(stream, func, prevVar, &debug->vars[i]);
         debug->cV++;
     }
 }
@@ -666,9 +669,9 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
     func        = crsK_new(thread, nI, nC, nN, 0);
 
     if (parent != NULL) {
-        func->flags                 |= FUNC_MAIN;
         parent->nested[parent->cN++] = func;
     } else {
+        crsG_barrierB(thread, obj_toheader(parent), obj_toheader(func));
         crsC_anchor(thread, obj_toheader(func));
     }
 
@@ -681,7 +684,7 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
     while (func->cC < nC) {
         crs_Object* object = &func->consts[func->cC++];
         obj_setn(object);
-        load_const(stream, object);
+        load_const(stream, func, object);
     }
 
     while (func->cN < nN) {

@@ -186,6 +186,8 @@ unsigned crsI_nested(Chunk* parent, Chunk* chunk) {
     func->debug.source   = parent->func->debug.source;
 
     parent->func->nested[parent->func->cN++] = func;
+    crsG_barrierB(parent->thread,
+        obj_toheader(parent->func), obj_toheader(func));
     return index;
 }
 
@@ -398,8 +400,9 @@ void crsI_patchAll(Chunk* chunk) {
  */
 
 static unsigned const_obj(Chunk* chunk, crs_Object* value) {
-    crs_Object* consts = chunk->func->consts;
-    unsigned    index;
+    crs_Function* func   = chunk->func;
+    crs_Object*   consts = func->consts;
+    unsigned      index;
 
     for (unsigned i = 0; i < chunk->consts.count; i++) {
         crs_Object* object = &consts[i];
@@ -410,8 +413,12 @@ static unsigned const_obj(Chunk* chunk, crs_Object* value) {
     }
 
     index = data_check(chunk, &chunk->consts, "constants");
-    obj_seto(&chunk->func->consts[index], value);
-    chunk->func->cC++;
+    obj_seto(&func->consts[index], value);
+    func->cC++;
+
+    if (obj_iscollectable(value)) {
+        crsG_barrierB(chunk->thread, obj_toheader(func), obj_geth(value));
+    }
 
     return index;
 }

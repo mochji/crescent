@@ -15,6 +15,7 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/call.h"
+#include "core/gc.h"
 #include "core/debug.h"
 #include "core/buffer.h"
 #include "core/format.h"
@@ -949,6 +950,8 @@ static crs_Function* mainFunc(Lexer* lexer, Parser* parser) {
 
     func->flags       |= FUNC_MAIN;
     func->debug.source = crsS_new(thread, lexer->stream->source);
+    crsG_barrierB(thread, obj_toheader(func),
+        obj_toheader(func->debug.source));
 
     crsI_enter(&chunk, &scope, 0);
     body(lexer);
