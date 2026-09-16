@@ -282,7 +282,7 @@ static void value(Lexer* lexer, Expression* exp) {
     }
 }
 
-/* <index> ::= "[" <expr> "]" | "." <name> */
+/* <index> ::= "[" <expr> "]" | "." <name> | ":" <name> */
 static int index(Lexer* lexer, Expression* obj) {
     Expression key;
     crsL_peek(lexer);
@@ -305,6 +305,15 @@ static int index(Lexer* lexer, Expression* obj) {
             crsI_index(lexer->chunk, obj, &key);
 
             return 1;
+        case ':':
+            crsL_next(lexer);
+            key.type    = EXP_STRING;
+            key.value.s = get_name(lexer);
+
+            crsI_flatten(lexer->chunk, obj);
+            crsI_method(lexer->chunk, obj, &key);
+
+            return 1;
     }
 
     return 0;
@@ -317,7 +326,14 @@ static int call(Lexer* lexer, Expression* obj) {
     }
 
     Expression args;
-    crsI_toTop(lexer->chunk, obj);
+    int        method = 0;
+
+    if (obj->type == EXP_METHOD) {
+        crsI_prepMethod(lexer->chunk, obj);
+        method = 1;
+    } else {
+        crsI_toTop(lexer->chunk, obj);
+    }
 
     if (check(lexer, ')')) {
         args.type = EXP_VOID;
@@ -326,7 +342,7 @@ static int call(Lexer* lexer, Expression* obj) {
         check_expected(lexer, ')');
     }
 
-    crsI_call(lexer->chunk, obj, &args); /* 'crsI_call' frees list */
+    crsI_call(lexer->chunk, obj, &args, method); /* 'crsI_call' frees list */
     return 1;
 }
 

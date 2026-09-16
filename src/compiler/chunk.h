@@ -52,6 +52,7 @@ enum {
 #define EXP_TEMP    2 /* 00000 010; v = register         */
 #define EXP_FUNC    8 /* 00001 000; v = nested index     */
 #define EXP_INDEX  12 /* 00001 100; x = index info       */
+#define EXP_METHOD 52 /* 00110 100; x = index info       */
 #define EXP_CALL   24 /* 00011 000; v = instruction pc   */
 #define EXP_LIST   16 /* 00010 000; v = # of items       */
 #define EXP_VLIST  40 /* 00101 000; v = # of fixed items */
@@ -188,7 +189,9 @@ void     crsI_binary(Chunk* chunk, Expression* lhs, Expression* rhs,
                                    int bop, unsigned pc);
 void     crsI_getValues(Chunk* chunk, Expression* exp, crs_byte count);
 void     crsI_index(Chunk* chunk, Expression* obj, Expression* key);
-void     crsI_call(Chunk* chunk, Expression* obj, Expression* args);
+void     crsI_method(Chunk* chunk, Expression* obj, Expression* key);
+void     crsI_prepMethod(Chunk* chunk, Expression* obj);
+void     crsI_call(Chunk* chunk, Expression* obj, Expression* args, int method);
 void     crsI_table(Chunk* chunk, Expression* exp);
 void     crsI_set(Chunk* chunk, Expression* tbl, Expression* key,
                                 Expression* value);

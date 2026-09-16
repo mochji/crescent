@@ -22,7 +22,7 @@ enum {
     MT_BNOT, MT_BAND, MT_BOR, MT_BXOR, MT_SHL, MT_SHR,
     MT_EQ, MT_LT, MT_LE, MT_GT, MT_GE,
     MT_LEN, MT_CONCAT,
-    MT_GET, MT_SET,
+    MT_GET, MT_SET, MT_CALL,
     MT_COUNT
 };
 

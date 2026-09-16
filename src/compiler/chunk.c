@@ -501,7 +501,7 @@ void crsI_freeExp(Chunk* chunk, Expression* exp) {
         case EXP_TEMP:
             reg_free(chunk, (crs_byte)exp->value.v);
             break;
-        case EXP_INDEX:
+        case EXP_INDEX: case EXP_METHOD:
             reg_free2(chunk, exp->value.x.obj, exp->value.x.key);
             break;
         case EXP_LIST: case EXP_VLIST:
@@ -525,6 +525,23 @@ static void flatten_index(Chunk* chunk, Expression* exp, crs_byte dest) {
     crsI_iABC(chunk, OP_GET, dest, obj, key);
 }
 
+static crs_byte flatten_method(Chunk* chunk, Expression* exp, crs_byte dest) {
+    crs_byte obj = exp->value.x.obj;
+    crs_byte key = exp->value.x.key;
+
+    if (dest == MAX_REGS) {
+        reg_free2(chunk, obj, key);
+
+        dest         = reg_new(chunk, 1);
+        exp->type    = EXP_TEMP;
+        exp->value.v = dest;
+    }
+
+    crsI_iABC(chunk, OP_GETMT, dest, obj, key);
+
+    return dest;
+}
+
 static void flatten_call(Chunk* chunk, Expression* exp, crs_byte dest) {
     crsI_getValues(chunk, exp, 1);
     exp->type    = EXP_TEMP;
@@ -540,6 +557,9 @@ int crsI_flatten(Chunk* chunk, Expression* exp) {
     switch (exp->type) {
         case EXP_INDEX:
             flatten_index(chunk, exp, MAX_REGS);
+            return 1;
+        case EXP_METHOD:
+            flatten_method(chunk, exp, MAX_REGS);
             return 1;
         case EXP_CALL:
             flatten_call(chunk, exp, MAX_REGS);
@@ -609,6 +629,9 @@ crs_byte crsI_store(Chunk* chunk, Expression* exp, crs_byte reg) {
             break;
         case EXP_INDEX:
             flatten_index(chunk, exp, reg);
+            break;
+        case EXP_METHOD:
+            flatten_method(chunk, exp, reg);
             break;
         case EXP_CALL:
             flatten_call(chunk, exp, reg);
@@ -962,7 +985,37 @@ void crsI_index(Chunk* chunk, Expression* obj, Expression* key) {
     obj->value.x.key = keyReg;
 }
 
-void crsI_call(Chunk* chunk, Expression* obj, Expression* args) {
+void crsI_method(Chunk* chunk, Expression* obj, Expression* key) {
+    crsI_index(chunk, obj, key);
+    obj->type = EXP_METHOD;
+}
+
+/*
+ * Prepare a method call in the form 'obj:method(...)'. Calls made via the colon
+ * operator implicitly pass the indexed object ('obj' in the above example) as
+ * the first argument to the function.
+ */
+void crsI_prepMethod(Chunk* chunk, Expression* method) {
+    crs_byte obj  = method->value.x.obj;
+    crs_byte temp = reg_new(chunk, 1);
+
+    /* first, copy the object to a temporary register */
+    crsI_iABC(chunk, OP_MOV, temp, obj, 0);
+    reg_free(chunk, temp);
+    /* now, get the method */
+    obj = flatten_method(chunk, method, MAX_REGS);
+    /*
+     * move the object stored in the temporary register to above the function,
+     * such that it is the first argument.
+     */
+    crs_byte self = reg_new(chunk, 1);
+    crsI_iABC(chunk, OP_MOV, self, temp, 0);
+
+    method->type    = EXP_TEMP;
+    method->value.v = obj;
+}
+
+void crsI_call(Chunk* chunk, Expression* obj, Expression* args, int method) {
     unsigned nArgs;
 
     switch (args->type) {
@@ -981,6 +1034,12 @@ void crsI_call(Chunk* chunk, Expression* obj, Expression* args) {
             nArgs = 1;
             crsI_toTop(chunk, args);
             reg_freeExp(chunk, args);
+    }
+
+    if (method) {
+        /* 'self' wasn't counted in list */
+        chunk->regs--;
+        nArgs++;
     }
 
     /* return values overwrite 'obj' */
@@ -1121,6 +1180,12 @@ void crsI_assign(Chunk* chunk, Expression* var, Expression* exp) {
         case EXP_INDEX:
             crsI_toAny(chunk, exp);
             crsI_iABC(chunk, OP_SET, exp->value.v,
+                var->value.x.obj, var->value.x.key);
+
+            break;
+        case EXP_METHOD:
+            crsI_toAny(chunk, exp);
+            crsI_iABC(chunk,  OP_SETMT, exp->value.v,
                 var->value.x.obj, var->value.x.key);
 
             break;

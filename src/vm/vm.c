@@ -109,6 +109,17 @@ static int op_return(crs_Thread* thread, crs_instr i) {
     return count;
 }
 
+static crs_Table* getMT(crs_Thread* thread, crs_Object* obj) {
+    crs_Table* mt = *crsM_getMT(thread, obj);
+
+    if (mt == NULL) {
+        /* FIXME */
+        crsC_error(thread, "attempt to index a nil metatable");
+    }
+
+    return mt;
+}
+
 int crsV_execute(crs_Thread* thread, crs_Function* func) {
     crs_Frame*   frame = thread->stack.frame;
     crs_Object** stack = &frame->base;
@@ -269,7 +280,8 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 op_length(thread, i);
                 break;
             }
-            case OP_CONCAT: { /* TODO */
+            case OP_CONCAT: {
+                op_binary(thread, i, MT_CONCAT);
                 break;
             }
             case OP_GET: {
@@ -278,6 +290,14 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
             }
             case OP_SET: {
                 crsM_set(thread, reg_B(i), reg_C(i), reg_A(i), 0);
+                break;
+            }
+            case OP_GETMT: {
+                crsT_get(thread, getMT(thread, reg_B(i)), reg_C(i), reg_A(i));
+                break;
+            }
+            case OP_SETMT: {
+                crsT_set(thread, getMT(thread, reg_B(i)), reg_C(i), reg_A(i));
                 break;
             }
             case OP_CALL: {

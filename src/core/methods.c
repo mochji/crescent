@@ -27,7 +27,7 @@ char* crsM_names[MT_COUNT] = {
     "__bnot", "__band", "__bor", "__bxor", "__shl", "__shr",
     "__eq", "__lt", "__le", "__gt", "__ge",
     "__len", "__concat",
-    "__get", "__set"
+    "__get", "__set", "__call"
 };
 
 void crsM_init(crs_Thread* thread) {
