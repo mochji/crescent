@@ -670,8 +670,8 @@ static crs_Function* load_func(crs_Stream* stream, crs_Function* parent) {
 
     if (parent != NULL) {
         parent->nested[parent->cN++] = func;
-    } else {
         crsG_barrierB(thread, obj_toheader(parent), obj_toheader(func));
+    } else {
         crsC_anchor(thread, obj_toheader(func));
     }
 
