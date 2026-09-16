@@ -436,6 +436,19 @@ static int raw_set(crs_Thread* thread, crs_Object* obj, crs_Object* key,
     return 0;
 }
 
+static int raw_call(crs_Thread* thread, crs_Object* obj, int args, int wanted) {
+    switch (obj->type) {
+        case CRS_TYPE_CFUNCTION:
+            crsC_callC(thread, obj_getc(obj), args, wanted);
+            return 1;
+        case CRS_TYPE_FUNCTION:
+            crsC_call(thread, obj_getk(obj), args, wanted);
+            return 1;
+    }
+
+    return 0;
+}
+
 /*
  * ===========================
  *  methods
@@ -452,7 +465,7 @@ static int tryUnaryMM(crs_Thread* thread, crs_Object* obj, int op) {
     obj_seto(thread->stack.top, &mm);
     obj_seto(thread->stack.top + 1, obj);
     thread->stack.top += 2;
-    crsM_call(thread, 1, 1);
+    crsM_call(thread, 1, 1, 0);
 
     return 1;
 }
@@ -469,7 +482,7 @@ static int tryBinaryMM(crs_Thread* thread, crs_Object* l, crs_Object* r,
     obj_seto(thread->stack.top + 1, l);
     obj_seto(thread->stack.top + 2, r);
     thread->stack.top += 3;
-    crsM_call(thread, 2, 1);
+    crsM_call(thread, 2, 1, 0);
 
     return 1;
 }
@@ -485,7 +498,7 @@ static int tryGetMM(crs_Thread* thread, crs_Object* obj, crs_Object* key) {
     obj_seto(thread->stack.top + 1, obj);
     obj_seto(thread->stack.top + 2, key);
     thread->stack.top += 3;
-    crsM_call(thread, 2, 1);
+    crsM_call(thread, 2, 1, 0);
 
     return 1;
 }
@@ -503,7 +516,21 @@ static int trySetMM(crs_Thread* thread, crs_Object* obj, crs_Object* key,
     obj_seto(thread->stack.top + 2, key);
     obj_seto(thread->stack.top + 3, value);
     thread->stack.top += 4;
-    crsM_call(thread, 3, 0);
+    crsM_call(thread, 3, 0, 0);
+
+    return 1;
+}
+
+static int tryCallMM(crs_Thread* thread, crs_Object* obj,
+                                         int args, int wanted) {
+    crs_Object mm;
+
+    if (!crsM_getMM(thread, &mm, obj, MT_CALL)) {
+        return 0;
+    }
+
+    obj_seto(obj, &mm);
+    crsM_call(thread, args, wanted, 0);
 
     return 1;
 }
@@ -574,24 +601,19 @@ typedef struct {
 
 static void* pcall(crs_Thread* thread, void* data) {
     PCallInfo* info = data;
-    crsM_call(thread, info->args, info->wanted);
+    crsM_call(thread, info->args, info->wanted, 0);
 
     return NULL;
 }
 
-void crsM_call(crs_Thread* thread, int args, int wanted) {
+void crsM_call(crs_Thread* thread, int args, int wanted, int raw) {
     crs_Object* obj = thread->stack.top - args - 1;
 
-    switch (obj->type) {
-        case CRS_TYPE_FUNCTION:
-            crsC_call(thread, obj_getk(obj), args, wanted);
-            return;
-        case CRS_TYPE_CFUNCTION:
-            crsC_callC(thread, obj_getc(obj), args, wanted);
-            return;
+    if (!raw && tryCallMM(thread, obj, args, wanted)) {
+        return;
+    } else if (!raw_call(thread, obj, args, wanted)) {
+        error_op(thread, obj, "call");
     }
-
-    error_op(thread, obj, "call");
 }
 
 int crsM_pcall(crs_Thread* thread, int args, int wanted) {

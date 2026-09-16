@@ -111,6 +111,18 @@ void        crs_setMetatable(crs_Thread* thread, int index, int mtIndex);
 
 /*
  * ===========================
+ *  raw operations
+ * ===========================
+ */
+
+crs_Integer crs_rawLength(crs_Thread* thread, int index);
+int         crs_rawEqual(crs_Thread* thread, int left, int right);
+void        crs_rawGet(crs_Thread* thread, int index, int keyIndex);
+void        crs_rawSet(crs_Thread* thread, int index, int keyIndex,
+                                           int valueIndex);
+
+/*
+ * ===========================
  *  is* functions
  * ===========================
  */

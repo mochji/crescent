@@ -396,24 +396,26 @@ CRS_EXPORT void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
 }
 
 CRS_EXPORT void crs_get(crs_Thread* thread, int index, int keyIndex) {
+    crs_Object* object = getIndex(thread, index);
     crs_Object* key    = getIndex(thread, keyIndex);
-    crs_Object* object = adjustTop(thread, 1);;
-    crsM_get(thread, getIndex(thread, index), key, object, 0);
+    crs_Object* value  = adjustTop(thread, 1);
+
+    crsM_get(thread, object, key, value, 0);
     crsG_check(thread);
 }
 
 CRS_EXPORT void crs_set(crs_Thread* thread, int index, int keyIndex,
                                             int valueIndex) {
-    crs_Object* key    = getIndex(thread, keyIndex);
-    crs_Object* value  = getIndex(thread, valueIndex);
+    crs_Object* key   = getIndex(thread, keyIndex);
+    crs_Object* value = getIndex(thread, valueIndex);
 
     crsM_set(thread, getIndex(thread, index), key, value, 0);
     crsG_check(thread);
 }
 
-void crs_getMetatable(crs_Thread* thread, int index) {
-    crs_Object* object = adjustTop(thread, 1);
+CRS_EXPORT void crs_getMetatable(crs_Thread* thread, int index) {
     crs_Table*  mt     = *crsM_getMTP(thread, getIndex(thread, index));
+    crs_Object* object = adjustTop(thread, 1);
 
     if (mt == NULL) {
         mt = crsT_new(thread);
@@ -423,7 +425,7 @@ void crs_getMetatable(crs_Thread* thread, int index) {
     crsG_check(thread);
 }
 
-void crs_setMetatable(crs_Thread* thread, int index, int mtIndex) {
+CRS_EXPORT void crs_setMetatable(crs_Thread* thread, int index, int mtIndex) {
     crs_Object* mtObj = getIndex(thread, mtIndex);
 
     if (mtObj->type != CRS_TYPE_TABLE) {
@@ -431,6 +433,37 @@ void crs_setMetatable(crs_Thread* thread, int index, int mtIndex) {
     }
 
     crsM_setMT(thread, getIndex(thread, index), obj_gett(mtObj));
+}
+
+/*
+ * ===========================
+ *  raw operations
+ * ===========================
+ */
+
+CRS_EXPORT crs_Integer crs_rawLength(crs_Thread* thread, int index) {
+    return crsM_length(NULL, getIndex(thread, index));
+}
+
+CRS_EXPORT int crs_rawEqual(crs_Thread* thread, int left, int right) {
+    return crsM_rawEqual(getIndex(thread, left), getIndex(thread, right));
+}
+
+CRS_EXPORT void crs_rawGet(crs_Thread* thread, int index, int keyIndex) {
+    crs_Object* object = getIndex(thread, index);
+    crs_Object* key    = getIndex(thread, keyIndex);
+    crs_Object* value  = adjustTop(thread, 1);
+
+    crsM_get(thread, object, key, value, 1);
+}
+
+CRS_EXPORT void crs_rawSet(crs_Thread* thread, int index, int keyIndex,
+                                               int valueIndex) {
+    crs_Object* key   = getIndex(thread, keyIndex);
+    crs_Object* value = getIndex(thread, valueIndex);
+
+    crsM_set(thread, getIndex(thread, index), key, value, 1);
+    crsG_check(thread);
 }
 
 /*
@@ -586,7 +619,7 @@ CRS_EXPORT const char* crs_vformat(crs_Thread* thread, char* format,
  */
 
 CRS_EXPORT void crs_call(crs_Thread* thread, int args, int wanted) {
-    crsM_call(thread, args, wanted);
+    crsM_call(thread, args, wanted, 0);
     crsG_check(thread);
 }
 

@@ -46,7 +46,7 @@ void crsM_get(crs_Thread* thread, crs_Object* obj, crs_Object* key,
                                   crs_Object* value, int raw);
 void crsM_set(crs_Thread* thread, crs_Object* obj, crs_Object* key,
                                   crs_Object* value, int raw);
-void crsM_call(crs_Thread* thread, int args, int wanted);
+void crsM_call(crs_Thread* thread, int args, int wanted, int raw);
 int  crsM_pcall(crs_Thread* thread, int args, int wanted);
 
 #define crsM_rawEqual(l, r) crsM_compare(NULL, l, r, MT_EQ)

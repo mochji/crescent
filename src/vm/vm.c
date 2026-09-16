@@ -88,7 +88,7 @@ static void op_call(crs_Thread* thread, crs_instr i, crs_Function* func) {
         wanted = CRS_RETALL;
     }
 
-    crsM_call(thread, args, wanted);
+    crsM_call(thread, args, wanted, 0);
 
     if (wanted != CRS_RETALL) {
         thread->stack.top = *stack + func->top;
