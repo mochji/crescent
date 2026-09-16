@@ -100,7 +100,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if ((status = crs_pcall(thread, 1, 0, 0)) != CRS_OK) {
+    crs_copy(thread, 1);
+
+    if ((status = crs_pcall(thread, 0, 0)) != CRS_OK) {
         fprintf(stderr, "%s\n", crs_toString(thread, 2));
     }
 

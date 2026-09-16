@@ -71,9 +71,9 @@ struct {
     int right;
 } precedence[] = {
     {9, 9}, {9, 9}, {10, 10}, {10, 10}, {12, 13}, {10, 10},
-    {8, 8},
-    {7, 7}, {7, 7}, {6, 6}, {4, 4}, {4, 4},
+    {6, 6}, {4, 4}, {5, 5}, {7, 7}, {7, 7},
     {3, 3}, {3, 3}, {3, 3}, {3, 3}, {3, 3}, {3, 3},
+    {8, 8},
     {2, 2}, {1, 1}
 };
 
@@ -86,10 +86,10 @@ static int try_uop(Lexer* lexer) {
     switch (lexer->peek.type) {
         case '-':
             op = UOP_UNM; break;
-        case '#':
-            op = UOP_LEN; break;
         case '~':
             op = UOP_BNOT; break;
+        case '#':
+            op = UOP_LEN; break;
         case '!':
             op = UOP_NOT; break;
     }
@@ -118,30 +118,30 @@ static int try_bop(Lexer* lexer) {
             op = BOP_POW; break;
         case '%':
             op = BOP_MOD; break;
-        case TK_CONCAT:
-            op = BOP_CONCAT; break;
+        case '&':
+            op = BOP_BAND; break;
+        case '|':
+            op = BOP_BOR; break;
+        case '~':
+            op = BOP_BXOR; break;
         case TK_SHL:
             op = BOP_SHL; break;
         case TK_SHR:
             op = BOP_SHR; break;
-        case '&':
-            op = BOP_BAND; break;
-        case '~':
-            op = BOP_BXOR; break;
-        case '|':
-            op = BOP_BOR; break;
         case TK_EQ:
             op = BOP_EQ; break;
         case TK_NE:
             op = BOP_NE; break;
-        case '>':
-            op = BOP_GT; break;
-        case TK_GE:
-            op = BOP_GE; break;
         case '<':
             op = BOP_LT; break;
         case TK_LE:
             op = BOP_LE; break;
+        case '>':
+            op = BOP_GT; break;
+        case TK_GE:
+            op = BOP_GE; break;
+        case TK_CONCAT:
+            op = BOP_CONCAT; break;
         case TK_AND:
             op = BOP_AND; break;
         case TK_OR:

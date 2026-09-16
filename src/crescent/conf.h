@@ -127,27 +127,6 @@
  * =============================================================================
  */
 
-enum {
-    CRS_OP_UNM,
-    CRS_OP_ADD,
-    CRS_OP_SUB,
-    CRS_OP_MUL,
-    CRS_OP_DIV,
-    CRS_OP_POW,
-    CRS_OP_MOD,
-    CRS_OP_BNOT,
-    CRS_OP_BAND,
-    CRS_OP_BOR,
-    CRS_OP_BXOR,
-    CRS_OP_SHL,
-    CRS_OP_SHR,
-    CRS_OP_EQ,
-    CRS_OP_LT,
-    CRS_OP_LE,
-    CRS_OP_GT,
-    CRS_OP_GE
-};
-
 #define CRS_TNIL       0
 #define CRS_TBOOLEAN   1
 #define CRS_TINTEGER   2

@@ -16,6 +16,7 @@
 #include "core/state.h"
 #include "core/memory.h"
 #include "core/call.h"
+#include "core/methods.h"
 #include "core/gc.h"
 
 #include "types/string.h"
@@ -142,6 +143,13 @@ void crsS_init(crs_State* state) {
             state->strings[i][j] = NULL;
         }
     }
+
+    /*
+    for (int i = 0; i < MT_COUNT; i++) {
+        state->mtKeys[i] = crsS_new(thread, crsM_names[i]);
+        crsG_setImmune(thread);
+    }
+    */
 
     state->memoryError = crsS_new(thread, "out of memory");
     crsG_setImmune(thread);

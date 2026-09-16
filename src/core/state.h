@@ -16,6 +16,7 @@
 #include "limit.h"
 
 #include "core/object.h"
+#include "core/methods.h"
 
 #define CRS_STRCACHE_SIZE    32
 #define CRS_STRCACHE_BUCKETS 4
@@ -78,6 +79,7 @@ typedef struct crs_State {
         crs_GCHeader*  grayAgain; /* to be traversed atomically */
         crs_GCHeader** sweep;
     }              gc;
+    crs_String*    mtKeys[MT_COUNT];
     crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
     crs_String*    memoryError;
     crs_CFunction* panic;

@@ -17,6 +17,27 @@
 
 #define CRS_GLOBALS 30000
 
+enum {
+    CRS_OP_UNM,
+    CRS_OP_ADD,
+    CRS_OP_SUB,
+    CRS_OP_MUL,
+    CRS_OP_DIV,
+    CRS_OP_POW,
+    CRS_OP_MOD,
+    CRS_OP_BNOT,
+    CRS_OP_BAND,
+    CRS_OP_BOR,
+    CRS_OP_BXOR,
+    CRS_OP_SHL,
+    CRS_OP_SHR,
+    CRS_OP_EQ,
+    CRS_OP_LT,
+    CRS_OP_LE,
+    CRS_OP_GT,
+    CRS_OP_GE
+};
+
 int crs_version(void);
 int crs_release(void);
 
@@ -140,8 +161,8 @@ const char* crs_vformat(crs_Thread* thread, char* format, va_list args);
  * ===========================
  */
 
-void crs_call(crs_Thread* thread, int index, int args, int wanted);
-int  crs_pcall(crs_Thread* thread, int index, int args, int wanted);
+void crs_call(crs_Thread* thread, int args, int wanted);
+int  crs_pcall(crs_Thread* thread, int args, int wanted);
 int  crs_load(crs_Thread* thread, crs_Reader* reader, void* data, char* source);
 int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
 

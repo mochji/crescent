@@ -267,9 +267,10 @@ static void endCall(crs_Thread* thread, int results, int wanted) {
 
     crs_Frame* frame    = thread->stack.frame;
     crs_Frame* previous = frame->previous;
-    int        top      = (int)(thread->stack.top - frame->base);
+    frame->base--; /* return results replace function on stack */
 
     /* only return as much as the frame has */
+    int top = (int)(thread->stack.top - frame->base);
     results = results > top ? top : results;
     checkResults(thread, wanted);
 
@@ -277,14 +278,10 @@ static void endCall(crs_Thread* thread, int results, int wanted) {
     crs_Object* to   = frame->base;
 
     /* move top 'results' elements down to previous frame */
-    if (results < top) {
-        for (int i = 0; i < results; i++) {
-            obj_seto(to, from);
-            to++;
-            from++;
-        }
-    } else {
-        to += results;
+    for (int i = 0; i < results; i++) {
+        obj_seto(to, from);
+        to++;
+        from++;
     }
 
     /* return nil for missing elements */

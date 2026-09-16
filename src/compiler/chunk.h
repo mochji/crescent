@@ -25,16 +25,18 @@ typedef struct {
     size_t    type;
 } Data;
 
+/* order UOP */
 enum {
-    UOP_UNM, UOP_LEN, UOP_BNOT, UOP_NOT, UOP_NONE
+    UOP_UNM, UOP_BNOT, UOP_LEN, UOP_NOT,
+    UOP_NONE
 };
 
 /* order BOP */
 enum {
     BOP_ADD, BOP_SUB, BOP_MUL, BOP_DIV, BOP_POW, BOP_MOD,
+    BOP_BAND, BOP_BOR, BOP_BXOR, BOP_SHL, BOP_SHR,
+    BOP_EQ, BOP_NE, BOP_LT, BOP_LE, BOP_GT, BOP_GE,
     BOP_CONCAT,
-    BOP_SHL, BOP_SHR, BOP_BAND, BOP_BXOR, BOP_BOR,
-    BOP_EQ, BOP_NE, BOP_GT, BOP_GE, BOP_LT, BOP_LE,
     BOP_AND, BOP_OR,
     BOP_NONE
 };

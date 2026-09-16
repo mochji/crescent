@@ -19,6 +19,15 @@
 
 #include "core/methods.h"
 
+/* order MT */
+char* crsM_names[MT_COUNT] = {
+    "__unm", "__add", "__sub", "__mul", "__div", "__pow", "__mod",
+    "__bnot", "__band", "__bor", "__bxor", "__shl", "__shr",
+    "__eq", "__lt", "__le", "__gt", "__ge",
+    "__len", "__concat",
+    "__get", "__set"
+};
+
 #if CRS_FLOAT_TYPE == CRS_FLOAT_FLOAT
 #define float_pow(l, r) powf(l, r)
 #define float_mod(l, r) fmodf(l, r)
@@ -54,36 +63,36 @@ static CRS_NORET void error_op(crs_Thread* thread, crs_Object* o, char* op) {
 static void error_arith(crs_Thread* thread, crs_Object* l, crs_Object* r,
                                             int op) {
     switch (op) {
-        case CRS_OP_UNM:
+        case MT_UNM:
             error_unary(thread, r, "-");
-        case CRS_OP_ADD:
+        case MT_ADD:
             error_binary(thread, l, r, "+");
-        case CRS_OP_SUB:
+        case MT_SUB:
             error_binary(thread, l, r, "-");
-        case CRS_OP_MUL:
+        case MT_MUL:
             error_binary(thread, l, r, "*");
-        case CRS_OP_DIV:
+        case MT_DIV:
             error_binary(thread, l, r, "/");
-        case CRS_OP_POW:
+        case MT_POW:
             error_binary(thread, l, r, "^");
-        case CRS_OP_MOD:
+        case MT_MOD:
             error_binary(thread, l, r, "%");
-        case CRS_OP_BNOT:
+        case MT_BNOT:
             error_int(thread, r, r);
             error_unary(thread, r, "~");
-        case CRS_OP_BAND:
+        case MT_BAND:
             error_int(thread, l, r);
             error_binary(thread, l, r, "&");
-        case CRS_OP_BOR:
+        case MT_BOR:
             error_int(thread, l, r);
             error_binary(thread, l, r, "|");
-        case CRS_OP_BXOR:
+        case MT_BXOR:
             error_int(thread, l, r);
             error_binary(thread, l, r, "~");
-        case CRS_OP_SHL:
+        case MT_SHL:
             error_int(thread, l, r);
             error_binary(thread, l, r, "<<");
-        case CRS_OP_SHR:
+        case MT_SHR:
             error_int(thread, l, r);
             error_binary(thread, l, r, ">>");
     }
@@ -197,20 +206,20 @@ int crsM_compare(crs_Thread* thread, crs_Object* l, crs_Object* r, int op) {
     char* str     = "";
 
     switch (op) {
-        case CRS_OP_LT:
+        case MT_LT:
             success = cmp_less(l, r, &result);
             str     = "<";
             break;
-        case CRS_OP_LE:
+        case MT_LE:
             success = cmp_lessEqual(l, r, &result);
             str     = "<=";
             break;
-        case CRS_OP_GT:
+        case MT_GT:
             success = cmp_lessEqual(l, r, &result);
             result  = !result;
             str     = ">";
             break;
-        case CRS_OP_GE:
+        case MT_GE:
             success = cmp_less(l, r, &result);
             result  = !result;
             str     = ">=";
@@ -228,27 +237,27 @@ int crsM_compare(crs_Thread* thread, crs_Object* l, crs_Object* r, int op) {
 
 static crs_Integer arith_int(crs_Integer l, crs_Integer r, int op) {
     switch (op) {
-        case CRS_OP_UNM:
+        case MT_UNM:
             return -r;
-        case CRS_OP_ADD:
+        case MT_ADD:
             return l + r;
-        case CRS_OP_SUB:
+        case MT_SUB:
             return l - r;
-        case CRS_OP_MUL:
+        case MT_MUL:
             return l * r;
-        case CRS_OP_MOD:
+        case MT_MOD:
             return r == 0 ? 0 : l % r;
-        case CRS_OP_BNOT:
+        case MT_BNOT:
             return ~r;
-        case CRS_OP_BAND:
+        case MT_BAND:
             return l & r;
-        case CRS_OP_BOR:
+        case MT_BOR:
             return l | r;
-        case CRS_OP_BXOR:
+        case MT_BXOR:
             return l ^ r;
-        case CRS_OP_SHL:
+        case MT_SHL:
             return l << r;
-        case CRS_OP_SHR:
+        case MT_SHR:
             return l >> r;
         default:
             assert(0);
@@ -259,19 +268,19 @@ static crs_Integer arith_int(crs_Integer l, crs_Integer r, int op) {
 
 static crs_Float arith_float(crs_Float l, crs_Float r, int op) {
     switch (op) {
-        case CRS_OP_UNM:
+        case MT_UNM:
             return -r;
-        case CRS_OP_ADD:
+        case MT_ADD:
             return l + r;
-        case CRS_OP_SUB:
+        case MT_SUB:
             return l - r;
-        case CRS_OP_MUL:
+        case MT_MUL:
             return l * r;
-        case CRS_OP_DIV:
+        case MT_DIV:
             return l / r;
-        case CRS_OP_POW:
+        case MT_POW:
             return float_pow(l, r);
-        case CRS_OP_MOD:
+        case MT_MOD:
             return r == 0 ? 0 : float_mod(l, r);
         default:
             assert(0);
@@ -286,8 +295,8 @@ int crsM_rawArith(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 
     switch (op) {
         /* integers only */
-        case CRS_OP_BNOT: case CRS_OP_BAND: case CRS_OP_BOR:
-        case CRS_OP_BXOR: case CRS_OP_SHL: case CRS_OP_SHR:
+        case MT_BNOT: case MT_BAND: case MT_BOR:
+        case MT_BXOR: case MT_SHL: case MT_SHR:
             if (obj_cvtint(l, &iL) && obj_cvtint(r, &iR)) {
                 crs_Integer result = arith_int(iL, iR, op);
                 obj_seti(o, result);
@@ -297,7 +306,7 @@ int crsM_rawArith(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 
             break;
         /* floats only */
-        case CRS_OP_DIV: case CRS_OP_POW:
+        case MT_DIV: case MT_POW:
             if (obj_cvtfloat(l, &fL) && obj_cvtfloat(r, &fR)) {
                 crs_Float result = arith_float(fL, fR, op);
                 obj_setf(o, result);
@@ -307,8 +316,8 @@ int crsM_rawArith(crs_Object* o, crs_Object* l, crs_Object* r, int op) {
 
             break;
         /* integers and floats */
-        case CRS_OP_UNM: case CRS_OP_ADD: case CRS_OP_SUB:
-        case CRS_OP_MUL: case CRS_OP_MOD:
+        case MT_UNM: case MT_ADD: case MT_SUB:
+        case MT_MUL: case MT_MOD:
             if (obj_cvtint(l, &iL) && obj_cvtint(r, &iR)) {
                 crs_Integer result = arith_int(iL, iR, op);
                 obj_seti(o, result);
@@ -366,19 +375,20 @@ void crsM_set(crs_Thread* thread, crs_Object* object, crs_Object* key,
 }
 
 typedef struct {
-    crs_Object* object;
-    int         args;
-    int         wanted;
+    int args;
+    int wanted;
 } PCallInfo;
 
 static void* pcall(crs_Thread* thread, void* data) {
     PCallInfo* info = data;
-    crsM_call(thread, info->object, info->args, info->wanted);
+    crsM_call(thread, info->args, info->wanted);
 
     return NULL;
 }
 
-void crsM_call(crs_Thread* thread, crs_Object* object, int args, int wanted) {
+void crsM_call(crs_Thread* thread, int args, int wanted) {
+    crs_Object* object = thread->stack.top - args - 1;
+
     switch (object->type) {
         case CRS_TYPE_FUNCTION:
             crsC_call(thread, obj_getk(object), args, wanted);
@@ -391,9 +401,8 @@ void crsM_call(crs_Thread* thread, crs_Object* object, int args, int wanted) {
     error_op(thread, object, "call");
 }
 
-int crsM_pcall(crs_Thread* thread, crs_Object* object, int args, int wanted) {
+int crsM_pcall(crs_Thread* thread, int args, int wanted) {
     PCallInfo info = {
-        .object = object,
         .args   = args,
         .wanted = wanted
     };
