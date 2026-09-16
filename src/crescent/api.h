@@ -106,6 +106,8 @@ void        crs_arith(crs_Thread* thread, int left, int right, int op);
 void        crs_get(crs_Thread* thread, int index, int keyIndex);
 void        crs_set(crs_Thread* thread, int index, int keyIndex,
                                                    int valueIndex);
+void        crs_getMetatable(crs_Thread* thread, int index);
+void        crs_setMetatable(crs_Thread* thread, int index, int mtIndex);
 
 /*
  * ===========================

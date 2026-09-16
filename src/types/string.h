@@ -25,7 +25,7 @@ void        crsS_free(crs_Thread* thread, crs_String* string);
 int         crsS_equal(crs_String* a, crs_String* b);
 unsigned    crsS_hash(crs_String* string);
 
-void crsS_init(crs_State* staet);
+void crsS_init(crs_Thread* thread);
 void crsS_clearCache(crs_State* state);
 
 #endif

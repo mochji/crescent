@@ -24,14 +24,95 @@
 
 #include "vm/vm.h"
 
-#define reg_A(i) (stack + instr_A(i))
-#define reg_B(i) (stack + instr_B(i))
-#define reg_C(i) (stack + instr_C(i))
+/* metamethods and function calls may resize the stack */
+#define reg_A(i) (*stack + instr_A(i))
+#define reg_B(i) (*stack + instr_B(i))
+#define reg_C(i) (*stack + instr_C(i))
+
+static void op_binary(crs_Thread* thread, crs_instr i, int op) {
+    crs_Object** stack = &thread->stack.frame->base;
+    crs_Object   result;
+    crsM_arith(thread, reg_B(i), reg_C(i), op, &result);
+
+    crs_Object* a = reg_A(i);
+    obj_seto(a, &result);
+}
+
+static void op_unary(crs_Thread* thread, crs_instr i, int op) {
+    crs_Object** stack = &thread->stack.frame->base;
+    crs_Object*  b     = reg_B(i);
+    crs_Object   result;
+    crsM_arith(thread, b, b, op, &result);
+
+    crs_Object* a = reg_A(i);
+    obj_seto(a, &result);
+}
+
+static void op_compare(crs_Thread* thread, crs_instr i, int op) {
+    crs_Object** stack  = &thread->stack.frame->base;
+    int          result = crsM_compare(thread, reg_B(i), reg_C(i), op);
+    crs_Object*  a      = reg_A(i);
+    obj_setb(a, result);
+}
+
+static void op_length(crs_Thread* thread, crs_instr i) {
+    crs_Object** stack  = &thread->stack.frame->base;
+    crs_Integer  length = crsM_length(thread, reg_B(i));
+    crs_Object*  a      = reg_A(i);
+    obj_seti(a, length);
+}
+
+static void op_get(crs_Thread* thread, crs_instr i) {
+    crs_Object** stack = &thread->stack.frame->base;
+    crs_Object   result;
+    crsM_get(thread, reg_B(i), reg_C(i), &result, 0);
+
+    crs_Object* a = reg_A(i);
+    obj_seto(a, &result);
+}
+
+static void op_call(crs_Thread* thread, crs_instr i, crs_Function* func) {
+    crs_Frame*   frame  = thread->stack.frame;
+    crs_Object** stack  = &frame->base;
+    crs_Object*  a      = reg_A(i);
+    int          args   = (int)instr_B(i);
+    int          wanted = (int)instr_C(i);
+
+    if (args == MAX_REGS) {
+        args = (int)(thread->stack.top - (a + 1));
+    } else {
+        thread->stack.top = a + args + 1;
+    }
+
+    if (wanted == MAX_REGS) {
+        wanted = CRS_RETALL;
+    }
+
+    crsM_call(thread, args, wanted);
+
+    if (wanted != CRS_RETALL) {
+        thread->stack.top = *stack + func->top;
+    } /* otherwise, top signals end of list for next instruction */
+}
+
+static int op_return(crs_Thread* thread, crs_instr i) {
+    crs_Object** stack  = &thread->stack.frame->base;
+    crs_Object*  a      = reg_A(i);
+    int          count  = (int)instr_B(i);
+
+    if (count == MAX_REGS) {
+        count = (int)(thread->stack.top - a);
+    } else if (count) {
+        thread->stack.top = a + count;
+    }
+
+    return count;
+}
 
 int crsV_execute(crs_Thread* thread, crs_Function* func) {
-    crs_Frame*  frame = thread->stack.frame;
-    crs_Object* stack = frame->base;
-    crs_instr*  pc    = func->code;
+    crs_Frame*   frame = thread->stack.frame;
+    crs_Object** stack = &frame->base;
+    crs_instr*   pc    = func->code;
 
     for (;;) {
         frame->i.v.pc = pc;
@@ -48,9 +129,7 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
             case OP_GETG: {
                 crs_Object* a = reg_A(i);
                 crs_Object* b = &func->consts[instr_Bx(i)];
-                crs_Object* v = crsT_get(thread,
-                    obj_gett(&thread->state->globals), b);
-                obj_seto(a, v);
+                crsT_get(thread, obj_gett(&thread->state->globals), b, a);
 
                 break;
             }
@@ -108,56 +187,55 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_UNM: {
-                crs_Object* b = reg_B(i);
-                crsM_arith(thread, reg_A(i), b, b, MT_UNM);
+                op_unary(thread, i, MT_UNM);
                 break;
             }
             case OP_ADD: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_ADD);
+                op_binary(thread, i, MT_ADD);
                 break;
             }
             case OP_SUB: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_SUB);
+                op_binary(thread, i, MT_SUB);
                 break;
             }
             case OP_MUL: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_MUL);
+                op_binary(thread, i, MT_MUL);
                 break;
             }
             case OP_DIV: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_DIV);
+                op_binary(thread, i, MT_DIV);
                 break;
             }
             case OP_POW: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_POW);
+                op_binary(thread, i, MT_POW);
                 break;
             }
             case OP_MOD: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_MOD);
+                op_binary(thread, i, MT_MOD);
                 break;
             }
             case OP_BNOT: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_BNOT);
+                op_binary(thread, i, MT_BNOT);
                 break;
             }
             case OP_BAND: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_BAND);
+                op_binary(thread, i, MT_BAND);
                 break;
             }
             case OP_BOR: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_BOR);
+                op_binary(thread, i, MT_BOR);
                 break;
             }
             case OP_BXOR: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_BXOR);
+                op_binary(thread, i, MT_BXOR);
                 break;
             }
             case OP_SHL: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_SHL);
+                op_binary(thread, i, MT_SHL);
                 break;
             }
             case OP_SHR: {
-                crsM_arith(thread, reg_A(i), reg_B(i), reg_C(i), MT_SHR);
+                op_binary(thread, i, MT_SHR);
                 break;
             }
             case OP_NOT: {
@@ -168,100 +246,46 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_EQ: {
-                crs_Object* a = reg_A(i);
-                int         v = crsM_equal(reg_B(i), reg_C(i));
-                obj_setb(a, v);
-
+                op_compare(thread, i, MT_EQ);
                 break;
             }
             case OP_LT: {
-                crs_Object* a = reg_A(i);
-                int         v = crsM_compare(thread,
-                    reg_B(i), reg_C(i), MT_LT);
-                obj_setb(a, v);
-
+                op_compare(thread, i, MT_LT);
                 break;
             }
             case OP_LE: {
-                crs_Object* a = reg_A(i);
-                int         v = crsM_compare(thread,
-                    reg_B(i), reg_C(i), MT_LE);
-                obj_setb(a, v);
-
+                op_compare(thread, i, MT_LE);
                 break;
             }
             case OP_GT: {
-                crs_Object* a = reg_A(i);
-                int         v = crsM_compare(thread,
-                    reg_B(i), reg_C(i), MT_GT);
-                obj_setb(a, v);
-
+                op_compare(thread, i, MT_GT);
                 break;
             }
             case OP_GE: {
-                crs_Object* a = reg_A(i);
-                int         v = crsM_compare(thread,
-                    reg_B(i), reg_C(i), MT_GE);
-                obj_setb(a, v);
-
+                op_compare(thread, i, MT_GE);
                 break;
             }
             case OP_LENGTH: {
-                crs_Object* a = reg_A(i);
-                crs_Integer v = crsM_length(thread, reg_B(i));
-                obj_seti(a, v);
-
+                op_length(thread, i);
                 break;
             }
             case OP_CONCAT: { /* TODO */
                 break;
             }
             case OP_GET: {
-                crs_Object* a = reg_A(i);
-                crs_Object* v = crsM_get(thread, reg_B(i), reg_C(i));
-                obj_seto(a, v);
-
+                op_get(thread, i);
                 break;
             }
             case OP_SET: {
-                crsM_set(thread, reg_B(i), reg_C(i), reg_A(i));
+                crsM_set(thread, reg_B(i), reg_C(i), reg_A(i), 0);
                 break;
             }
             case OP_CALL: {
-                crs_Object* a      = reg_A(i);
-                int         args   = (int)instr_B(i);
-                int         wanted = (int)instr_C(i);
-
-                if (args == MAX_REGS) {
-                    args = (int)(thread->stack.top - (a + 1));
-                } else {
-                    thread->stack.top = a + args + 1;
-                }
-
-                if (wanted == MAX_REGS) {
-                    wanted = CRS_RETALL;
-                }
-
-                crsM_call(thread, args, wanted);
-                stack = frame->base;
-
-                if (wanted != CRS_RETALL) {
-                    thread->stack.top = stack + func->top;
-                } /* otherwise, top signals end of list for next instruction */
-
+                op_call(thread, i, func);
                 break;
             }
             case OP_RETURN: {
-                crs_Object* a     = reg_A(i);
-                int         count = (int)instr_B(i);
-
-                if (count == MAX_REGS) {
-                    count = (int)(thread->stack.top - a);
-                } else if (count) {
-                    thread->stack.top = a + count;
-                }
-
-                return count;
+                return op_return(thread, i);
             }
             case OP_TEST: {
                 pc += crsO_test(reg_A(i)) == (int)instr_B(i);

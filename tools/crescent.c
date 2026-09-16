@@ -68,6 +68,16 @@ static int writer(crs_Thread* thread, void* data, char* buffer, int count) {
     return CRS_OK;
 }
 
+static int getmt(crs_Thread* thread) {
+    crs_getMetatable(thread, 1);
+    return 1;
+}
+
+static int setmt(crs_Thread* thread) {
+    crs_setMetatable(thread, 1, 2);
+    return 0;
+}
+
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         fprintf(stderr, "expected one argument\n");
@@ -82,6 +92,12 @@ int main(int argc, char* argv[]) {
     }
 
     crsX_stdLibs(thread, CRS_STD_ALL);
+
+    crs_pushCFunction(thread, &getmt);
+    crs_pushCFunction(thread, &setmt);
+    crsX_setG(thread, "getmt", 1);
+    crsX_setG(thread, "setmt", 2);
+    crs_pop(thread, 2);
 
     crs_pushString(thread, "print");
     crs_pushCFunction(thread, &print);
@@ -103,11 +119,11 @@ int main(int argc, char* argv[]) {
     crs_copy(thread, 1);
 
     if ((status = crs_pcall(thread, 0, 0)) != CRS_OK) {
-        fprintf(stderr, "%s\n", crs_toString(thread, 2));
+        fprintf(stderr, "%s\n", crs_toString(thread, -1));
     }
 
     if ((status = crs_dump(thread, 1, &writer, out)) != CRS_OK) {
-        fprintf(stderr, "%s\n", crs_toString(thread, 2));
+        fprintf(stderr, "%s\n", crs_toString(thread, -1));
         return 1;
     }
 

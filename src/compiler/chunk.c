@@ -404,7 +404,7 @@ static unsigned const_obj(Chunk* chunk, crs_Object* value) {
     for (unsigned i = 0; i < chunk->consts.count; i++) {
         crs_Object* object = &consts[i];
 
-        if (crsM_equal(object, value) && object->type == value->type) {
+        if (crsM_rawEqual(object, value) && object->type == value->type) {
             return i;
         }
     }
@@ -701,10 +701,10 @@ static int fold_unary(Expression* exp, int uop) {
 
     switch (uop) {
         case UOP_UNM:
-            success = crsM_rawArith(&object, &object, &object, MT_UNM);
+            success = crsM_rawArith(&object, &object, MT_UNM, &object);
             break;
         case UOP_BNOT:
-            success = crsM_rawArith(&object, &object, &object, MT_BNOT);
+            success = crsM_rawArith(&object, &object, MT_BNOT, &object);
             break;
         case UOP_NOT: {
             int value = !crsO_test(&object);
@@ -728,47 +728,47 @@ static int fold_binary(Expression* lhs, Expression* rhs, int bop) {
 
     switch (bop) {
         case BOP_ADD:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_ADD);
+            success = crsM_rawArith(&lObj, &rObj, MT_ADD, &lObj);
             break;
         case BOP_SUB:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_SUB);
+            success = crsM_rawArith(&lObj, &rObj, MT_SUB, &lObj);
             break;
         case BOP_MUL:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_MUL);
+            success = crsM_rawArith(&lObj, &rObj, MT_MUL, &lObj);
             break;
         case BOP_DIV:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_DIV);
+            success = crsM_rawArith(&lObj, &rObj, MT_DIV, &lObj);
             break;
         case BOP_POW:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_POW);
+            success = crsM_rawArith(&lObj, &rObj, MT_POW, &lObj);
             break;
         case BOP_MOD:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_MOD);
+            success = crsM_rawArith(&lObj, &rObj, MT_MOD, &lObj);
             break;
         case BOP_SHL:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_SHL);
+            success = crsM_rawArith(&lObj, &rObj, MT_SHL, &lObj);
             break;
         case BOP_SHR:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_SHR);
+            success = crsM_rawArith(&lObj, &rObj, MT_SHR, &lObj);
             break;
         case BOP_BAND:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_BAND);
+            success = crsM_rawArith(&lObj, &rObj, MT_BAND, &lObj);
             break;
         case BOP_BXOR:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_BXOR);
+            success = crsM_rawArith(&lObj, &rObj, MT_BXOR, &lObj);
             break;
         case BOP_BOR:
-            success = crsM_rawArith(&lObj, &lObj, &rObj, MT_BOR);
+            success = crsM_rawArith(&lObj, &rObj, MT_BOR, &lObj);
             break;
         case BOP_EQ: {
-            int value = crsM_equal(&lObj, &rObj);
+            int value = crsM_rawEqual(&lObj, &rObj);
             obj_setb(&lObj, value);
 
             success = 1;
             break;
         }
         case BOP_NE: {
-            int value = !crsM_equal(&lObj, &rObj);
+            int value = !crsM_rawEqual(&lObj, &rObj);
             obj_setb(&lObj, value);
 
             success = 1;

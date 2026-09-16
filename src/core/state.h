@@ -80,6 +80,7 @@ typedef struct crs_State {
         crs_GCHeader** sweep;
     }              gc;
     crs_String*    mtKeys[MT_COUNT];
+    crs_Table*     mt[CRS_TYPECOUNT];
     crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];
     crs_String*    memoryError;
     crs_CFunction* panic;

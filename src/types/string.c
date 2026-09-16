@@ -135,21 +135,14 @@ unsigned crsS_hash(crs_String* string) {
     }
 }
 
-void crsS_init(crs_State* state) {
-    crs_Thread* thread = &state->thread;
+void crsS_init(crs_Thread* thread) {
+    crs_State* state = thread->state;
 
     for (int i = 0; i < CRS_STRCACHE_SIZE; i++) {
         for (int j = 0; j < CRS_STRCACHE_BUCKETS; j++) {
             state->strings[i][j] = NULL;
         }
     }
-
-    /*
-    for (int i = 0; i < MT_COUNT; i++) {
-        state->mtKeys[i] = crsS_new(thread, crsM_names[i]);
-        crsG_setImmune(thread);
-    }
-    */
 
     state->memoryError = crsS_new(thread, "out of memory");
     crsG_setImmune(thread);

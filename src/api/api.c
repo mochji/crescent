@@ -332,7 +332,7 @@ CRS_EXPORT int crs_compare(crs_Thread* thread, int leftIndex, int rightIndex,
 
     switch (op) {
         case CRS_OP_EQ:
-            return crsM_equal(left, right);
+            return crsM_compare(thread, left, right, MT_EQ);
         case CRS_OP_LT:
             return crsM_compare(thread, left, right, MT_LT);
         case CRS_OP_LE:
@@ -354,53 +354,51 @@ CRS_EXPORT void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
 
     switch (op) {
         case CRS_OP_UNM:
-            crsM_arith(thread, result, left, right, MT_UNM);
+            crsM_arith(thread, left, right, MT_UNM, result);
             break;
         case CRS_OP_ADD:
-            crsM_arith(thread, result, left, right, MT_ADD);
+            crsM_arith(thread, left, right, MT_ADD, result);
             break;
         case CRS_OP_SUB:
-            crsM_arith(thread, result, left, right, MT_SUB);
+            crsM_arith(thread, left, right, MT_SUB, result);
             break;
         case CRS_OP_MUL:
-            crsM_arith(thread, result, left, right, MT_MUL);
+            crsM_arith(thread, left, right, MT_MUL, result);
             break;
         case CRS_OP_DIV:
-            crsM_arith(thread, result, left, right, MT_DIV);
+            crsM_arith(thread, left, right, MT_DIV, result);
             break;
         case CRS_OP_POW:
-            crsM_arith(thread, result, left, right, MT_POW);
+            crsM_arith(thread, left, right, MT_POW, result);
             break;
         case CRS_OP_MOD:
-            crsM_arith(thread, result, left, right, MT_MOD);
+            crsM_arith(thread, left, right, MT_MOD, result);
             break;
         case CRS_OP_BNOT:
-            crsM_arith(thread, result, left, right, MT_BNOT);
+            crsM_arith(thread, left, right, MT_BNOT, result);
             break;
         case CRS_OP_BAND:
-            crsM_arith(thread, result, left, right, MT_BAND);
+            crsM_arith(thread, left, right, MT_BAND, result);
             break;
         case CRS_OP_BOR:
-            crsM_arith(thread, result, left, right, MT_BOR);
+            crsM_arith(thread, left, right, MT_BOR, result);
             break;
         case CRS_OP_BXOR:
-            crsM_arith(thread, result, left, right, MT_BXOR);
+            crsM_arith(thread, left, right, MT_BXOR, result);
             break;
         case CRS_OP_SHL:
-            crsM_arith(thread, result, left, right, MT_SHL);
+            crsM_arith(thread, left, right, MT_SHL, result);
             break;
         case CRS_OP_SHR:
-            crsM_arith(thread, result, left, right, MT_SHR);
+            crsM_arith(thread, left, right, MT_SHR, result);
             break;
     }
 }
 
 CRS_EXPORT void crs_get(crs_Thread* thread, int index, int keyIndex) {
     crs_Object* key    = getIndex(thread, keyIndex);
-    crs_Object* value  = crsM_get(thread, getIndex(thread, index), key);
-    crs_Object* object = adjustTop(thread, 1);
-
-    obj_seto(object, value);
+    crs_Object* object = adjustTop(thread, 1);;
+    crsM_get(thread, getIndex(thread, index), key, object, 0);
     crsG_check(thread);
 }
 
@@ -409,8 +407,30 @@ CRS_EXPORT void crs_set(crs_Thread* thread, int index, int keyIndex,
     crs_Object* key    = getIndex(thread, keyIndex);
     crs_Object* value  = getIndex(thread, valueIndex);
 
-    crsM_set(thread, getIndex(thread, index), key, value);
+    crsM_set(thread, getIndex(thread, index), key, value, 0);
     crsG_check(thread);
+}
+
+void crs_getMetatable(crs_Thread* thread, int index) {
+    crs_Object* object = adjustTop(thread, 1);
+    crs_Table*  mt     = *crsM_getMT(thread, getIndex(thread, index));
+
+    if (mt == NULL) {
+        mt = crsT_new(thread);
+    }
+
+    obj_setgc(object, mt);
+    crsG_check(thread);
+}
+
+void crs_setMetatable(crs_Thread* thread, int index, int mtIndex) {
+    crs_Object* mtObj = getIndex(thread, mtIndex);
+
+    if (mtObj->type != CRS_TYPE_TABLE) {
+        crsC_error(thread, "expected table to 'crs_setMetatable'");
+    }
+
+    crsM_setMT(thread, getIndex(thread, index), obj_gett(mtObj));
 }
 
 /*

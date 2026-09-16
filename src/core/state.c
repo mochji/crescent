@@ -56,7 +56,8 @@ static void* initState(crs_Thread* thread, void* data) {
     crs_Table* globals = crsT_new(thread);
     obj_setgc(&state->globals, globals);
 
-    crsS_init(state);
+    crsS_init(thread);
+    crsM_init(thread);
 
     return NULL;
 }

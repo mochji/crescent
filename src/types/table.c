@@ -172,7 +172,7 @@ static int search(crs_Table* table, crs_Object* key, crs_TNode** location) {
         node = next;
         next = node->next;
 
-        if (crsM_equal(key, &node->key)) {
+        if (crsM_rawEqual(key, &node->key)) {
             *location = node;
             return SEARCH_EXISTS;
         }
@@ -215,12 +215,14 @@ static int integerKey(crs_Object* object) {
     return crsO_toInteger(object, &dummy, 0);
 }
 
-static crs_Object* get(crs_Table* table, crs_Object* key) {
+static void get(crs_Table* table, crs_Object* key, crs_Object* value) {
     crs_TNode* node;
 
-    return search(table, key, &node) == SEARCH_EXISTS
-        ? &node->value
-        : NULL;
+    if (search(table, key, &node) == SEARCH_EXISTS) {
+        obj_seto(value, &node->value);
+    } else {
+        obj_setn(value);
+    }
 }
 
 static void delete(crs_Table* table, crs_Object* key) {
@@ -334,6 +336,7 @@ crs_Table* crsT_new(crs_Thread* thread) {
     table->nodes  = 4;
     table->free   = hash;
     table->table  = hash;
+    table->mt     = NULL;
     setNil(hash, hash + 16);
 
     return crsG_add(thread, table, CRS_TYPE_TABLE);
@@ -356,13 +359,10 @@ crs_TNode* crsT_find(crs_Table* table, crs_Object* key) {
         : &nilKVP;
 }
 
-crs_Object* crsT_get(crs_Thread* thread, crs_Table* table, crs_Object* key) {
+void crsT_get(crs_Thread* thread, crs_Table* table, crs_Object* key,
+                                  crs_Object* value) {
     checkKey(thread, key);
-    crs_Object* object = get(table, key);
-
-    return object == NULL
-        ? &crsO_nilValue
-        : object;
+    get(table, key, value);
 }
 
 void crsT_set(crs_Thread* thread, crs_Table* table, crs_Object* key,

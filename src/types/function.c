@@ -230,14 +230,14 @@ static void dump_header(crs_Dump* dump) {
 static void dump_string(crs_Dump* dump, crs_String* string) {
     crs_Thread* thread  = dump->thread;
     crs_Table*  strings = obj_gett(thread->stack.top - 1);
-    crs_Object  key;
+    crs_Object  key, result;
 
     obj_setgc(&key, string);
-    crs_Object* result = crsT_get(thread, strings, &key);
+    crsT_get(thread, strings, &key, &result);
 
-    if (result->type != CRS_TYPE_NIL) {
+    if (result.type != CRS_TYPE_NIL) {
         /* string already exists; reuse it */
-        dump_value(dump, -obj_geti(result) - 1, crs_Integer);
+        dump_value(dump, -obj_geti(&result) - 1, crs_Integer);
     } else {
         /* new string */
         dump_value(dump, string->length, crs_Integer);
@@ -527,13 +527,14 @@ static crs_String* load_string(crs_Stream* stream) {
         crsC_unanchor(thread);
     } else {
         /* reuse string */
+        crs_Object result;
         obj_seti(&key, -length - 1);
-        crs_Object* result = crsT_get(thread, strings, &key);
+        crsT_get(thread, strings, &key, &result);
 
-        if (result->type == CRS_TYPE_NIL) {
+        if (result.type == CRS_TYPE_NIL) {
             load_error(stream, LOAD_CORRUPTED);
         } else {
-            string = obj_gets(result);
+            string = obj_gets(&result);
         }
     }
 

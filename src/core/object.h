@@ -54,11 +54,12 @@ typedef struct crs_TNode {
 } crs_TNode;
 
 typedef struct crs_Table {
-    crs_GCHeader gc;
-    crs_Integer  length; /* # of integer keys   */
-    crs_byte     nodes;  /* log2 size of table  */
-    crs_TNode*   free;   /* chain of free nodes */
-    crs_TNode*   table;
+    crs_GCHeader      gc;
+    crs_Integer       length; /* # of integer keys   */
+    crs_byte          nodes;  /* log2 size of table  */
+    crs_TNode*        free;   /* chain of free nodes */
+    crs_TNode*        table;
+    struct crs_Table* mt;
 } crs_Table;
 
 /* function flags */
