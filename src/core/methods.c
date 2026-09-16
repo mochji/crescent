@@ -49,20 +49,30 @@ void crsM_init(crs_Thread* thread) {
  * ===========================
  */
 
-crs_Table** crsM_getMT(crs_Thread* thread, crs_Object* obj) {
+crs_Table** crsM_getMTP(crs_Thread* thread, crs_Object* obj) {
     return obj->type == CRS_TYPE_TABLE
         ? &obj_gett(obj)->mt
         : &thread->state->mt[obj_apitype(obj)];
 }
 
 void crsM_setMT(crs_Thread* thread, crs_Object* obj, crs_Table* mt) {
-    crs_Table** mtP = crsM_getMT(thread, obj);
+    crs_Table** mtP = crsM_getMTP(thread, obj);
     *mtP            = mt;
     crsG_barrierF(thread, obj_toheader(mt));
 }
 
+crs_Table* crsM_getMT(crs_Thread* thread, crs_Object* obj) {
+    crs_Table* mt = *crsM_getMTP(thread, obj);
+
+    if (mt == NULL) {
+        crsC_error(thread, "attempt to index a nil metatable");
+    }
+
+    return mt;
+}
+
 int crsM_getMM(crs_Thread* thread, crs_Object* mm, crs_Object* obj, int op) {
-    crs_Table* mt = *crsM_getMT(thread, obj);
+    crs_Table* mt = *crsM_getMTP(thread, obj);
     obj_setn(mm);
 
     if (mt != NULL) {

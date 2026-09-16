@@ -413,7 +413,7 @@ CRS_EXPORT void crs_set(crs_Thread* thread, int index, int keyIndex,
 
 void crs_getMetatable(crs_Thread* thread, int index) {
     crs_Object* object = adjustTop(thread, 1);
-    crs_Table*  mt     = *crsM_getMT(thread, getIndex(thread, index));
+    crs_Table*  mt     = *crsM_getMTP(thread, getIndex(thread, index));
 
     if (mt == NULL) {
         mt = crsT_new(thread);

@@ -31,8 +31,9 @@ extern char* crsM_names[MT_COUNT];
 void crsM_init(crs_Thread* thread);
 
 /* metatables & metamethods */
-crs_Table** crsM_getMT(crs_Thread* thread, crs_Object* obj);
+crs_Table** crsM_getMTP(crs_Thread* thread, crs_Object* obj);
 void        crsM_setMT(crs_Thread* thread, crs_Object* obj, crs_Table* mt);
+crs_Table*  crsM_getMT(crs_Thread* thread, crs_Object* obj);
 int crsM_getMM(crs_Thread* thread, crs_Object* mm, crs_Object* obj, int op);
 
 /* methods */
