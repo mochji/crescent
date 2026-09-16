@@ -456,7 +456,7 @@ static crs_byte reg_new(Chunk* chunk, crs_byte count) {
         chunk->func->top = chunk->regs;
     }
 
-    return chunk->regs - 1;
+    return chunk->regs - count;
 }
 
 static void reg_free(Chunk* chunk, crs_byte reg) {
@@ -996,23 +996,15 @@ void crsI_method(Chunk* chunk, Expression* obj, Expression* key) {
  * the first argument to the function.
  */
 void crsI_prepMethod(Chunk* chunk, Expression* method) {
-    crs_byte obj  = method->value.x.obj;
-    crs_byte temp = reg_new(chunk, 1);
+    crs_byte obj = method->value.x.obj;
+    crs_byte key = method->value.x.key;
+    reg_free2(chunk, obj, key);
 
-    /* first, copy the object to a temporary register */
-    crsI_iABC(chunk, OP_MOV, temp, obj, 0);
-    reg_free(chunk, temp);
-    /* now, get the method */
-    obj = flatten_method(chunk, method, MAX_REGS);
-    /*
-     * move the object stored in the temporary register to above the function,
-     * such that it is the first argument.
-     */
-    crs_byte self = reg_new(chunk, 1);
-    crsI_iABC(chunk, OP_MOV, self, temp, 0);
+    crs_byte func = reg_new(chunk, 2);
+    crsI_iABC(chunk, OP_METHOD, func, obj, key);
 
     method->type    = EXP_TEMP;
-    method->value.v = obj;
+    method->value.v = func;
 }
 
 void crsI_call(Chunk* chunk, Expression* obj, Expression* args, int method) {

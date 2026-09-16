@@ -49,6 +49,7 @@ crs_OpMode crsV_mode[] = {
     iABC,  /* OP_GETMT   */
     iABC,  /* OP_SETMT   */
     iABC,  /* OP_CALL    */
+    iABC,  /* OP_METHOD  */
     iABC,  /* OP_RETURN  */
     iABC,  /* OP_TEST    */
     isAxx  /* OP_JMP     */
@@ -92,6 +93,7 @@ const char* crsV_name[] = {
     "GETMT",
     "SETMT",
     "CALL",
+    "METHOD",
     "RETURN",
     "TEST",
     "JMP"

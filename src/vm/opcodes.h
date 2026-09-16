@@ -130,6 +130,7 @@ typedef enum {
     OP_SETMT,    /* getmt(R[B])[R[C]] = R[A]          ABC      */
 
     OP_CALL,     /* R[A](R[A+1 -> A+B-1]) (C results) ABC      */
+    OP_METHOD,   /* R[A] = R[B]:R[C]; R[A+1] = R[B]   ABC      */
     OP_RETURN,   /* return R[A -> A+B-1]) (B results) AB       */
 
     OP_TEST,     /* if (boolean)R[A] == B then PC++   AB       */

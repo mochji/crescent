@@ -295,6 +295,18 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 op_call(thread, i, func);
                 break;
             }
+            case OP_METHOD: {
+                crs_Object* a    = reg_A(i);
+                crs_Object* obj  = reg_B(i);
+                crs_Object* key  = reg_C(i);
+                crs_Object  temp;
+
+                obj_seto(&temp, obj);
+                crsT_get(thread, crsM_getMT(thread, obj), key, a);
+                obj_seto(a + 1, &temp);
+
+                break;
+            }
             case OP_RETURN: {
                 return op_return(thread, i);
             }

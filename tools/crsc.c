@@ -107,6 +107,7 @@ static void dis_instr(unsigned pc, crs_instr i) {
         case OP_GETMT:
         case OP_SETMT:
         case OP_CALL:
+        case OP_METHOD:
             u0 = (unsigned)instr_A(i);
             u1 = (unsigned)instr_B(i);
             u2 = (unsigned)instr_C(i);
