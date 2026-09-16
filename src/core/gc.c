@@ -21,9 +21,9 @@
 
 #include "core/gc.h"
 
-/* see type enums in crescent/conf.h */
-#define istraversable(h) ((h)->type & 4)
-#define isgrayagain(h)   ((h)->type & 8)
+/* see type defs in limit.h */
+#define istraversable(h) ((h)->type & 0x40)
+#define isgrayagain(h)   ((h)->type & 0x80)
 
 #define linklist(h, l) {(h)->next = (l); (l) = (h);}
 #define linkset(h, s)  {(h)->set = (s); (s) = (h);}

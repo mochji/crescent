@@ -52,7 +52,7 @@ static void dis_instr(unsigned pc, crs_instr i) {
 
         /* sAxx */
         case OP_JMP:
-            printf("%u", instr_sAxx(i));
+            printf("%ld", (long)instr_sAxx(i));
             break;
 
         /* AB */

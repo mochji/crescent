@@ -308,7 +308,7 @@ CRS_EXPORT void crs_replace(crs_Thread* thread, int index) {
  */
 
 CRS_EXPORT int crs_type(crs_Thread* thread, int index) {
-    return getIndex(thread, index)->type;
+    return obj_apitype(getIndex(thread, index));
 }
 
 CRS_EXPORT const char* crs_name(crs_Thread* thread, int index) {

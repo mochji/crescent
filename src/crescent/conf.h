@@ -148,32 +148,17 @@ enum {
     CRS_OP_GE
 };
 
-/*
- * The lower 4 bits within a type tag encode some properties of the type, most
- * of which are for the garbage collector.
- *
- * (1 = yes, 0 = no)
- *
- * bit 0 (1): Is this type a number?
- * bit 1 (2): Is this type collectable?
- * bit 2 (4): Can this type reference objects? (a)
- * bit 3 (8): Should this type be traversed atomically? (b)
- *
- * The high 4 differentiate it from other types with the same properties.
- *
- * a: If a type cannot reference objects, there's no use in marking it gray.
- * b: For types without write barriers: they should be traversed atomically.
- */
+#define CRS_TNIL       0
+#define CRS_TBOOLEAN   1
+#define CRS_TINTEGER   2
+#define CRS_TFLOAT     3
+#define CRS_TCFUNCTION 4
+#define CRS_TSTRING    5
+#define CRS_TTABLE     6
+#define CRS_TFUNCTION  7
+#define CRS_TTHREAD    8
 
-#define CRS_TYPE_NIL       0x00 /* 0000 0000 */
-#define CRS_TYPE_BOOLEAN   0x10 /* 0001 0000 */
-#define CRS_TYPE_INTEGER   0x01 /* 0000 0001 */
-#define CRS_TYPE_FLOAT     0x11 /* 0001 0001 */
-#define CRS_TYPE_CFUNCTION 0x20 /* 0010 0000 */
-#define CRS_TYPE_STRING    0x02 /* 0000 0010 */
-#define CRS_TYPE_TABLE     0x06 /* 0000 0110 */
-#define CRS_TYPE_FUNCTION  0x16 /* 0001 0110 */
-#define CRS_TYPE_THREAD    0x0E /* 0000 1110 */
+#define CRS_TYPECOUNT 9
 
 #define CRS_OK      0 /* no error               */
 #define CRS_ERROR   1 /* runtime error          */

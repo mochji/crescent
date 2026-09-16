@@ -28,25 +28,25 @@ int print(crs_Thread* thread) {
         }
 
         switch (crs_type(thread, i)) {
-            case CRS_TYPE_NIL:
+            case CRS_TNIL:
                 printf("nil");
                 break;
-            case CRS_TYPE_BOOLEAN:
+            case CRS_TBOOLEAN:
                 printf(crs_toBoolean(thread, i) ? "true" : "false");
                 break;
-            case CRS_TYPE_INTEGER:
+            case CRS_TINTEGER:
                 printf(CRS_INTEGER_FMT, crs_toInteger(thread, i));
                 break;
-            case CRS_TYPE_FLOAT:
+            case CRS_TFLOAT:
                 printf(CRS_FLOAT_FMT, crs_toFloat(thread, i));
                 break;
-            case CRS_TYPE_STRING:
+            case CRS_TSTRING:
                 printf("%s", crs_toString(thread, i));
                 break;
-            case CRS_TYPE_CFUNCTION:
-            case CRS_TYPE_TABLE:
-            case CRS_TYPE_FUNCTION:
-            case CRS_TYPE_THREAD:
+            case CRS_TCFUNCTION:
+            case CRS_TTABLE:
+            case CRS_TFUNCTION:
+            case CRS_TTHREAD:
                 printf("%s: %p", crs_name(thread, i), crs_toPointer(thread, i));
                 break;
         }

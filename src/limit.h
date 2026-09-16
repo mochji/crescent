@@ -15,6 +15,27 @@
 
 #include "crescent/conf.h"
 
+/*
+ * The upper four bits of a type tag encode some properties of the type, most of
+ * which are for the garbage collector. Only the lower four bits are exposed to
+ * the C API.
+ *
+ * - bit 4: is number
+ * - bit 5: is collectable (gc-managed)
+ * - bit 6: can reference other objects (should be marked gray)
+ * - bit 7: atomic traversal (without write barriers)
+ */
+
+#define CRS_TYPE_NIL       (0x00 | CRS_TNIL)       /* 0000 */
+#define CRS_TYPE_BOOLEAN   (0x00 | CRS_TBOOLEAN)   /* 0000 */
+#define CRS_TYPE_INTEGER   (0x10 | CRS_TINTEGER)   /* 0001 */
+#define CRS_TYPE_FLOAT     (0x10 | CRS_TFLOAT)     /* 0001 */
+#define CRS_TYPE_CFUNCTION (0x00 | CRS_TCFUNCTION) /* 0000 */
+#define CRS_TYPE_STRING    (0x20 | CRS_TSTRING)    /* 0010 */
+#define CRS_TYPE_TABLE     (0x60 | CRS_TTABLE)     /* 0110 */
+#define CRS_TYPE_FUNCTION  (0x60 | CRS_TFUNCTION)  /* 0110 */
+#define CRS_TYPE_THREAD    (0xE0 | CRS_TTHREAD)    /* 1110 */
+
 #if CRS_INTEGER_MAX > SIZE_MAX
 #define CRS_MAX_LENGTH SIZE_MAX
 #else
@@ -33,7 +54,7 @@
 
 #define MAX_LOCALS 200 /* reserve some space for temporary registers */
 #define MAX_REGS   255 /* 255 is reserved in some cases, anyways     */
-#define MAX_RET    255
+#define MAX_RET    CRS_MAX_TOP
 
 #if CRS_32INT
 typedef int      crs_s32;

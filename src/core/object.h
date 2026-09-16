@@ -132,9 +132,10 @@ int   crsO_toString(crs_Object* object, char** result);
 #define obj_cvtfloat(o, v) crsO_toFloat((o), (v), 0)
 #endif
 
-/* see type enums in crescent/conf.h */
-#define obj_isnumber(o)      ((o)->type & 1)
-#define obj_iscollectable(o) ((o)->type & 2)
+/* see type defs in limit.h */
+#define obj_apitype(o)       ((o)->type & 0x0F)
+#define obj_isnumber(o)      ((o)->type & 0x10)
+#define obj_iscollectable(o) ((o)->type & 0x20)
 
 #define obj_toheader(o) ((crs_GCHeader*)o)
 #define obj_tostring(h) ((crs_String*)h)
