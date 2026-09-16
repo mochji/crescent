@@ -760,8 +760,8 @@ static void stat_func(Lexer* lexer) {
     func_name(lexer, &exp);
     func_body(lexer, &func);
     crsI_assign(chunk, &exp, &func);
-    crsI_freeExp(chunk, &exp);
     crsI_freeExp(chunk, &func);
+    crsI_freeExp(chunk, &exp);
 }
 
 /*
