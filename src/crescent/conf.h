@@ -136,8 +136,9 @@
 #define CRS_TTABLE     6
 #define CRS_TFUNCTION  7
 #define CRS_TTHREAD    8
+#define CRS_TUSERDATA  9
 
-#define CRS_TYPECOUNT 9
+#define CRS_TYPECOUNT 10
 
 #define CRS_OK      0 /* no error               */
 #define CRS_ERROR   1 /* runtime error          */
@@ -200,8 +201,9 @@
 
 struct crs_Thread;
 typedef struct crs_Thread crs_Thread;
-typedef int (crs_Reader)(crs_Thread*, void*, char*, int*);
-typedef int (crs_Writer)(crs_Thread*, void*, char*, int);
+typedef int  (crs_Reader)(crs_Thread*, void*, char*, int*);
+typedef int  (crs_Writer)(crs_Thread*, void*, char*, int);
+typedef void (crs_WarnFunc)(char*, void*);
 
 typedef CRS_INTEGER  crs_Integer;
 typedef CRS_UNSIGNED crs_Unsigned;

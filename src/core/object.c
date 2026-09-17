@@ -28,6 +28,7 @@ char* crsO_name(crs_Object* object) {
         case CRS_TYPE_TABLE:     return "table";
         case CRS_TYPE_FUNCTION:  return "function";
         case CRS_TYPE_THREAD:    return "thread";
+        case CRS_TYPE_USERDATA:  return "userdata";
         default:                 assert(0);
     }
 

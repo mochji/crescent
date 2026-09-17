@@ -27,7 +27,6 @@ typedef struct crs_Jump {
     struct crs_Jump* previous;
 } crs_Jump;
 
-/* frame flags */
 #define CALL_VM 1
 
 #define call_isvm(r) ((r)->flags & CALL_VM)
@@ -55,11 +54,16 @@ struct crs_Thread {
     struct {
         size_t      size;
         crs_Object* base;
+        crs_Object* last;
         crs_Object* top;
         short       level;
         crs_Frame*  frame;
         crs_Frame   baseFrame;
     }                 stack;
+    struct {
+        crs_WarnFunc* warnF;
+        void*         warnD;
+    }                 debug;
     crs_Jump*         jump;
     crs_Object        error;
     struct crs_State* state;
@@ -74,6 +78,7 @@ typedef struct crs_State {
         crs_mem        last;  /* usage after last gc step */
         unsigned short params[3];
         crs_GCHeader*  all;       /* objects subject to collection */
+        crs_GCHeader*  finalize;  /* userdata awaiting finalization */
         crs_GCHeader*  immune;    /* objects immune from collection */
         crs_GCHeader*  gray;      /* to be traversed */
         crs_GCHeader*  grayAgain; /* to be traversed atomically */
@@ -91,5 +96,6 @@ typedef struct crs_State {
 crs_Thread* crsE_open(void);
 void        crsE_close(crs_Thread* thread);
 void        crsE_freeThread(crs_Thread* thread);
+void        crsE_warn(crs_Thread* thread, char* msg);
 
 #endif

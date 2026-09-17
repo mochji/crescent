@@ -139,6 +139,7 @@ static unsigned hash_obj(crs_Object* key) {
         case CRS_TYPE_TABLE:
         case CRS_TYPE_FUNCTION:
         case CRS_TYPE_THREAD:
+        case CRS_TYPE_USERDATA:
             return hash_pointer(obj_geth(key));
         default:
             assert(0);

@@ -39,7 +39,8 @@
  *
  * - bit 0:    is white
  * - bit 1:    is black
- * - bits 2-7: unused and reserved
+ * - bit 2:    is finalized
+ * - bits 3-7: unused and reserved
  *
  * An object is gray if it is neither white nor black. However, an object
  * cannot be both white and black.
@@ -48,10 +49,12 @@
 #define CRS_MASK_WHITE bit_mask(0)
 #define CRS_MASK_BLACK bit_mask(1)
 #define CRS_MASK_SET   (CRS_MASK_WHITE | CRS_MASK_BLACK)
+#define CRS_MASK_FNZ   bit_mask(2)
 
 #define gc_iswhite(h) bit_get((h)->mark, CRS_MASK_WHITE)
 #define gc_isblack(h) bit_get((h)->mark, CRS_MASK_BLACK)
 #define gc_isgray(h)  (!bit_get((h)->mark, CRS_MASK_SET))
+#define gc_isfnz(h)   bit_get((h)->mark, CRS_MASK_FNZ)
 
 /* reset all set bits, then set the correct one */
 #define gc_setwhite(h) \
@@ -60,6 +63,7 @@
     ((h)->mark = (crs_byte)bit_reset((h)->mark, CRS_MASK_SET) | CRS_MASK_BLACK)
 #define gc_setgray(h) \
     ((h)->mark = (crs_byte)bit_reset((h)->mark, CRS_MASK_SET))
+#define gc_setfnz(h) ((h)->mark = (crs_byte)bit_set((h)->mark, CRS_MASK_FNZ))
 
 /*
  * GC parameters
@@ -94,10 +98,11 @@
 #define gc_getparam(s, n)    ((s)->gc.params[CRS_INDEX_GC##n])
 #define gc_setparam(s, n, v) ((s)->gc.params[CRS_INDEX_GC##n] = (v))
 
-#define CRS_GCPHASE_RESTART 0
-#define CRS_GCPHASE_MARK    1
-#define CRS_GCPHASE_ATOMIC  2
-#define CRS_GCPHASE_SWEEP   3
+#define CRS_GCPHASE_RESTART  0
+#define CRS_GCPHASE_MARK     1
+#define CRS_GCPHASE_ATOMIC   2
+#define CRS_GCPHASE_SWEEP    3
+#define CRS_GCPHASE_FINALIZE 4
 
 void  crsG_init(crs_State* state);
 void  crsG_freeAll(crs_Thread* thread);

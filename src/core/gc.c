@@ -15,6 +15,7 @@
 #include "types/string.h"
 #include "types/table.h"
 #include "types/function.h"
+#include "types/userdata.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
@@ -32,6 +33,8 @@
  * write barriers are not activated.
  */
 #define keepinvariant(s) ((s)->gc.phase != CRS_GCPHASE_SWEEP)
+
+#define WORK_FINALIZER 20
 
 /*
  * ===========================
@@ -66,9 +69,33 @@ static void freeObject(crs_Thread* thread, crs_GCHeader* header) {
         case CRS_TYPE_THREAD:
             crsE_freeThread(obj_tothread(header));
             break;
+        case CRS_TYPE_USERDATA:
+            crsU_free(thread, obj_toudata(header));
+            break;
         default:
             assert(0);
     }
+}
+
+static int tryFinalizer(crs_Thread* thread, crs_UData* udata) {
+    crs_Object obj;
+    crs_Object mm;
+    obj_setgc(&obj, udata);
+
+    if (!crsM_getMM(thread, &mm, &obj, MT_GC)) {
+        return 0;
+    }
+
+    obj_seto(thread->stack.top, &mm);
+    obj_seto(thread->stack.top + 1, &obj);
+    thread->stack.top += 2;
+    gc_setfnz(obj_toheader(udata));
+
+    if (crsM_pcall(thread, 1, 0) != CRS_OK) {
+        crsE_warn(thread, "error in __gc metamethod");
+    }
+
+    return 1;
 }
 
 static void setPause(crs_State* state, crs_mem pause) {
@@ -125,7 +152,11 @@ static crs_mem traverse_table(crs_State* state, crs_Table* table) {
         node++;
     }
 
-    return 1 + table_nodes(table);
+    if (table->mt != NULL) {
+        mark_object(state, table->mt);
+    }
+
+    return 2 + table_nodes(table);
 }
 
 static crs_mem traverse_debug(crs_State* state, crs_Function* func) {
@@ -169,6 +200,14 @@ static crs_mem traverse_thread(crs_State* state, crs_Thread* thread) {
     return 2 + (crs_mem)(thread->stack.top - thread->stack.base);
 }
 
+static crs_mem traverse_udata(crs_State* state, crs_UData* udata) {
+    if (udata->mt != NULL) {
+        mark_object(state, udata->mt);
+    }
+
+    return 2;
+}
+
 /*
  * ===========================
  *  list iteration
@@ -198,6 +237,8 @@ static crs_mem traverse(crs_State* state, int atomic) {
             }
 
             return traverse_thread(state, obj_tothread(header));
+        case CRS_TYPE_USERDATA:
+            return traverse_udata(state, obj_toudata(header));
         default:
             assert(0);
     }
@@ -211,13 +252,48 @@ static crs_mem sweep(crs_Thread* thread) {
 
     if (gc_iswhite(header)) {
         *state->gc.sweep = header->next; /* remove from list */
-        freeObject(thread, header);
-    } else {
-        state->gc.sweep = &header->next; /* advance sweep */
-        gc_setwhite(header);
+
+        if (header->type == CRS_TYPE_USERDATA && !gc_isfnz(header)) {
+            linklist(header, state->gc.finalize);
+        } else {
+            freeObject(thread, header);
+        }
+
+        return 1;
     }
 
+    state->gc.sweep = &header->next; /* advance sweep */
+    gc_setwhite(header);
+
     return 1;
+}
+
+static crs_mem finalize(crs_Thread* thread) {
+    crs_State*    state  = thread->state;
+    crs_GCHeader* header = state->gc.finalize;
+    state->gc.finalize   = header->next;
+
+    if (tryFinalizer(thread, obj_toudata(header))) {
+        linklist(header, state->gc.all);
+        return WORK_FINALIZER;
+    } else {
+        freeObject(thread, header); /* no finalizer */
+        return 1;
+    }
+}
+
+static void sepToFnz(crs_State* state) {
+    crs_GCHeader** list = &state->gc.all;
+    crs_GCHeader*  header;
+
+    while ((header = *list) != NULL) {
+        if (header->type == CRS_TYPE_USERDATA && !gc_isfnz(header)) {
+            *list = header->next;
+            linklist(header, state->gc.finalize);
+        } else {
+            list = &header->next;
+        }
+    }
 }
 
 static void delete(crs_Thread* thread, crs_GCHeader* list, crs_GCHeader* stop) {
@@ -255,7 +331,14 @@ static void delete(crs_Thread* thread, crs_GCHeader* list, crs_GCHeader* stop) {
  *
  * sweep:
  *   Sweep an item in the all list; if it's dead, remove it from the list and
- *   free its memory.
+ *   free its memory. Objects awaiting finalization are moved to the finalize
+ *   list. After this phase, all remaining objects are white.
+ *
+ * finalize:
+ *   Finalize an object in the finalize list and move it back to the all list.
+ *   The object is not immediately freed, as the finalizer may resurrect it, but
+ *   it is marked as finalized, so it will be collected only when it is dead
+ *   again (finalizers are only called once; resurrection is not supported).
  */
 
 static crs_mem step_restart(crs_State* state) {
@@ -300,11 +383,25 @@ static crs_mem step_sweep(crs_Thread* thread) {
     crs_State* state = thread->state;
 
     if (*state->gc.sweep == NULL) {
+        state->gc.phase = CRS_GCPHASE_FINALIZE;
+        return 0;
+    }
+
+    return sweep(thread);
+}
+
+static crs_mem step_finalize(crs_Thread* thread) {
+    crs_State* state     = thread->state;
+    ptrdiff_t  space     = thread->stack.last - thread->stack.base;
+    int        emergency = gc_getstatus(state, EMERGENCY);
+
+    /* finalizers may change the stack in unexpected ways */
+    if (state->gc.finalize == NULL || space < CRS_MIN_FREE || emergency) {
         state->gc.phase = CRS_GCPHASE_RESTART;
         return CRS_MAX_MEM; /* end of cycle */
     }
 
-    return sweep(thread);
+    return finalize(thread);
 }
 
 static crs_mem step_single(crs_Thread* thread) {
@@ -319,6 +416,8 @@ static crs_mem step_single(crs_Thread* thread) {
             return step_atomic(state);
         case CRS_GCPHASE_SWEEP:
             return step_sweep(thread);
+        case CRS_GCPHASE_FINALIZE:
+            return step_finalize(thread);
         default:
             assert(0);
     }
@@ -400,6 +499,7 @@ void crsG_init(crs_State* state) {
     state->gc.usage     = sizeof(crs_State);
     state->gc.phase     = CRS_GCPHASE_RESTART;
     state->gc.all       = NULL;
+    state->gc.finalize  = NULL;
     state->gc.immune    = NULL;
     state->gc.gray      = NULL;
     state->gc.grayAgain = NULL;
@@ -408,7 +508,14 @@ void crsG_init(crs_State* state) {
 }
 
 void crsG_freeAll(crs_Thread* thread) {
-    crs_State* state = thread->state;
+    crs_State* state  = thread->state;
+    thread->stack.top = thread->stack.base; /* ensure space for finalizers */
+
+    sepToFnz(state);
+
+    while (state->gc.finalize != NULL) {
+        finalize(thread);
+    }
 
     delete(thread, state->gc.all, obj_toheader(&state->thread));
     delete(thread, state->gc.immune, NULL);
@@ -418,9 +525,10 @@ void* crsG_add_(crs_Thread* thread, crs_GCHeader* header, crs_byte type) {
     crs_State* state = thread->state;
 
     linklist(header, state->gc.all);
-    gc_setwhite(header);
     header->set  = NULL;
     header->type = type;
+    header->mark = 0;
+    gc_setwhite(header);
 
     /*
      * if the gc is sweeping, ensure the object doesn't get collected by moving

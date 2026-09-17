@@ -116,6 +116,22 @@ typedef struct crs_Function {
     Debug_Info            debug; /* only valid if flags & FUNC_DEBUG */
 } crs_Function;
 
+typedef union {
+    long        l;
+    long long   ll;
+    void*       p;
+    void      (*fp);
+    double      d;
+    long double ld;
+} crs_MaxAlign;
+
+typedef struct {
+    crs_GCHeader gc;
+    size_t       size;
+    crs_Table*   mt;
+    crs_MaxAlign align;
+} crs_UData;
+
 extern crs_Object crsO_nilValue;
 
 char* crsO_name(crs_Object* object);
@@ -143,6 +159,7 @@ int   crsO_toString(crs_Object* object, char** result);
 #define obj_totable(h)  ((crs_Table*)h)
 #define obj_tofunc(h)   ((crs_Function*)h)
 #define obj_tothread(h) ((crs_Thread*)h)
+#define obj_toudata(h)  ((crs_UData*)h)
 
 /* object */
 #define obj_seto(a, b) (*(a) = *(b))
@@ -175,6 +192,7 @@ int   crsO_toString(crs_Object* object, char** result);
 #define obj_gett(o)     obj_totable(obj_geth(o))
 #define obj_getk(o)     obj_tofunc(obj_geth(o))
 #define obj_getx(o)     obj_tothread(obj_geth(o))
+#define obj_getu(o)     obj_toudata(obj_geth(o))
 #define obj_setgc(o, v) obj_seth((o), obj_toheader(v))
 
 #endif

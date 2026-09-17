@@ -32,9 +32,12 @@ static int initThread(crs_State* state, crs_Thread* thread) {
 
     thread->stack.size   = CRS_MIN_STACK;
     thread->stack.base   = stack;
+    thread->stack.last   = stack + CRS_MIN_STACK;
     thread->stack.top    = stack;
     thread->stack.level  = 0;
     thread->stack.frame  = frame;
+
+    thread->debug.warnF = NULL;
 
     frame->base     = stack;
     frame->top      = CRS_MIN_TOP;
@@ -111,4 +114,10 @@ void crsE_freeThread(crs_Thread* thread) {
 
     mem_vfree(thread, thread->stack.base, thread->stack.size);
     mem_free(thread, thread);
+}
+
+void crsE_warn(crs_Thread* thread, char* msg) {
+    if (thread->debug.warnF != NULL) {
+        thread->debug.warnF(msg, thread->debug.warnD);
+    }
 }

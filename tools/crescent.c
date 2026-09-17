@@ -47,6 +47,7 @@ int print(crs_Thread* thread) {
             case CRS_TTABLE:
             case CRS_TFUNCTION:
             case CRS_TTHREAD:
+            case CRS_TUSERDATA:
                 printf("%s: %p", crs_name(thread, i), crs_toPointer(thread, i));
                 break;
         }
@@ -97,6 +98,11 @@ int main(int argc, char* argv[]) {
     crs_pushCFunction(thread, &setmt);
     crsX_setG(thread, "getmt", 1);
     crsX_setG(thread, "setmt", 2);
+    crs_pop(thread, 2);
+
+    crs_pushString(thread, "udata");
+    crs_pushUserdata(thread, 50);
+    crs_set(thread, CRS_GLOBALS, 1, 2);
     crs_pop(thread, 2);
 
     crs_pushString(thread, "print");

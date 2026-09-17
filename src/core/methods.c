@@ -27,7 +27,8 @@ char* crsM_names[MT_COUNT] = {
     "__bnot", "__band", "__bor", "__bxor", "__shl", "__shr",
     "__eq", "__lt", "__le", "__gt", "__ge",
     "__len", "__concat",
-    "__get", "__set", "__call"
+    "__get", "__set", "__call",
+    "__gc"
 };
 
 void crsM_init(crs_Thread* thread) {
@@ -50,9 +51,14 @@ void crsM_init(crs_Thread* thread) {
  */
 
 crs_Table** crsM_getMTP(crs_Thread* thread, crs_Object* obj) {
-    return obj->type == CRS_TYPE_TABLE
-        ? &obj_gett(obj)->mt
-        : &thread->state->mt[obj_apitype(obj)];
+    switch (obj->type) {
+        case CRS_TYPE_TABLE:
+            return &obj_gett(obj)->mt;
+        case CRS_TYPE_USERDATA:
+            return &obj_getu(obj)->mt;
+    }
+
+    return &thread->state->mt[obj_apitype(obj)];
 }
 
 void crsM_setMT(crs_Thread* thread, crs_Object* obj, crs_Table* mt) {
@@ -226,6 +232,8 @@ static int cmp_equal(crs_Object* l, crs_Object* r) {
             return obj_getk(l) == obj_getk(r);
         case CRS_TYPE_THREAD:
             return obj_getx(l) == obj_getx(r);
+        case CRS_TYPE_USERDATA:
+            return obj_getu(l) == obj_getu(r);
         default:
             assert(0);
     }

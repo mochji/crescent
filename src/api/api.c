@@ -17,6 +17,7 @@
 #include "types/string.h"
 #include "types/table.h"
 #include "types/function.h"
+#include "types/userdata.h"
 #include "core/object.h"
 #include "core/methods.h"
 #include "core/buffer.h"
@@ -130,6 +131,15 @@ CRS_EXPORT CRS_NORET void crs_error(crs_Thread* thread, int index) {
     }
 
     crsC_throw(thread, CRS_ERROR);
+}
+
+CRS_EXPORT void crs_setWarnF(crs_Thread* thread, crs_WarnFunc* f, void* data) {
+    thread->debug.warnF = f;
+    thread->debug.warnD = data;
+}
+
+CRS_EXPORT void crs_warn(crs_Thread* thread, char* msg) {
+    crsE_warn(thread, msg);
 }
 
 /*
@@ -533,6 +543,8 @@ CRS_EXPORT void* crs_toPointer(crs_Thread* thread, int index) {
     switch (object->type) {
         case CRS_TYPE_CFUNCTION:
             return *(void**)&obj_getc(object);
+        case CRS_TYPE_USERDATA:
+            return obj_getu(object) + 1;
         case CRS_TYPE_STRING: case CRS_TYPE_TABLE:
         case CRS_TYPE_FUNCTION: case CRS_TYPE_THREAD:
             return obj_geth(object);
@@ -588,6 +600,16 @@ CRS_EXPORT void crs_pushTable(crs_Thread* thread) {
 
     obj_setgc(object, table);
     crsG_check(thread);
+}
+
+CRS_EXPORT void* crs_pushUserdata(crs_Thread* thread, size_t size) {
+    crs_Object* object = adjustTop(thread, 1);
+    crs_UData*  udata  = crsU_new(thread, size);
+
+    obj_setgc(object, udata);
+    crsG_check(thread);
+
+    return udata + 1;
 }
 
 CRS_EXPORT const char* crs_format(crs_Thread* thread, char* format, ...) {

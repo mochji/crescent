@@ -51,6 +51,8 @@ crs_Thread*    crs_open(void);
 void           crs_close(crs_Thread* thread);
 void           crs_setPanic(crs_Thread* thread, crs_CFunction* function);
 CRS_NORET void crs_error(crs_Thread* thread, int index);
+void           crs_setWarnF(crs_Thread* thread, crs_WarnFunc* f, void* data);
+void           crs_warn(crs_Thread* thread, char* msg);
 
 /*
  * ===========================
@@ -166,6 +168,7 @@ void        crs_pushFloat(crs_Thread* thread, crs_Float value);
 void        crs_pushCFunction(crs_Thread* thread, crs_CFunction* function);
 const char* crs_pushString(crs_Thread* thread, char* str);
 void        crs_pushTable(crs_Thread* thread);
+void*       crs_pushUserdata(crs_Thread* thread, size_t size);
 const char* crs_format(crs_Thread* thread, char* format, ...);
 const char* crs_vformat(crs_Thread* thread, char* format, va_list args);
 

@@ -23,6 +23,7 @@ enum {
     MT_EQ, MT_LT, MT_LE, MT_GT, MT_GE,
     MT_LEN, MT_CONCAT,
     MT_GET, MT_SET, MT_CALL,
+    MT_GC,
     MT_COUNT
 };
 

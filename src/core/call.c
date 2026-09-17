@@ -120,6 +120,7 @@ static int reallocStack(crs_Thread* thread, size_t newSize, int throw) {
 
     thread->stack.size = newSize;
     thread->stack.base = newStack;
+    thread->stack.last = newStack + newSize;
     thread->stack.top += offset;
 
     while (frame != NULL) {
