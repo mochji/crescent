@@ -703,9 +703,7 @@ static void stat_local(Lexer* lexer) {
     unsigned   values = 0;
     Expression list;
 
-    /* they aren't actually declared yet, so don't reference them */
     chunk->locals -= (crs_byte)vars; /* registers may need to be freed */
-    chunk->lV     -= vars;
 
     if (check(lexer, '=')) {
         values = expr_list(lexer, &list, vars);
@@ -733,8 +731,7 @@ static void stat_local(Lexer* lexer) {
 
     crsI_freeExp(chunk, &list);
     chunk->locals += (crs_byte)vars;
-    chunk->regs    = chunk->locals; /* now, they hold values, so... */
-    chunk->lV     += vars;          /* they can be referenced */
+    chunk->regs    = chunk->locals;
     crsI_finishDec(chunk, vars);
 }
 

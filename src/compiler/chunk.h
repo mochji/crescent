@@ -114,8 +114,8 @@ typedef struct {
 
 typedef struct Scope {
     struct Scope* previous;
-    unsigned      fL;
-    crs_byte      nV;
+    unsigned      fL; /* first label for scope */
+    crs_byte      nV; /* # of variables declared in scope */
     crs_byte      isLoop;
     crs_byte      inLoop;
 } Scope;
@@ -127,9 +127,8 @@ typedef struct {
     Scope*      scope;
     crs_byte    regs;
     crs_byte    locals;
-    unsigned    fV;
-    unsigned    lV;
-    unsigned    vV; /* last visible variable (debug info) */
+    unsigned    fV; /* first variable in function */
+    unsigned    lV; /* last visible variable in function */
     int         prevLine;
     int*        line;
 
@@ -139,6 +138,7 @@ typedef struct {
     Data          nested;
     Data          lines; /* debug info */
     Data          vars;  /* debug info */
+    unsigned      vV;    /* last visible debug variable */
 } Chunk;
 
 #define LIST_NONE UINT_MAX

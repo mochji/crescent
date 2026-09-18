@@ -233,6 +233,42 @@ static void debug_close(Chunk* chunk, Debug_Var* var) {
     var->type = (crs_byte)bit_reset(var->type, DVAR_VIS);
 }
 
+/*
+ * Close a temporary variable now that its register has been freed. Variables
+ * are created and closed in the same order that their registers are allocated
+ * and freed, so the top visible variable therefore is assigned to the same or a
+ * lower register.
+ */
+static unsigned debug_closeLast(Chunk* chunk, unsigned reg) {
+    unsigned   next = chunk->vV;
+    Debug_Var* vars = chunk->func->debug.vars;
+    Debug_Var* var;
+
+    if (next == LIST_NONE) {
+        return LIST_NONE;
+    }
+
+    if ((var = &vars[next])->reg == reg) {
+        assert(bit_get(var->type, ~DVAR_VIS) != DVAR_LOCAL);
+        next = (chunk->vV = var->end);
+        debug_close(chunk, var);
+    }
+
+    return next == LIST_NONE
+        ? LIST_NONE
+        : vars[next].end;
+}
+
+/* close at most 'count' variables in register list */
+static void debug_closeList(Chunk* chunk, unsigned count) {
+    unsigned reg  = chunk->regs - 1;
+    unsigned last = chunk->regs - count;
+
+    while (reg >= last && reg != LIST_NONE) {
+        reg = debug_closeLast(chunk, reg);
+    }
+}
+
 /* close all local variables before leaving scope. */
 static void debug_leave(Chunk* chunk, Scope* scope) {
     Debug_Var* vars  = chunk->func->debug.vars;
@@ -468,7 +504,7 @@ static crs_byte reg_new(Chunk* chunk, crs_byte count) {
 
 static void reg_free(Chunk* chunk, crs_byte reg) {
     if (reg + 1 == chunk->regs && reg >= chunk->locals) {
-        chunk->regs--;
+        debug_closeLast(chunk, --chunk->regs);
     }
 }
 
@@ -500,6 +536,7 @@ static void reg_free2Exp(Chunk* chunk, Expression* exp1, Expression* exp2) {
 
 static void reg_freeList(Chunk* chunk, Expression* exp) {
     assert(exp->type == EXP_LIST || exp->type == EXP_VLIST);
+    debug_closeList(chunk, exp->value.v);
     chunk->regs -= (crs_byte)exp->value.v;
 }
 
@@ -512,7 +549,7 @@ void crsI_freeExp(Chunk* chunk, Expression* exp) {
             reg_free2(chunk, exp->value.x.obj, exp->value.x.key);
             break;
         case EXP_LIST: case EXP_VLIST:
-            chunk->regs -= (crs_byte)exp->value.v;
+            reg_freeList(chunk, exp);
             break;
     }
 }
@@ -601,6 +638,11 @@ static void load_int(Chunk* chunk, crs_Integer value, crs_byte reg) {
 static void load_global(Chunk* chunk, crs_String* value, crs_byte reg) {
     unsigned index = const_str(chunk, value);
     crsI_iABx(chunk, OP_GETG, reg, index);
+
+    if (reg >= chunk->locals) {
+        /* loaded into new register */
+        debug_var(chunk, value, reg, DVAR_GLOBAL);
+    }
 }
 
 /* store 'exp' into register 'reg' ('exp' remains the same) */
@@ -1036,16 +1078,14 @@ void crsI_call(Chunk* chunk, Expression* obj, Expression* args, int method) {
     }
 
     if (method) {
-        /* 'self' wasn't counted in list */
-        chunk->regs--;
-        nArgs++;
+        nArgs++; /* 'self' wasn't counted in list */
+        chunk->regs--; /* implicitly passed, so debug info is pointless */
     }
 
-    /* return values overwrite 'obj' */
-    reg_freeExp(chunk, obj);
-
     /* no return values unless required */
-    unsigned pc  = crsI_iABC(chunk, OP_CALL, obj->value.v, nArgs, 0);
+    unsigned pc = crsI_iABC(chunk, OP_CALL, obj->value.v, nArgs, 0);
+    reg_freeExp(chunk, obj); /* return values overwrite 'obj' */
+
     obj->type    = EXP_CALL;
     obj->value.v = pc;
 }
@@ -1106,16 +1146,17 @@ void crsI_local(Chunk* chunk, crs_String* name) {
     unsigned  index  = data_check(chunk, &parser->vars, "variables");
     Variable* var    = &parser->vecs.vars[index];
 
-    /* registers aren't allocated yet */
+    /* registers aren't allocated yet, nor can they be referenced */
     var->name = name;
     var->reg  = chunk->locals++;
     chunk->scope->nV++;
-    chunk->lV++;
 }
 
 void crsI_finishDec(Chunk* chunk, unsigned count) {
     Parser*   parser = chunk->parser;
     Variable* var    = &parser->vecs.vars[parser->vars.count - count];
+    debug_closeList(chunk, count); /* close temporary variables */
+    chunk->lV += count; /* now they've actually been declared */
 
     while (count--) {
         debug_var(chunk, var->name, var->reg, DVAR_LOCAL);

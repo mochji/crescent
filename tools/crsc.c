@@ -175,7 +175,18 @@ static void dis_info(crs_Function* func, crs_instr i, unsigned pc) {
 }
 
 static void dis_var(Debug_Var* var, unsigned i) {
-    printf("\t[%u]:\t%s\t%u\t%u -> %u\n", i, var->name->contents,
+    char* type = "????";
+
+    switch (var->type) {
+        case DVAR_LOCAL:
+            type = "local";
+            break;
+        case DVAR_GLOBAL:
+            type = "global";
+            break;
+    }
+
+    printf("\t[%u]:\t%s:\t%s\t%u\t%u -> %u\n", i, type, var->name->contents,
         var->reg, var->start, var->end);
 }
 
@@ -215,7 +226,7 @@ static void dis_func(crs_Function* func) {
     if (func->flags & FUNC_DEBUG) {
         Debug_Var* vars = func->debug.vars;
 
-        printf("\n  %u local variables:\n", func->debug.nV);
+        printf("\n  %u variables:\n", func->debug.nV);
 
         for (unsigned i = 0; i < func->debug.nV; i++) {
             dis_var(&vars[i], i);

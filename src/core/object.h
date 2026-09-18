@@ -74,8 +74,9 @@ typedef struct {
     int      line;
 } Debug_Line;
 
-#define DVAR_LOCAL 0
-#define DVAR_VIS   4 /* flag: currently visible */
+#define DVAR_LOCAL  0
+#define DVAR_GLOBAL 1
+#define DVAR_VIS    4 /* flag: currently visible */
 
 typedef struct {
     crs_String* name;
