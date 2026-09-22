@@ -40,7 +40,7 @@ typedef struct crs_Frame {
     crs_byte          flags;
     union {
         struct {
-            crs_Function* f;
+            crs_Function* f;  /* (not a gc reference) */
             crs_instr*    pc; /* last/currently executing instruction */
         } v;
         struct {
@@ -59,11 +59,7 @@ struct crs_Thread {
         short       level;
         crs_Frame*  frame;
         crs_Frame   baseFrame;
-    }                 stack;
-    struct {
-        crs_WarnFunc* warnF;
-        void*         warnD;
-    }                 debug;
+    } stack;
     crs_Jump*         jump;
     crs_Object        error;
     struct crs_State* state;
@@ -83,7 +79,11 @@ typedef struct crs_State {
         crs_GCHeader*  gray;      /* to be traversed */
         crs_GCHeader*  grayAgain; /* to be traversed atomically */
         crs_GCHeader** sweep;
-    }              gc;
+    } gc;
+    struct {
+        crs_WarnFunc* warnF;
+        void*         warnD;
+    } debug;
     crs_String*    mtKeys[MT_COUNT];
     crs_Table*     mt[CRS_TYPECOUNT];
     crs_String*    strings[CRS_STRCACHE_SIZE][CRS_STRCACHE_BUCKETS];

@@ -134,8 +134,9 @@ CRS_EXPORT CRS_NORET void crs_error(crs_Thread* thread, int index) {
 }
 
 CRS_EXPORT void crs_setWarnF(crs_Thread* thread, crs_WarnFunc* f, void* data) {
-    thread->debug.warnF = f;
-    thread->debug.warnD = data;
+    crs_State* state   = thread->state;
+    state->debug.warnF = f;
+    state->debug.warnD = data;
 }
 
 CRS_EXPORT void crs_warn(crs_Thread* thread, char* msg) {

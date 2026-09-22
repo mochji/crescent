@@ -37,8 +37,6 @@ static int initThread(crs_State* state, crs_Thread* thread) {
     thread->stack.level  = 0;
     thread->stack.frame  = frame;
 
-    thread->debug.warnF = NULL;
-
     frame->base     = stack;
     frame->top      = CRS_MIN_TOP;
     frame->previous = NULL;
@@ -75,6 +73,7 @@ crs_Thread* crsE_open(void) {
     }
 
     crsG_init(state);
+    state->debug.warnF = NULL;
     state->memoryError = NULL;
     state->panic       = NULL;
     thread             = &state->thread;
@@ -117,7 +116,9 @@ void crsE_freeThread(crs_Thread* thread) {
 }
 
 void crsE_warn(crs_Thread* thread, char* msg) {
-    if (thread->debug.warnF != NULL) {
-        thread->debug.warnF(msg, thread->debug.warnD);
+    crs_State* state = thread->state;
+
+    if (state->debug.warnF != NULL) {
+        state->debug.warnF(msg, state->debug.warnD);
     }
 }

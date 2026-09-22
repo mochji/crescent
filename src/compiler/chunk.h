@@ -106,7 +106,7 @@ typedef struct {
         Label*    labels;
         unsigned  sV;
         unsigned  sL;
-    }    vecs;
+    } vecs;
     crs_Stream* stream; /* only used for line information */
     Data        vars;
     Data        labels;

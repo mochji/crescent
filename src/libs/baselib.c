@@ -30,7 +30,7 @@ int base_openLib(crs_Thread* thread) {
 
     crs_setWarnF(thread, &base_warnF, NULL);
 
-    crsX_lib(thread, lib);
+    crsX_lib(thread, CRS_GLOBALS, lib);
     crs_pushString(thread, CRS_VERSION_STR);
     crsX_setG(thread, "_G", CRS_GLOBALS);
     crsX_setG(thread, "_VERSION", -1);

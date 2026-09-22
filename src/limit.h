@@ -20,20 +20,20 @@
  * which are for the garbage collector. Only the lower four bits are exposed to
  * the C API.
  *
- * - bit 4: is number
+ * - bit 4: reserved
  * - bit 5: is collectable (gc-managed)
  * - bit 6: can reference other objects (should be marked gray)
- * - bit 7: reserved
+ * - bit 7: variant
  */
 
 #define CRS_TYPE_NIL       (0x00 | CRS_TNIL)       /* 0000 */
 #define CRS_TYPE_BOOLEAN   (0x00 | CRS_TBOOLEAN)   /* 0000 */
-#define CRS_TYPE_INTEGER   (0x10 | CRS_TINTEGER)   /* 0001 */
-#define CRS_TYPE_FLOAT     (0x10 | CRS_TFLOAT)     /* 0001 */
-#define CRS_TYPE_CFUNCTION (0x00 | CRS_TCFUNCTION) /* 0000 */
+#define CRS_TYPE_INTEGER   (0x00 | CRS_TNUMBER)    /* 0000 */
+#define CRS_TYPE_FLOAT     (0x80 | CRS_TNUMBER)    /* 1000 */
+#define CRS_TYPE_CFUNCTION (0x00 | CRS_TFUNCTION)  /* 0000 */
 #define CRS_TYPE_STRING    (0x20 | CRS_TSTRING)    /* 0010 */
 #define CRS_TYPE_TABLE     (0x60 | CRS_TTABLE)     /* 0110 */
-#define CRS_TYPE_FUNCTION  (0x60 | CRS_TFUNCTION)  /* 0110 */
+#define CRS_TYPE_FUNCTION  (0xE0 | CRS_TFUNCTION)  /* 1110 */
 #define CRS_TYPE_THREAD    (0x60 | CRS_TTHREAD)    /* 0110 */
 #define CRS_TYPE_USERDATA  (0x60 | CRS_TUSERDATA)  /* 0110 */
 

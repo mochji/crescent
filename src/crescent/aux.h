@@ -19,6 +19,6 @@ typedef struct {
 void crsX_getG(crs_Thread* thread, char* name);
 void crsX_setG(crs_Thread* thread, char* name, int index);
 
-void crsX_lib(crs_Thread* thread, crsX_Func* func);
+void crsX_lib(crs_Thread* thread, int index, crsX_Func* func);
 
 #endif

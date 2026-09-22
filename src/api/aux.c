@@ -23,11 +23,15 @@ CRS_EXPORT void crsX_setG(crs_Thread* thread, char* name, int index) {
     crs_pop(thread, 1);
 }
 
-CRS_EXPORT void crsX_lib(crs_Thread* thread, crsX_Func* func) {
+CRS_EXPORT void crsX_lib(crs_Thread* thread, int index, crsX_Func* func) {
+    if (index < 0) {
+        index -= 2;
+    }
+
     while (func->name != NULL) {
         crs_pushString(thread, func->name);
         crs_pushCFunction(thread, func->func);
-        crs_set(thread, CRS_GLOBALS, -2, -1);
+        crs_set(thread, index, -2, -1);
         crs_pop(thread, 2);
         func++;
     }

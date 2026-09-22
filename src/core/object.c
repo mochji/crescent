@@ -18,18 +18,15 @@
 crs_Object crsO_nilValue = {.type = CRS_TYPE_NIL};
 
 char* crsO_name(crs_Object* object) {
-    switch (object->type) {
-        case CRS_TYPE_NIL:       return "nil";
-        case CRS_TYPE_BOOLEAN:   return "boolean";
-        case CRS_TYPE_INTEGER:   return "number";
-        case CRS_TYPE_FLOAT:     return "number";
-        case CRS_TYPE_CFUNCTION: return "function";
-        case CRS_TYPE_STRING:    return "string";
-        case CRS_TYPE_TABLE:     return "table";
-        case CRS_TYPE_FUNCTION:  return "function";
-        case CRS_TYPE_THREAD:    return "thread";
-        case CRS_TYPE_USERDATA:  return "userdata";
-        default:                 assert(0);
+    switch (obj_apitype(object)) {
+        case CRS_TNIL:      return "nil";
+        case CRS_TBOOLEAN:  return "boolean";
+        case CRS_TNUMBER:   return "number";
+        case CRS_TSTRING:   return "string";
+        case CRS_TTABLE:    return "table";
+        case CRS_TFUNCTION: return "function";
+        case CRS_TTHREAD:   return "thread";
+        case CRS_TUSERDATA: return "userdata";
     }
 
     return NULL;

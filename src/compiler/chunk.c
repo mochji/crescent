@@ -236,7 +236,7 @@ static void debug_close(Chunk* chunk, Debug_Var* var) {
 /*
  * Close a temporary variable now that its register has been freed. Variables
  * are created and closed in the same order that their registers are allocated
- * and freed, so the top visible variable therefore is assigned to the same or a
+ * and freed, so the top visible variable is therefore assigned to the same or a
  * lower register.
  */
 static unsigned debug_closeLast(Chunk* chunk, unsigned reg) {
@@ -256,7 +256,7 @@ static unsigned debug_closeLast(Chunk* chunk, unsigned reg) {
 
     return next == LIST_NONE
         ? LIST_NONE
-        : vars[next].end;
+        : vars[next].reg;
 }
 
 /* close at most 'count' variables in register list */

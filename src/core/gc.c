@@ -238,6 +238,7 @@ static crs_mem traverse(crs_State* state, int atomic) {
 
             return traverse_thread(state, obj_tothread(header));
         case CRS_TYPE_USERDATA:
+            gc_setblack(header);
             return traverse_udata(state, obj_toudata(header));
         default:
             assert(0);
@@ -336,15 +337,23 @@ static void delete(crs_Thread* thread, crs_GCHeader* list, crs_GCHeader* stop) {
  *
  * finalize:
  *   Finalize an object in the finalize list and move it back to the all list.
- *   The object is not immediately freed, as the finalizer may resurrect it, but
- *   it is marked as finalized, so it will be collected only when it is dead
- *   again (finalizers are only called once; resurrection is not supported).
+ *   The finalizer may resurrect the object, so it is not immediately freed;
+ *   only once a future cycle detects the object as dead will it be freed,
+ *   though the finalizer will not be called again.
  */
 
 static crs_mem step_restart(crs_State* state) {
     /* root set */
     mark_object(state, &state->thread);
     mark_value(state, &state->globals);
+
+    for (int i = 0; i < CRS_TYPECOUNT; i++) {
+        crs_Table* mt = state->mt[i];
+
+        if (mt != NULL) {
+            mark_object(state, mt);
+        }
+    }
 
     state->gc.phase = CRS_GCPHASE_MARK;
     state->gc.sweep = &state->gc.all;

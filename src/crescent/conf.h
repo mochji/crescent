@@ -127,18 +127,16 @@
  * =============================================================================
  */
 
-#define CRS_TNIL       0
-#define CRS_TBOOLEAN   1
-#define CRS_TINTEGER   2
-#define CRS_TFLOAT     3
-#define CRS_TCFUNCTION 4
-#define CRS_TSTRING    5
-#define CRS_TTABLE     6
-#define CRS_TFUNCTION  7
-#define CRS_TTHREAD    8
-#define CRS_TUSERDATA  9
+#define CRS_TNIL      0
+#define CRS_TBOOLEAN  1
+#define CRS_TNUMBER   2
+#define CRS_TSTRING   3
+#define CRS_TTABLE    4
+#define CRS_TFUNCTION 5
+#define CRS_TTHREAD   6
+#define CRS_TUSERDATA 7
 
-#define CRS_TYPECOUNT 10
+#define CRS_TYPECOUNT 8
 
 #define CRS_OK      0 /* no error               */
 #define CRS_ERROR   1 /* runtime error          */

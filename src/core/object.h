@@ -152,7 +152,7 @@ int   crsO_toString(crs_Object* object, char** result);
 
 /* see type defs in limit.h */
 #define obj_apitype(o)       ((o)->type & 0x0F)
-#define obj_isnumber(o)      ((o)->type & 0x10)
+#define obj_isnumber(o)      (obj_apitype(o) == CRS_TNUMBER)
 #define obj_iscollectable(o) ((o)->type & 0x20)
 
 #define obj_toheader(o) ((crs_GCHeader*)o)
