@@ -22,6 +22,7 @@ int   crsD_params(crs_Frame* frame);
 int   crsD_line(crs_Frame* frame);
 void  crsD_func(crs_Frame* frame, crs_Object* object);
 
+crs_Object* crsD_getLocal(crs_Frame* frame, crs_String* name);
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream);
 
 #endif

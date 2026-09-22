@@ -761,8 +761,8 @@ static void getOption(crs_Frame* frame, crs_Debug* debug, char option) {
     }
 }
 
-int crs_debug(crs_Thread* thread, crs_Debug* debug, short level,
-                                  char* options) {
+CRS_EXPORT int crs_debug(crs_Thread* thread, crs_Debug* debug, short level,
+                                             char* options) {
     crs_Frame* frame   = getFrame(thread, level);
     int        gotFunc = 0;
     char       option;
@@ -780,5 +780,44 @@ int crs_debug(crs_Thread* thread, crs_Debug* debug, short level,
         }
     }
 
+    return 1;
+}
+
+CRS_EXPORT int crs_getLocal(crs_Thread* thread, short level, int name) {
+    crs_Frame*  frame   = getFrame(thread, level);
+    crs_Object* nameObj = getIndex(thread, name);
+    crs_Object* value   = adjustTop(thread, 1);
+
+    if (frame == NULL) {
+        return 0;
+    }
+
+    crs_Object* var = crsD_getLocal(frame, obj_gets(nameObj));
+
+    if (var == NULL) {
+        return 0;
+    }
+
+    obj_seto(value, var);
+    return 1;
+}
+
+CRS_EXPORT int crs_setLocal(crs_Thread* thread, short level, int name,
+                                                int valueIndex) {
+    crs_Frame*  frame   = getFrame(thread, level);
+    crs_Object* nameObj = getIndex(thread, name);
+    crs_Object* value   = getIndex(thread, valueIndex);
+
+    if (frame == NULL) {
+        return 0;
+    }
+
+    crs_Object* var = crsD_getLocal(frame, obj_gets(nameObj));
+
+    if (var == NULL) {
+        return 0;
+    }
+
+    obj_seto(var, value);
     return 1;
 }

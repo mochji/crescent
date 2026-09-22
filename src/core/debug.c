@@ -11,6 +11,7 @@
 #include "crescent/conf.h"
 #include "limit.h"
 
+#include "types/string.h"
 #include "core/object.h"
 #include "core/state.h"
 #include "core/format.h"
@@ -199,6 +200,31 @@ void crsD_func(crs_Frame* frame, crs_Object* obj) {
     } else {
         obj_setc(obj, frame->i.c.f);
     }
+}
+
+crs_Object* crsD_getLocal(crs_Frame* frame, crs_String* name) {
+    if (!call_hasdebug(frame)) {
+        return NULL;
+    }
+
+    crs_Function* func  = frame->i.v.f;
+    Debug_Info*   debug = &func->debug;
+    Debug_Var*    var   = debug->vars;
+    unsigned      pc    = (unsigned)(frame->i.v.pc - func->code);
+
+    for (unsigned i = 0; i < debug->nV; i++) {
+        unsigned start   = var->start;
+        unsigned end     = var->end;
+        int      isLocal = pc >= start && pc < end && var->type == DVAR_LOCAL;
+
+        if (isLocal && crsS_equal(var->name, name)) {
+            return frame->base + var->reg;
+        }
+
+        var++;
+    }
+
+    return NULL;
 }
 
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream) {

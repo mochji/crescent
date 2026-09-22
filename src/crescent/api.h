@@ -190,5 +190,7 @@ int  crs_dump(crs_Thread* thread, int index, crs_Writer* writer, void* data);
  */
 
 int crs_debug(crs_Thread* thread, crs_Debug* debug, short level, char* options);
+int crs_getLocal(crs_Thread* thread, short level, int name);
+int crs_setLocal(crs_Thread* thread, short level, int name, int valueIndex);
 
 #endif

@@ -84,6 +84,20 @@ static int setmt(crs_Thread* thread) {
     return 0;
 }
 
+static int getloc(crs_Thread* thread) {
+    int result = crs_getLocal(thread, (short)crs_toInteger(thread, 1), 2);
+    if (!result) {
+        crs_pushNil(thread);
+    }
+    return 1;
+}
+
+static int setloc(crs_Thread* thread) {
+    int result = crs_setLocal(thread, (short)crs_toInteger(thread, 1), 2, 3);
+    crs_pushBoolean(thread, result);
+    return 1;
+}
+
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         fprintf(stderr, "expected one argument\n");
@@ -104,6 +118,14 @@ int main(int argc, char* argv[]) {
     crsX_setG(thread, "getmt", 1);
     crsX_setG(thread, "setmt", 2);
     crs_pop(thread, 2);
+
+    crs_pushString(thread, "getloc");
+    crs_pushString(thread, "setloc");
+    crs_pushCFunction(thread, &getloc);
+    crs_pushCFunction(thread, &setloc);
+    crs_set(thread, CRS_GLOBALS, 1, 3);
+    crs_set(thread, CRS_GLOBALS, 2, 4);
+    crs_pop(thread, 4);
 
     crs_pushString(thread, "udata");
     crs_pushUserdata(thread, 50);
