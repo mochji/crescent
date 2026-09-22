@@ -211,14 +211,21 @@ typedef int         (crs_CFunction)(struct crs_Thread*);
 
 typedef struct crs_Debug {
     char* source;
-    int   what;
+    char* name;
+    int   what; /* function type */
+    int   from; /* called from */
     int   params;
     int   line;
 } crs_Debug;
 
-#define CRS_DBG_C    0
-#define CRS_DBG_VM   1
-#define CRS_DBG_MAIN 2
+#define CRS_WHAT_C    0
+#define CRS_WHAT_VM   1
+#define CRS_WHAT_MAIN 2
+
+#define CRS_FROM_UNKNOWN 0
+#define CRS_FROM_LOCAL   1
+#define CRS_FROM_GLOBAL  2
+#define CRS_FROM_MM      3
 
 #define CRS_NORET  __attribute__((noreturn))
 #define CRS_EXPORT __attribute__((visibility("default")))

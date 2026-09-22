@@ -605,7 +605,7 @@ static Debug_Var* load_var(crs_Stream* stream, crs_Function* func,
                                                Debug_Var* var) {
     crs_byte type = load_byte(stream);
     var->reg      = load_byte(stream);
-    var->type     = type;
+    var->type     = (crs_byte)bit_get(type, VAR_TYPE);
 
     if (prev == NULL && (type & (VAR_RELSTART | VAR_RELEND))) {
         /* first must be absolute */

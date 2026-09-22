@@ -17,6 +17,7 @@
 #include "core/buffer.h"
 
 char* crsD_source(crs_Frame* frame, int* what);
+char* crsD_name(crs_Frame* frame, int* from);
 int   crsD_params(crs_Frame* frame);
 int   crsD_line(crs_Frame* frame);
 void  crsD_func(crs_Frame* frame, crs_Object* object);

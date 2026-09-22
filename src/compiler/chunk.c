@@ -249,7 +249,6 @@ static unsigned debug_closeLast(Chunk* chunk, unsigned reg) {
     }
 
     if ((var = &vars[next])->reg == reg) {
-        assert(bit_get(var->type, ~DVAR_VIS) != DVAR_LOCAL);
         next = (chunk->vV = var->end);
         debug_close(chunk, var);
     }
@@ -645,6 +644,26 @@ static void load_global(Chunk* chunk, crs_String* value, crs_byte reg) {
     }
 }
 
+/* FIXME: this is horrendous and a very stupid hack */
+static void load_local(Chunk* chunk, crs_byte local, crs_byte reg) {
+    crsI_iABC(chunk, OP_MOV, reg, local, 0);
+
+    if (reg < chunk->locals) {
+        return;
+    } /* loaded into new register */
+
+    Variable* vars = chunk->parser->vecs.vars;
+
+    for (unsigned i = chunk->lV; i > chunk->fV;) {
+        Variable* var = &vars[--i];
+
+        if (var->reg == local) {
+            debug_var(chunk, var->name, reg, DVAR_LOCAL);
+            break;
+        }
+    }
+}
+
 /* store 'exp' into register 'reg' ('exp' remains the same) */
 crs_byte crsI_store(Chunk* chunk, Expression* exp, crs_byte reg) {
     switch (exp->type) {
@@ -670,6 +689,8 @@ crs_byte crsI_store(Chunk* chunk, Expression* exp, crs_byte reg) {
             load_global(chunk, exp->value.s, reg);
             break;
         case EXP_LOCAL:
+            load_local(chunk, (crs_byte)exp->value.v, reg);
+            break;
         case EXP_TEMP:
             crsI_iABC(chunk, OP_MOV, reg, exp->value.v, 0);
             break;
@@ -1169,6 +1190,10 @@ void crsI_finishDec(Chunk* chunk, unsigned count) {
  *  statements
  * ===========================
  */
+
+void crsI_nil(Chunk* chunk, crs_byte reg) {
+    crsI_iABC(chunk, OP_LODN, reg, 0, 0);
+}
 
 void crsI_return(Chunk* chunk, Expression* exp) {
     unsigned reg;

@@ -733,6 +733,8 @@ static crs_Frame* getFrame(crs_Thread* thread, short level) {
         if (frame->previous == NULL) {
             break;
         }
+
+        frame = frame->previous;
     }
 
     if (frame->previous == NULL) {
@@ -746,6 +748,9 @@ static void getOption(crs_Frame* frame, crs_Debug* debug, char option) {
     switch (option) {
         case 's':
             debug->source = crsD_source(frame, &debug->what);
+            break;
+        case 'n':
+            debug->name = crsD_name(frame, &debug->from);
             break;
         case 'p':
             debug->params = crsD_params(frame);
@@ -775,5 +780,5 @@ int crs_debug(crs_Thread* thread, crs_Debug* debug, short level,
         }
     }
 
-    return 0;
+    return 1;
 }

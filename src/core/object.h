@@ -74,8 +74,8 @@ typedef struct {
     int      line;
 } Debug_Line;
 
-#define DVAR_LOCAL  0
-#define DVAR_GLOBAL 1
+#define DVAR_LOCAL  CRS_FROM_LOCAL
+#define DVAR_GLOBAL CRS_FROM_GLOBAL
 #define DVAR_VIS    4 /* flag: currently visible */
 
 typedef struct {

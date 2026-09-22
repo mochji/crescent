@@ -205,6 +205,7 @@ void crsI_local(Chunk* chunk, crs_String* name);
 void crsI_finishDec(Chunk* chunk, unsigned count);
 
 /* statements */
+void crsI_nil(Chunk* chunk, crs_byte reg);
 void crsI_return(Chunk* chunk, Expression* exp);
 void crsI_assign(Chunk* chunk, Expression* var, Expression* exp);
 void crsI_multiAssign(Chunk* chunk, SubexpList* vars, Expression* values,

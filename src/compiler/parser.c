@@ -717,16 +717,7 @@ static void stat_local(Lexer* lexer) {
 
     /* set missing values to nil */
     for (unsigned i = 0; i < vars - values; i++) {
-        Expression nil = {.type = EXP_NIL};
-        Expression var = {
-            .type  = EXP_LOCAL,
-            .value = {
-                .v = chunk->regs + i
-            }
-        };
-
-        crsI_assign(chunk, &var, &nil);
-        crsI_freeExp(chunk, &nil);
+        crsI_nil(chunk, (crs_byte)(chunk->regs + i));
     }
 
     crsI_freeExp(chunk, &list);
