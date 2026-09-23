@@ -45,6 +45,7 @@
 
 #define CRS_VERSION (CRS_VERSION_MAJOR * 10 + CRS_VERSION_MINOR)
 #define CRS_RELEASE (CRS_VERSION * 10 + CRS_VERSION_PATCH)
+#define CRS_NOTICE  CRS_VERSION_STR "  (" CRS_AUTHORS ")"
 
 /*
  * =============================================================================
@@ -56,6 +57,15 @@
  */
 
 #define CRS_32INT (UINT_MAX >> 31)
+
+/*
+ * @ CRS_USE_READLINE
+ *
+ * Use the GNU Readline library when in REPL mode; requires '-lreadline' in
+ * LDFLAGS.
+ */
+
+#define CRS_USE_READLINE
 
 /*
  * =============================================================================

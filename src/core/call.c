@@ -80,6 +80,8 @@ void crsC_unwind(crs_Thread* thread, short level, int args) {
 
         mem_free(thread, frame);
     }
+
+    thread->stack.top--; /* account for function */
 }
 
 int crsC_try(crs_Thread* thread, crs_PFunction* function,
@@ -217,12 +219,15 @@ static void checkResults(crs_Thread* thread, int wanted) {
 
     /* previous frame cannot hold results? */
     if (wanted > CRS_MAX_TOP - free) {
+        frame->base++;
         crsC_error(thread, "stack overflow");
     }
 
     /* need to grow stack? (only possible when wanted > results) */
     if (needed > thread->stack.size) {
+        frame->base++;
         crsC_resizeStack(thread, needed, 1);
+        frame->base--;
     }
 
     if (wanted > free && !(previous->flags & CALL_VM)) {
