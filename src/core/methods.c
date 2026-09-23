@@ -27,7 +27,7 @@ char* crsM_names[MT_COUNT] = {
     "__bnot", "__band", "__bor", "__bxor", "__shl", "__shr",
     "__eq", "__lt", "__le", "__gt", "__ge",
     "__len", "__concat",
-    "__get", "__set", "__call",
+    "__get", "__set", "__call", "__metatable",
     "__gc"
 };
 
@@ -67,16 +67,20 @@ void crsM_setMT(crs_Thread* thread, crs_Object* obj, crs_Table* mt) {
     crsG_barrierF(thread, obj_toheader(mt));
 }
 
-crs_Table* crsM_getMT(crs_Thread* thread, crs_Object* obj) {
-    crs_Table* mt = *crsM_getMTP(thread, obj);
+void crsM_getMT(crs_Thread* thread, crs_Object* obj, crs_Object* mt) {
+    if (!crsM_getMM(thread, mt, obj, MT_MT)) {
+        /* no '__metatable' key */
+        crs_Table* mtP = *crsM_getMTP(thread, obj);
 
-    if (mt == NULL) {
-        crsC_error(thread, "attempt to index a nil metatable");
+        if (mtP == NULL) {
+            obj_setn(mt);
+        } else {
+            obj_setgc(mt, mtP);
+        }
     }
-
-    return mt;
 }
 
+/* "raw" metamethod get (no '__metatable') */
 int crsM_getMM(crs_Thread* thread, crs_Object* mm, crs_Object* obj, int op) {
     crs_Table* mt = *crsM_getMTP(thread, obj);
     obj_setn(mm);

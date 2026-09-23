@@ -227,6 +227,14 @@ crs_Object* crsD_getLocal(crs_Frame* frame, crs_String* name) {
     return NULL;
 }
 
+void crsD_warn(crs_Thread* thread, char* msg) {
+    crs_State* state = thread->state;
+
+    if (state->debug.warnF != NULL) {
+        state->debug.warnF(msg, state->debug.warnD);
+    }
+}
+
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream) {
     char* error;
 

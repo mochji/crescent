@@ -40,7 +40,7 @@ typedef struct crs_Frame {
     crs_byte          flags;
     union {
         struct {
-            crs_Function* f;  /* (not a gc reference) */
+            crs_Function* f;
             crs_instr*    pc; /* last/currently executing instruction */
         } v;
         struct {
@@ -96,6 +96,5 @@ typedef struct crs_State {
 crs_Thread* crsE_open(void);
 void        crsE_close(crs_Thread* thread);
 void        crsE_freeThread(crs_Thread* thread);
-void        crsE_warn(crs_Thread* thread, char* msg);
 
 #endif

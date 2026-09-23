@@ -22,7 +22,7 @@ enum {
     MT_BNOT, MT_BAND, MT_BOR, MT_BXOR, MT_SHL, MT_SHR,
     MT_EQ, MT_LT, MT_LE, MT_GT, MT_GE,
     MT_LEN, MT_CONCAT,
-    MT_GET, MT_SET, MT_CALL,
+    MT_GET, MT_SET, MT_CALL, MT_MT,
     MT_GC,
     MT_COUNT
 };
@@ -34,8 +34,9 @@ void crsM_init(crs_Thread* thread);
 /* metatables & metamethods */
 crs_Table** crsM_getMTP(crs_Thread* thread, crs_Object* obj);
 void        crsM_setMT(crs_Thread* thread, crs_Object* obj, crs_Table* mt);
-crs_Table*  crsM_getMT(crs_Thread* thread, crs_Object* obj);
-int crsM_getMM(crs_Thread* thread, crs_Object* mm, crs_Object* obj, int op);
+void        crsM_getMT(crs_Thread* thread, crs_Object* obj, crs_Object* mt);
+int         crsM_getMM(crs_Thread* thread, crs_Object* mm, crs_Object* obj,
+                                           int op);
 
 /* methods */
 crs_Integer crsM_length(crs_Thread* thread, crs_Object* obj);

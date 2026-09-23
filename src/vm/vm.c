@@ -282,13 +282,19 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_GETMT: {
-                crsT_get(thread, crsM_getMT(thread, reg_B(i)),
-                    reg_C(i), reg_A(i));
+                crs_Object mt;
+                crsM_getMT(thread, reg_B(i), &mt);
+                crsM_get(thread, &mt, reg_C(i), &mt, 0);
+                crs_Object* a = reg_A(i);
+                obj_seto(a, &mt);
+
                 break;
             }
             case OP_SETMT: {
-                crsT_set(thread, crsM_getMT(thread, reg_B(i)),
-                    reg_C(i), reg_A(i));
+                crs_Object mt;
+                crsM_getMT(thread, reg_B(i), &mt);
+                crsM_set(thread, &mt, reg_C(i), reg_A(i), 0);
+
                 break;
             }
             case OP_CALL: {
@@ -296,14 +302,16 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_METHOD: {
-                crs_Object* a    = reg_A(i);
-                crs_Object* obj  = reg_B(i);
-                crs_Object* key  = reg_C(i);
+                crs_Object* a   = reg_A(i);
+                crs_Object* obj = reg_B(i);
+                crs_Object  mt;
                 crs_Object  temp;
 
-                obj_seto(&temp, obj);
-                crsT_get(thread, crsM_getMT(thread, obj), key, a);
-                obj_seto(a + 1, &temp);
+                obj_seto(&temp, a);     /* T = R[A] */
+                crsM_getMT(thread, obj, &mt);
+                crsM_get(thread, &mt, reg_C(i), &mt, 0);
+                obj_seto(a, &mt);       /* R[A]     = R[B]:R[C] */
+                obj_seto(a + 1, &temp); /* R[A + 1] = T */
 
                 break;
             }

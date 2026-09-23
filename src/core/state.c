@@ -114,11 +114,3 @@ void crsE_freeThread(crs_Thread* thread) {
     mem_vfree(thread, thread->stack.base, thread->stack.size);
     mem_free(thread, thread);
 }
-
-void crsE_warn(crs_Thread* thread, char* msg) {
-    crs_State* state = thread->state;
-
-    if (state->debug.warnF != NULL) {
-        state->debug.warnF(msg, state->debug.warnD);
-    }
-}

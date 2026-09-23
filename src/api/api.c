@@ -140,7 +140,7 @@ CRS_EXPORT void crs_setWarnF(crs_Thread* thread, crs_WarnFunc* f, void* data) {
 }
 
 CRS_EXPORT void crs_warn(crs_Thread* thread, char* msg) {
-    crsE_warn(thread, msg);
+    crsD_warn(thread, msg);
 }
 
 /*
@@ -425,15 +425,8 @@ CRS_EXPORT void crs_set(crs_Thread* thread, int index, int keyIndex,
 }
 
 CRS_EXPORT void crs_getMetatable(crs_Thread* thread, int index) {
-    crs_Table*  mt     = *crsM_getMTP(thread, getIndex(thread, index));
-    crs_Object* object = adjustTop(thread, 1);
-
-    if (mt == NULL) {
-        mt = crsT_new(thread);
-    }
-
-    obj_setgc(object, mt);
-    crsG_check(thread);
+    crs_Object* object = getIndex(thread, index);
+    crsM_getMT(thread, object, adjustTop(thread, 1));
 }
 
 CRS_EXPORT void crs_setMetatable(crs_Thread* thread, int index, int mtIndex) {

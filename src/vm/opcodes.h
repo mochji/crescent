@@ -126,8 +126,8 @@ typedef enum {
     OP_CONCAT,   /* R[A] = R[B] .. R[C]               ABC      */
     OP_GET,      /* R[A] = R[B][R[C]]                 ABC      */
     OP_SET,      /* R[B][R[C]] = R[A]                 ABC      */
-    OP_GETMT,    /* R[A] = getmt(R[B])[R[C]]          ABC      */
-    OP_SETMT,    /* getmt(R[B])[R[C]] = R[A]          ABC      */
+    OP_GETMT,    /* R[A] = R[B]:R[C]                  ABC      */
+    OP_SETMT,    /* R[B]:R[C] = R[A]                  ABC      */
 
     OP_CALL,     /* R[A](R[A+1 -> A+B-1]) (C results) ABC      */
     OP_METHOD,   /* R[A] = R[B]:R[C]; R[A+1] = R[B]   ABC      */

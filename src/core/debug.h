@@ -16,13 +16,14 @@
 #include "core/state.h"
 #include "core/buffer.h"
 
-char* crsD_source(crs_Frame* frame, int* what);
-char* crsD_name(crs_Frame* frame, int* from);
-int   crsD_params(crs_Frame* frame);
-int   crsD_line(crs_Frame* frame);
-void  crsD_func(crs_Frame* frame, crs_Object* object);
-
+char*       crsD_source(crs_Frame* frame, int* what);
+char*       crsD_name(crs_Frame* frame, int* from);
+int         crsD_params(crs_Frame* frame);
+int         crsD_line(crs_Frame* frame);
+void        crsD_func(crs_Frame* frame, crs_Object* object);
 crs_Object* crsD_getLocal(crs_Frame* frame, crs_String* name);
+
+void        crsD_warn(crs_Thread* thread, char* msg);
 crs_String* crsD_loadError(crs_Thread* thread, crs_Stream* stream);
 
 #endif

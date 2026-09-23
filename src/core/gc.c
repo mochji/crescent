@@ -19,6 +19,7 @@
 #include "core/object.h"
 #include "core/state.h"
 #include "core/memory.h"
+#include "core/debug.h"
 
 #include "core/gc.h"
 
@@ -92,7 +93,7 @@ static int tryFinalizer(crs_Thread* thread, crs_UData* udata) {
     gc_setfnz(obj_toheader(udata));
 
     if (crsM_pcall(thread, 1, 0) != CRS_OK) {
-        crsE_warn(thread, "error in __gc metamethod");
+        crsD_warn(thread, "error in __gc metamethod");
     }
 
     return 1;
