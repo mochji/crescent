@@ -144,7 +144,7 @@ static int doOption(int* options, int i) {
 static void doScript(void) {
     int loadOK = crsX_loadFile(thread, in, in);
     crs_copy(thread, 1);
-    status = loadOK == CRS_OK ? crs_pcall(thread, 0, 0) : loadOK;
+    status = loadOK == CRS_OK && out == NULL ? crs_pcall(thread, 0, 0) : loadOK;
 
     if (status != CRS_OK) {
         fprintf(stderr, "%s\n", crs_toString(thread, 2));

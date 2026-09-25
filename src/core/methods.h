@@ -44,6 +44,8 @@ int  crsM_compare(crs_Thread* thread, crs_Object* l, crs_Object* r, int op);
 int  crsM_rawArith(crs_Object* l, crs_Object* r, int op, crs_Object* result);
 void crsM_arith(crs_Thread* thread, crs_Object* l, crs_Object* r, int op,
                                     crs_Object* result);
+void crsM_concat(crs_Thread* thread, crs_Object* l, crs_Object* r,
+                                     crs_Object* result);
 void crsM_get(crs_Thread* thread, crs_Object* obj, crs_Object* key,
                                   crs_Object* value, int raw);
 void crsM_set(crs_Thread* thread, crs_Object* obj, crs_Object* key,

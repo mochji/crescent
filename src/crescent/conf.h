@@ -45,7 +45,7 @@
 
 #define CRS_VERSION (CRS_VERSION_MAJOR * 10 + CRS_VERSION_MINOR)
 #define CRS_RELEASE (CRS_VERSION * 10 + CRS_VERSION_PATCH)
-#define CRS_NOTICE  CRS_VERSION_STR "  (" CRS_AUTHORS ")"
+#define CRS_NOTICE  CRS_VERSION_STR " (" CRS_AUTHORS ")"
 
 /*
  * =============================================================================

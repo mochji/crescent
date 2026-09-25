@@ -361,57 +361,74 @@ CRS_EXPORT void crs_arith(crs_Thread* thread, int leftIndex, int rightIndex,
                                               int op) {
     crs_Object* left   = getIndex(thread, leftIndex);
     crs_Object* right  = getIndex(thread, rightIndex);
-    crs_Object* result = adjustTop(thread, 1);
+    crs_Object  result;
 
     switch (op) {
         case CRS_OP_UNM:
-            crsM_arith(thread, left, right, MT_UNM, result);
+            crsM_arith(thread, left, right, MT_UNM, &result);
             break;
         case CRS_OP_ADD:
-            crsM_arith(thread, left, right, MT_ADD, result);
+            crsM_arith(thread, left, right, MT_ADD, &result);
             break;
         case CRS_OP_SUB:
-            crsM_arith(thread, left, right, MT_SUB, result);
+            crsM_arith(thread, left, right, MT_SUB, &result);
             break;
         case CRS_OP_MUL:
-            crsM_arith(thread, left, right, MT_MUL, result);
+            crsM_arith(thread, left, right, MT_MUL, &result);
             break;
         case CRS_OP_DIV:
-            crsM_arith(thread, left, right, MT_DIV, result);
+            crsM_arith(thread, left, right, MT_DIV, &result);
             break;
         case CRS_OP_POW:
-            crsM_arith(thread, left, right, MT_POW, result);
+            crsM_arith(thread, left, right, MT_POW, &result);
             break;
         case CRS_OP_MOD:
-            crsM_arith(thread, left, right, MT_MOD, result);
+            crsM_arith(thread, left, right, MT_MOD, &result);
             break;
         case CRS_OP_BNOT:
-            crsM_arith(thread, left, right, MT_BNOT, result);
+            crsM_arith(thread, left, right, MT_BNOT, &result);
             break;
         case CRS_OP_BAND:
-            crsM_arith(thread, left, right, MT_BAND, result);
+            crsM_arith(thread, left, right, MT_BAND, &result);
             break;
         case CRS_OP_BOR:
-            crsM_arith(thread, left, right, MT_BOR, result);
+            crsM_arith(thread, left, right, MT_BOR, &result);
             break;
         case CRS_OP_BXOR:
-            crsM_arith(thread, left, right, MT_BXOR, result);
+            crsM_arith(thread, left, right, MT_BXOR, &result);
             break;
         case CRS_OP_SHL:
-            crsM_arith(thread, left, right, MT_SHL, result);
+            crsM_arith(thread, left, right, MT_SHL, &result);
             break;
         case CRS_OP_SHR:
-            crsM_arith(thread, left, right, MT_SHR, result);
+            crsM_arith(thread, left, right, MT_SHR, &result);
             break;
     }
+
+    crs_Object* object = adjustTop(thread, 1);
+    obj_seto(object, &result);
+    crsG_check(thread);
+}
+
+CRS_EXPORT void crs_concat(crs_Thread* thread, int left, int right) {
+    crs_Object* l = getIndex(thread, left);
+    crs_Object* r = getIndex(thread, right);
+    crs_Object  result;
+    crsM_concat(thread, l, r, &result);
+
+    crs_Object* object = adjustTop(thread, 1);
+    obj_seto(object, &result);
+    crsG_check(thread);
 }
 
 CRS_EXPORT void crs_get(crs_Thread* thread, int index, int keyIndex) {
-    crs_Object* object = getIndex(thread, index);
-    crs_Object* key    = getIndex(thread, keyIndex);
-    crs_Object* value  = adjustTop(thread, 1);
+    crs_Object* obj = getIndex(thread, index);
+    crs_Object* key = getIndex(thread, keyIndex);
+    crs_Object  value;
+    crsM_get(thread, obj, key, &value, 0);
 
-    crsM_get(thread, object, key, value, 0);
+    crs_Object* object = adjustTop(thread, 1);
+    obj_seto(object, &value);
     crsG_check(thread);
 }
 

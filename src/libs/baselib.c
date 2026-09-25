@@ -53,6 +53,16 @@ static int base_print(crs_Thread* thread) {
     return 0;
 }
 
+static int base_getmt(crs_Thread* thread) {
+    crs_getMetatable(thread, 1);
+    return 1;
+}
+
+static int base_setmt(crs_Thread* thread) {
+    crs_setMetatable(thread, 1, 2);
+    return 0;
+}
+
 static int base_error(crs_Thread* thread) {
     crs_error(thread, 1);
     return 0;
@@ -66,6 +76,8 @@ static void base_warnF(char* msg, void* data) {
 int base_openLib(crs_Thread* thread) {
     crsX_Func lib[] = {
         {"print", &base_print},
+        {"getmt", &base_getmt},
+        {"setmt", &base_setmt},
         {"error", &base_error},
         {NULL, NULL}
     };

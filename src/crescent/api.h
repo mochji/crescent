@@ -105,6 +105,7 @@ const char* crs_name(crs_Thread* thread, int index);
 crs_Integer crs_length(crs_Thread* thread, int index);
 int         crs_compare(crs_Thread* thread, int left, int right, int op);
 void        crs_arith(crs_Thread* thread, int left, int right, int op);
+void        crs_concat(crs_Thread* thread, int left, int right);
 void        crs_get(crs_Thread* thread, int index, int keyIndex);
 void        crs_set(crs_Thread* thread, int index, int keyIndex,
                                                    int valueIndex);

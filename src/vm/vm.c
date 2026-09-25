@@ -62,6 +62,15 @@ static void op_length(crs_Thread* thread, crs_instr i) {
     obj_seti(a, length);
 }
 
+static void op_concat(crs_Thread* thread, crs_instr i) {
+    crs_Object** stack = &thread->stack.frame->base;
+    crs_Object   result;
+    crsM_concat(thread, reg_B(i), reg_C(i), &result);
+
+    crs_Object* a = reg_A(i);
+    obj_seto(a, &result);
+}
+
 static void op_get(crs_Thread* thread, crs_instr i) {
     crs_Object** stack = &thread->stack.frame->base;
     crs_Object   result;
@@ -270,7 +279,7 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_CONCAT: {
-                op_binary(thread, i, MT_CONCAT);
+                op_concat(thread, i);
                 break;
             }
             case OP_GET: {

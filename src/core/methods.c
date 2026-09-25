@@ -587,6 +587,16 @@ void crsM_arith(crs_Thread* thread, crs_Object* l, crs_Object* r, int op,
     }
 }
 
+void crsM_concat(crs_Thread* thread, crs_Object* l, crs_Object* r,
+                                     crs_Object* result) {
+    if (tryBinaryMM(thread, l, r, MT_CONCAT)) {
+        thread->stack.top--;
+        obj_seto(result, thread->stack.top);
+    } else {
+        error_binary(thread, l, r, "..");
+    }
+}
+
 void crsM_get(crs_Thread* thread, crs_Object* obj, crs_Object* key,
                                   crs_Object* value, int raw) {
     if (!raw && tryGetMM(thread, obj, key)) {

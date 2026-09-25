@@ -321,6 +321,12 @@ void crsC_call(crs_Thread* thread, crs_Function* function,
         thread->stack.top++;
     }
 
+    /* set unset registers to nil */
+    for (int i = args; i < frame->top; i++) {
+        obj_setn(frame->base + i);
+    }
+
+    thread->stack.top = frame->base + frame->top;
     endCall(thread, crsV_execute(thread, function), wanted);
 }
 
