@@ -40,6 +40,7 @@ int         crsM_getMM(crs_Thread* thread, crs_Object* mm, crs_Object* obj,
 
 /* methods */
 crs_Integer crsM_length(crs_Thread* thread, crs_Object* obj);
+int  crsM_rawEqual(crs_Object* l, crs_Object* r);
 int  crsM_compare(crs_Thread* thread, crs_Object* l, crs_Object* r, int op);
 int  crsM_rawArith(crs_Object* l, crs_Object* r, int op, crs_Object* result);
 void crsM_arith(crs_Thread* thread, crs_Object* l, crs_Object* r, int op,
@@ -52,7 +53,5 @@ void crsM_set(crs_Thread* thread, crs_Object* obj, crs_Object* key,
                                   crs_Object* value, int raw);
 void crsM_call(crs_Thread* thread, int args, int wanted, int raw);
 int  crsM_pcall(crs_Thread* thread, int args, int wanted);
-
-#define crsM_rawEqual(l, r) crsM_compare(NULL, l, r, MT_EQ)
 
 #endif

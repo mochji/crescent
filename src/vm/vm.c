@@ -100,7 +100,19 @@ static void op_call(crs_Thread* thread, crs_instr i, crs_Function* func) {
     crsM_call(thread, args, wanted, 0);
 
     if (wanted != CRS_RETALL) {
-        thread->stack.top = *stack + func->top;
+        crs_Object* from = thread->stack.top;
+        crs_Object* to   = *stack + func->top;
+
+        /*
+         * registers in this frame, "borrowed" by the called function, may
+         * contain stale references to now-collected gc objects
+         */
+        while (from < to) {
+            obj_setn(from);
+            from++;
+        }
+
+        thread->stack.top = to;
     } /* otherwise, top signals end of list for next instruction */
 }
 
@@ -311,14 +323,15 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 break;
             }
             case OP_METHOD: {
-                crs_Object* a   = reg_A(i);
                 crs_Object* obj = reg_B(i);
+                crs_Object* a;
                 crs_Object  mt;
                 crs_Object  temp;
 
-                obj_seto(&temp, a);     /* T = R[A] */
+                obj_seto(&temp, obj);   /* T = R[B] */
                 crsM_getMT(thread, obj, &mt);
                 crsM_get(thread, &mt, reg_C(i), &mt, 0);
+                a = reg_A(i);
                 obj_seto(a, &mt);       /* R[A]     = R[B]:R[C] */
                 obj_seto(a + 1, &temp); /* R[A + 1] = T */
 
@@ -336,8 +349,6 @@ int crsV_execute(crs_Thread* thread, crs_Function* func) {
                 pc--;
                 break;
             }
-            default:
-                assert(0);
         }
 
         crsG_check(thread);

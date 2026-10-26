@@ -34,7 +34,6 @@ CRS_NORET void crsC_throw(crs_Thread* thread, int status) {
     crs_State* state = thread->state;
 
     while (jump != NULL) {
-        assert(jump->status == CRS_OK);
         jump->status = status;
         longjmp(jump->buffer, 1);
     }
@@ -69,7 +68,6 @@ void crsC_unwind(crs_Thread* thread, short level, int args) {
     if (thread->stack.level == level) {
         /* error thrown before new frame could be created */
         thread->stack.top -= args;
-        return;
     }
 
     while (thread->stack.level > level) {

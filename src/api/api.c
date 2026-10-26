@@ -700,6 +700,7 @@ CRS_EXPORT int crs_load(crs_Thread* thread, crs_Reader* reader, void* data,
             obj_setgc(result, func);
             break;
         case CRS_CODEERR: {
+            obj_setn(result);
             crs_String* string = crsD_loadError(thread, &stream);
             obj_setgc(result, string);
             break;

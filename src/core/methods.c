@@ -208,7 +208,7 @@ static int num_lessEqual(crs_Object* l, crs_Object* r) {
     return fL <= fR;
 }
 
-static int cmp_equal(crs_Object* l, crs_Object* r) {
+int crsM_rawEqual(crs_Object* l, crs_Object* r) {
     if (l->type != r->type) {
         if (obj_isnumber(l) && obj_isnumber(r)) {
             return num_equal(l, r);
@@ -361,7 +361,7 @@ static int raw_compare(crs_Object* l, crs_Object* r, int op, int* result) {
 
     switch (op) {
         case MT_EQ:
-            *result = cmp_equal(l, r);
+            *result = crsM_rawEqual(l, r);
             success = 1;
             break;
         case MT_LT:
@@ -483,7 +483,7 @@ static int tryUnaryMM(crs_Thread* thread, crs_Object* obj, int op) {
 }
 
 static int tryBinaryMM(crs_Thread* thread, crs_Object* l, crs_Object* r,
-                                          int op) {
+                                           int op) {
     crs_Object mm;
 
     if (!crsM_getMM(thread, &mm, l, op) && !crsM_getMM(thread, &mm, r, op)) {

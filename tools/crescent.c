@@ -18,7 +18,6 @@
 #include "crescent/std.h"
 
 char* progname;
-#define REPLPROMPT "> "
 
 #ifdef CRS_USE_READLINE
 
@@ -194,7 +193,7 @@ static void doREPL(void) {
     printf(CRS_NOTICE "\n");
     REPL_init();
 
-    while ((line = REPL_readline(REPLPROMPT)) != NULL) {
+    while ((line = REPL_readline("> ")) != NULL) {
         lineOK = crsX_loadStr(thread, line, "[stdin]");
 
         if (lineOK == CRS_OK) {

@@ -68,6 +68,11 @@ static int base_error(crs_Thread* thread) {
     return 0;
 }
 
+static int base_newproxy(crs_Thread* thread) {
+    crs_pushUserdata(thread, 0);
+    return 1;
+}
+
 static void base_warnF(char* msg, void* data) {
     (void)data;
     printf("warning: %s\n", msg);
@@ -79,6 +84,7 @@ int base_openLib(crs_Thread* thread) {
         {"getmt", &base_getmt},
         {"setmt", &base_setmt},
         {"error", &base_error},
+        {"newproxy", &base_newproxy},
         {NULL, NULL}
     };
 
